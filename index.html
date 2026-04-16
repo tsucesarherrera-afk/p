@@ -156,6 +156,16 @@
             border-left: 4px solid var(--danger);
         }
 
+        .info-box {
+            background: #dbeafe;
+            color: var(--primary-dark);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            border-left: 4px solid var(--cp-blue);
+        }
+
         .app-container {
             display: none;
             min-height: 100vh;
@@ -645,16 +655,22 @@
                 <div class="logo-subtitle">Puerto Miranda</div>
             </div>
 
+            <div class="info-box" id="loginInfo">
+                <strong>📧 Credenciales de prueba:</strong><br>
+                Email: admin@cpuertomiranda.gob.ve<br>
+                Contraseña: Admin123!
+            </div>
+
             <div class="error-msg" id="loginError"></div>
 
             <form id="loginForm">
                 <div class="form-group">
                     <label for="loginEmail">Correo Electrónico</label>
-                    <input type="email" id="loginEmail" required placeholder="usuario@ejemplo.com">
+                    <input type="email" id="loginEmail" required placeholder="usuario@ejemplo.com" value="admin@cpuertomiranda.gob.ve">
                 </div>
                 <div class="form-group">
                     <label for="loginPassword">Contraseña</label>
-                    <input type="password" id="loginPassword" required placeholder="••••••••">
+                    <input type="password" id="loginPassword" required placeholder="••••••••" value="Admin123!">
                 </div>
                 <button type="submit" class="btn" id="loginBtn">Ingresar al Sistema</button>
             </form>
@@ -1218,10 +1234,14 @@
 
     <script>
         // ============================================
-        // CONFIGURACIÓN SUPABASE
+        // CONFIGURACIÓN SUPABASE - CORREGIDA
         // ============================================
+        // IMPORTANTE: Usa la ANON KEY (Publishable), NO la Service Role Key
         const SUPABASE_URL = 'https://ybwiunygrtbczgeyxmwc.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlid2l1bnlncnRiY3pnZXl4bXdjIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NjMxNjc0NSwiZXhwIjoyMDkxODkyNzQ1fQ.kwB6a27lCA56yLrgSzkIos26oN4x04tYQ408MfwV7qc';
+        
+        // REEMPLAZA ESTO con tu ANON KEY (no la service_role key)
+        // La encuentras en: Project Settings → API → Project API keys → anon public
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlid2l1bnlncnRiY3pnZXl4bXdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzMTY3NDUsImV4cCI6MjA5MTg5Mjc0NX0.7gKk8Jf5Dqr_1LhvtdQ5m2lG_2YApnuR8t4o9RKixt0'; // ← REEMPLAZA ESTA
 
         let supabase = null;
         let currentUser = null;
@@ -1235,6 +1255,11 @@
         // INICIALIZACIÓN
         // ============================================
         document.addEventListener('DOMContentLoaded', async () => {
+            // Mostrar credenciales de prueba
+            console.log('Credenciales de prueba:');
+            console.log('Email: admin@cpuertomiranda.gob.ve');
+            console.log('Password: Admin123!');
+            
             // Inicializar Supabase
             supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             
@@ -1267,32 +1292,53 @@
             const password = document.getElementById('loginPassword').value;
 
             try {
+                console.log('Intentando login con:', email);
+                
                 const { data, error } = await supabase.auth.signInWithPassword({
                     email,
                     password
                 });
 
-                if (error) throw error;
+                if (error) {
+                    console.error('Error de login:', error);
+                    throw error;
+                }
 
+                console.log('Login exitoso:', data);
                 // La carga del perfil se maneja en onAuthStateChange
+                
             } catch (error) {
                 showLoading(false);
-                document.getElementById('loginError').textContent = error.message === 'Invalid login credentials' 
-                    ? 'Credenciales inválidas. Verifique su correo y contraseña.' 
-                    : error.message;
+                console.error('Error completo:', error);
+                
+                let errorMsg = error.message;
+                if (error.message.includes('Invalid login credentials')) {
+                    errorMsg = 'Credenciales inválidas. Verifique su correo y contraseña.';
+                } else if (error.message.includes('Email not confirmed')) {
+                    errorMsg = 'El email no ha sido confirmado. Contacte al administrador.';
+                }
+                
+                document.getElementById('loginError').textContent = errorMsg;
                 document.getElementById('loginError').style.display = 'block';
             }
         });
 
         async function loadUserProfile(user) {
             try {
+                console.log('Cargando perfil para usuario:', user.id);
+                
                 const { data: profile, error } = await supabase
                     .from('user_profiles')
                     .select('*')
                     .eq('id', user.id)
                     .single();
 
-                if (error) throw error;
+                if (error) {
+                    console.error('Error cargando perfil:', error);
+                    throw error;
+                }
+
+                console.log('Perfil cargado:', profile);
 
                 currentUser = user;
                 currentProfile = profile;
@@ -1301,7 +1347,7 @@
                 await loadInitialData();
                 showLoading(false);
             } catch (error) {
-                console.error('Error cargando perfil:', error);
+                console.error('Error en loadUserProfile:', error);
                 showToast('Error al cargar perfil de usuario', 'error');
                 await logout();
             }
@@ -1344,6 +1390,10 @@
             document.getElementById('appContainer').style.display = 'none';
             document.getElementById('loginForm').reset();
             document.getElementById('loginError').style.display = 'none';
+            
+            // Restaurar valores por defecto
+            document.getElementById('loginEmail').value = 'admin@cpuertomiranda.gob.ve';
+            document.getElementById('loginPassword').value = 'Admin123!';
         }
 
         function showApp() {
@@ -1366,8 +1416,7 @@
             showLoading(true, 'Verificando clave de superusuario...');
             
             try {
-                // En producción, esto debería verificarse contra una función segura
-                // Por ahora usamos una verificación simple del lado del cliente
+                // Verificación local de la clave
                 const validKey = 'CPM2024#SuperAdmin!';
                 
                 if (key === validKey) {
@@ -1483,7 +1532,6 @@
                 if (error) throw error;
 
                 // Cerrar sesión del nuevo usuario y volver a iniciar como admin original
-                // (signUp inicia sesión automáticamente con el nuevo usuario)
                 await supabase.auth.signOut();
                 
                 // Volver a iniciar sesión como admin original
