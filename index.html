@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CP Puerto Miranda - Sistema de Gestión (Offline)</title>
-    <!-- SheetJS para leer Excel -->
+    <title>CP Puerto Miranda - Sistema de Gestión</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         * {
@@ -22,17 +22,17 @@
             --success: #059669;
             --info: #0284c7;
             --cloud: #6366f1;
-            --offline: #6b7280;
             --bg: #f1f5f9;
             --card: #ffffff;
             --text: #1e293b;
             --border: #e2e8f0;
             --cp-blue: #4a90e2;
             --cp-cyan: #5bc0de;
+            --consulta-green: #10b981;
         }
 
         body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             color: var(--text);
@@ -61,10 +61,12 @@
             margin-bottom: 30px;
         }
 
-        .logo-svg {
+        .logo-image {
             width: 200px;
-            height: 150px;
-            margin: 0 auto 15px;
+            height: auto;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            margin-bottom: 15px;
         }
 
         .logo-title {
@@ -81,17 +83,6 @@
             margin-top: 5px;
         }
 
-        .offline-badge {
-            display: inline-block;
-            background: var(--offline);
-            color: white;
-            padding: 6px 16px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            margin-top: 15px;
-        }
-
         .form-group {
             margin-bottom: 20px;
             text-align: left;
@@ -104,7 +95,7 @@
             font-size: 14px;
         }
 
-        .form-group input {
+        .form-group input, .form-group select {
             width: 100%;
             padding: 12px 16px;
             border: 2px solid var(--border);
@@ -113,7 +104,7 @@
             transition: all 0.3s ease;
         }
 
-        .form-group input:focus {
+        .form-group input:focus, .form-group select:focus {
             outline: none;
             border-color: var(--cp-blue);
             box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
@@ -132,9 +123,26 @@
             transition: all 0.3s ease;
         }
 
-        .btn:hover {
+        .btn:hover:not(:disabled) {
             transform: translateY(-2px);
             box-shadow: 0 10px 15px -3px rgba(74, 144, 226, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+        }
+
+        .btn-success {
+            background: var(--success);
         }
 
         .error-msg {
@@ -153,24 +161,10 @@
             min-height: 100vh;
         }
 
-        .status-bar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            background: var(--offline);
-            color: white;
-            padding: 8px 20px;
-            text-align: center;
-            font-size: 13px;
-            font-weight: 600;
-            z-index: 1001;
-        }
-
         .sidebar {
             position: fixed;
             left: 0;
-            top: 40px;
+            top: 0;
             bottom: 0;
             width: 280px;
             background: var(--card);
@@ -187,41 +181,12 @@
             margin-bottom: 20px;
         }
 
-        .sidebar-logo svg {
-            width: 100px;
-            height: 75px;
-            margin-bottom: 10px;
-        }
-
         .sidebar-logo h3 {
             color: var(--cp-blue);
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 700;
             text-transform: uppercase;
             line-height: 1.3;
-        }
-
-        .db-info {
-            margin: 15px 20px;
-            padding: 12px;
-            background: rgba(107, 114, 128, 0.1);
-            border-radius: 10px;
-            border: 1px solid rgba(107, 114, 128, 0.2);
-        }
-
-        .db-info label {
-            display: block;
-            font-size: 10px;
-            color: var(--offline);
-            font-weight: 700;
-            margin-bottom: 3px;
-            text-transform: uppercase;
-        }
-
-        .db-status {
-            font-size: 12px;
-            color: var(--text);
-            font-weight: 600;
         }
 
         .nav-menu {
@@ -258,7 +223,7 @@
 
         .main-content {
             margin-left: 280px;
-            padding: 60px 30px 30px;
+            padding: 80px 30px 30px;
             min-height: 100vh;
         }
 
@@ -271,10 +236,6 @@
             padding: 20px 25px;
             border-radius: 15px;
             box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
-        }
-
-        .header h1 {
-            font-size: 24px;
         }
 
         .user-info {
@@ -293,6 +254,10 @@
             align-items: center;
             justify-content: center;
             font-weight: 600;
+        }
+
+        .user-avatar.consulta {
+            background: var(--consulta-green);
         }
 
         .btn-logout {
@@ -364,7 +329,6 @@
 
         .stat-icon.blue { background: rgba(74, 144, 226, 0.1); color: var(--cp-blue); }
         .stat-icon.green { background: rgba(5, 150, 105, 0.1); color: var(--success); }
-        .stat-icon.offline { background: rgba(107, 114, 128, 0.1); color: var(--offline); }
         .stat-icon.orange { background: rgba(245, 158, 11, 0.1); color: var(--accent); }
 
         .stat-value {
@@ -398,34 +362,6 @@
             padding: 25px;
         }
 
-        .file-upload-area {
-            border: 3px dashed var(--border);
-            border-radius: 15px;
-            padding: 40px;
-            text-align: center;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .file-upload-area:hover {
-            border-color: var(--cp-blue);
-            background: rgba(74, 144, 226, 0.05);
-        }
-
-        .file-upload-area.dragover {
-            border-color: var(--success);
-            background: rgba(5, 150, 105, 0.1);
-        }
-
-        .file-input {
-            display: none;
-        }
-
-        .upload-icon {
-            font-size: 48px;
-            margin-bottom: 15px;
-        }
-
         .btn-primary {
             background: var(--cp-blue);
             color: white;
@@ -443,70 +379,6 @@
         .btn-primary:hover {
             background: var(--primary-dark);
             transform: translateY(-2px);
-        }
-
-        .btn-success {
-            background: var(--success);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s ease;
-        }
-
-        .btn-success:hover {
-            background: #047857;
-            transform: translateY(-2px);
-        }
-
-        .btn-secondary {
-            background: var(--secondary);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 500;
-        }
-
-        .btn-danger {
-            background: var(--danger);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 13px;
-        }
-
-        .btn-warning {
-            background: var(--accent);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 13px;
-            margin-right: 5px;
-        }
-
-        .search-box {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .search-input {
-            flex: 1;
-            padding: 12px 16px;
-            border: 2px solid var(--border);
-            border-radius: 10px;
-            font-size: 14px;
         }
 
         table {
@@ -538,21 +410,1832 @@
             gap: 20px;
         }
 
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            font-size: 14px;
+        .hijos-section {
+            background: rgba(74, 144, 226, 0.03);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border: 2px dashed var(--border);
         }
 
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 10px 14px;
-            border: 2px solid var(--border);
+        .hijo-item {
+            background: white;
+            padding: 15px;
             border-radius: 8px;
+            margin-bottom: 10px;
+            border: 1px solid var(--border);
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr auto;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 900px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalSlide 0.3s ease;
+        }
+
+        @keyframes modalSlide {
+            from { opacity: 0; transform: scale(0.9) translateY(-20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .modal-header {
+            padding: 25px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-body {
+            padding: 25px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--secondary);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-btn:hover {
+            background: rgba(0,0,0,0.05);
+            color: var(--danger);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-success { background: rgba(5, 150, 105, 0.1); color: var(--success); }
+        .badge-warning { background: rgba(245, 158, 11, 0.1); color: var(--accent); }
+        .badge-danger { background: rgba(220, 38, 38, 0.1); color: var(--danger); }
+        .badge-info { background: rgba(2, 132, 199, 0.1); color: var(--info); }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
             font-size: 14px;
         }
 
+        .search-input:focus {
+            outline: none;
+            border-color: var(--cp-blue);
+        }
 
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--success);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 10px;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2);
+            display: none;
+            animation: slideIn 0.3s ease;
+            z-index: 2000;
+        }
+
+        .toast.error { background: var(--danger); }
+        .toast.warning { background: var(--accent); }
+
+        @keyframes slideIn {
+            from { transform: translateX(400px); }
+            to { transform: translateX(0); }
+        }
+
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.9);
+            z-index: 3000;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--border);
+            border-top-color: var(--cloud);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .user-management-card {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(99, 102, 241, 0.05));
+            border: 2px solid rgba(99, 102, 241, 0.2);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        .super-key-section {
+            background: rgba(245, 158, 11, 0.1);
+            border: 2px solid var(--accent);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: relative;
+                height: auto;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <p id="loadingText">Cargando...</p>
+    </div>
+
+    <!-- Login Screen -->
+    <div class="login-container" id="loginScreen">
+        <div class="login-box">
+            <div class="logo-container">
+                <svg class="logo-image" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="400" height="300" fill="#5bc0de" rx="15"/>
+                    <rect x="80" y="120" width="240" height="140" fill="#ffffff" stroke="#333" stroke-width="2"/>
+                    <polygon points="60,120 200,40 340,120" fill="#d9534f" stroke="#333" stroke-width="2"/>
+                    <rect x="100" y="120" width="20" height="140" fill="#ffffff" stroke="#333" stroke-width="1"/>
+                    <rect x="180" y="120" width="20" height="140" fill="#ffffff" stroke="#333" stroke-width="1"/>
+                    <rect x="260" y="120" width="20" height="140" fill="#ffffff" stroke="#333" stroke-width="1"/>
+                    <rect x="170" y="180" width="60" height="80" fill="#8b4513" stroke="#333" stroke-width="2"/>
+                    <circle cx="220" cy="220" r="3" fill="#ffd700"/>
+                    <rect x="90" y="150" width="40" height="40" fill="#87ceeb" stroke="#333" stroke-width="2"/>
+                    <rect x="270" y="150" width="40" height="40" fill="#87ceeb" stroke="#333" stroke-width="2"/>
+                    <rect x="150" y="260" width="100" height="10" fill="#a0522d" stroke="#333" stroke-width="1"/>
+                    <rect x="140" y="270" width="120" height="10" fill="#a0522d" stroke="#333" stroke-width="1"/>
+                </svg>
+                <div class="logo-title">Consultorio Popular<br>Tipo II</div>
+                <div class="logo-subtitle">Puerto Miranda</div>
+            </div>
+
+            <div class="error-msg" id="loginError"></div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="loginEmail">Correo Electrónico</label>
+                    <input type="email" id="loginEmail" required placeholder="usuario@ejemplo.com">
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Contraseña</label>
+                    <input type="password" id="loginPassword" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="btn" id="loginBtn">Ingresar al Sistema</button>
+            </form>
+
+            <div style="margin-top: 20px; text-align: center; font-size: 12px; color: var(--secondary);">
+                <p>¿No tienes cuenta? Contacta al administrador</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div class="app-container" id="appContainer">
+        
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <h3>Consultorio Popular<br>Tipo II<br>Puerto Miranda</h3>
+            </div>
+            
+            <div style="padding: 0 20px; margin-bottom: 15px;">
+                <div style="background: rgba(99, 102, 241, 0.1); padding: 12px; border-radius: 10px; border: 1px solid rgba(99, 102, 241, 0.2);">
+                    <label style="display: block; font-size: 10px; color: var(--cloud); font-weight: 700; margin-bottom: 3px; text-transform: uppercase;">🗄️ Base de Datos</label>
+                    <div style="font-size: 12px; color: var(--text); font-weight: 600;" id="dbStatus">Supabase Cloud</div>
+                    <div style="margin-top: 8px; font-size: 10px;">
+                        <span class="badge badge-success" id="connectionBadge">🟢 Conectado</span>
+                    </div>
+                </div>
+            </div>
+
+            <nav>
+                <ul class="nav-menu" id="navMenu">
+                    <li class="nav-item">
+                        <a class="nav-link active" onclick="showSection('dashboard')" id="navDashboard">
+                            <span>📊</span> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item" id="navConsultaItem">
+                        <a class="nav-link" onclick="showSection('consulta')" id="navConsulta">
+                            <span>🔍</span> Consulta
+                        </a>
+                    </li>
+                    <li class="nav-item admin-only" id="navRegistrarItem">
+                        <a class="nav-link" onclick="showSection('registrar')" id="navRegistrar">
+                            <span>➕</span> Nuevo Registro
+                        </a>
+                    </li>
+                    <li class="nav-item admin-only" id="navTrabajadoresItem">
+                        <a class="nav-link" onclick="showSection('trabajadores')" id="navTrabajadores">
+                            <span>👷</span> Trabajadores
+                        </a>
+                    </li>
+                    <li class="nav-item admin-only" id="navUsersItem">
+                        <a class="nav-link" onclick="showSection('usuarios')" id="navUsers">
+                            <span>👥</span> Gestión de Usuarios
+                        </a>
+                    </li>
+                    <li class="nav-item admin-only" id="navMigrationItem">
+                        <a class="nav-link" onclick="showSection('migration')" id="navMigration">
+                            <span>📁</span> Importar Excel
+                        </a>
+                    </li>
+                    <li class="nav-item admin-only" id="navExportItem">
+                        <a class="nav-link" onclick="showSection('export')" id="navExport">
+                            <span>📥</span> Exportar Excel
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div style="margin: 15px 20px; padding-top: 15px; border-top: 1px solid var(--border);">
+                <div style="text-align: center; margin-bottom: 15px;">
+                    <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg" style="width: 80px; height: 60px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));">
+                        <rect width="400" height="300" fill="#5bc0de" rx="15"/>
+                        <rect x="80" y="120" width="240" height="140" fill="#ffffff" stroke="#333" stroke-width="2"/>
+                        <polygon points="60,120 200,40 340,120" fill="#d9534f" stroke="#333" stroke-width="2"/>
+                    </svg>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            
+            <!-- Header -->
+            <div class="header">
+                <h1 id="pageTitle">Dashboard</h1>
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">AD</div>
+                    <div>
+                        <div style="font-weight: 600;" id="userNameDisplay">Administrador</div>
+                        <div style="font-size: 12px; color: var(--secondary);" id="userLevelDisplay">Nivel: Admin</div>
+                    </div>
+                    <button class="btn-logout" onclick="logout()">Salir</button>
+                </div>
+            </div>
+
+            <!-- Dashboard Section -->
+            <div class="content-section active" id="dashboard">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-title">Total Trabajadores</div>
+                            <div class="stat-icon blue">👷</div>
+                        </div>
+                        <div class="stat-value" id="statTotal">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-title">Total Hijos</div>
+                            <div class="stat-icon green">👶</div>
+                        </div>
+                        <div class="stat-value" id="statHijos">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-title">Dependencias</div>
+                            <div class="stat-icon orange">🏢</div>
+                        </div>
+                        <div class="stat-value" id="statDeps">0</div>
+                    </div>
+                    <div class="stat-card admin-only-stat">
+                        <div class="stat-header">
+                            <div class="stat-title">Usuarios Activos</div>
+                            <div class="stat-icon blue">👥</div>
+                        </div>
+                        <div class="stat-value" id="statUsers">0</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Últimos Registros</div>
+                    </div>
+                    <div class="card-body">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Cédula</th>
+                                    <th>Nombre</th>
+                                    <th>Cargo</th>
+                                    <th>Edad</th>
+                                    <th>Años Servicio</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentBody">
+                                <tr><td colspan="6" style="text-align: center; color: var(--secondary);">Cargando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Users Management Section (Admin Only) -->
+            <div class="content-section" id="usuarios">
+                <div class="user-management-card">
+                    <h3 style="color: var(--cloud); margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                        <span>🔐</span> Gestión de Usuarios - Requiere Clave SuperAdmin
+                    </h3>
+                    <p style="margin-bottom: 15px; color: var(--secondary); font-size: 14px;">
+                        Solo los administradores con la clave de superusuario pueden crear nuevos usuarios. 
+                        Los usuarios de consulta solo pueden ver datos pero no modificarlos.
+                    </p>
+                    
+                    <div class="super-key-section" id="superKeySection">
+                        <h4 style="color: var(--accent); margin-bottom: 10px;">🔑 Verificación de Superusuario</h4>
+                        <div class="form-group" style="max-width: 400px;">
+                            <label>Clave de SuperAdmin</label>
+                            <input type="password" id="superKeyInput" placeholder="Ingrese la clave de superusuario">
+                        </div>
+                        <button class="btn btn-primary" onclick="verifySuperKey()" style="width: auto; margin-top: 10px;">
+                            Verificar Acceso
+                        </button>
+                        <div id="superKeyError" style="color: var(--danger); margin-top: 10px; font-size: 13px; display: none;">
+                            Clave incorrecta. Acceso denegado.
+                        </div>
+                    </div>
+
+                    <div id="usersManagementPanel" class="hidden">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <h4 style="color: var(--text);">Lista de Usuarios del Sistema</h4>
+                            <button class="btn btn-success" onclick="openUserModal()">
+                                + Nuevo Usuario
+                            </button>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-body">
+                                <table id="usersTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Email</th>
+                                            <th>Nombre</th>
+                                            <th>Rol</th>
+                                            <th>Estado</th>
+                                            <th>Fecha Creación</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="usersBody">
+                                        <!-- Se llena dinámicamente -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Consulta Section -->
+            <div class="content-section" id="consulta">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Consulta de Trabajadores</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="search-box">
+                            <input type="text" class="search-input" id="consultaInput" placeholder="Ingrese cédula o nombre..." style="font-size: 16px; padding: 15px;">
+                            <button class="btn btn-primary" onclick="consultaAvanzada()" style="padding: 15px 30px;">🔍 Buscar</button>
+                        </div>
+                        <div id="consultaResult" style="margin-top: 20px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Registrar Section -->
+            <div class="content-section" id="registrar">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Registrar Nuevo Trabajador</div>
+                        <span class="badge badge-success">Modo: Supabase</span>
+                    </div>
+                    <div class="card-body">
+                        <form id="trabajadorForm" onsubmit="saveTrabajador(event)">
+                            <div class="form-grid">
+                                <div class="form-group" style="grid-column: 1 / -1;">
+                                    <label>Cédula *</label>
+                                    <input type="text" name="cedula" id="cedulaInput" required placeholder="V-12345678" onblur="validateCedulaUnica(this.value)">
+                                    <span id="cedulaValidation" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 18px;"></span>
+                                    <div id="cedulaError" style="color: var(--danger); font-size: 12px; margin-top: 5px; display: none;"></div>
+                                </div>
+                            </div>
+
+                            <div class="form-grid" style="margin-top: 20px;">
+                                <div class="form-group">
+                                    <label>Primer Nombre</label>
+                                    <input type="text" name="primerNombre">
+                                </div>
+                                <div class="form-group">
+                                    <label>Segundo Nombre</label>
+                                    <input type="text" name="segundoNombre">
+                                </div>
+                                <div class="form-group">
+                                    <label>Primer Apellido</label>
+                                    <input type="text" name="primerApellido">
+                                </div>
+                                <div class="form-group">
+                                    <label>Segundo Apellido</label>
+                                    <input type="text" name="segundoApellido">
+                                </div>
+                                <div class="form-group">
+                                    <label>Sexo</label>
+                                    <select name="sexo">
+                                        <option value="">Seleccione...</option>
+                                        <option value="Masculino">Masculino</option>
+                                        <option value="Femenino">Femenino</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Fecha de Nacimiento</label>
+                                    <input type="date" name="fechaNacimiento" id="fechaNacimientoInput" onchange="actualizarEdad()">
+                                </div>
+                                <div class="form-group">
+                                    <label>Edad</label>
+                                    <input type="text" id="edadInput" readonly placeholder="Se calcula automáticamente">
+                                </div>
+                                <div class="form-group">
+                                    <label>Estado Civil</label>
+                                    <select name="estadoCivil">
+                                        <option value="">Seleccione...</option>
+                                        <option value="Soltero">Soltero/a</option>
+                                        <option value="Casado">Casado/a</option>
+                                        <option value="Divorciado">Divorciado/a</option>
+                                        <option value="Viudo">Viudo/a</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="grid-column: 1 / -1;">
+                                    <label>Dirección</label>
+                                    <input type="text" name="direccion">
+                                </div>
+                                <div class="form-group">
+                                    <label>Celular</label>
+                                    <input type="tel" name="celular">
+                                </div>
+                                <div class="form-group">
+                                    <label>Correo Electrónico</label>
+                                    <input type="email" name="correo">
+                                </div>
+                                <div class="form-group">
+                                    <label>Nivel Académico</label>
+                                    <select name="nivelAcademico">
+                                        <option value="">Seleccione...</option>
+                                        <option value="Primaria">Primaria</option>
+                                        <option value="Secundaria">Secundaria</option>
+                                        <option value="Técnico Medio">Técnico Superior</option>
+                                        <option value="Universitario">Universitario</option>
+                                        <option value="Especialización">Especialización</option>
+                                        <option value="Maestría">Maestría</option>
+                                        <option value="Doctorado">Doctorado</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Profesión</label>
+                                    <input type="text" name="profesion">
+                                </div>
+                                <div class="form-group">
+                                    <label>Tipo de Personal</label>
+                                    <select name="tipoPersonal">
+                                        <option value="">Seleccione...</option>
+                                        <option value="Fijo">Fijo</option>
+                                        <option value="Contratado">Contratado</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Fecha de Ingreso</label>
+                                    <input type="date" name="fechaIngreso" id="fechaIngresoInput" onchange="actualizarTiempoServicio()">
+                                </div>
+                                <div class="form-group">
+                                    <label>Años de Servicio</label>
+                                    <input type="text" id="tiempoServicioInput" readonly placeholder="Se calcula automáticamente">
+                                </div>
+                                <div class="form-group">
+                                    <label>Cargo</label>
+                                    <input type="text" name="cargo">
+                                </div>
+                                <div class="form-group">
+                                    <label>Código</label>
+                                    <input type="text" name="codigo">
+                                </div>
+                                <div class="form-group">
+                                    <label>Dependencia</label>
+                                    <input type="text" name="dependencia">
+                                </div>
+                                <div class="form-group">
+                                    <label>Nómina</label>
+                                    <input type="text" name="nomina">
+                                </div>
+                                <div class="form-group" style="grid-column: 1 / -1;">
+                                    <label>Observaciones</label>
+                                    <textarea name="observaciones" rows="3"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="hijos-section">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                    <h3 style="color: var(--cp-blue);">👶 Hijos/Dependientes</h3>
+                                    <button type="button" class="btn btn-primary" onclick="addHijo()" style="width: auto; padding: 8px 16px; font-size: 13px;">
+                                        + Agregar Hijo
+                                    </button>
+                                </div>
+                                <div id="hijosContainer"></div>
+                            </div>
+
+                            <div style="margin-top: 25px; display: flex; gap: 10px;">
+                                <button type="submit" class="btn btn-primary" id="btnSubmit">💾 Guardar en Supabase</button>
+                                <button type="reset" class="btn btn-secondary" onclick="resetForm()" style="background: var(--secondary);">Limpiar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trabajadores List Section -->
+            <div class="content-section" id="trabajadores">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Lista de Trabajadores</div>
+                        <button class="btn btn-primary" onclick="showSection('registrar')">+ Nuevo</button>
+                    </div>
+                    <div class="card-body">
+                        <div class="search-box">
+                            <input type="text" class="search-input" id="searchInput" placeholder="Buscar por cédula, nombre o apellido..." onkeyup="searchTrabajadores()">
+                            <button class="btn btn-primary" onclick="searchTrabajadores()">Buscar</button>
+                        </div>
+                        <table id="trabajadoresTable">
+                            <thead>
+                                <tr>
+                                    <th>Cédula</th>
+                                    <th>Nombre Completo</th>
+                                    <th>Cargo</th>
+                                    <th>Dependencia</th>
+                                    <th>Edad</th>
+                                    <th>Años Serv.</th>
+                                    <th>Hijos</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="trabajadoresBody">
+                                <tr><td colspan="8" style="text-align: center; color: var(--secondary); padding: 40px;">Cargando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Migration Section -->
+            <div class="content-section" id="migration">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">📁 Importar desde Excel</div>
+                    </div>
+                    <div class="card-body">
+                        <div style="background: rgba(99, 102, 241, 0.1); border: 1px solid var(--cloud); border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+                            <h4 style="color: var(--cloud); margin-bottom: 10px;">📋 Funcionamiento:</h4>
+                            <ul style="margin-left: 20px; font-size: 13px; line-height: 1.8;">
+                                <li><strong>Nuevos:</strong> Cédulas que no existen se agregan</li>
+                                <li><strong>Actualizar:</strong> Datos modificados se actualizan automáticamente</li>
+                                <li><strong>Preservar:</strong> Se mantienen hijos y datos manuales</li>
+                            </ul>
+                        </div>
+
+                        <div style="background: white; border-radius: 10px; padding: 20px; border: 1px solid var(--border);">
+                            <div style="margin-bottom: 20px;">
+                                <div style="background: #f8fafc; padding: 10px; border-radius: 6px; font-size: 11px; font-family: monospace; margin: 10px 0;">
+                                    El archivo debe tener DOS hojas: "Trabajadores" e "Hijos"
+                                </div>
+                                <div style="position: relative; overflow: hidden; display: inline-block; width: 100%;">
+                                    <input type="file" id="excelFile" accept=".xlsx, .xls" onchange="handleFileSelect(this)" style="position: absolute; left: -9999px;">
+                                    <label for="excelFile" id="fileLabel" style="display: block; padding: 15px; border: 2px dashed var(--border); border-radius: 10px; text-align: center; cursor: pointer; transition: all 0.3s ease; background: rgba(74, 144, 226, 0.02);">
+                                        📁 Seleccionar archivo Excel (.xlsx)
+                                    </label>
+                                </div>
+                            </div>
+                            <button class="btn btn-success" onclick="syncFromExcel()" id="btnSync" disabled>
+                                🔄 Iniciar Importación a Supabase
+                            </button>
+                        </div>
+
+                        <div id="syncStatus" style="margin-top: 20px; padding: 20px; text-align: center; color: var(--secondary); display: none;">
+                            Esperando archivo...
+                        </div>
+                        <div id="changeLog" style="background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 15px; margin-top: 15px; max-height: 300px; overflow-y: auto; font-family: monospace; font-size: 12px; display: none;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Export Section -->
+            <div class="content-section" id="export">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">📥 Exportar a Excel</div>
+                    </div>
+                    <div class="card-body">
+                        <div style="background: linear-gradient(135deg, rgba(5, 150, 105, 0.1), rgba(5, 150, 105, 0.05)); border: 2px solid rgba(5, 150, 105, 0.2); border-radius: 15px; padding: 25px; margin-bottom: 25px;">
+                            <h3 style="color: var(--success); margin-bottom: 15px;">📋 Estructura del archivo exportado:</h3>
+                            <ul style="margin-left: 20px; font-size: 13px; line-height: 1.8; color: var(--secondary);">
+                                <li><strong>Hoja 1 - Trabajadores:</strong> Contiene todos los datos personales y laborales</li>
+                                <li><strong>Hoja 2 - Hijos:</strong> Contiene los datos de los hijos/dependientes vinculados por cédula</li>
+                                <li><strong>Formato:</strong> Archivo .xlsx compatible con Excel, LibreOffice y Google Sheets</li>
+                            </ul>
+                        </div>
+
+                        <div style="background: white; border-radius: 10px; padding: 20px; border: 1px solid var(--border); margin-bottom: 20px;">
+                            <p style="color: var(--secondary); font-size: 13px;">
+                                Actualmente hay <strong id="exportTotalTrabajadores">0</strong> trabajadores y 
+                                <strong id="exportTotalHijos">0</strong> hijos registrados en Supabase.
+                            </p>
+                        </div>
+
+                        <button class="btn btn-success" onclick="exportToExcel()" style="background: linear-gradient(135deg, #059669, #10b981);">
+                            📥 Descargar Excel Completo
+                        </button>
+
+                        <div style="margin-top: 30px;">
+                            <h4 style="color: var(--cp-blue); margin-bottom: 10px;">👷 Vista previa (primeros 5 registros)</h4>
+                            <table style="margin-bottom: 20px;">
+                                <thead>
+                                    <tr>
+                                        <th>Cédula</th>
+                                        <th>Nombre</th>
+                                        <th>Cargo</th>
+                                        <th>Edad</th>
+                                        <th>Años Servicio</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="previewTrabajadores">
+                                    <tr><td colspan="5" style="text-align: center; color: var(--secondary);">Sin datos</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Modal para Editar Trabajador -->
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Editar Trabajador</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="editForm" onsubmit="updateTrabajador(event)">
+                    <input type="hidden" id="editId">
+                    <div class="form-grid" id="editFormContent"></div>
+                    <div style="margin-top: 20px; display: flex; gap: 10px;">
+                        <button type="submit" class="btn btn-primary">Actualizar en Supabase</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeModal()" style="background: var(--secondary);">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Crear Usuario -->
+    <div class="modal" id="userModal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2>Crear Nuevo Usuario</h2>
+                <button class="close-btn" onclick="closeUserModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="userForm" onsubmit="createUser(event)">
+                    <div class="form-group">
+                        <label>Correo Electrónico *</label>
+                        <input type="email" name="email" required placeholder="nuevo.usuario@ejemplo.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Contraseña *</label>
+                        <input type="password" name="password" required placeholder="Mínimo 6 caracteres" minlength="6">
+                    </div>
+                    <div class="form-group">
+                        <label>Nombre</label>
+                        <input type="text" name="firstName" placeholder="Nombre">
+                    </div>
+                    <div class="form-group">
+                        <label>Apellido</label>
+                        <input type="text" name="lastName" placeholder="Apellido">
+                    </div>
+                    <div class="form-group">
+                        <label>Rol *</label>
+                        <select name="role" required>
+                            <option value="consulta">Usuario de Consulta (solo lectura)</option>
+                            <option value="admin">Administrador (acceso total)</option>
+                        </select>
+                    </div>
+                    <div style="margin-top: 20px; display: flex; gap: 10px;">
+                        <button type="submit" class="btn btn-primary">Crear Usuario</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeUserModal()" style="background: var(--secondary);">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // ============================================
+        // CONFIGURACIÓN SUPABASE
+        // ============================================
+        const SUPABASE_URL = 'https://lhzigadhmkqfplbwepxp.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxoemlnYWRobWtxZnBsYndlcHhwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5NTg4ODEsImV4cCI6MjA4NzUzNDg4MX0.i0PIrrEUmvtnRsFnodIAD_NzYJD903DpQRnvJqqvfFk';
+
+        let supabase = null;
+        let currentUser = null;
+        let currentProfile = null;
+        let trabajadores = [];
+        let users = [];
+        let isSuperVerified = false;
+        let selectedFile = null;
+
+        // ============================================
+        // INICIALIZACIÓN
+        // ============================================
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Inicializar Supabase
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            
+            // Verificar sesión existente
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                await loadUserProfile(session.user);
+                showApp();
+            }
+
+            // Escuchar cambios de auth
+            supabase.auth.onAuthStateChange(async (event, session) => {
+                if (event === 'SIGNED_IN' && session) {
+                    await loadUserProfile(session.user);
+                    showApp();
+                } else if (event === 'SIGNED_OUT') {
+                    showLogin();
+                }
+            });
+        });
+
+        // ============================================
+        // AUTENTICACIÓN
+        // ============================================
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            showLoading(true, 'Iniciando sesión...');
+
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email,
+                    password
+                });
+
+                if (error) throw error;
+
+                // La carga del perfil se maneja en onAuthStateChange
+            } catch (error) {
+                showLoading(false);
+                document.getElementById('loginError').textContent = error.message === 'Invalid login credentials' 
+                    ? 'Credenciales inválidas. Verifique su correo y contraseña.' 
+                    : error.message;
+                document.getElementById('loginError').style.display = 'block';
+            }
+        });
+
+        async function loadUserProfile(user) {
+            try {
+                const { data: profile, error } = await supabase
+                    .from('user_profiles')
+                    .select('*')
+                    .eq('id', user.id)
+                    .single();
+
+                if (error) throw error;
+
+                currentUser = user;
+                currentProfile = profile;
+                
+                updateUIForRole();
+                await loadInitialData();
+                showLoading(false);
+            } catch (error) {
+                console.error('Error cargando perfil:', error);
+                showToast('Error al cargar perfil de usuario', 'error');
+                await logout();
+            }
+        }
+
+        function updateUIForRole() {
+            const isAdmin = currentProfile?.role === 'admin';
+            
+            // Actualizar avatar y nombre
+            const initials = `${currentProfile?.first_name?.[0] || ''}${currentProfile?.last_name?.[0] || ''}`.toUpperCase() || 'US';
+            document.getElementById('userAvatar').textContent = initials;
+            document.getElementById('userNameDisplay').textContent = 
+                `${currentProfile?.first_name || ''} ${currentProfile?.last_name || ''}`.trim() || currentUser.email;
+            document.getElementById('userLevelDisplay').textContent = 
+                isAdmin ? 'Nivel: Administrador' : 'Nivel: Solo Consulta';
+
+            // Mostrar/ocultar elementos de admin
+            document.querySelectorAll('.admin-only').forEach(el => {
+                el.style.display = isAdmin ? 'block' : 'none';
+            });
+            
+            document.querySelectorAll('.admin-only-stat').forEach(el => {
+                el.style.display = isAdmin ? 'block' : 'none';
+            });
+
+            if (!isAdmin) {
+                document.getElementById('userAvatar').classList.add('consulta');
+            }
+        }
+
+        async function logout() {
+            showLoading(true, 'Cerrando sesión...');
+            await supabase.auth.signOut();
+            showLogin();
+            showLoading(false);
+        }
+
+        function showLogin() {
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('appContainer').style.display = 'none';
+            document.getElementById('loginForm').reset();
+            document.getElementById('loginError').style.display = 'none';
+        }
+
+        function showApp() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('appContainer').style.display = 'block';
+            document.body.style.background = 'var(--bg)';
+            showSection('dashboard');
+        }
+
+        // ============================================
+        // GESTIÓN DE USUARIOS (ADMIN + SUPER KEY)
+        // ============================================
+        async function verifySuperKey() {
+            const key = document.getElementById('superKeyInput').value;
+            if (!key) {
+                document.getElementById('superKeyError').style.display = 'block';
+                return;
+            }
+
+            showLoading(true, 'Verificando clave de superusuario...');
+            
+            try {
+                // En producción, esto debería verificarse contra una función segura
+                // Por ahora usamos una verificación simple del lado del cliente
+                const validKey = 'CPM2024#SuperAdmin!';
+                
+                if (key === validKey) {
+                    isSuperVerified = true;
+                    document.getElementById('superKeySection').classList.add('hidden');
+                    document.getElementById('usersManagementPanel').classList.remove('hidden');
+                    await loadUsers();
+                    showToast('✅ Acceso de superusuario verificado');
+                } else {
+                    document.getElementById('superKeyError').style.display = 'block';
+                    isSuperVerified = false;
+                }
+            } catch (error) {
+                showToast('Error verificando clave', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function loadUsers() {
+            if (!isSuperVerified) return;
+            
+            try {
+                const { data, error } = await supabase
+                    .from('user_profiles')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                users = data || [];
+                renderUsersTable();
+                
+                // Actualizar estadística
+                document.getElementById('statUsers').textContent = users.length;
+            } catch (error) {
+                showToast('Error cargando usuarios', 'error');
+            }
+        }
+
+        function renderUsersTable() {
+            const tbody = document.getElementById('usersBody');
+            if (users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--secondary);">No hay usuarios registrados</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = users.map(u => `
+                <tr>
+                    <td>${u.email}</td>
+                    <td>${u.first_name || ''} ${u.last_name || ''}</td>
+                    <td>
+                        <span class="badge ${u.role === 'admin' ? 'badge-warning' : 'badge-info'}">
+                            ${u.role === 'admin' ? '👑 Admin' : '👁️ Consulta'}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge ${u.is_active ? 'badge-success' : 'badge-danger'}">
+                            ${u.is_active ? 'Activo' : 'Inactivo'}
+                        </span>
+                    </td>
+                    <td>${new Date(u.created_at).toLocaleDateString()}</td>
+                    <td>
+                        ${u.id !== currentUser.id ? `
+                            <button class="btn btn-danger" onclick="deleteUser('${u.id}')" style="padding: 5px 10px; font-size: 12px;">
+                                🗑️ Eliminar
+                            </button>
+                        ` : '<span style="font-size: 12px; color: var(--secondary);">(Usted)</span>'}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openUserModal() {
+            if (!isSuperVerified) {
+                showToast('Primero verifique la clave de superusuario', 'warning');
+                return;
+            }
+            document.getElementById('userModal').classList.add('active');
+        }
+
+        function closeUserModal() {
+            document.getElementById('userModal').classList.remove('active');
+            document.getElementById('userForm').reset();
+        }
+
+        async function createUser(e) {
+            e.preventDefault();
+            if (!isSuperVerified) {
+                showToast('Acceso no autorizado', 'error');
+                return;
+            }
+
+            showLoading(true, 'Creando nuevo usuario...');
+            
+            const formData = new FormData(e.target);
+            const userData = {
+                email: formData.get('email'),
+                password: formData.get('password'),
+                options: {
+                    data: {
+                        role: formData.get('role'),
+                        first_name: formData.get('firstName'),
+                        last_name: formData.get('lastName')
+                    }
+                }
+            };
+
+            try {
+                // Crear usuario en auth.users (se dispara el trigger para crear perfil)
+                const { data, error } = await supabase.auth.signUp(userData);
+                
+                if (error) throw error;
+
+                // Cerrar sesión del nuevo usuario y volver a iniciar como admin original
+                // (signUp inicia sesión automáticamente con el nuevo usuario)
+                await supabase.auth.signOut();
+                
+                // Volver a iniciar sesión como admin original
+                const { error: loginError } = await supabase.auth.signInWithPassword({
+                    email: currentUser.email,
+                    password: prompt('Por seguridad, ingrese su contraseña de administrador para continuar:') || ''
+                });
+
+                if (loginError) {
+                    showToast('Usuario creado pero sesión expirada. Por favor vuelva a iniciar sesión.', 'warning');
+                    return;
+                }
+
+                showToast('✅ Usuario creado exitosamente');
+                closeUserModal();
+                await loadUsers();
+                
+                // Log de seguridad
+                await supabase.from('security_logs').insert({
+                    user_id: currentUser.id,
+                    action: 'USER_CREATED',
+                    details: `Creado usuario ${userData.email} con rol ${userData.options.data.role}`
+                });
+
+            } catch (error) {
+                showToast('Error creando usuario: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function deleteUser(userId) {
+            if (!isSuperVerified) return;
+            if (!confirm('¿Está seguro de eliminar este usuario? Esta acción no se puede deshacer.')) return;
+
+            showLoading(true, 'Eliminando usuario...');
+            
+            try {
+                // Desactivar en lugar de eliminar (más seguro)
+                const { error } = await supabase
+                    .from('user_profiles')
+                    .update({ is_active: false })
+                    .eq('id', userId);
+
+                if (error) throw error;
+
+                showToast('Usuario desactivado correctamente');
+                await loadUsers();
+                
+                await supabase.from('security_logs').insert({
+                    user_id: currentUser.id,
+                    action: 'USER_DEACTIVATED',
+                    details: `Desactivado usuario ${userId}`
+                });
+
+            } catch (error) {
+                showToast('Error: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // ============================================
+        // GESTIÓN DE TRABAJADORES
+        // ============================================
+        async function loadInitialData() {
+            await loadTrabajadores();
+            if (currentProfile?.role === 'admin') {
+                document.getElementById('statUsers').textContent = '...';
+            }
+        }
+
+        async function loadTrabajadores() {
+            try {
+                const { data, error } = await supabase
+                    .from('trabajadores')
+                    .select('*')
+                    .order('fecha_registro', { ascending: false });
+
+                if (error) throw error;
+
+                trabajadores = data || [];
+                updateStats();
+                renderTrabajadores();
+                renderRecent();
+            } catch (error) {
+                showToast('Error cargando trabajadores: ' + error.message, 'error');
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('statTotal').textContent = trabajadores.length;
+            
+            const totalHijos = trabajadores.reduce((acc, t) => 
+                acc + (t.hijos ? t.hijos.length : 0), 0);
+            document.getElementById('statHijos').textContent = totalHijos;
+
+            const deps = [...new Set(trabajadores.map(t => t.dependencia).filter(Boolean))];
+            document.getElementById('statDeps').textContent = deps.length;
+        }
+
+        function renderTrabajadores() {
+            const tbody = document.getElementById('trabajadoresBody');
+            if (trabajadores.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--secondary); padding: 40px;">Sin trabajadores registrados</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = trabajadores.map(t => `
+                <tr>
+                    <td><strong>${t.cedula}</strong></td>
+                    <td>${t.primer_nombre || ''} ${t.segundo_nombre || ''} ${t.primer_apellido || ''}</td>
+                    <td>${t.cargo || 'No especificado'}</td>
+                    <td>${t.dependencia || 'No especificada'}</td>
+                    <td>${t.fecha_nacimiento ? calcularEdad(t.fecha_nacimiento) + ' años' : '-'}</td>
+                    <td>${t.fecha_ingreso ? calcularTiempoServicio(t.fecha_ingreso).texto : '-'}</td>
+                    <td>${t.hijos ? t.hijos.length : 0}</td>
+                    <td>
+                        ${currentProfile?.role === 'admin' ? `
+                            <button class="btn btn-secondary" onclick="editTrabajador('${t.id}')" style="padding: 5px 10px; font-size: 12px; margin-right: 5px;">✏️</button>
+                            <button class="btn btn-danger" onclick="deleteTrabajador('${t.id}')" style="padding: 5px 10px; font-size: 12px;">🗑️</button>
+                        ` : '<span style="font-size: 12px; color: var(--secondary);">Solo lectura</span>'}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderRecent() {
+            const recent = [...trabajadores].slice(0, 5);
+            const tbody = document.getElementById('recentBody');
+            
+            tbody.innerHTML = recent.length ? recent.map(t => `
+                <tr>
+                    <td>${t.cedula}</td>
+                    <td>${t.primer_nombre || ''} ${t.primer_apellido || ''}</td>
+                    <td>${t.cargo || 'No especificado'}</td>
+                    <td>${t.fecha_nacimiento ? calcularEdad(t.fecha_nacimiento) + ' años' : '-'}</td>
+                    <td>${t.fecha_ingreso ? calcularTiempoServicio(t.fecha_ingreso).texto : '-'}</td>
+                    <td><span class="badge badge-success">Activo</span></td>
+                </tr>
+            `).join('') : '<tr><td colspan="6" style="text-align: center; color: var(--secondary);">Sin registros</td></tr>';
+        }
+
+        // ============================================
+        // CÁLCULOS
+        // ============================================
+        function calcularEdad(fechaNacimiento) {
+            if (!fechaNacimiento) return null;
+            const hoy = new Date();
+            const fechaNac = new Date(fechaNacimiento);
+            let edad = hoy.getFullYear() - fechaNac.getFullYear();
+            const mes = hoy.getMonth() - fechaNac.getMonth();
+            if (mes < 0 || (mes === 0 && hoy.getDate() < fechaNac.getDate())) {
+                edad--;
+            }
+            return edad;
+        }
+
+        function calcularTiempoServicio(fechaIngreso) {
+            if (!fechaIngreso) return null;
+            const hoy = new Date();
+            const fechaIng = new Date(fechaIngreso);
+            let años = hoy.getFullYear() - fechaIng.getFullYear();
+            let meses = hoy.getMonth() - fechaIng.getMonth();
+            
+            if (meses < 0) {
+                años--;
+                meses += 12;
+            }
+            
+            let resultado = '';
+            if (años > 0) resultado += `${años} año${años !== 1 ? 's' : ''}`;
+            if (meses > 0) {
+                if (resultado) resultado += ' y ';
+                resultado += `${meses} mes${meses !== 1 ? 'es' : ''}`;
+            }
+            if (!resultado) resultado = 'Menos de 1 mes';
+            
+            return { años, meses, texto: resultado };
+        }
+
+        function actualizarEdad() {
+            const fecha = document.getElementById('fechaNacimientoInput').value;
+            document.getElementById('edadInput').value = fecha ? calcularEdad(fecha) + ' años' : '';
+        }
+
+        function actualizarTiempoServicio() {
+            const fecha = document.getElementById('fechaIngresoInput').value;
+            const tiempo = calcularTiempoServicio(fecha);
+            document.getElementById('tiempoServicioInput').value = tiempo ? tiempo.texto : '';
+        }
+
+        // ============================================
+        // CRUD TRABAJADORES
+        // ============================================
+        async function validateCedulaUnica(cedula) {
+            if (!cedula) return true;
+            
+            const existe = trabajadores.some(t => 
+                t.cedula.toString().trim().toLowerCase() === cedula.toLowerCase()
+            );
+            
+            const validationIcon = document.getElementById('cedulaValidation');
+            const errorDiv = document.getElementById('cedulaError');
+            const btn = document.getElementById('btnSubmit');
+            
+            if (existe) {
+                validationIcon.textContent = '❌';
+                validationIcon.style.color = 'var(--danger)';
+                errorDiv.textContent = '⚠️ Esta cédula ya existe en la base de datos';
+                errorDiv.style.display = 'block';
+                btn.disabled = true;
+                return false;
+            } else {
+                validationIcon.textContent = '✓';
+                validationIcon.style.color = 'var(--success)';
+                errorDiv.style.display = 'none';
+                btn.disabled = false;
+                return true;
+            }
+        }
+
+        async function saveTrabajador(e) {
+            e.preventDefault();
+            if (currentProfile?.role !== 'admin') {
+                showToast('No tiene permisos para registrar trabajadores', 'error');
+                return;
+            }
+
+            const formData = new FormData(e.target);
+            const cedula = formData.get('cedula').toString().trim();
+            
+            // Validar cédula única
+            const existe = trabajadores.some(t => 
+                t.cedula.toString().trim().toLowerCase() === cedula.toLowerCase()
+            );
+            
+            if (existe) {
+                showToast('Error: La cédula ya existe', 'error');
+                return;
+            }
+
+            showLoading(true, 'Guardando en Supabase...');
+
+            // Recopilar hijos
+            const hijos = [];
+            document.querySelectorAll('.hijo-item').forEach(item => {
+                const nombre = item.querySelector('.hijo-nombre')?.value.trim();
+                if (nombre) {
+                    hijos.push({
+                        nombresApellidos: nombre,
+                        cedula: item.querySelector('.hijo-cedula')?.value || '',
+                        sexo: item.querySelector('.hijo-sexo')?.value || '',
+                        fechaNacimiento: item.querySelector('.hijo-fecha')?.value || ''
+                    });
+                }
+            });
+
+            const trabajador = {
+                cedula: cedula,
+                primer_nombre: formData.get('primerNombre') || '',
+                segundo_nombre: formData.get('segundoNombre') || '',
+                primer_apellido: formData.get('primerApellido') || '',
+                segundo_apellido: formData.get('segundoApellido') || '',
+                sexo: formData.get('sexo') || '',
+                fecha_nacimiento: formData.get('fechaNacimiento') || null,
+                estado_civil: formData.get('estadoCivil') || '',
+                direccion: formData.get('direccion') || '',
+                celular: formData.get('celular') || '',
+                correo: formData.get('correo') || '',
+                nivel_academico: formData.get('nivelAcademico') || '',
+                profesion: formData.get('profesion') || '',
+                tipo_personal: formData.get('tipoPersonal') || '',
+                fecha_ingreso: formData.get('fechaIngreso') || null,
+                cargo: formData.get('cargo') || '',
+                codigo: formData.get('codigo') || '',
+                dependencia: formData.get('dependencia') || '',
+                nomina: formData.get('nomina') || '',
+                observaciones: formData.get('observaciones') || '',
+                hijos: hijos,
+                created_by: currentUser.id
+            };
+
+            try {
+                const { data, error } = await supabase
+                    .from('trabajadores')
+                    .insert([trabajador])
+                    .select();
+
+                if (error) throw error;
+
+                showToast('✅ Trabajador guardado en Supabase correctamente');
+                e.target.reset();
+                document.getElementById('hijosContainer').innerHTML = '';
+                resetCedulaValidation();
+                await loadTrabajadores();
+                
+            } catch (error) {
+                showToast('Error: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function deleteTrabajador(id) {
+            if (currentProfile?.role !== 'admin') return;
+            if (!confirm('¿Está seguro de eliminar este trabajador?')) return;
+
+            showLoading(true, 'Eliminando...');
+            
+            try {
+                const { error } = await supabase
+                    .from('trabajadores')
+                    .delete()
+                    .eq('id', id);
+
+                if (error) throw error;
+
+                showToast('Trabajador eliminado');
+                await loadTrabajadores();
+            } catch (error) {
+                showToast('Error: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function editTrabajador(id) {
+            if (currentProfile?.role !== 'admin') return;
+            
+            const t = trabajadores.find(x => x.id === id);
+            if (!t) return;
+
+            // Construir formulario de edición
+            const content = document.getElementById('editFormContent');
+            content.innerHTML = `
+                <div class="form-group" style="grid-column: 1 / -1;">
+                    <label>Cédula (No editable)</label>
+                    <input type="text" value="${t.cedula}" disabled style="background: #f1f5f9;">
+                </div>
+                <div class="form-group"><label>Primer Nombre</label><input type="text" name="primer_nombre" value="${t.primer_nombre || ''}"></div>
+                <div class="form-group"><label>Segundo Nombre</label><input type="text" name="segundo_nombre" value="${t.segundo_nombre || ''}"></div>
+                <div class="form-group"><label>Primer Apellido</label><input type="text" name="primer_apellido" value="${t.primer_apellido || ''}"></div>
+                <div class="form-group"><label>Segundo Apellido</label><input type="text" name="segundo_apellido" value="${t.segundo_apellido || ''}"></div>
+                <div class="form-group"><label>Cargo</label><input type="text" name="cargo" value="${t.cargo || ''}"></div>
+                <div class="form-group"><label>Dependencia</label><input type="text" name="dependencia" value="${t.dependencia || ''}"></div>
+            `;
+            
+            document.getElementById('editId').value = id;
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        async function updateTrabajador(e) {
+            e.preventDefault();
+            const id = document.getElementById('editId').value;
+            const formData = new FormData(e.target);
+            
+            const updates = {};
+            formData.forEach((value, key) => {
+                if (value) updates[key] = value;
+            });
+            updates.updated_by = currentUser.id;
+            updates.updated_at = new Date().toISOString();
+
+            showLoading(true, 'Actualizando...');
+            
+            try {
+                const { error } = await supabase
+                    .from('trabajadores')
+                    .update(updates)
+                    .eq('id', id);
+
+                if (error) throw error;
+
+                showToast('Trabajador actualizado');
+                closeModal();
+                await loadTrabajadores();
+            } catch (error) {
+                showToast('Error: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // ============================================
+        // EXCEL IMPORT/EXPORT
+        // ============================================
+        function handleFileSelect(input) {
+            const label = document.getElementById('fileLabel');
+            const btn = document.getElementById('btnSync');
+            
+            if (input.files && input.files[0]) {
+                selectedFile = input.files[0];
+                label.textContent = `📄 ${selectedFile.name}`;
+                label.style.borderColor = 'var(--success)';
+                label.style.background = 'rgba(5, 150, 105, 0.05)';
+                btn.disabled = false;
+            }
+        }
+
+        async function syncFromExcel() {
+            if (!selectedFile || currentProfile?.role !== 'admin') return;
+            
+            showLoading(true, 'Procesando Excel...');
+            
+            try {
+                const data = await selectedFile.arrayBuffer();
+                const workbook = XLSX.read(data, { type: 'array' });
+                
+                const trabajadoresSheet = workbook.Sheets['Trabajadores'] || workbook.Sheets[workbook.SheetNames[0]];
+                const trabajadoresData = XLSX.utils.sheet_to_json(trabajadoresSheet);
+                
+                // Procesar datos
+                const nuevosTrabajadores = trabajadoresData.map(row => ({
+                    cedula: (row.Cedula || row.cedula || '').toString().trim(),
+                    primer_nombre: row.PrimerNombre || row.primer_nombre || '',
+                    segundo_nombre: row.SegundoNombre || row.segundo_nombre || '',
+                    primer_apellido: row.PrimerApellido || row.primer_apellido || '',
+                    segundo_apellido: row.SegundoApellido || row.segundo_apellido || '',
+                    cargo: row.Cargo || row.cargo || '',
+                    dependencia: row.Dependencia || row.dependencia || '',
+                    sexo: row.Sexo || row.sexo || '',
+                    fecha_nacimiento: row.FechaNacimiento || row.fecha_nacimiento || null,
+                    fecha_ingreso: row.FechaIngreso || row.fecha_ingreso || null,
+                    hijos: [],
+                    created_by: currentUser.id
+                })).filter(t => t.cedula); // Solo con cédula
+
+                // Insertar en Supabase (ignorando duplicados por cédula única)
+                let insertados = 0;
+                let errores = 0;
+                
+                for (const t of nuevosTrabajadores) {
+                    const { error } = await supabase
+                        .from('trabajadores')
+                        .insert([t]);
+                    
+                    if (error) {
+                        if (error.code === '23505') { // Duplicate key
+                            // Actualizar existente
+                            const { error: updateError } = await supabase
+                                .from('trabajadores')
+                                .update(t)
+                                .eq('cedula', t.cedula);
+                            if (!updateError) insertados++;
+                            else errores++;
+                        } else {
+                            errores++;
+                        }
+                    } else {
+                        insertados++;
+                    }
+                }
+
+                document.getElementById('syncStatus').innerHTML = `
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; text-align: center;">
+                        <div style="background: rgba(5, 150, 105, 0.1); padding: 15px; border-radius: 8px;">
+                            <div style="font-size: 24px; font-weight: 700; color: var(--success);">${insertados}</div>
+                            <div style="font-size: 12px;">Procesados</div>
+                        </div>
+                        <div style="background: rgba(220, 38, 38, 0.1); padding: 15px; border-radius: 8px;">
+                            <div style="font-size: 24px; font-weight: 700; color: var(--danger);">${errores}</div>
+                            <div style="font-size: 12px;">Errores</div>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('syncStatus').style.display = 'block';
+
+                selectedFile = null;
+                document.getElementById('excelFile').value = '';
+                document.getElementById('fileLabel').textContent = '📁 Seleccionar archivo Excel (.xlsx)';
+                document.getElementById('fileLabel').style = '';
+                document.getElementById('btnSync').disabled = true;
+
+                await loadTrabajadores();
+                showToast(`✅ Importación completada: ${insertados} registros`);
+
+            } catch (error) {
+                showToast('Error: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function exportToExcel() {
+            if (trabajadores.length === 0) {
+                showToast('No hay datos para exportar', 'error');
+                return;
+            }
+
+            showLoading(true, 'Generando Excel...');
+
+            const trabajadoresData = trabajadores.map(t => ({
+                'Cedula': t.cedula,
+                'PrimerNombre': t.primer_nombre || '',
+                'SegundoNombre': t.segundo_nombre || '',
+                'PrimerApellido': t.primer_apellido || '',
+                'SegundoApellido': t.segundo_apellido || '',
+                'Sexo': t.sexo || '',
+                'FechaNacimiento': t.fecha_nacimiento || '',
+                'Edad': t.fecha_nacimiento ? calcularEdad(t.fecha_nacimiento) : '',
+                'EstadoCivil': t.estado_civil || '',
+                'Direccion': t.direccion || '',
+                'Celular': t.celular || '',
+                'Correo': t.correo || '',
+                'NivelAcademico': t.nivel_academico || '',
+                'Profesion': t.profesion || '',
+                'TipoPersonal': t.tipo_personal || '',
+                'FechaIngreso': t.fecha_ingreso || '',
+                'TiempoServicio': t.fecha_ingreso ? calcularTiempoServicio(t.fecha_ingreso).texto : '',
+                'Cargo': t.cargo || '',
+                'Codigo': t.codigo || '',
+                'Dependencia': t.dependencia || '',
+                'Nomina': t.nomina || '',
+                'Observaciones': t.observaciones || '',
+                'TotalHijos': t.hijos ? t.hijos.length : 0
+            }));
+
+            const hijosData = [];
+            trabajadores.forEach(t => {
+                if (t.hijos && t.hijos.length > 0) {
+                    t.hijos.forEach(h => {
+                        hijosData.push({
+                            'CedulaPadreMadre': t.cedula,
+                            'NombrePadreMadre': `${t.primer_nombre || ''} ${t.primer_apellido || ''}`.trim(),
+                            'NombresApellidosHijo': h.nombresApellidos || '',
+                            'CedulaHijo': h.cedula || '',
+                            'Sexo': h.sexo || '',
+                            'FechaNacimiento': h.fechaNacimiento || ''
+                        });
+                    });
+                }
+            });
+
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(trabajadoresData), 'Trabajadores');
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(hijosData.length > 0 ? hijosData : [{Mensaje: 'No hay hijos registrados'}]), 'Hijos');
+
+            const fecha = new Date().toISOString().split('T')[0];
+            XLSX.writeFile(wb, `CP_Puerto_Miranda_${fecha}.xlsx`);
+            
+            showLoading(false);
+            showToast('📥 Excel descargado correctamente');
+        }
+
+        // ============================================
+        // CONSULTA
+        // ============================================
+        function consultaAvanzada() {
+            const query = document.getElementById('consultaInput').value.toLowerCase().trim();
+            const resultDiv = document.getElementById('consultaResult');
+
+            if (trabajadores.length === 0) {
+                resultDiv.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--danger);">No hay datos registrados</div>';
+                return;
+            }
+
+            let encontrados = trabajadores;
+            if (query) {
+                encontrados = trabajadores.filter(t => {
+                    const searchText = `${t.cedula} ${t.primer_nombre || ''} ${t.segundo_nombre || ''} ${t.primer_apellido || ''} ${t.segundo_apellido || ''} ${t.cargo || ''} ${t.dependencia || ''}`.toLowerCase();
+                    return searchText.includes(query);
+                });
+            }
+
+            if (encontrados.length === 0) {
+                resultDiv.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--secondary);">No se encontraron trabajadores</div>';
+                return;
+            }
+
+            const isAdmin = currentProfile?.role === 'admin';
+            
+            resultDiv.innerHTML = encontrados.map(t => {
+                const nombreCompleto = `${t.primer_nombre || ''} ${t.segundo_nombre || ''} ${t.primer_apellido || ''} ${t.segundo_apellido || ''}`.trim() || 'Sin nombre';
+                const edad = t.fecha_nacimiento ? calcularEdad(t.fecha_nacimiento) : null;
+                const tiempo = t.fecha_ingreso ? calcularTiempoServicio(t.fecha_ingreso) : null;
+
+                return `
+                    <div style="background: white; border-radius: 10px; padding: 20px; margin-bottom: 15px; border: 1px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px; border-bottom: 2px solid var(--border); padding-bottom: 10px;">
+                            <div>
+                                <h3 style="color: var(--cp-blue); margin-bottom: 5px; font-size: 18px;">${nombreCompleto}</h3>
+                                <span style="background: var(--cp-blue); color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px;">${t.cedula}</span>
+                            </div>
+                            ${isAdmin ? `
+                                <div style="display: flex; gap: 5px;">
+                                    <button class="btn btn-secondary" onclick="editTrabajador('${t.id}')" style="padding: 5px 10px; font-size: 12px;">✏️ Editar</button>
+                                    <button class="btn btn-danger" onclick="deleteTrabajador('${t.id}')" style="padding: 5px 10px; font-size: 12px;">🗑️ Eliminar</button>
+                                </div>
+                            ` : ''}
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; font-size: 13px;">
+                            <div style="padding: 8px; background: rgba(74, 144, 226, 0.05); border-radius: 6px;">
+                                <strong style="color: var(--cp-blue);">Cargo:</strong> ${t.cargo || 'No especificado'}
+                            </div>
+                            <div style="padding: 8px; background: rgba(74, 144, 226, 0.05); border-radius: 6px;">
+                                <strong style="color: var(--cp-blue);">Dependencia:</strong> ${t.dependencia || 'No especificada'}
+                            </div>
+                            <div style="padding: 8px; background: rgba(74, 144, 226, 0.05); border-radius: 6px;">
+                                <strong style="color: var(--cp-blue);">Edad:</strong> ${edad !== null ? edad + ' años' : 'No especificada'}
+                            </div>
+                            <div style="padding: 8px; background: rgba(74, 144, 226, 0.05); border-radius: 6px;">
+                                <strong style="color: var(--cp-blue);">Tiempo de Servicio:</strong> ${tiempo ? tiempo.texto : 'No especificado'}
+                            </div>
+                            <div style="padding: 8px; background: rgba(74, 144, 226, 0.05); border-radius: 6px;">
+                                <strong style="color: var(--cp-blue);">Sexo:</strong> ${t.sexo || 'No especificado'}
+                            </div>
+                            <div style="padding: 8px; background: rgba(74, 144, 226, 0.05); border-radius: 6px;">
+                                <strong style="color: var(--cp-blue);">Estado Civil:</strong> ${t.estado_civil || 'No especificado'}
+                            </div>
+                            <div style="padding: 8px; background: rgba(74, 144, 226, 0.05); border-radius: 6px;">
+                                <strong style="color: var(--cp-blue);">Celular:</strong> ${t.celular || 'No especificado'}
+                            </div>
+                            <div style="padding: 8px; background: rgba(74, 144, 226, 0.05); border-radius: 6px;">
+                                <strong style="color: var(--cp-blue);">Correo:</strong> ${t.correo || 'No especificado'}
+                            </div>
+                        </div>
+
+                        ${t.hijos && t.hijos.length > 0 ? `
+                            <div style="margin-top: 15px; padding-top: 15px; border-top: 2px solid var(--border);">
+                                <h4 style="color: var(--success); margin-bottom: 10px; font-size: 14px;">👶 Hijos/Dependientes (${t.hijos.length})</h4>
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 10px;">
+                                    ${t.hijos.map(h => `
+                                        <div style="background: rgba(16, 185, 129, 0.1); padding: 12px; border-radius: 8px; border-left: 3px solid var(--success);">
+                                            <div style="font-weight: 600; color: var(--text); margin-bottom: 3px;">${h.nombresApellidos || 'Sin nombre'}</div>
+                                            <div style="color: var(--secondary); font-size: 12px;">
+                                                ${h.cedula ? `Cédula: ${h.cedula} | ` : ''}
+                                                ${h.sexo ? `${h.sexo}` : ''}
+                                                ${h.fechaNacimiento ? ` | Nacimiento: ${h.fechaNacimiento}` : ''}
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ============================================
+        // UTILIDADES UI
+        // ============================================
+        function showSection(sectionId) {
+            // Validar permisos
+            if (currentProfile?.role === 'consulta') {
+                const allowedSections = ['dashboard', 'consulta'];
+                if (!allowedSections.includes(sectionId)) {
+                    showToast('No tiene permisos para acceder a esta sección', 'error');
+                    return;
+                }
+            }
+
+            document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+            document.getElementById(sectionId)?.classList.add('active');
+            
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            document.getElementById('nav' + sectionId.charAt(0).toUpperCase() + sectionId.slice(1))?.classList.add('active');
+
+            const titles = {
+                'dashboard': 'Dashboard',
+                'consulta': 'Consulta de Trabajadores',
+                'registrar': 'Nuevo Registro',
+                'trabajadores': 'Lista de Trabajadores',
+                'usuarios': 'Gestión de Usuarios',
+                'migration': 'Importar desde Excel',
+                'export': 'Exportar a Excel'
+            };
+            document.getElementById('pageTitle').textContent = titles[sectionId] || 'Dashboard';
+
+            // Cargar datos específicos de la sección
+            if (sectionId === 'dashboard') {
+                loadTrabajadores();
+            } else if (sectionId === 'export') {
+                updateExportPreview();
+            } else if (sectionId === 'usuarios' && isSuperVerified) {
+                loadUsers();
+            }
+        }
+
+        function updateExportPreview() {
+            const totalHijos = trabajadores.reduce((acc, t) => acc + (t.hijos ? t.hijos.length : 0), 0);
+            document.getElementById('exportTotalTrabajadores').textContent = trabajadores.length;
+            document.getElementById('exportTotalHijos').textContent = totalHijos;
+
+            const preview = trabajadores.slice(0, 5);
+            document.getElementById('previewTrabajadores').innerHTML = preview.length ? preview.map(t => `
+                <tr>
+                    <td>${t.cedula}</td>
+                    <td>${t.primer_nombre || ''} ${t.primer_apellido || ''}</td>
+                    <td>${t.cargo || 'No especificado'}</td>
+                    <td>${t.fecha_nacimiento ? calcularEdad(t.fecha_nacimiento) + ' años' : '-'}</td>
+                    <td>${t.fecha_ingreso ? calcularTiempoServicio(t.fecha_ingreso).texto : '-'}</td>
+                </tr>
+            `).join('') : '<tr><td colspan="5" style="text-align: center; color: var(--secondary);">Sin datos</td></tr>';
+        }
+
+        function addHijo() {
+            const container = document.getElementById('hijosContainer');
+            const div = document.createElement('div');
+            div.className = 'hijo-item';
+            div.innerHTML = `
+                <input type="text" placeholder="Nombres y Apellidos" class="hijo-nombre" required>
+                <input type="text" placeholder="Cédula" class="hijo-cedula">
+                <select class="hijo-sexo">
+                    <option value="">Sexo</option>
+                    <option value="Masculino">M</option>
+                    <option value="Femenino">F</option>
+                </select>
+                <input type="date" class="hijo-fecha">
+                <button type="button" class="btn btn-danger" onclick="this.parentElement.remove()" style="padding: 5px 10px;">🗑️</button>
+            `;
+            container.appendChild(div);
+        }
+
+        function resetCedulaValidation() {
+            document.getElementById('cedulaValidation').textContent = '';
+            document.getElementById('cedulaError').style.display = 'none';
+            document.getElementById('btnSubmit').disabled = false;
+        }
+
+        function resetForm() {
+            document.getElementById('hijosContainer').innerHTML = '';
+            resetCedulaValidation();
+        }
+
+        function closeModal() {
+            document.getElementById('editModal').classList.remove('active');
+        }
+
+        function showLoading(show, text = 'Cargando...') {
+            document.getElementById('loadingOverlay').classList.toggle('active', show);
+            document.getElementById('loadingText').textContent = text;
+        }
+
+        function showToast(msg, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.className = 'toast ' + (type === 'error' ? 'error' : type === 'warning' ? 'warning' : '');
+            toast.style.display = 'block';
+            setTimeout(() => toast.style.display = 'none', 3000);
+        }
+
+        // Cerrar modales al hacer clic fuera
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
