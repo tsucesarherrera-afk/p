@@ -144,6 +144,18 @@
             border-left: 4px solid var(--danger);
         }
 
+        .debug-info {
+            background: #f0f9ff;
+            border: 1px solid #0ea5e9;
+            color: #0369a1;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 15px;
+            font-size: 12px;
+            text-align: left;
+            display: none;
+        }
+
         .app-container {
             display: none;
             min-height: 100vh;
@@ -736,6 +748,11 @@
                 <p><strong>Admin:</strong> admin@cpmiranda.gob.ve / Admin2024!</p>
                 <p><strong>Consulta:</strong> consulta@cpmiranda.gob.ve / Consulta2024!</p>
             </div>
+
+            <div class="debug-info" id="debugInfo"></div>
+            <button type="button" onclick="toggleDebug()" style="margin-top: 10px; font-size: 11px; background: none; border: none; color: var(--secondary); cursor: pointer;">
+                Mostrar/Ocultar diagnóstico
+            </button>
         </div>
     </div>
 
@@ -1235,10 +1252,25 @@
 
     <script>
         // ============================================
-        // CONFIGURACIÓN SUPABASE
+        // CONFIGURACIÓN SUPABASE - REEMPLAZA ESTOS VALORES
         // ============================================
-        const SUPABASE_URL = 'https://ybwiunygrtbczgeyxmwc.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlid2l1bnlncnRiY3pnZXl4bXdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzMTY3NDUsImV4cCI6MjA5MTg5Mjc0NX0.7gKk8Jf5Dqr_1LhvtdQ5m2lG_2YApnuR8t4o9RKixt0';
+        // INSTRUCCIONES:
+        // 1. Ve a https://supabase.com
+        // 2. Crea un proyecto nuevo
+        // 3. Ve a Project Settings > API
+        // 4. Copia Project URL y anon public key
+        // 5. Reemplaza aquí abajo:
+        
+        const SUPABASE_URL = 'https://TU_PROYECTO.supabase.co'; // ← REEMPLAZAR
+        const SUPABASE_ANON_KEY = 'TU_ANON_KEY_AQUI'; // ← REEMPLAZAR
+
+        // ============================================
+        // VALIDACIÓN DE CONFIGURACIÓN
+        // ============================================
+        if (SUPABASE_URL.includes('TU_PROYECTO') || SUPABASE_ANON_KEY.includes('TU_ANON')) {
+            console.error('❌ ERROR: Debes configurar tus credenciales de Supabase');
+            alert('⚠️ CONFIGURACIÓN PENDIENTE\n\nDebes reemplazar SUPABASE_URL y SUPABASE_ANON_KEY con tus credenciales reales.\n\nObténlas en: https://supabase.com → Tu Proyecto → Settings → API');
+        }
 
         let supabase = null;
         let currentUser = null;
@@ -1246,19 +1278,47 @@
         let trabajadores = [];
         let isOnline = false;
 
-        // Clave maestra para crear admins (en producción, esto debería estar en variables de entorno)
+        // Clave maestra para crear admins
         const SUPER_ADMIN_KEY = 'CPM2024#MASTER';
 
         // ============================================
         // INICIALIZACIÓN
         // ============================================
         document.addEventListener('DOMContentLoaded', async () => {
-            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            
-            // Verificar sesión existente
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session) {
-                await loadUserProfile(session.user);
+            // Verificar que las credenciales están configuradas
+            if (SUPABASE_URL.includes('TU_PROYECTO') || SUPABASE_ANON_KEY.includes('TU_ANON')) {
+                showError('⚠️ Configure sus credenciales de Supabase en el código fuente');
+                document.getElementById('loginBtn').disabled = true;
+                return;
+            }
+
+            try {
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                console.log('✅ Supabase inicializado');
+                
+                // Verificar conexión
+                const { data, error } = await supabase.from('trabajadores').select('count', { count: 'exact', head: true });
+                
+                if (error) {
+                    console.warn('⚠️ Error de conexión inicial:', error.message);
+                    showDebugInfo('Conexión: ' + error.message);
+                } else {
+                    console.log('✅ Conexión a base de datos OK');
+                    isOnline = true;
+                }
+                
+                // Verificar sesión existente
+                const { data: { session } } = await supabase.auth.getSession();
+                if (session) {
+                    console.log('✅ Sesión existente encontrada');
+                    await loadUserProfile(session.user);
+                } else {
+                    console.log('ℹ️ No hay sesión activa');
+                }
+            } catch (err) {
+                console.error('❌ Error inicializando:', err);
+                showError('Error de conexión: ' + err.message);
+                showDebugInfo('Error: ' + err.message);
             }
         });
 
@@ -1267,10 +1327,19 @@
         // ============================================
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            showLoading(true, 'Iniciando sesión...');
             
-            const email = document.getElementById('email').value;
+            if (!supabase) {
+                showError('Supabase no está inicializado. Verifique la configuración.');
+                return;
+            }
+            
+            showLoading(true, 'Iniciando sesión...');
+            hideError();
+            
+            const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
+            
+            console.log('🔐 Intentando login con:', email);
             
             try {
                 const { data, error } = await supabase.auth.signInWithPassword({
@@ -1278,31 +1347,93 @@
                     password
                 });
                 
-                if (error) throw error;
+                if (error) {
+                    console.error('❌ Error de login:', error);
+                    throw error;
+                }
                 
+                console.log('✅ Login exitoso:', data.user.email);
                 await loadUserProfile(data.user);
-                logSecurityEvent('LOGIN', `Usuario ${email} inició sesión`);
                 
             } catch (error) {
-                showError('Credenciales inválidas: ' + error.message);
+                console.error('❌ Error completo:', error);
+                let msg = error.message;
+                
+                // Mensajes más amigables
+                if (error.message.includes('Invalid login credentials')) {
+                    msg = 'Credenciales inválidas. Verifique email y contraseña.';
+                } else if (error.message.includes('Email not confirmed')) {
+                    msg = 'Email no confirmado. Verifique su correo.';
+                } else if (error.message.includes('rate limit')) {
+                    msg = 'Demasiados intentos. Espere un momento.';
+                }
+                
+                showError(msg);
+                showDebugInfo('Error: ' + error.message + ' | Código: ' + (error.code || 'N/A'));
                 showLoading(false);
             }
         });
 
         async function loadUserProfile(user) {
+            console.log('👤 Cargando perfil para:', user.id);
+            
             try {
+                // Primero verificar si la tabla existe
+                const { error: tableError } = await supabase
+                    .from('user_profiles')
+                    .select('count', { count: 'exact', head: true });
+                
+                if (tableError) {
+                    console.error('❌ Error tabla user_profiles:', tableError);
+                    throw new Error('Tabla user_profiles no existe. Ejecute el SQL primero.');
+                }
+                
                 const { data: profile, error } = await supabase
                     .from('user_profiles')
                     .select('*')
                     .eq('id', user.id)
                     .single();
                 
-                if (error) throw error;
+                if (error) {
+                    console.error('❌ Error cargando perfil:', error);
+                    
+                    // Si no existe perfil, crear uno básico
+                    if (error.code === 'PGRST116') {
+                        console.log('⚠️ Perfil no encontrado, creando...');
+                        
+                        const { error: insertError } = await supabase
+                            .from('user_profiles')
+                            .insert([{
+                                id: user.id,
+                                role: 'consulta',
+                                nombre_completo: user.email,
+                                activo: true
+                            }]);
+                        
+                        if (insertError) {
+                            throw new Error('No se pudo crear perfil: ' + insertError.message);
+                        }
+                        
+                        // Recargar
+                        const { data: newProfile } = await supabase
+                            .from('user_profiles')
+                            .select('*')
+                            .eq('id', user.id)
+                            .single();
+                        
+                        currentProfile = newProfile;
+                    } else {
+                        throw error;
+                    }
+                } else {
+                    currentProfile = profile;
+                }
                 
                 currentUser = user;
-                currentProfile = profile;
                 
-                // Configurar UI según rol
+                console.log('✅ Perfil cargado:', currentProfile);
+                
+                // Configurar UI
                 configureUI();
                 
                 // Mostrar app
@@ -1318,10 +1449,12 @@
                 updateStats();
                 loadRecent();
                 
-                showToast(`Bienvenido, ${profile.nombre_completo || user.email}`);
+                showToast(`Bienvenido, ${currentProfile?.nombre_completo || user.email}`);
                 
             } catch (error) {
+                console.error('❌ Error fatal en loadUserProfile:', error);
                 showError('Error cargando perfil: ' + error.message);
+                showDebugInfo('Error perfil: ' + error.message);
                 await supabase.auth.signOut();
                 showLoading(false);
             }
@@ -1342,7 +1475,7 @@
             document.getElementById('userLevelDisplay').textContent = 
                 `Nivel: ${isAdmin ? 'Administrador' : 'Solo Consulta'}`;
             document.getElementById('userRoleBadge').textContent = 
-                `Rol: ${currentProfile?.role.toUpperCase()}`;
+                `Rol: ${currentProfile?.role?.toUpperCase() || 'DESCONOCIDO'}`;
             
             // Mostrar/ocultar elementos según rol
             document.querySelectorAll('.admin-only').forEach(el => {
@@ -1351,7 +1484,7 @@
             
             if (!isAdmin) {
                 document.getElementById('userAvatar').classList.add('consulta');
-                showSection('consulta');
+                setTimeout(() => showSection('consulta'), 100);
             }
         }
 
@@ -1429,6 +1562,7 @@
 
         function openUserModal() {
             document.getElementById('userForm').reset();
+            document.getElementById('adminKeyVerify').classList.add('hidden');
             document.getElementById('userModal').classList.add('active');
         }
 
@@ -1474,7 +1608,7 @@
                 
                 if (authError) throw authError;
                 
-                // El trigger creará el perfil automáticamente, pero actualizamos datos adicionales
+                // Actualizar datos adicionales
                 if (authData.user) {
                     const { error: updateError } = await supabase
                         .from('user_profiles')
@@ -1534,6 +1668,7 @@
                 renderTrabajadoresTable();
                 
             } catch (error) {
+                console.error('Error cargando trabajadores:', error);
                 showToast('Error cargando trabajadores: ' + error.message, 'error');
             }
         }
@@ -1573,19 +1708,25 @@
         async function checkCedulaExists(cedula) {
             if (!cedula) return;
             
-            const { data } = await supabase
-                .from('trabajadores')
-                .select('cedula')
-                .eq('cedula', cedula)
-                .single();
-            
-            const check = document.getElementById('cedulaCheck');
-            if (data) {
-                check.textContent = '❌ Esta cédula ya existe';
-                check.style.color = 'var(--danger)';
-            } else {
-                check.textContent = '✅ Cédula disponible';
-                check.style.color = 'var(--success)';
+            try {
+                const { data } = await supabase
+                    .from('trabajadores')
+                    .select('cedula')
+                    .eq('cedula', cedula)
+                    .single();
+                
+                const check = document.getElementById('cedulaCheck');
+                if (data) {
+                    check.textContent = '❌ Esta cédula ya existe';
+                    check.style.color = 'var(--danger)';
+                } else {
+                    check.textContent = '✅ Cédula disponible';
+                    check.style.color = 'var(--success)';
+                }
+            } catch (e) {
+                // No existe = disponible
+                document.getElementById('cedulaCheck').textContent = '✅ Cédula disponible';
+                document.getElementById('cedulaCheck').style.color = 'var(--success)';
             }
         }
 
@@ -1601,15 +1742,19 @@
             const cedula = formData.get('cedula');
             
             // Verificar cédula única
-            const { data: existing } = await supabase
-                .from('trabajadores')
-                .select('id')
-                .eq('cedula', cedula)
-                .single();
-            
-            if (existing) {
-                showToast('Error: La cédula ya existe', 'error');
-                return;
+            try {
+                const { data: existing } = await supabase
+                    .from('trabajadores')
+                    .select('id')
+                    .eq('cedula', cedula)
+                    .single();
+                
+                if (existing) {
+                    showToast('Error: La cédula ya existe', 'error');
+                    return;
+                }
+            } catch (e) {
+                // No existe, continuar
             }
             
             const hijos = [];
@@ -1973,7 +2118,7 @@
                     action,
                     details,
                     user_agent: navigator.userAgent.substring(0, 100)
-                });
+                }]);
             } catch (e) {
                 console.error('Error logging:', e);
             }
@@ -2052,6 +2197,21 @@
             const errorDiv = document.getElementById('loginError');
             errorDiv.textContent = msg;
             errorDiv.style.display = 'block';
+        }
+
+        function hideError() {
+            document.getElementById('loginError').style.display = 'none';
+        }
+
+        function showDebugInfo(msg) {
+            const debug = document.getElementById('debugInfo');
+            debug.textContent = msg;
+            debug.style.display = 'block';
+        }
+
+        function toggleDebug() {
+            const debug = document.getElementById('debugInfo');
+            debug.style.display = debug.style.display === 'none' ? 'block' : 'none';
         }
 
         function updateCloudStatus(status, text) {
