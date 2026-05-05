@@ -242,15 +242,15 @@
             <div class="sidebar-logo">
                 <h3>Consultorio Popular<br>Tipo II<br>Puerto Miranda</h3>
             </div>
-
+<!--
             <div class="db-info">
-                <label>☁️ Base de Datos</label>
-                <div class="db-status" id="dbStatus">Cargando...</div>
+               <label>☁️ Base de Datos</label>
+               <div class="db-status" id="dbStatus">Cargando...</div>
                 <div style="margin-top: 8px; font-size: 10px;">
                     <span class="badge badge-success" id="userRoleBadge">Rol: -</span>
                 </div>
             </div>
-
+-->
             <nav>
                 <ul class="nav-menu" id="navMenu">
                     <li class="nav-item">
@@ -1129,7 +1129,7 @@
                 document.getElementById('appContainer').style.display = 'block';
                 document.body.style.background = 'var(--bg)';
 
-                updateCloudStatus('online', 'Conectado a Supabase');
+                updateCloudStatus('online', 'Conectado');
                 showLoading(false);
 
                 await loadTrabajadores();
