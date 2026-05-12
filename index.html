@@ -1,359 +1,770 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sala de Rehabilitación Leoncio Páez</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script type="module">
-    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-
-    const SUPABASE_URL = 'https://zrdyhalokzcdartdlgrn.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_vIesD6EbjZa-Xj2-zeB42g_yi6YzYAX';
-    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    let currentUser = null;
-    let currentProfile = null;
-    let inactivityTimer, warningTimer, countdownInterval, logoutTimer;
-
-    // Elementos DOM
-    const loginPage = document.getElementById('login-page');
-    const registerPage = document.getElementById('register-page');
-    const dashboardPage = document.getElementById('dashboard-page');
-    const logoutModal = document.getElementById('logout-modal');
-    const inactivityModal = document.getElementById('inactivity-modal');
-    const countdownSpan = document.getElementById('countdown');
-    const continueBtn = document.getElementById('continue-session');
-    const confirmLogoutBtn = document.getElementById('confirm-logout');
-    const cancelLogoutBtn = document.getElementById('cancel-logout');
-
-    // Utilidades
-    function showModal(modal) { modal.classList.remove('hidden'); }
-    function hideModal(modal) { modal.classList.add('hidden'); }
-    function formatDate(d) { return new Date(d).toLocaleDateString('es-VE',{timeZone:'UTC'}); }
-    function calcularEdad(f) {
-      const hoy = new Date(), nac = new Date(f);
-      let e = hoy.getFullYear() - nac.getFullYear();
-      const m = hoy.getMonth() - nac.getMonth();
-      if (m<0 || (m===0 && hoy.getDate()<nac.getDate())) e--;
-      return e;
-    }
-
-    // 🔐 Control de inactividad
-    function resetInactivityTimer() {
-      clearTimeout(inactivityTimer); clearTimeout(warningTimer); clearInterval(countdownInterval);
-      hideModal(inactivityModal);
-      warningTimer = setTimeout(showInactivityWarning, 570000);
-      inactivityTimer = setTimeout(logout, 600000);
-    }
-    function showInactivityWarning() {
-      showModal(inactivityModal);
-      let s=30; countdownSpan.textContent = s;
-      clearInterval(countdownInterval);
-      countdownInterval = setInterval(() => {
-        s--; countdownSpan.textContent = s;
-        if(s<=0){ clearInterval(countdownInterval); logout(); }
-      },1000);
-      continueBtn.onclick = ()=>{ clearInterval(countdownInterval); hideModal(inactivityModal); resetInactivityTimer(); };
-    }
-    window.addEventListener('mousemove',resetInactivityTimer);
-    window.addEventListener('keydown',resetInactivityTimer);
-    window.addEventListener('click',resetInactivityTimer);
-
-    // Cerrar sesión
-    async function logout() {
-      clearTimeout(inactivityTimer); clearTimeout(warningTimer); clearInterval(countdownInterval);
-      await supabase.auth.signOut();
-      currentUser=null; currentProfile=null;
-      hideModal(logoutModal); hideModal(inactivityModal);
-      showLoginPage();
-    }
-
-    // Páginas
-    function showLoginPage(){ loginPage.classList.remove('hidden'); registerPage.classList.add('hidden'); dashboardPage.classList.add('hidden'); }
-    function showRegisterPage(){ loginPage.classList.add('hidden'); registerPage.classList.remove('hidden'); dashboardPage.classList.add('hidden'); }
-    function showDashboard(){ loginPage.classList.add('hidden'); registerPage.classList.add('hidden'); dashboardPage.classList.remove('hidden'); renderDashboard(); }
-
-    // 🔐 Login con control de bloqueo
-    document.getElementById('login-form').addEventListener('submit', async e => {
-      e.preventDefault();
-      const email = document.getElementById('login-email').value.trim();
-      const password = document.getElementById('login-password').value;
-
-      // 1. Verificar si la cuenta está bloqueada
-      const { data: lockedData } = await supabase.rpc('check_user_lock', { user_email: email });
-      if (lockedData) {
-        alert('Usuario bloqueado por múltiples intentos fallidos. Contacte al superadministrador.');
-        return;
-      }
-
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) {
-        // Incrementar fallos y notificar
-        await supabase.rpc('increment_failed_attempt', { user_email: email });
-        alert('Error: ' + error.message);
-        return;
-      }
-
-      // Login exitoso: reiniciar contador
-      await supabase.rpc('reset_failed_attempts', { user_id: data.user.id });
-      currentUser = data.user;
-      await cargarPerfil();
-      showDashboard();
-      resetInactivityTimer();
-    });
-
-    // 📝 Registro de pacientes (público)
-    document.getElementById('register-form').addEventListener('submit', async e => {
-      e.preventDefault();
-      const nombres = document.getElementById('reg-nombres').value.trim();
-      const apellidos = document.getElementById('reg-apellidos').value.trim();
-      const cedula = document.getElementById('reg-cedula').value.trim();
-      const fecha_nacimiento = document.getElementById('reg-fecha').value;
-      const celular = document.getElementById('reg-celular').value.trim();
-      const email = document.getElementById('reg-email').value.trim();
-
-      const res = await fetch(`${SUPABASE_URL}/functions/v1/create-user`, {
-        method: 'POST',
-        headers: { 'Content-Type':'application/json', 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` },
-        body: JSON.stringify({ email, role:'paciente', nombres, apellidos, cedula, fecha_nacimiento, celular })
-      });
-      const result = await res.json();
-      if(!res.ok) alert('Error: ' + result.error);
-      else {
-        alert('Registro exitoso. Revise su correo electrónico para la contraseña.');
-        showLoginPage();
-      }
-    });
-
-    // Cargar perfil
-    async function cargarPerfil() {
-      const { data, error } = await supabase.from('profiles').select('*').eq('user_id', currentUser.id).single();
-      if(error) throw error;
-      currentProfile = data;
-    }
-
-    // Botón cierre sesión
-    document.getElementById('logout-btn').addEventListener('click', ()=> showModal(logoutModal));
-    cancelLogoutBtn.addEventListener('click', ()=> hideModal(logoutModal));
-    confirmLogoutBtn.addEventListener('click', ()=>{ hideModal(logoutModal); logout(); });
-
-    // Navegación entre login/registro
-    document.getElementById('link-register').addEventListener('click', e=>{ e.preventDefault(); showRegisterPage(); });
-    document.getElementById('link-login').addEventListener('click', e=>{ e.preventDefault(); showLoginPage(); });
-
-    // Dashboard
-    async function renderDashboard() {
-      if(!currentProfile) await cargarPerfil();
-      const role = currentProfile.role;
-      const nav = document.getElementById('dashboard-nav');
-      const content = document.getElementById('dashboard-content');
-      nav.innerHTML = ''; content.innerHTML = '';
-
-      const menuItems = [];
-      if(role==='superadmin') menuItems.push('Usuarios','Pacientes','Historias','Citas','Feriados');
-      else if(role==='admin') menuItems.push('Pacientes','Historias','Citas');
-      else if(role==='assistant') menuItems.push('Pacientes','Citas');
-      else if(role==='paciente') menuItems.push('Mi Perfil','Mis Citas');
-
-      menuItems.forEach(item => {
-        const btn = document.createElement('button');
-        btn.className = 'px-4 py-2 bg-blue-100 rounded hover:bg-blue-200';
-        btn.textContent = item;
-        btn.addEventListener('click', ()=> loadModule(item));
-        nav.appendChild(btn);
-      });
-      if(menuItems.length) loadModule(menuItems[0]);
-    }
-
-    // Cargar módulo según el nombre
-    async function loadModule(name) {
-      const content = document.getElementById('dashboard-content');
-      content.innerHTML = '';
-      const role = currentProfile.role;
-      if(name==='Usuarios' && role==='superadmin') await mostrarUsuarios(content);
-      else if(name==='Pacientes') await mostrarPacientes(content);
-      else if(name==='Historias' && (role==='admin'||role==='superadmin')) await mostrarHistorias(content);
-      else if(name==='Citas') await mostrarCitas(content);
-      else if(name==='Feriados' && role==='superadmin') await mostrarFeriados(content);
-      else if(name==='Mi Perfil' && role==='paciente') await mostrarPerfilPaciente(content);
-      else if(name==='Mis Citas' && role==='paciente') await mostrarCitasPaciente(content);
-    }
-
-    // 📋 Módulo Usuarios (solo superadmin)
-    async function mostrarUsuarios(container) {
-      const { data: users, error } = await supabase.from('profiles').select('*');
-      if(error) return alert(error.message);
-      let html = '<h3 class="text-xl font-bold mb-4">Gestión de Usuarios</h3>';
-      html += '<button id="crear-usuario-btn" class="bg-green-500 text-white px-3 py-1 rounded mb-4">Nuevo Usuario</button>';
-      html += '<div id="form-usuario" class="hidden mb-4"></div>';
-      html += '<table class="w-full"><tr><th>Nombre</th><th>Email</th><th>Rol</th><th>Bloqueado</th><th>Acciones</th></tr>';
-      users.forEach(u => {
-        html += `<tr><td>${u.nombres} ${u.apellidos}</td><td>${u.email}</td><td>${u.role}</td>
-        <td>${u.locked ? 'Sí' : 'No'}</td>
-        <td>
-          <button data-id="${u.id}" class="text-blue-600 edit-user">Editar</button>
-          <button data-id="${u.id}" class="text-red-600 ml-2 delete-user">Eliminar</button>
-          ${u.locked ? `<button data-id="${u.id}" class="text-green-600 ml-2 unlock-user">Desbloquear</button>` : ''}
-        </td></tr>`;
-      });
-      html += '</table>';
-      container.innerHTML = html;
-
-      // Mostrar formulario para crear usuario nuevo
-      document.getElementById('crear-usuario-btn').addEventListener('click', async () => {
-        const formDiv = document.getElementById('form-usuario');
-        formDiv.classList.toggle('hidden');
-        formDiv.innerHTML = `
-          <h4 class="font-bold">Nuevo Usuario</h4>
-          <input id="new-nombres" placeholder="Nombres" class="w-full p-2 border mb-1">
-          <input id="new-apellidos" placeholder="Apellidos" class="w-full p-2 border mb-1">
-          <input id="new-cedula" placeholder="Cédula" class="w-full p-2 border mb-1">
-          <input id="new-fecha" type="date" class="w-full p-2 border mb-1">
-          <input id="new-celular" placeholder="Celular" class="w-full p-2 border mb-1">
-          <input id="new-email" type="email" placeholder="Correo electrónico" class="w-full p-2 border mb-1">
-          <select id="new-role" class="w-full p-2 border mb-2">
-            <option value="admin">Fisiatra (admin)</option>
-            <option value="assistant">Asistente</option>
-          </select>
-          <button id="save-user" class="bg-blue-500 text-white px-3 py-1 rounded">Guardar</button>
-          <button id="cancel-form" class="bg-gray-300 px-3 py-1 rounded ml-2">Cancelar</button>
-        `;
-        document.getElementById('save-user').addEventListener('click', async () => {
-          const nombres = document.getElementById('new-nombres').value.trim();
-          const apellidos = document.getElementById('new-apellidos').value.trim();
-          const cedula = document.getElementById('new-cedula').value.trim();
-          const fecha_nacimiento = document.getElementById('new-fecha').value;
-          const celular = document.getElementById('new-celular').value.trim();
-          const email = document.getElementById('new-email').value.trim();
-          const role = document.getElementById('new-role').value;
-          if(!nombres||!apellidos||!cedula||!fecha_nacimiento||!email) return alert('Complete todos los campos obligatorios');
-          // Llamar a la función Edge con token del superadmin
-          const token = (await supabase.auth.getSession()).data.session?.access_token;
-          const res = await fetch(`${SUPABASE_URL}/functions/v1/create-user`, {
-            method:'POST',
-            headers: { 'Content-Type':'application/json', 'Authorization': `Bearer ${token}` },
-            body: JSON.stringify({ email, role, nombres, apellidos, cedula, fecha_nacimiento, celular })
-          });
-          const result = await res.json();
-          if(!res.ok) alert(result.error);
-          else {
-            alert('Usuario creado exitosamente');
-            loadModule('Usuarios');
-          }
-        });
-        document.getElementById('cancel-form').addEventListener('click', ()=> formDiv.classList.add('hidden'));
-      });
-
-      // Delegación de eventos para editar/eliminar/desbloquear
-      container.addEventListener('click', async (e) => {
-        const btn = e.target;
-        const id = btn.dataset.id;
-        if(btn.classList.contains('delete-user')) {
-          if(!confirm('¿Eliminar este usuario?')) return;
-          const { error } = await supabase.from('profiles').delete().eq('id', id);
-          if(error) alert(error.message);
-          else loadModule('Usuarios');
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sala de Rehabilitación Leoncio Páez</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --primary: #C0392B;
+            --primary-light: #E74C3C;
+            --secondary: #F39C12;
+            --bg: #FFF8F0;
+            --card: #FFFFFF;
+            --text: #2C3E50;
+            --text-light: #7F8C8D;
+            --border: #FADBD8;
+            --success: #27AE60;
+            --warning: #E67E22;
+            --danger: #C0392B;
+            --shadow: 0 4px 12px rgba(192, 57, 43, 0.1);
         }
-        else if(btn.classList.contains('unlock-user')) {
-          await supabase.from('profiles').update({ locked: false, failed_attempts: 0 }).eq('id', id);
-          loadModule('Usuarios');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
-        // Edición avanzada se puede implementar de forma similar
-      });
-    }
-
-    // 📋 Módulo Pacientes (para staff y superadmin)
-    async function mostrarPacientes(container) {
-      let query = supabase.from('profiles').select('*').eq('role','paciente');
-      const { data, error } = await query;
-      if(error) return alert(error.message);
-      let html = '<h3 class="text-xl font-bold mb-4">Pacientes</h3>';
-      html += '<table class="w-full"><tr><th>Cédula</th><th>Nombre</th><th>Edad</th><th>Acciones</th></tr>';
-      data.forEach(p => {
-        html += `<tr><td>${p.cedula}</td><td>${p.nombres} ${p.apellidos}</td><td>${calcularEdad(p.fecha_nacimiento)}</td>
-        <td><button data-id="${p.id}" class="text-blue-600">Ver/Editar</button>
-        <button data-id="${p.id}" class="text-red-600 ml-2">Eliminar</button></td></tr>`;
-      });
-      html += '</table>';
-      container.innerHTML = html;
-      // Funcionalidad de edición/eliminación similar
-    }
-
-    // Módulos de Historias, Citas, Feriados... (reutiliza los del código original, solo ajusta los nombres de las funciones)
-    // Para abreviar, se incluyen las versiones básicas que ya funcionaban.
-    // Asegúrate de copiar las funciones mostrarHistorias, mostrarCitas, mostrarCitasPaciente, mostrarFeriados y mostrarPerfilPaciente del bloque original 
-    // con las llamadas correctas a Supabase.
-
-    // (Incluir aquí el resto de funciones del código anterior: mostrarHistorias, mostrarCitas, etc.)
-    
-    // ⚡ Inicialización
-    supabase.auth.onAuthStateChange(async (event, session) => {
-      if(session?.user){
-        currentUser = session.user;
-        await cargarPerfil();
-        showDashboard();
-        resetInactivityTimer();
-      } else {
-        currentUser=null; currentProfile=null;
-        showLoginPage();
-      }
-    });
-    const { data: { session } } = await supabase.auth.getSession();
-    if(session) { currentUser=session.user; await cargarPerfil(); showDashboard(); resetInactivityTimer(); }
-    else showLoginPage();
-  </script>
+        .container {
+            width: 100%;
+            max-width: 1300px;
+            margin: 20px;
+            background: var(--card);
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .header h1 { font-size: 1.4em; display: flex; align-items: center; gap: 10px; }
+        .header .user-info { display: flex; align-items: center; gap: 15px; }
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            font-size: 0.9em;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: #A93226; }
+        .btn-secondary { background: var(--secondary); color: white; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-outline { background: transparent; border: 1px solid var(--primary); color: var(--primary); }
+        .btn-outline:hover { background: var(--primary); color: white; }
+        .nav {
+            background: #FFF;
+            padding: 10px 30px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        .nav button {
+            background: none;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--text);
+            transition: all 0.2s;
+        }
+        .nav button:hover, .nav button.active {
+            background: var(--primary);
+            color: white;
+        }
+        .main-content {
+            padding: 30px;
+            min-height: 500px;
+        }
+        .section { display: none; }
+        .section.active { display: block; }
+        .login-container {
+            max-width: 450px;
+            margin: 50px auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+        .login-container h2 { margin-bottom: 20px; color: var(--primary); }
+        .login-container .logo { width: 100px; margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; text-align: left; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 500; color: var(--text); }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.95em;
+            transition: border 0.2s;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        .form-row { display: flex; gap: 15px; flex-wrap: wrap; }
+        .form-row .form-group { flex: 1; min-width: 200px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid var(--border); }
+        th { background: var(--bg); color: var(--primary); }
+        .badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+        .badge-success { background: #D5F5E3; color: var(--success); }
+        .badge-warning { background: #FDEBD0; color: var(--warning); }
+        .badge-danger { background: #FADBD8; color: var(--danger); }
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: var(--shadow);
+        }
+        .modal h3 { margin-bottom: 20px; }
+        .modal .actions { display: flex; gap: 10px; justify-content: center; }
+        .hidden { display: none !important; }
+        .alert { padding: 12px; border-radius: 8px; margin-bottom: 15px; }
+        .alert-error { background: #FADBD8; color: var(--danger); }
+        .alert-success { background: #D5F5E3; color: var(--success); }
+        @media (max-width: 768px) {
+            .header { flex-direction: column; text-align: center; }
+            .nav { justify-content: center; }
+        }
+    </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center">
-  <!-- LOGIN -->
-  <div id="login-page" class="w-full max-w-md bg-white p-8 rounded shadow hidden">
-    <h2 class="text-2xl font-bold mb-6 text-center">Iniciar Sesión</h2>
-    <form id="login-form">
-      <input id="login-email" type="email" placeholder="Correo electrónico" class="w-full p-2 border mb-4" required>
-      <input id="login-password" type="password" placeholder="Contraseña" class="w-full p-2 border mb-4" required>
-      <button type="submit" class="w-full bg-blue-500 text-white p-2 rounded">Ingresar</button>
-    </form>
-    <p class="mt-4 text-center">¿No tienes cuenta? <a href="#" id="link-register" class="text-blue-600">Registrarse como paciente</a></p>
-  </div>
+<body>
 
-  <!-- REGISTRO (solo pacientes) -->
-  <div id="register-page" class="w-full max-w-md bg-white p-8 rounded shadow hidden">
-    <h2 class="text-2xl font-bold mb-6 text-center">Registro de Paciente</h2>
-    <form id="register-form">
-      <input id="reg-nombres" placeholder="Nombres" class="w-full p-2 border mb-2" required>
-      <input id="reg-apellidos" placeholder="Apellidos" class="w-full p-2 border mb-2" required>
-      <input id="reg-cedula" placeholder="Cédula de Identidad" class="w-full p-2 border mb-2" required>
-      <input id="reg-fecha" type="date" class="w-full p-2 border mb-2" required>
-      <input id="reg-celular" placeholder="Celular" class="w-full p-2 border mb-2">
-      <input id="reg-email" type="email" placeholder="Correo electrónico" class="w-full p-2 border mb-4" required>
-      <button type="submit" class="w-full bg-green-500 text-white p-2 rounded">Registrarse</button>
-    </form>
-    <p class="mt-4 text-center"><a href="#" id="link-login" class="text-blue-600">Volver al inicio de sesión</a></p>
-  </div>
+    <!-- PANTALLA DE LOGIN / REGISTRO -->
+    <div id="loginScreen" class="login-container">
+        <h2>🏥 Sala de Rehabilitación<br>Leoncio Páez</h2>
+        <h3 id="loginTitle">Iniciar Sesión</h3>
+        <div id="loginForm">
+            <div class="form-group"><input type="email" id="loginEmail" placeholder="Correo electrónico" required></div>
+            <div class="form-group"><input type="password" id="loginPassword" placeholder="Contraseña" required></div>
+            <button class="btn btn-primary" onclick="login()" style="width:100%">Ingresar</button>
+            <p style="margin-top:15px">¿No tienes cuenta? <a href="#" onclick="showRegister()">Regístrate como paciente</a></p>
+        </div>
+        <div id="registerForm" class="hidden">
+            <div class="form-group"><input type="text" id="regNombres" placeholder="Nombres" required></div>
+            <div class="form-group"><input type="text" id="regApellidos" placeholder="Apellidos" required></div>
+            <div class="form-group"><input type="text" id="regCedula" placeholder="Cédula de Identidad" required></div>
+            <div class="form-group"><input type="date" id="regFechaNac" required></div>
+            <div class="form-group"><input type="text" id="regCelular" placeholder="Celular" required></div>
+            <div class="form-group"><input type="email" id="regEmail" placeholder="Correo electrónico" required></div>
+            <div class="form-group"><input type="password" id="regPassword" placeholder="Contraseña" required></div>
+            <button class="btn btn-primary" onclick="registerPatient()" style="width:100%">Registrarse</button>
+            <p style="margin-top:15px"><a href="#" onclick="showLogin()">Volver al inicio de sesión</a></p>
+        </div>
+        <div id="loginError" class="alert alert-error hidden"></div>
+        <div id="loginSuccess" class="alert alert-success hidden"></div>
+    </div>
 
-  <!-- DASHBOARD -->
-  <div id="dashboard-page" class="w-full max-w-6xl bg-white p-6 rounded shadow hidden">
-    <div class="flex justify-between items-center mb-6">
-      <h2 class="text-2xl font-bold">Sistema de Citas - Leoncio Páez</h2>
-      <button id="logout-btn" class="bg-red-500 text-white px-4 py-2 rounded">Cerrar Sesión</button>
+    <!-- PANEL PRINCIPAL (OCULTO HASTA LOGIN) -->
+    <div id="dashboard" class="container hidden">
+        <div class="header">
+            <h1>🏥 Sala de Rehabilitación Leoncio Páez</h1>
+            <div class="user-info">
+                <span id="userNameDisplay"></span>
+                <span id="userRoleDisplay" class="badge badge-success"></span>
+                <button class="btn btn-outline" onclick="confirmLogout()" style="color:white;border-color:white">Cerrar Sesión</button>
+            </div>
+        </div>
+        <div class="nav" id="navMenu"></div>
+        <div class="main-content" id="mainContent"></div>
     </div>
-    <nav id="dashboard-nav" class="flex gap-2 mb-6"></nav>
-    <div id="dashboard-content"></div>
-  </div>
 
-  <!-- MODALES (mismos del código anterior) -->
-  <div id="logout-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
-    <div class="bg-white p-6 rounded shadow-lg text-center">
-      <p class="mb-4">¿Está seguro de que desea cerrar sesión?</p>
-      <button id="confirm-logout" class="bg-red-500 text-white px-4 py-2 rounded mr-2">Sí</button>
-      <button id="cancel-logout" class="bg-gray-300 px-4 py-2 rounded">No</button>
+    <!-- MODAL DE CIERRE DE SESIÓN -->
+    <div id="logoutModal" class="modal-overlay hidden">
+        <div class="modal">
+            <h3>¿Está seguro de que desea salir?</h3>
+            <div class="actions">
+                <button class="btn btn-danger" onclick="logout()">Sí, salir</button>
+                <button class="btn btn-secondary" onclick="closeLogoutModal()">No, continuar</button>
+            </div>
+        </div>
     </div>
-  </div>
-  <div id="inactivity-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
-    <div class="bg-white p-6 rounded shadow-lg text-center">
-      <p class="mb-2">Su sesión se cerrará por inactividad en <span id="countdown">30</span> segundos.</p>
-      <button id="continue-session" class="bg-blue-500 text-white px-4 py-2 rounded">Continuar sesión</button>
+
+    <!-- MODAL DE INACTIVIDAD -->
+    <div id="inactivityModal" class="modal-overlay hidden">
+        <div class="modal">
+            <h3>Su sesión se cerrará por inactividad en <span id="inactivityCountdown">30</span> segundos</h3>
+            <button class="btn btn-primary" onclick="resetInactivity()">Continuar con la sesión</button>
+        </div>
     </div>
-  </div>
+
+    <script>
+        // ==================== CONFIGURACIÓN SUPABASE ====================
+        const SUPABASE_URL = 'https://TU_PROYECTO.supabase.co';
+        const SUPABASE_ANON_KEY = 'TU_ANON_KEY';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // ==================== VARIABLES GLOBALES ====================
+        let currentUser = null;
+        let userRole = null;
+        let inactivityTimer, inactivityTimeout, countdownInterval;
+
+        // ==================== FUNCIONES DE AUTENTICACIÓN ====================
+        async function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const errorDiv = document.getElementById('loginError');
+            errorDiv.classList.add('hidden');
+            if (!email || !password) { errorDiv.textContent = 'Complete todos los campos'; errorDiv.classList.remove('hidden'); return; }
+            
+            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+            if (error) {
+                if (error.message.includes('Invalid login credentials')) {
+                    await incrementarIntentos(email);
+                }
+                errorDiv.textContent = 'Credenciales inválidas o usuario bloqueado';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            await checkUserAndLoad(data.user);
+        }
+
+        async function checkUserAndLoad(user) {
+            const { data: usuario, error } = await supabase.from('usuarios').select('*, roles:rol_id(nombre)').eq('id', user.id).single();
+            if (error || usuario.bloqueado) {
+                await supabase.auth.signOut();
+                document.getElementById('loginError').textContent = 'Usuario bloqueado. Contacte al administrador.';
+                document.getElementById('loginError').classList.remove('hidden');
+                return;
+            }
+            await supabase.from('usuarios').update({ intentos_fallidos: 0 }).eq('id', user.id);
+            currentUser = usuario;
+            userRole = usuario.roles?.nombre || 'paciente';
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('dashboard').classList.remove('hidden');
+            document.getElementById('userNameDisplay').textContent = `${usuario.nombres} ${usuario.apellidos}`;
+            document.getElementById('userRoleDisplay').textContent = userRole.replace('_', ' ').toUpperCase();
+            buildNavigation();
+            showSection('inicio');
+            resetInactivity();
+        }
+
+        async function incrementarIntentos(email) {
+            const { data: usuario } = await supabase.from('usuarios').select('id, intentos_fallidos').eq('email', email).single();
+            if (usuario) {
+                const nuevosIntentos = usuario.intentos_fallidos + 1;
+                const bloqueado = nuevosIntentos >= 3;
+                await supabase.from('usuarios').update({ intentos_fallidos: nuevosIntentos, bloqueado }).eq('id', usuario.id);
+            }
+        }
+
+        function showRegister() {
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('registerForm').classList.remove('hidden');
+            document.getElementById('loginTitle').textContent = 'Registro de Paciente';
+            document.getElementById('loginError').classList.add('hidden');
+        }
+
+        function showLogin() {
+            document.getElementById('registerForm').classList.add('hidden');
+            document.getElementById('loginForm').classList.remove('hidden');
+            document.getElementById('loginTitle').textContent = 'Iniciar Sesión';
+        }
+
+        async function registerPatient() {
+            const nombres = document.getElementById('regNombres').value;
+            const apellidos = document.getElementById('regApellidos').value;
+            const cedula = document.getElementById('regCedula').value;
+            const fecha_nac = document.getElementById('regFechaNac').value;
+            const celular = document.getElementById('regCelular').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            const errorDiv = document.getElementById('loginError');
+            const successDiv = document.getElementById('loginSuccess');
+            errorDiv.classList.add('hidden');
+            successDiv.classList.add('hidden');
+            if (!nombres || !apellidos || !cedula || !fecha_nac || !celular || !email || !password) {
+                errorDiv.textContent = 'Todos los campos son obligatorios';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            const { data: authData, error: authError } = await supabase.auth.signUp({ email, password });
+            if (authError) { errorDiv.textContent = authError.message; errorDiv.classList.remove('hidden'); return; }
+            if (authData.user) {
+                const { error: insertError } = await supabase.from('usuarios').insert({
+                    id: authData.user.id, cedula, nombres, apellidos, fecha_nacimiento: fecha_nac,
+                    celular, email, rol_id: 5
+                });
+                if (insertError) { errorDiv.textContent = insertError.message; errorDiv.classList.remove('hidden'); return; }
+                const { data: paciente } = await supabase.from('pacientes').insert({ usuario_id: authData.user.id }).select('id').single();
+                await supabase.from('historias_medicas').insert({ paciente_id: paciente.id });
+                successDiv.textContent = 'Registro exitoso. Verifica tu correo para confirmar la cuenta.';
+                successDiv.classList.remove('hidden');
+                showLogin();
+            }
+        }
+
+        function logout() {
+            clearTimeout(inactivityTimeout);
+            clearInterval(countdownInterval);
+            supabase.auth.signOut();
+            location.reload();
+        }
+
+        function confirmLogout() { document.getElementById('logoutModal').classList.remove('hidden'); }
+        function closeLogoutModal() { document.getElementById('logoutModal').classList.add('hidden'); }
+
+        // ==================== CONTROL DE INACTIVIDAD ====================
+        function resetInactivity() {
+            clearTimeout(inactivityTimeout);
+            clearInterval(countdownInterval);
+            document.getElementById('inactivityModal').classList.add('hidden');
+            inactivityTimeout = setTimeout(() => {
+                document.getElementById('inactivityModal').classList.remove('hidden');
+                let count = 30;
+                document.getElementById('inactivityCountdown').textContent = count;
+                countdownInterval = setInterval(() => {
+                    count--;
+                    document.getElementById('inactivityCountdown').textContent = count;
+                    if (count <= 0) { clearInterval(countdownInterval); logout(); }
+                }, 1000);
+            }, 570000); // 9min 30seg (10min total)
+        }
+        window.onload = () => { document.addEventListener('mousemove', resetInactivity); document.addEventListener('keydown', resetInactivity); document.addEventListener('click', resetInactivity); };
+
+        // ==================== NAVEGACIÓN ====================
+        function buildNavigation() {
+            const nav = document.getElementById('navMenu');
+            let items = '<button onclick="showSection(\'inicio\')" class="active">Inicio</button>';
+            if (['super_admin', 'administrador', 'fisiatra', 'asistente'].includes(userRole)) {
+                items += '<button onclick="showSection(\'pacientes\')">Pacientes</button>';
+                items += '<button onclick="showSection(\'citas\')">Citas</button>';
+            }
+            if (['super_admin', 'fisiatra'].includes(userRole)) items += '<button onclick="showSection(\'historias\')">Historias Médicas</button>';
+            if (['super_admin', 'fisiatra'].includes(userRole)) items += '<button onclick="showSection(\'rehabilitacion\')">Control Rehabilitación</button>';
+            if (userRole === 'paciente') items += '<button onclick="showSection(\'misCitas\')">Mis Citas</button>';
+            if (['super_admin', 'fisiatra'].includes(userRole)) items += '<button onclick="showSection(\'fisiatras\')">Fisiatras</button>';
+            if (userRole === 'super_admin') items += '<button onclick="showSection(\'usuarios\')">Gestión Usuarios</button>';
+            if (userRole === 'paciente') items += '<button onclick="showSection(\'miPerfil\')">Mi Perfil</button>';
+            nav.innerHTML = items;
+        }
+
+        async function showSection(section) {
+            document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+            event?.target?.classList.add('active');
+            const content = document.getElementById('mainContent');
+            content.innerHTML = '<p>Cargando...</p>';
+            switch (section) {
+                case 'inicio': await loadInicio(); break;
+                case 'pacientes': await loadPacientes(); break;
+                case 'citas': await loadCitas(); break;
+                case 'historias': await loadHistorias(); break;
+                case 'rehabilitacion': await loadRehabilitacion(); break;
+                case 'misCitas': await loadMisCitas(); break;
+                case 'miPerfil': await loadMiPerfil(); break;
+                case 'fisiatras': await loadFisiatras(); break;
+                case 'usuarios': await loadUsuarios(); break;
+            }
+        }
+
+        // ==================== SECCIONES DEL SISTEMA ====================
+        async function loadInicio() {
+            const { data: citasHoy } = await supabase.from('citas').select('*', { count: 'exact' }).eq('fecha', new Date().toISOString().split('T')[0]);
+            const { count: totalPacientes } = await supabase.from('pacientes').select('*', { count: 'exact', head: true });
+            document.getElementById('mainContent').innerHTML = `
+                <h2>Panel de Control</h2>
+                <div style="display:flex;gap:20px;flex-wrap:wrap;margin-top:20px">
+                    <div style="flex:1;min-width:200px;background:var(--bg);padding:20px;border-radius:12px;text-align:center">
+                        <h3>${citasHoy?.length || 0}</h3><p>Citas hoy</p></div>
+                    <div style="flex:1;min-width:200px;background:var(--bg);padding:20px;border-radius:12px;text-align:center">
+                        <h3>${totalPacientes || 0}</h3><p>Pacientes totales</p></div>
+                </div>`;
+        }
+
+        async function loadPacientes() {
+            const { data: pacientes } = await supabase.from('pacientes').select('*, usuario:usuario_id(nombres, apellidos, cedula, celular, email, fecha_nacimiento)');
+            let html = `<h2>Gestión de Pacientes</h2>
+                <button class="btn btn-primary" onclick="showFormPaciente()">+ Agregar Paciente</button>
+                <div id="formPaciente" class="hidden" style="margin-top:20px;padding:20px;background:var(--bg);border-radius:12px">
+                    <h3>Registrar Paciente</h3>
+                    <div class="form-row">
+                        <div class="form-group"><label>Nombres</label><input id="p_nombres"></div>
+                        <div class="form-group"><label>Apellidos</label><input id="p_apellidos"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Cédula</label><input id="p_cedula"></div>
+                        <div class="form-group"><label>Fecha Nacimiento</label><input type="date" id="p_fecha_nac"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Celular</label><input id="p_celular"></div>
+                        <div class="form-group"><label>Email</label><input type="email" id="p_email"></div>
+                    </div>
+                    <div class="form-group"><label>Contraseña</label><input type="password" id="p_password"></div>
+                    <button class="btn btn-success" onclick="savePaciente()">Guardar</button>
+                    <button class="btn btn-secondary" onclick="document.getElementById('formPaciente').classList.add('hidden')">Cancelar</button>
+                </div>
+                <table style="margin-top:20px"><tr><th>Nombres</th><th>Cédula</th><th>Email</th><th>Celular</th><th>Acciones</th></tr>`;
+            pacientes?.forEach(p => {
+                html += `<tr><td>${p.usuario?.nombres} ${p.usuario?.apellidos}</td><td>${p.usuario?.cedula}</td><td>${p.usuario?.email}</td><td>${p.usuario?.celular}</td>
+                    <td><button class="btn btn-outline" onclick="editPaciente('${p.id}')">Editar</button>
+                    ${userRole === 'super_admin' ? `<button class="btn btn-danger" onclick="deletePaciente('${p.id}')">Eliminar</button>` : ''}</td></tr>`;
+            });
+            html += '</table>';
+            document.getElementById('mainContent').innerHTML = html;
+        }
+
+        async function savePaciente() {
+            const email = document.getElementById('p_email').value;
+            const password = document.getElementById('p_password').value;
+            const { data: authData, error: authError } = await supabase.auth.signUp({ email, password });
+            if (authError) return alert(authError.message);
+            const { error } = await supabase.from('usuarios').insert({
+                id: authData.user.id, cedula: document.getElementById('p_cedula').value,
+                nombres: document.getElementById('p_nombres').value, apellidos: document.getElementById('p_apellidos').value,
+                fecha_nacimiento: document.getElementById('p_fecha_nac').value,
+                celular: document.getElementById('p_celular').value, email, rol_id: 5
+            });
+            if (error) return alert(error.message);
+            await supabase.from('pacientes').insert({ usuario_id: authData.user.id });
+            alert('Paciente registrado');
+            showSection('pacientes');
+        }
+
+        async function deletePaciente(id) {
+            if (!confirm('¿Eliminar paciente?')) return;
+            await supabase.from('pacientes').delete().eq('id', id);
+            showSection('pacientes');
+        }
+
+        async function loadCitas() {
+            const { data: citas } = await supabase.from('citas').select('*, paciente:paciente_id(usuario:usuario_id(nombres,apellidos)), fisiatra:fisiatra_id(usuario:usuario_id(nombres,apellidos)), estado:estado_id(nombre)').order('fecha', { ascending: true });
+            let html = `<h2>Gestión de Citas</h2>
+                <button class="btn btn-primary" onclick="showFormCita()">+ Nueva Cita</button>
+                <div id="formCita" class="hidden" style="margin-top:20px;padding:20px;background:var(--bg);border-radius:12px">
+                    <h3>Agendar Cita</h3>
+                    <div class="form-row">
+                        <div class="form-group"><label>Paciente</label><select id="c_paciente"></select></div>
+                        <div class="form-group"><label>Fisiatra</label><select id="c_fisiatra"></select></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Fecha</label><input type="date" id="c_fecha" onchange="checkDisponibilidad()"></div>
+                        <div class="form-group"><label>Hora</label><input type="time" id="c_hora"></div>
+                    </div>
+                    <p id="disponibilidadMsg"></p>
+                    <button class="btn btn-success" onclick="saveCita()">Guardar</button>
+                    <button class="btn btn-secondary" onclick="document.getElementById('formCita').classList.add('hidden')">Cancelar</button>
+                </div>
+                <table style="margin-top:20px"><tr><th>#</th><th>Paciente</th><th>Fisiatra</th><th>Fecha</th><th>Hora</th><th>Estado</th><th>Acciones</th></tr>`;
+            citas?.forEach(c => {
+                html += `<tr><td>${c.numero_registro || 'N/A'}</td><td>${c.paciente?.usuario?.nombres} ${c.paciente?.usuario?.apellidos}</td>
+                    <td>${c.fisiatra?.usuario?.nombres || 'Sin asignar'}</td><td>${c.fecha}</td><td>${c.hora}</td>
+                    <td><span class="badge badge-${c.estado?.nombre === 'Atendida' ? 'success' : c.estado?.nombre === 'Cancelada' ? 'danger' : 'warning'}">${c.estado?.nombre}</span></td>
+                    <td>
+                        <button class="btn btn-outline" onclick="confirmarAsistencia('${c.id}')">✔</button>
+                        <button class="btn btn-outline" onclick="reprogramarCita('${c.id}')">🔄</button>
+                        <button class="btn btn-danger" onclick="cancelarCita('${c.id}')">✖</button>
+                    </td></tr>`;
+            });
+            html += '</table>';
+            document.getElementById('mainContent').innerHTML = html;
+            if (document.getElementById('c_paciente')) {
+                const { data: pacientes } = await supabase.from('pacientes').select('id, usuario:usuario_id(nombres,apellidos)');
+                const { data: fisiatras } = await supabase.from('fisiatras').select('id, usuario:usuario_id(nombres,apellidos)');
+                document.getElementById('c_paciente').innerHTML = pacientes?.map(p => `<option value="${p.id}">${p.usuario.nombres} ${p.usuario.apellidos}</option>`).join('');
+                document.getElementById('c_fisiatra').innerHTML = fisiatras?.map(f => `<option value="${f.id}">${f.usuario.nombres} ${f.usuario.apellidos}</option>`).join('');
+            }
+        }
+
+        async function checkDisponibilidad() {
+            const fecha = document.getElementById('c_fecha')?.value;
+            if (!fecha) return;
+            const { data, error } = await supabase.rpc('citas_disponibles', { fecha_check: fecha });
+            document.getElementById('disponibilidadMsg').textContent = `Cupos disponibles: ${data || 0}`;
+        }
+
+        async function saveCita() {
+            const fecha = document.getElementById('c_fecha').value;
+            const hora = document.getElementById('c_hora').value;
+            const paciente_id = document.getElementById('c_paciente').value;
+            const fisiatra_id = document.getElementById('c_fisiatra').value;
+            const { data: diaHabil } = await supabase.rpc('es_dia_habil', { fecha_check: fecha });
+            if (!diaHabil) return alert('Fecha no hábil (fin de semana o feriado)');
+            const { data: disponibles } = await supabase.rpc('citas_disponibles', { fecha_check: fecha });
+            if (disponibles <= 0) return alert('No hay cupos disponibles para esta fecha');
+            const numero_registro = 'CITA-' + Date.now();
+            const { error } = await supabase.from('citas').insert({ paciente_id, fisiatra_id, fecha, hora, numero_registro });
+            if (error) return alert(error.message);
+            alert('Cita agendada');
+            showSection('citas');
+        }
+
+        async function confirmarAsistencia(id) {
+            await supabase.from('citas').update({ estado_id: 3, asistio: true }).eq('id', id);
+            showSection('citas');
+        }
+
+        async function reprogramarCita(id) {
+            const nuevaFecha = prompt('Nueva fecha (YYYY-MM-DD):');
+            if (!nuevaFecha) return;
+            await supabase.from('citas').update({ fecha: nuevaFecha, estado_id: 4 }).eq('id', id);
+            showSection('citas');
+        }
+
+        async function cancelarCita(id) {
+            await supabase.from('citas').update({ estado_id: 5 }).eq('id', id);
+            showSection('citas');
+        }
+
+        async function loadHistorias() {
+            const { data: historias } = await supabase.from('historias_medicas').select('*, paciente:paciente_id(usuario:usuario_id(nombres,apellidos,cedula))');
+            let html = `<h2>Historias Médicas</h2><table><tr><th>Paciente</th><th>Cédula</th><th>Diagnóstico</th><th>Tratamiento</th><th>Acción</th></tr>`;
+            historias?.forEach(h => {
+                html += `<tr><td>${h.paciente?.usuario?.nombres} ${h.paciente?.usuario?.apellidos}</td><td>${h.paciente?.usuario?.cedula}</td>
+                    <td>${h.diagnostico || 'Pendiente'}</td><td>${h.tratamiento || 'Pendiente'}</td>
+                    <td><button class="btn btn-outline" onclick="editHistoria('${h.id}')">Editar</button></td></tr>`;
+            });
+            html += '</table><div id="formHistoria" class="hidden" style="margin-top:20px;padding:20px;background:var(--bg);border-radius:12px"></div>';
+            document.getElementById('mainContent').innerHTML = html;
+        }
+
+        async function editHistoria(id) {
+            const { data } = await supabase.from('historias_medicas').select('*').eq('id', id).single();
+            document.getElementById('formHistoria').classList.remove('hidden');
+            document.getElementById('formHistoria').innerHTML = `
+                <h3>Editar Historia Médica</h3>
+                <div class="form-group"><label>Motivo Consulta</label><textarea id="h_motivo">${data.motivo_consulta || ''}</textarea></div>
+                <div class="form-group"><label>Antecedentes</label><textarea id="h_antecedentes">${data.antecedentes || ''}</textarea></div>
+                <div class="form-group"><label>Examen Físico</label><textarea id="h_examen">${data.examen_fisico || ''}</textarea></div>
+                <div class="form-group"><label>Diagnóstico</label><textarea id="h_diagnostico">${data.diagnostico || ''}</textarea></div>
+                <div class="form-group"><label>Tratamiento</label><textarea id="h_tratamiento">${data.tratamiento || ''}</textarea></div>
+                <button class="btn btn-success" onclick="saveHistoria('${id}')">Guardar</button>`;
+        }
+
+        async function saveHistoria(id) {
+            await supabase.from('historias_medicas').update({
+                motivo_consulta: document.getElementById('h_motivo').value,
+                antecedentes: document.getElementById('h_antecedentes').value,
+                examen_fisico: document.getElementById('h_examen').value,
+                diagnostico: document.getElementById('h_diagnostico').value,
+                tratamiento: document.getElementById('h_tratamiento').value,
+                updated_at: new Date()
+            }).eq('id', id);
+            alert('Historia actualizada');
+            showSection('historias');
+        }
+
+        async function loadRehabilitacion() {
+            const { data: controles } = await supabase.from('control_rehabilitacion').select('*, paciente:paciente_id(usuario:usuario_id(nombres,apellidos)), terapia:terapia_id(nombre), fisiatra:fisiatra_id(usuario:usuario_id(nombres,apellidos))').order('fecha', { ascending: false });
+            let html = `<h2>Control de Rehabilitación</h2>
+                <button class="btn btn-primary" onclick="showFormRehab()">+ Nueva Sesión</button>
+                <div id="formRehab" class="hidden" style="margin-top:20px;padding:20px;background:var(--bg);border-radius:12px">
+                    <h3>Registrar Sesión</h3>
+                    <div class="form-row">
+                        <div class="form-group"><label>Paciente</label><select id="r_paciente"></select></div>
+                        <div class="form-group"><label>Terapia</label><select id="r_terapia"></select></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Fecha</label><input type="date" id="r_fecha"></div>
+                        <div class="form-group"><label>Fisiatra</label><select id="r_fisiatra"></select></div>
+                    </div>
+                    <div class="form-group"><label>Observaciones</label><textarea id="r_observaciones"></textarea></div>
+                    <div class="form-group"><label>Evolución</label><textarea id="r_evolucion"></textarea></div>
+                    <button class="btn btn-success" onclick="saveRehab()">Guardar</button>
+                </div>
+                <table style="margin-top:20px"><tr><th>Fecha</th><th>Paciente</th><th>Terapia</th><th>Fisiatra</th><th>Evolución</th></tr>`;
+            controles?.forEach(c => {
+                html += `<tr><td>${c.fecha}</td><td>${c.paciente?.usuario?.nombres} ${c.paciente?.usuario?.apellidos}</td>
+                    <td>${c.terapia?.nombre}</td><td>${c.fisiatra?.usuario?.nombres || ''}</td><td>${c.evolucion || ''}</td></tr>`;
+            });
+            html += '</table>';
+            document.getElementById('mainContent').innerHTML = html;
+            if (document.getElementById('r_paciente')) {
+                const { data: pacientes } = await supabase.from('pacientes').select('id, usuario:usuario_id(nombres,apellidos)');
+                const { data: terapias } = await supabase.from('terapias').select('*');
+                const { data: fisiatras } = await supabase.from('fisiatras').select('id, usuario:usuario_id(nombres,apellidos)');
+                document.getElementById('r_paciente').innerHTML = pacientes?.map(p => `<option value="${p.id}">${p.usuario.nombres}</option>`).join('');
+                document.getElementById('r_terapia').innerHTML = terapias?.map(t => `<option value="${t.id}">${t.nombre}</option>`).join('');
+                document.getElementById('r_fisiatra').innerHTML = fisiatras?.map(f => `<option value="${f.id}">${f.usuario.nombres}</option>`).join('');
+            }
+        }
+
+        async function saveRehab() {
+            const { error } = await supabase.from('control_rehabilitacion').insert({
+                paciente_id: document.getElementById('r_paciente').value,
+                terapia_id: document.getElementById('r_terapia').value,
+                fecha: document.getElementById('r_fecha').value,
+                fisiatra_id: document.getElementById('r_fisiatra').value,
+                observaciones: document.getElementById('r_observaciones').value,
+                evolucion: document.getElementById('r_evolucion').value
+            });
+            if (error) return alert(error.message);
+            alert('Sesión registrada');
+            showSection('rehabilitacion');
+        }
+
+        async function loadMisCitas() {
+            const { data: paciente } = await supabase.from('pacientes').select('id').eq('usuario_id', currentUser.id).single();
+            if (!paciente) return;
+            const { data: citas } = await supabase.from('citas').select('*, estado:estado_id(nombre), fisiatra:fisiatra_id(usuario:usuario_id(nombres,apellidos))').eq('paciente_id', paciente.id).order('fecha', { ascending: true });
+            let html = `<h2>Mis Citas</h2><button class="btn btn-primary" onclick="solicitarCita()">Solicitar Nueva Cita</button>
+                <table><tr><th>#</th><th>Fecha</th><th>Hora</th><th>Fisiatra</th><th>Estado</th></tr>`;
+            citas?.forEach(c => {
+                html += `<tr><td>${c.numero_registro}</td><td>${c.fecha}</td><td>${c.hora}</td><td>${c.fisiatra?.usuario?.nombres || ''}</td><td>${c.estado?.nombre}</td></tr>`;
+            });
+            html += '</table>';
+            document.getElementById('mainContent').innerHTML = html;
+        }
+
+        async function solicitarCita() {
+            const fecha = prompt('Fecha deseada (YYYY-MM-DD, lunes a viernes, no feriado):');
+            if (!fecha) return;
+            const { data: diaHabil } = await supabase.rpc('es_dia_habil', { fecha_check: fecha });
+            if (!diaHabil) return alert('Fecha no disponible');
+            const { data: disponibles } = await supabase.rpc('citas_disponibles', { fecha_check: fecha });
+            if (disponibles <= 0) return alert('Sin cupos disponibles');
+            const hora = prompt('Hora (HH:MM):');
+            const { data: paciente } = await supabase.from('pacientes').select('id').eq('usuario_id', currentUser.id).single();
+            const { error } = await supabase.from('citas').insert({
+                paciente_id: paciente.id, fecha, hora, numero_registro: 'CITA-' + Date.now()
+            });
+            if (error) return alert(error.message);
+            alert('Cita solicitada');
+            showSection('misCitas');
+        }
+
+        async function loadMiPerfil() {
+            const { data: usuario } = await supabase.from('usuarios').select('*').eq('id', currentUser.id).single();
+            document.getElementById('mainContent').innerHTML = `
+                <h2>Mi Perfil</h2>
+                <div class="form-row">
+                    <div class="form-group"><label>Nombres</label><input id="perfil_nombres" value="${usuario.nombres}"></div>
+                    <div class="form-group"><label>Apellidos</label><input id="perfil_apellidos" value="${usuario.apellidos}"></div>
+                </div>
+                <div class="form-group"><label>Celular</label><input id="perfil_celular" value="${usuario.celular || ''}"></div>
+                <div class="form-group"><label>Email</label><input id="perfil_email" value="${usuario.email}" disabled></div>
+                <button class="btn btn-success" onclick="updatePerfil()">Actualizar</button>`;
+        }
+
+        async function updatePerfil() {
+            await supabase.from('usuarios').update({
+                nombres: document.getElementById('perfil_nombres').value,
+                apellidos: document.getElementById('perfil_apellidos').value,
+                celular: document.getElementById('perfil_celular').value
+            }).eq('id', currentUser.id);
+            alert('Perfil actualizado');
+        }
+
+        async function loadFisiatras() {
+            const { data: fisiatras } = await supabase.from('fisiatras').select('*, usuario:usuario_id(nombres,apellidos,email,cedula), especialidad:especialidad_id(nombre)');
+            let html = `<h2>Fisiatras</h2><button class="btn btn-primary" onclick="showFormFisiatra()">+ Agregar Fisiatra</button>
+                <table><tr><th>Nombre</th><th>Especialidad</th><th>Email</th></tr>`;
+            fisiatras?.forEach(f => {
+                html += `<tr><td>${f.usuario?.nombres} ${f.usuario?.apellidos}</td><td>${f.especialidad?.nombre}</td><td>${f.usuario?.email}</td></tr>`;
+            });
+            html += '</table>';
+            document.getElementById('mainContent').innerHTML = html;
+        }
+
+        async function loadUsuarios() {
+            if (userRole !== 'super_admin') return;
+            const { data: usuarios } = await supabase.from('usuarios').select('*, roles:rol_id(nombre)');
+            let html = `<h2>Gestión de Usuarios</h2>
+                <button class="btn btn-primary" onclick="showFormUsuario()">+ Crear Usuario</button>
+                <table><tr><th>Nombre</th><th>Email</th><th>Rol</th><th>Bloqueado</th><th>Acciones</th></tr>`;
+            usuarios?.forEach(u => {
+                html += `<tr><td>${u.nombres} ${u.apellidos}</td><td>${u.email}</td><td>${u.roles?.nombre}</td>
+                    <td>${u.bloqueado ? 'Sí' : 'No'}</td>
+                    <td><button class="btn btn-outline" onclick="toggleBloqueo('${u.id}', ${!u.bloqueado})">${u.bloqueado ? 'Desbloquear' : 'Bloquear'}</button>
+                    <button class="btn btn-danger" onclick="deleteUsuario('${u.id}')">Eliminar</button></td></tr>`;
+            });
+            html += '</table><div id="formUsuario" class="hidden" style="margin-top:20px;padding:20px;background:var(--bg);border-radius:12px">
+                <h3>Crear Usuario</h3>
+                <div class="form-row">
+                    <div class="form-group"><label>Nombres</label><input id="u_nombres"></div>
+                    <div class="form-group"><label>Apellidos</label><input id="u_apellidos"></div>
+                </div>
+                <div class="form-group"><label>Email</label><input type="email" id="u_email"></div>
+                <div class="form-group"><label>Contraseña</label><input type="password" id="u_password"></div>
+                <div class="form-group"><label>Rol</label><select id="u_rol">
+                    <option value="2">Administrador</option><option value="3">Fisiatra</option><option value="4">Asistente</option>
+                </select></div>
+                <button class="btn btn-success" onclick="saveUsuario()">Crear</button></div>`;
+            document.getElementById('mainContent').innerHTML = html;
+        }
+
+        function showFormUsuario() { document.getElementById('formUsuario').classList.remove('hidden'); }
+        function showFormPaciente() { document.getElementById('formPaciente').classList.remove('hidden'); }
+        function showFormCita() {
+            document.getElementById('formCita').classList.remove('hidden');
+            (async () => {
+                const { data: pacientes } = await supabase.from('pacientes').select('id, usuario:usuario_id(nombres,apellidos)');
+                const { data: fisiatras } = await supabase.from('fisiatras').select('id, usuario:usuario_id(nombres,apellidos)');
+                document.getElementById('c_paciente').innerHTML = pacientes?.map(p => `<option value="${p.id}">${p.usuario.nombres}</option>`).join('');
+                document.getElementById('c_fisiatra').innerHTML = fisiatras?.map(f => `<option value="${f.id}">${f.usuario.nombres}</option>`).join('');
+            })();
+        }
+        function showFormRehab() { document.getElementById('formRehab').classList.remove('hidden'); }
+
+        async function saveUsuario() {
+            const email = document.getElementById('u_email').value;
+            const password = document.getElementById('u_password').value;
+            const rol_id = document.getElementById('u_rol').value;
+            const { data: authData, error } = await supabase.auth.signUp({ email, password });
+            if (error) return alert(error.message);
+            await supabase.from('usuarios').insert({
+                id: authData.user.id, nombres: document.getElementById('u_nombres').value,
+                apellidos: document.getElementById('u_apellidos').value,
+                cedula: 'ADMIN-' + Date.now(), email, rol_id: parseInt(rol_id)
+            });
+            if (rol_id == '3') {
+                await supabase.from('fisiatras').insert({ usuario_id: authData.user.id, especialidad_id: 1, numero_licencia: 'LIC-' + Date.now() });
+            }
+            alert('Usuario creado');
+            showSection('usuarios');
+        }
+
+        async function toggleBloqueo(id, bloquear) {
+            await supabase.from('usuarios').update({ bloqueado: bloquear, intentos_fallidos: 0 }).eq('id', id);
+            showSection('usuarios');
+        }
+
+        async function deleteUsuario(id) {
+            if (!confirm('¿Eliminar usuario?')) return;
+            await supabase.from('usuarios').delete().eq('id', id);
+            showSection('usuarios');
+        }
+
+        // ==================== INICIALIZACIÓN ====================
+        supabase.auth.onAuthStateChange((event, session) => {
+            if (session?.user && !currentUser) checkUserAndLoad(session.user);
+            if (!session) { document.getElementById('loginScreen').classList.remove('hidden'); document.getElementById('dashboard').classList.add('hidden'); }
+        });
+    </script>
 </body>
 </html>
