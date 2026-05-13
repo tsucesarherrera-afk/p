@@ -522,8 +522,8 @@
 <script>
     // ==================== CONFIGURACIÓN ====================
     // REEMPLAZA CON TUS DATOS DE SUPABASE
-    const SUPABASE_URL = 'https://TU_PROYECTO.supabase.co';
-    const SUPABASE_ANON_KEY = 'TU_ANON_KEY';
+    const SUPABASE_URL = 'https://zrdyhalokzcdartdlgrn.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_vIesD6EbjZa-Xj2-zeB42g_yi6YzYAX';
 
     let supabase;
     let currentUser = null;
@@ -777,19 +777,5 @@
     document.getElementById('loginScreen').style.display = 'flex';
     document.getElementById('registerScreen').style.display = 'none';
 </script>
-
-<!-- Instrucciones SQL para crear tablas en Supabase (ejecutar en el editor SQL) -->
-<!--
-CREATE TABLE pacientes (id SERIAL PRIMARY KEY, cedula TEXT UNIQUE, nombre TEXT, apellido TEXT, telefono TEXT, correo TEXT, direccion TEXT, edad INT, sexo TEXT, fecha_nac DATE, created_at TIMESTAMP DEFAULT NOW());
-CREATE TABLE medicos (id SERIAL PRIMARY KEY, cedula TEXT UNIQUE, nombre TEXT, apellido TEXT, telefono TEXT, correo TEXT, direccion TEXT, especialidad TEXT, created_at TIMESTAMP DEFAULT NOW());
-CREATE TABLE fisioterapeutas (id SERIAL PRIMARY KEY, cedula TEXT UNIQUE, nombre TEXT, apellido TEXT, telefono TEXT, correo TEXT, direccion TEXT, institucion TEXT, titulo TEXT, created_at TIMESTAMP DEFAULT NOW());
-CREATE TABLE estudiantes (id SERIAL PRIMARY KEY, cedula TEXT UNIQUE, nombre TEXT, apellido TEXT, telefono TEXT, correo TEXT, direccion TEXT, anno TEXT, institucion TEXT, created_at TIMESTAMP DEFAULT NOW());
-CREATE TABLE especialidades (codigo TEXT PRIMARY KEY, nombre TEXT, descripcion TEXT);
-CREATE TABLE terapias (codigo TEXT PRIMARY KEY, nombre TEXT, descripcion TEXT);
-CREATE TABLE citas (numero TEXT PRIMARY KEY, fecha DATE, hora TIME, paciente TEXT, medico TEXT, motivo TEXT);
-CREATE TABLE consultas (numero TEXT PRIMARY KEY, fecha DATE, hora TIME, paciente TEXT, medico TEXT, tratamiento TEXT, diagnostico TEXT);
-CREATE TABLE rehabilitaciones (numero TEXT PRIMARY KEY, paciente TEXT, terapista TEXT, terapia TEXT, fecha_inicio DATE, sesiones INT, estado TEXT);
-CREATE TABLE user_sessions (id SERIAL PRIMARY KEY, user_id UUID, user_email TEXT, login_time TIMESTAMP DEFAULT NOW());
--->
 </body>
 </html>
