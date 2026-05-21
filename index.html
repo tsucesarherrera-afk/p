@@ -1,156 +1,1638 @@
-```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Los Olivos - Grabador de Vídeo Directo</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@200;400;600&display=swap');
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema de Información - Sala de Rehabilitación Leoncio Páez</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
+<style>
+  :root {
+    --primary: #2E7D6F;
+    --primary-dark: #1B5E56;
+    --primary-light: #E8F5E9;
+    --accent: #FF7043;
+    --accent-light: #FFE0D6;
+    --bg: #FAFAFA;
+    --card-bg: #FFFFFF;
+    --text: #37474F;
+    --text-light: #78909C;
+    --border: #E0E0E0;
+    --danger: #E53935;
+    --warning: #FFB300;
+    --success: #43A047;
+    --shadow: 0 2px 8px rgba(0,0,0,0.08);
+    --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+    --radius: 8px;
+    --radius-lg: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+  /* Login Screen */
+  .login-screen {
+    display: flex; align-items: center; justify-content: center;
+    min-height: 100vh; background: linear-gradient(135deg, var(--primary-light) 0%, #fff 100%);
+    padding: 20px;
+  }
+  .login-card {
+    background: var(--card-bg); padding: 40px; border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg); width: 100%; max-width: 420px; text-align: center;
+  }
+  .login-logo {
+    width: 80px; height: 80px; background: var(--primary); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;
+    color: white; font-size: 36px; font-weight: bold;
+  }
+  .login-card h1 { font-size: 1.4rem; color: var(--primary-dark); margin-bottom: 8px; }
+  .login-card p { color: var(--text-light); margin-bottom: 24px; font-size: 0.95rem; }
+  .form-group { margin-bottom: 16px; text-align: left; }
+  .form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: var(--text); }
+  .form-group input, .form-group select, .form-group textarea {
+    width: 100%; padding: 12px 14px; border: 1.5px solid var(--border);
+    border-radius: var(--radius); font-size: 0.95rem; transition: border-color 0.2s;
+    font-family: inherit;
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    outline: none; border-color: var(--primary);
+  }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 12px 24px; border: none; border-radius: var(--radius); font-size: 0.95rem;
+    font-weight: 600; cursor: pointer; transition: all 0.2s; text-decoration: none;
+  }
+  .btn-primary { background: var(--primary); color: white; }
+  .btn-primary:hover { background: var(--primary-dark); }
+  .btn-accent { background: var(--accent); color: white; }
+  .btn-accent:hover { background: #F4511E; }
+  .btn-danger { background: var(--danger); color: white; }
+  .btn-secondary { background: #ECEFF1; color: var(--text); }
+  .btn-sm { padding: 8px 14px; font-size: 0.85rem; }
+  .btn-block { width: 100%; }
+  .login-links { margin-top: 20px; display: flex; justify-content: space-between; font-size: 0.85rem; }
+  .login-links a { color: var(--primary); text-decoration: none; font-weight: 600; cursor: pointer; }
+  .login-links a:hover { text-decoration: underline; }
 
-        body {
-            background-color: #050505;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            overflow: hidden;
-            color: white;
-            font-family: 'Cinzel', serif;
-        }
+  /* App Layout */
+  .app-layout { display: none; min-height: 100vh; }
+  .sidebar {
+    position: fixed; left: 0; top: 0; bottom: 0; width: 260px;
+    background: var(--primary-dark); color: white; padding: 20px 0;
+    overflow-y: auto; z-index: 100; transition: transform 0.3s;
+  }
+  .sidebar-header { padding: 0 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: center; }
+  .sidebar-header .logo-icon { width: 50px; height: 50px; background: white; color: var(--primary-dark);
+    border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+    font-size: 24px; font-weight: bold; margin-bottom: 10px;
+  }
+  .sidebar-header h2 { font-size: 1rem; font-weight: 600; }
+  .sidebar-header span { font-size: 0.75rem; opacity: 0.8; }
+  .nav-menu { list-style: none; padding: 16px 0; }
+  .nav-menu li { padding: 0; }
+  .nav-menu a {
+    display: flex; align-items: center; gap: 12px; padding: 12px 20px;
+    color: rgba(255,255,255,0.85); text-decoration: none; font-size: 0.9rem;
+    transition: all 0.2s; cursor: pointer;
+  }
+  .nav-menu a:hover, .nav-menu a.active { background: rgba(255,255,255,0.1); color: white; border-right: 3px solid var(--accent); }
+  .nav-menu a svg { width: 20px; height: 20px; opacity: 0.8; }
+  .sidebar-footer { padding: 16px 20px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 0.8rem; opacity: 0.7; text-align: center; }
 
-        #canvas-container {
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            height: 100%;
-        }
+  .main-content { margin-left: 260px; min-height: 100vh; display: flex; flex-direction: column; }
+  .topbar {
+    background: var(--card-bg); padding: 14px 28px; display: flex;
+    justify-content: space-between; align-items: center; box-shadow: var(--shadow); position: sticky; top: 0; z-index: 50;
+  }
+  .topbar h3 { font-size: 1.1rem; color: var(--primary-dark); }
+  .user-info { display: flex; align-items: center; gap: 12px; }
+  .user-badge { background: var(--primary-light); color: var(--primary-dark); padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
+  .content-area { flex: 1; padding: 28px; }
 
-        #particles {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-        }
+  /* Cards & Tables */
+  .card {
+    background: var(--card-bg); border-radius: var(--radius-lg); padding: 24px;
+    box-shadow: var(--shadow); margin-bottom: 24px;
+  }
+  .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  .card-header h4 { font-size: 1.1rem; color: var(--primary-dark); }
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 24px; }
+  .stat-card {
+    background: var(--card-bg); border-radius: var(--radius-lg); padding: 20px;
+    box-shadow: var(--shadow); border-left: 4px solid var(--primary);
+  }
+  .stat-card.accent { border-left-color: var(--accent); }
+  .stat-card.warning { border-left-color: var(--warning); }
+  .stat-card.danger { border-left-color: var(--danger); }
+  .stat-card h5 { font-size: 0.85rem; color: var(--text-light); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .stat-card .value { font-size: 1.8rem; font-weight: 700; color: var(--text); }
 
-        /* Panel de controles mejorado y adaptivo */
-        .controls {
-            position: fixed;
-            bottom: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
-            z-index: 100;
-            width: 90%;
-            max-width: 500px;
-            background: rgba(10, 10, 10, 0.9);
-            padding: 20px;
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(15px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
+  .data-table { width: 100%; border-collapse: collapse; }
+  .data-table th, .data-table td { padding: 12px 14px; text-align: left; font-size: 0.9rem; }
+  .data-table th { background: var(--primary-light); color: var(--primary-dark); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
+  .data-table tr { border-bottom: 1px solid var(--border); }
+  .data-table tr:hover { background: #F5F5F5; }
+  .data-table td { color: var(--text); }
+  .badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
+  .badge-success { background: #E8F5E9; color: var(--success); }
+  .badge-warning { background: #FFF8E1; color: #F9A825; }
+  .badge-danger { background: #FFEBEE; color: var(--danger); }
+  .badge-info { background: #E3F2FD; color: #1976D2; }
 
-        .buttons-row {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 10px;
-            width: 100%;
-        }
+  /* Forms */
+  .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; }
+  .form-grid .full-width { grid-column: 1 / -1; }
+  .form-actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); }
 
-        .btn {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: rgba(255, 255, 255, 0.8);
-            padding: 10px 18px;
-            font-size: 11px;
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 600;
-            letter-spacing: 1px;
-            cursor: pointer;
-            transition: all 0.2s ease-in-out;
-            text-transform: uppercase;
-            border-radius: 6px;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            flex: 1;
-            min-width: 120px;
-        }
+  /* Modals */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+    display: none; align-items: center; justify-content: center; z-index: 1000;
+    backdrop-filter: blur(2px);
+  }
+  .modal-overlay.active { display: flex; }
+  .modal-box {
+    background: var(--card-bg); border-radius: var(--radius-lg); padding: 28px;
+    width: 90%; max-width: 520px; box-shadow: var(--shadow-lg); animation: modalIn 0.3s ease;
+  }
+  .modal-box.wide { max-width: 900px; }
+  .modal-box h3 { margin-bottom: 20px; color: var(--primary-dark); font-size: 1.2rem; }
+  .modal-box p { margin-bottom: 20px; color: var(--text); }
+  .modal-actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 20px; }
+  @keyframes modalIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
 
-        .btn:hover {
-            border-color: #ffffff;
-            color: #ffffff;
-            background: rgba(255, 255, 255, 0.15);
-            transform: translateY(-1px);
-        }
+  /* Rehab Grid (Imagen12 style) */
+  .rehab-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;
+  }
+  .rehab-session {
+    background: var(--primary-light); border-radius: var(--radius); padding: 12px;
+    border: 1.5px solid #C8E6C9;
+  }
+  .rehab-session h6 { font-size: 0.8rem; color: var(--primary-dark); margin-bottom: 8px; }
+  .rehab-session .form-group { margin-bottom: 8px; }
+  .rehab-session .form-group:last-child { margin-bottom: 0; }
+  .rehab-session input, .rehab-session select {
+    padding: 8px 10px; font-size: 0.85rem;
+  }
 
-        .btn-record {
-            border-color: rgba(239, 68, 68, 0.6);
-            color: #f87171;
-            background: rgba(239, 68, 68, 0.05);
-        }
+  /* Consulta Form (Imagen11 style) */
+  .consulta-layout {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+  }
+  .consulta-foto {
+    border: 2px dashed var(--border); border-radius: var(--radius);
+    min-height: 180px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    color: var(--text-light); cursor: pointer; transition: all 0.2s; background: #FAFAFA;
+  }
+  .consulta-foto:hover { border-color: var(--primary); background: var(--primary-light); }
+  .consulta-foto img { max-width: 100%; max-height: 160px; border-radius: var(--radius); object-fit: cover; }
+  .consulta-foto input { display: none; }
 
-        .btn-record:hover {
-            background: rgba(239, 68, 68, 0.2);
-            border-color: #ef4444;
-            color: #fca5a5;
-        }
+  /* Toast */
+  .toast-container { position: fixed; top: 20px; right: 20px; z-index: 2000; display: flex; flex-direction: column; gap: 10px; }
+  .toast {
+    background: var(--card-bg); padding: 14px 20px; border-radius: var(--radius);
+    box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 10px;
+    min-width: 280px; animation: toastIn 0.3s ease; border-left: 4px solid var(--success);
+  }
+  .toast.error { border-left-color: var(--danger); }
+  .toast.warning { border-left-color: var(--warning); }
+  @keyframes toastIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
-        .btn-record.recording {
-            background: rgba(239, 68, 68, 0.3);
-            border-color: #ef4444;
-            color: #fff;
-            animation: pulse 1.5s infinite;
-        }
+  /* Inactivity Modal */
+  .inactivity-timer { font-size: 2rem; font-weight: 700; color: var(--accent); text-align: center; margin: 16px 0; }
 
-        .btn-download {
-            border-color: #10b981;
-            color: #34d399;
-            background: rgba(16, 185, 129, 0.1);
-        }
+  /* Mobile */
+  .mobile-toggle { display: none; background: none; border: none; color: var(--primary); font-size: 1.5rem; cursor: pointer; }
+  @media (max-width: 768px) {
+    .sidebar { transform: translateX(-100%); }
+    .sidebar.open { transform: translateX(0); }
+    .main-content { margin-left: 0; }
+    .mobile-toggle { display: block; }
+    .stats-grid { grid-template-columns: 1fr; }
+    .rehab-grid { grid-template-columns: 1fr; }
+    .consulta-layout { grid-template-columns: 1fr; }
+    .form-grid { grid-template-columns: 1fr; }
+  }
 
-        .btn-download:hover {
-            background: rgba(16, 185, 129, 0.25);
-            border-color: #34d399;
-            color: #fff;
-        }
+  /* Loading */
+  .loading { display: inline-block; width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: white; animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .btn .loading { width: 16px; height: 16px; border-color: rgba(255,255,255,0.3); border-top-color: white; }
 
-        .btn-open {
-            border-color: #3b82f6;
-            color: #60a5fa;
-            background: rgba(59, 130, 246, 0.1);
-        }
+  /* Empty state */
+  .empty-state { text-align: center; padding: 40px; color: var(--text-light); }
+  .empty-state svg { width: 64px; height: 64px; margin-bottom: 16px; opacity: 0.5; }
 
-        .btn-open:hover {
-            background: rgba(59, 130, 246, 0.25);
-            border-color: #60a5fa;
-            color: #fff;
-        }
+  /* Search bar */
+  .search-bar { display: flex; gap: 12px; margin-bottom: 20px; }
+  .search-bar input { flex: 1; max-width: 400px; }
 
-        .format-badge {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 10px;
-            background: rgba(255, 255, 255, 0.08);
-            padding: 4px 10px;
-            border-radius: 20px;
-            color: #a3a3a3;
-            letter-spacing: 1px;
-        }
+  /* Tabs */
+  .tabs { display: flex; gap: 4px; border-bottom: 2px solid var(--border); margin-bottom: 20px; }
+  .tab { padding: 10px 20px; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; font-weight: 600; color: var(--text-light); }
+  .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
 
-        .video-preview-container {
-            width: 100%;
-            max-width: 320px;
-            margin-top: 12px;
-            border-radius: 10px;
-            overflow: hidden;
-            border: 2px solid rgba(21
+  /* Date input custom */
+  input[type="date"], input[type="time"] { font-family: inherit; }
 
-```
+  /* Print */
+  @media print { .sidebar, .topbar, .btn { display: none !important; } .main-content { margin-left: 0; } }
+</style>
+<base target="_blank">
+</head>
+<body>
+
+<!-- ==================== LOGIN SCREEN ==================== -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">🏥</div>
+    <h1>Sala de Rehabilitación Leoncio Páez</h1>
+    <p>Sistema de Información Web - San Fernando, Apure</p>
+    <form id="loginForm">
+      <div class="form-group">
+        <label>Correo Electrónico</label>
+        <input type="email" id="loginEmail" placeholder="usuario@correo.com" required>
+      </div>
+      <div class="form-group">
+        <label>Contraseña</label>
+        <input type="password" id="loginPassword" placeholder="••••••••" required>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" id="loginBtn">
+        <span>Iniciar Sesión</span>
+      </button>
+    </form>
+    <div class="login-links">
+      <a onclick="showRegisterModal()">Registrarse como Paciente</a>
+      <a onclick="showRecoverModal()">¿Olvidó su clave?</a>
+    </div>
+    <div id="loginError" style="color: var(--danger); margin-top: 12px; font-size: 0.85rem; display: none;"></div>
+  </div>
+</div>
+
+<!-- ==================== APP LAYOUT ==================== -->
+<div class="app-layout" id="appLayout">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo-icon">🏥</div>
+      <h2>Sala Rehabilitación</h2>
+      <span>Leoncio Páez</span>
+    </div>
+    <ul class="nav-menu" id="navMenu">
+      <!-- Menú dinámico según rol -->
+    </ul>
+    <div class="sidebar-footer">
+      <div id="userNameDisplay">Usuario</div>
+      <div id="userRoleDisplay" style="font-size: 0.7rem; margin-top: 4px;">Rol</div>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <div class="topbar">
+      <button class="mobile-toggle" onclick="toggleSidebar()">☰</button>
+      <h3 id="pageTitle">Inicio</h3>
+      <div class="user-info">
+        <span class="user-badge" id="roleBadge">Rol</span>
+        <button class="btn btn-secondary btn-sm" onclick="confirmLogout()">Cerrar Sesión</button>
+      </div>
+    </div>
+    <div class="content-area" id="contentArea">
+      <!-- Contenido dinámico -->
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MODALS ==================== -->
+
+<!-- Registro Paciente -->
+<div class="modal-overlay" id="registerModal">
+  <div class="modal-box wide">
+    <h3>Registro de Paciente</h3>
+    <form id="registerForm">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Nombres *</label>
+          <input type="text" id="regNombres" required>
+        </div>
+        <div class="form-group">
+          <label>Apellidos *</label>
+          <input type="text" id="regApellidos" required>
+        </div>
+        <div class="form-group">
+          <label>Cédula de Identidad *</label>
+          <input type="text" id="regCedula" placeholder="V-12345678" required>
+        </div>
+        <div class="form-group">
+          <label>Fecha de Nacimiento *</label>
+          <input type="date" id="regFechaNac" required onchange="calcularEdadReg()">
+        </div>
+        <div class="form-group">
+          <label>Edad</label>
+          <input type="text" id="regEdad" readonly placeholder="Se calcula automáticamente">
+        </div>
+        <div class="form-group">
+          <label>Sexo</label>
+          <select id="regSexo"><option value="">Seleccione</option><option>Masculino</option><option>Femenino</option></select>
+        </div>
+        <div class="form-group">
+          <label>Teléfono / Celular</label>
+          <input type="tel" id="regTelefono">
+        </div>
+        <div class="form-group">
+          <label>Correo Electrónico *</label>
+          <input type="email" id="regCorreo" required placeholder="será su usuario de acceso">
+        </div>
+        <div class="form-group">
+          <label>Dirección</label>
+          <input type="text" id="regDireccion">
+        </div>
+        <div class="form-group full-width">
+          <label>Condición de Salud</label>
+          <textarea id="regCondicion" rows="2"></textarea>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('registerModal')">Cancelar</button>
+        <button type="submit" class="btn btn-primary" id="registerBtn">Registrarse</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Confirmar Cierre -->
+<div class="modal-overlay" id="logoutModal">
+  <div class="modal-box">
+    <h3>¿Está seguro de salir?</h3>
+    <p>Si cierra la sesión deberá volver a iniciar sesión para continuar.</p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('logoutModal')">No, continuar</button>
+      <button class="btn btn-primary" onclick="doLogout()">Sí, salir</button>
+    </div>
+  </div>
+</div>
+
+<!-- Inactividad -->
+<div class="modal-overlay" id="inactivityModal">
+  <div class="modal-box">
+    <h3>Sesión por expirar</h3>
+    <p>Su sesión se cerrará automáticamente por inactividad.</p>
+    <div class="inactivity-timer" id="inactivityTimer">30</div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="continueSession()">Continuar con la sesión</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+// ==================== CONFIGURACIÓN SUPABASE ====================
+// REEMPLAZA ESTOS VALORES CON LOS DE TU PROYECTO SUPABASE
+const SUPABASE_URL = 'https://zrdyhalokzcdartdlgrn.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_vIesD6EbjZa-Xj2-zeB42g_yi6YzYAX';
+
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ==================== ESTADO GLOBAL ====================
+let currentUser = null;
+let currentRole = null;
+let inactivityTimer = null;
+let inactivityCountdown = null;
+let countdownValue = 30;
+const INACTIVITY_LIMIT = 10 * 60 * 1000; // 10 minutos
+const INACTIVITY_WARNING = 30 * 1000; // 30 segundos de aviso
+
+// ==================== UTILIDADES ====================
+function showToast(msg, type='success') {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.innerHTML = `<span>${type==='error'?'❌':type==='warning'?'⚠️':'✅'}</span><span>${msg}</span>`;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 4000);
+}
+
+function openModal(id) { document.getElementById(id).classList.add('active'); }
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+function formatDate(d) {
+  if(!d) return '';
+  const date = new Date(d);
+  return date.toLocaleDateString('es-VE');
+}
+
+function calcularEdad(fechaNac) {
+  if(!fechaNac) return '';
+  const hoy = new Date();
+  const nac = new Date(fechaNac);
+  let edad = hoy.getFullYear() - nac.getFullYear();
+  const m = hoy.getMonth() - nac.getMonth();
+  if(m < 0 || (m === 0 && hoy.getDate() < nac.getDate())) edad--;
+  return edad;
+}
+
+function calcularEdadReg() {
+  const fecha = document.getElementById('regFechaNac').value;
+  document.getElementById('regEdad').value = calcularEdad(fecha) + ' años';
+}
+
+function getDiaSemana(fecha) {
+  return new Date(fecha).getDay(); // 0=dom, 6=sab
+}
+
+// ==================== AUTENTICACIÓN ====================
+
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const btn = document.getElementById('loginBtn');
+  const errorDiv = document.getElementById('loginError');
+  errorDiv.style.display = 'none';
+
+  // Verificar bloqueo
+  const { data: userCheck } = await supabase.from('usuarios').select('bloqueado_hasta,intentos_fallidos').eq('email', email).single();
+  if(userCheck && userCheck.bloqueado_hasta && new Date(userCheck.bloqueado_hasta) > new Date()) {
+    errorDiv.textContent = 'Usuario bloqueado temporalmente por intentos fallidos. Intente más tarde.';
+    errorDiv.style.display = 'block';
+    return;
+  }
+
+  btn.innerHTML = '<span class="loading"></span>';
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  if(error) {
+    // Incrementar intentos fallidos
+    if(userCheck) {
+      const newIntentos = (userCheck.intentos_fallidos || 0) + 1;
+      let updates = { intentos_fallidos: newIntentos };
+      if(newIntentos >= 3) {
+        const bloqueo = new Date();
+        bloqueo.setMinutes(bloqueo.getMinutes() + 30);
+        updates.bloqueado_hasta = bloqueo.toISOString();
+        updates.intentos_fallidos = 0;
+      }
+      await supabase.from('usuarios').update(updates).eq('email', email);
+    }
+    errorDiv.textContent = error.message;
+    errorDiv.style.display = 'block';
+    btn.innerHTML = '<span>Iniciar Sesión</span>';
+    return;
+  }
+
+  // Resetear intentos al lograr login
+  await supabase.from('usuarios').update({ intentos_fallidos: 0, bloqueado_hasta: null, ultimo_acceso: new Date().toISOString() }).eq('email', email);
+
+  await loadSession();
+});
+
+async function loadSession() {
+  const { data: { user } } = await supabase.auth.getUser();
+  if(!user) return;
+
+  const { data: profile } = await supabase.from('usuarios').select('*').eq('id', user.id).single();
+  if(!profile) {
+    // Crear perfil básico si no existe (para pacientes que se registraron)
+    const { data: newProfile } = await supabase.from('usuarios').insert({
+      id: user.id, email: user.email, nombre: user.email.split('@')[0], apellido: '', rol: 'paciente'
+    }).select().single();
+    currentUser = newProfile;
+    currentRole = 'paciente';
+  } else {
+    currentUser = profile;
+    currentRole = profile.rol;
+  }
+
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('appLayout').style.display = 'block';
+  document.getElementById('userNameDisplay').textContent = currentUser.nombre + ' ' + currentUser.apellido;
+  document.getElementById('userRoleDisplay').textContent = formatRole(currentRole);
+  document.getElementById('roleBadge').textContent = formatRole(currentRole);
+
+  buildMenu();
+  navigate('inicio');
+  resetInactivity();
+}
+
+function formatRole(r) {
+  const roles = { super_admin: 'Super Admin', fisiatra: 'Fisiatra', administrativo: 'Administrativo', asistente: 'Asistente', paciente: 'Paciente' };
+  return roles[r] || r;
+}
+
+function confirmLogout() { openModal('logoutModal'); }
+
+async function doLogout() {
+  await supabase.auth.signOut();
+  closeModal('logoutModal');
+  document.getElementById('appLayout').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('loginForm').reset();
+  currentUser = null; currentRole = null;
+  clearTimeout(inactivityTimer); clearInterval(inactivityCountdown);
+}
+
+// ==================== INACTIVIDAD ====================
+function resetInactivity() {
+  clearTimeout(inactivityTimer);
+  clearInterval(inactivityCountdown);
+  closeModal('inactivityModal');
+  inactivityTimer = setTimeout(showInactivityWarning, INACTIVITY_LIMIT);
+}
+
+function showInactivityWarning() {
+  openModal('inactivityModal');
+  countdownValue = 30;
+  document.getElementById('inactivityTimer').textContent = countdownValue;
+  inactivityCountdown = setInterval(() => {
+    countdownValue--;
+    document.getElementById('inactivityTimer').textContent = countdownValue;
+    if(countdownValue <= 0) {
+      clearInterval(inactivityCountdown);
+      doLogout();
+    }
+  }, 1000);
+}
+
+function continueSession() {
+  resetInactivity();
+}
+
+['click','keydown','scroll','mousemove','touchstart'].forEach(evt => {
+  document.addEventListener(evt, () => { if(currentUser) resetInactivity(); });
+});
+
+// ==================== MENÚ ====================
+function buildMenu() {
+  const menu = document.getElementById('navMenu');
+  menu.innerHTML = '';
+
+  const items = [
+    { id: 'inicio', label: 'Inicio', icon: '📊', roles: ['super_admin','fisiatra','administrativo','asistente','paciente'] },
+    { id: 'pacientes', label: 'Pacientes', icon: '👤', roles: ['super_admin','fisiatra','administrativo','asistente'] },
+    { id: 'citas', label: 'Citas Médicas', icon: '📅', roles: ['super_admin','fisiatra','administrativo','asistente','paciente'] },
+    { id: 'consultas', label: 'Consultas / Historia', icon: '📋', roles: ['super_admin','fisiatra'] },
+    { id: 'rehabilitacion', label: 'Control Rehabilitación', icon: '🏥', roles: ['super_admin','fisiatra'] },
+    { id: 'usuarios', label: 'Gestión de Usuarios', icon: '👥', roles: ['super_admin'] },
+    { id: 'perfil', label: 'Mi Perfil', icon: '⚙️', roles: ['super_admin','fisiatra','administrativo','asistente','paciente'] },
+  ];
+
+  items.filter(i => i.roles.includes(currentRole)).forEach(item => {
+    const li = document.createElement('li');
+    li.innerHTML = `<a onclick="navigate('${item.id}')" id="nav-${item.id}"><span style="font-size:1.1rem">${item.icon}</span> ${item.label}</a>`;
+    menu.appendChild(li);
+  });
+}
+
+function navigate(page) {
+  document.querySelectorAll('.nav-menu a').forEach(a => a.classList.remove('active'));
+  const nav = document.getElementById('nav-'+page);
+  if(nav) nav.classList.add('active');
+
+  const titles = { inicio:'Inicio', pacientes:'Gestión de Pacientes', citas:'Citas Médicas', consultas:'Consultas e Historias Médicas', rehabilitacion:'Control de Rehabilitación', usuarios:'Gestión de Usuarios', perfil:'Mi Perfil' };
+  document.getElementById('pageTitle').textContent = titles[page] || page;
+
+  const content = document.getElementById('contentArea');
+  content.innerHTML = '';
+
+  switch(page) {
+    case 'inicio': renderDashboard(content); break;
+    case 'pacientes': renderPacientes(content); break;
+    case 'citas': renderCitas(content); break;
+    case 'consultas': renderConsultas(content); break;
+    case 'rehabilitacion': renderRehabilitacion(content); break;
+    case 'usuarios': renderUsuarios(content); break;
+    case 'perfil': renderPerfil(content); break;
+  }
+}
+
+// ==================== DASHBOARD ====================
+async function renderDashboard(container) {
+  container.innerHTML = '<div class="stats-grid" id="statsGrid"></div><div class="card"><h4>Próximas Citas</h4><div id="proxCitas"></div></div>';
+
+  const { count: totalPacientes } = await supabase.from('pacientes').select('*', { count: 'exact', head: true });
+  const { count: totalCitasHoy } = await supabase.from('citas').select('*', { count: 'exact', head: true }).eq('fecha', new Date().toISOString().split('T')[0]);
+  const { count: totalCitasPend } = await supabase.from('citas').select('*', { count: 'exact', head: true }).eq('estado', 'pendiente');
+  const { count: totalRehab } = await supabase.from('control_rehabilitacion').select('*', { count: 'exact', head: true });
+
+  const stats = [
+    { label: 'Pacientes Registrados', value: totalPacientes || 0, color: '' },
+    { label: 'Citas Hoy', value: totalCitasHoy || 0, color: 'accent' },
+    { label: 'Citas Pendientes', value: totalCitasPend || 0, color: 'warning' },
+    { label: 'Controles Rehab.', value: totalRehab || 0, color: 'danger' },
+  ];
+
+  const grid = document.getElementById('statsGrid');
+  stats.forEach(s => {
+    grid.innerHTML += `<div class="stat-card ${s.color}"><h5>${s.label}</h5><div class="value">${s.value}</div></div>`;
+  });
+
+  // Próximas citas
+  const { data: citas } = await supabase.from('citas').select('*, pacientes(nombres, apellidos)').gte('fecha', new Date().toISOString().split('T')[0]).order('fecha').limit(5);
+  const pc = document.getElementById('proxCitas');
+  if(!citas || citas.length === 0) {
+    pc.innerHTML = '<div class="empty-state">No hay citas próximas</div>';
+  } else {
+    let html = '<table class="data-table"><thead><tr><th>Fecha</th><th>Hora</th><th>Paciente</th><th>Estado</th></tr></thead><tbody>';
+    citas.forEach(c => {
+      const pac = c.pacientes ? c.pacientes.nombres + ' ' + c.pacientes.apellidos : 'N/A';
+      const badge = c.estado === 'pendiente' ? 'badge-warning' : c.estado === 'atendida' ? 'badge-success' : 'badge-info';
+      html += `<tr><td>${formatDate(c.fecha)}</td><td>${c.hora}</td><td>${pac}</td><td><span class="badge ${badge}">${c.estado}</span></td></tr>`;
+    });
+    html += '</tbody></table>';
+    pc.innerHTML = html;
+  }
+}
+
+// ==================== PACIENTES ====================
+async function renderPacientes(container) {
+  container.innerHTML = `
+    <div class="card">
+      <div class="card-header"><h4>Listado de Pacientes</h4>
+        ${currentRole !== 'asistente' ? `<button class="btn btn-primary btn-sm" onclick="openPacienteModal()">+ Nuevo Paciente</button>` : ''}
+      </div>
+      <div class="search-bar"><input type="text" id="searchPaciente" placeholder="Buscar por cédula o nombre..." oninput="filterPacientes()"></div>
+      <div id="pacientesTable"></div>
+    </div>`;
+  await loadPacientes();
+}
+
+let allPacientes = [];
+async function loadPacientes() {
+  const { data, error } = await supabase.from('pacientes').select('*').order('fecha_registro', { ascending: false });
+  if(error) { showToast(error.message, 'error'); return; }
+  allPacientes = data || [];
+  renderPacientesTable(allPacientes);
+}
+
+function renderPacientesTable(list) {
+  const div = document.getElementById('pacientesTable');
+  if(!list.length) { div.innerHTML = '<div class="empty-state">No hay pacientes registrados</div>'; return; }
+  let html = `<table class="data-table"><thead><tr><th>Cédula</th><th>Nombres</th><th>Edad</th><th>Teléfono</th><th>Correo</th><th>Acciones</th></tr></thead><tbody>`;
+  list.forEach(p => {
+    html += `<tr>
+      <td>${p.cedula}</td>
+      <td>${p.nombres} ${p.apellidos}</td>
+      <td>${p.edad || calcularEdad(p.fecha_nacimiento)}</td>
+      <td>${p.telefono || '-'}</td>
+      <td>${p.correo || '-'}</td>
+      <td>
+        <button class="btn btn-sm btn-secondary" onclick="editPaciente('${p.id}')">Editar</button>
+        ${currentRole === 'super_admin' || currentRole === 'asistente' ? `<button class="btn btn-sm btn-danger" onclick="deletePaciente('${p.id}')">Eliminar</button>` : ''}
+      </td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  div.innerHTML = html;
+}
+
+function filterPacientes() {
+  const q = document.getElementById('searchPaciente').value.toLowerCase();
+  const filtered = allPacientes.filter(p => 
+    (p.cedula && p.cedula.toLowerCase().includes(q)) ||
+    (p.nombres && p.nombres.toLowerCase().includes(q)) ||
+    (p.apellidos && p.apellidos.toLowerCase().includes(q))
+  );
+  renderPacientesTable(filtered);
+}
+
+function openPacienteModal(id=null) {
+  const isEdit = !!id;
+  const pac = isEdit ? allPacientes.find(p => p.id === id) : null;
+  const modalId = 'pacienteModal';
+  let existing = document.getElementById(modalId);
+  if(existing) existing.remove();
+
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay active';
+  modal.id = modalId;
+  modal.innerHTML = `
+    <div class="modal-box wide">
+      <h3>${isEdit ? 'Editar' : 'Nuevo'} Paciente</h3>
+      <form id="pacienteForm" onsubmit="savePaciente(event, '${id || ''}')">
+        <div class="form-grid">
+          <div class="form-group"><label>Nombres *</label><input type="text" id="pNombres" value="${pac?.nombres||''}" required></div>
+          <div class="form-group"><label>Apellidos *</label><input type="text" id="pApellidos" value="${pac?.apellidos||''}" required></div>
+          <div class="form-group"><label>Cédula *</label><input type="text" id="pCedula" value="${pac?.cedula||''}" required ${isEdit?'readonly':''}></div>
+          <div class="form-group"><label>Fecha Nac. *</label><input type="date" id="pFechaNac" value="${pac?.fecha_nacimiento||''}" required onchange="document.getElementById('pEdad').value=calcularEdad(this.value)+' años'"></div>
+          <div class="form-group"><label>Edad</label><input type="text" id="pEdad" value="${pac?.edad || calcularEdad(pac?.fecha_nacimiento)+' años'}" readonly></div>
+          <div class="form-group"><label>Sexo</label><select id="pSexo"><option value="">Seleccione</option><option ${pac?.sexo==='Masculino'?'selected':''}>Masculino</option><option ${pac?.sexo==='Femenino'?'selected':''}>Femenino</option></select></div>
+          <div class="form-group"><label>Teléfono</label><input type="tel" id="pTelefono" value="${pac?.telefono||''}"></div>
+          <div class="form-group"><label>Correo</label><input type="email" id="pCorreo" value="${pac?.correo||''}"></div>
+          <div class="form-group"><label>Dirección</label><input type="text" id="pDireccion" value="${pac?.direccion||''}"></div>
+          <div class="form-group"><label>Estado</label><input type="text" id="pEstado" value="${pac?.estado||''}"></div>
+          <div class="form-group full-width"><label>Condición de Salud</label><textarea id="pCondicion" rows="2">${pac?.condicion_salud||''}</textarea></div>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" onclick="document.getElementById('${modalId}').remove()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar</button>
+        </div>
+      </form>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+async function savePaciente(e, id) {
+  e.preventDefault();
+  const data = {
+    nombres: document.getElementById('pNombres').value,
+    apellidos: document.getElementById('pApellidos').value,
+    cedula: document.getElementById('pCedula').value,
+    fecha_nacimiento: document.getElementById('pFechaNac').value,
+    sexo: document.getElementById('pSexo').value,
+    telefono: document.getElementById('pTelefono').value,
+    correo: document.getElementById('pCorreo').value,
+    direccion: document.getElementById('pDireccion').value,
+    estado: document.getElementById('pEstado').value,
+    condicion_salud: document.getElementById('pCondicion').value,
+    creado_por: currentUser.id
+  };
+
+  if(id) {
+    const { error } = await supabase.from('pacientes').update(data).eq('id', id);
+    if(error) { showToast(error.message, 'error'); return; }
+    showToast('Paciente actualizado');
+  } else {
+    const { error } = await supabase.from('pacientes').insert(data);
+    if(error) { showToast(error.message, 'error'); return; }
+    showToast('Paciente registrado');
+  }
+  document.getElementById('pacienteModal').remove();
+  await loadPacientes();
+}
+
+async function deletePaciente(id) {
+  if(!confirm('¿Eliminar este paciente? Se eliminarán también sus citas e historias.')) return;
+  const { error } = await supabase.from('pacientes').delete().eq('id', id);
+  if(error) { showToast(error.message, 'error'); return; }
+  showToast('Paciente eliminado');
+  await loadPacientes();
+}
+
+function editPaciente(id) { openPacienteModal(id); }
+
+// ==================== CITAS ====================
+async function renderCitas(container) {
+  container.innerHTML = `
+    <div class="card">
+      <div class="card-header"><h4>Gestión de Citas</h4>
+        <button class="btn btn-primary btn-sm" onclick="openCitaModal()">+ Nueva Cita</button>
+      </div>
+      <div class="tabs">
+        <div class="tab active" onclick="switchCitaTab('todas', this)">Todas</div>
+        <div class="tab" onclick="switchCitaTab('hoy', this)">Hoy</div>
+        <div class="tab" onclick="switchCitaTab('pendientes', this)">Pendientes</div>
+      </div>
+      <div id="citasContent"></div>
+    </div>`;
+  await loadCitas('todas');
+}
+
+let currentCitaTab = 'todas';
+async function switchCitaTab(tab, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  currentCitaTab = tab;
+  await loadCitas(tab);
+}
+
+async function loadCitas(filter) {
+  let query = supabase.from('citas').select('*, pacientes(nombres, apellidos, cedula)').order('fecha', { ascending: true }).order('hora', { ascending: true });
+  if(filter === 'hoy') query = query.eq('fecha', new Date().toISOString().split('T')[0]);
+  if(filter === 'pendientes') query = query.eq('estado', 'pendiente');
+
+  const { data, error } = await query;
+  if(error) { showToast(error.message, 'error'); return; }
+  renderCitasTable(data || []);
+}
+
+function renderCitasTable(list) {
+  const div = document.getElementById('citasContent');
+  if(!list.length) { div.innerHTML = '<div class="empty-state">No hay citas</div>'; return; }
+  let html = `<table class="data-table"><thead><tr><th>N° Registro</th><th>Fecha</th><th>Hora</th><th>Paciente</th><th>Tipo</th><th>Estado</th><th>Asist.</th><th>Acciones</th></tr></thead><tbody>`;
+  list.forEach(c => {
+    const pac = c.pacientes ? c.pacientes.nombres + ' ' + c.pacientes.apellidos : 'N/A';
+    const badge = c.estado === 'pendiente' ? 'badge-warning' : c.estado === 'atendida' ? 'badge-success' : c.estado === 'cancelada' ? 'badge-danger' : 'badge-info';
+    html += `<tr>
+      <td>${c.numero_registro}</td>
+      <td>${formatDate(c.fecha)}</td>
+      <td>${c.hora}</td>
+      <td>${pac}</td>
+      <td>${c.tipo || '-'}</td>
+      <td><span class="badge ${badge}">${c.estado}</span></td>
+      <td>${c.asistencia ? '✅' : '❌'}</td>
+      <td>
+        ${currentRole === 'asistente' || currentRole === 'administrativo' ? `<button class="btn btn-sm btn-secondary" onclick="editCita('${c.id}')">Editar</button>` : ''}
+        ${currentRole === 'asistente' ? `<button class="btn btn-sm btn-accent" onclick="confirmarAsistencia('${c.id}', ${!c.asistencia})">${c.asistencia ? 'Revocar' : 'Confirmar'}</button>` : ''}
+        ${currentRole === 'asistente' || currentRole === 'administrativo' ? `<button class="btn btn-sm btn-danger" onclick="deleteCita('${c.id}')">Eliminar</button>` : ''}
+      </td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  div.innerHTML = html;
+}
+
+async function confirmarAsistencia(id, valor) {
+  const { error } = await supabase.from('citas').update({ asistencia: valor }).eq('id', id);
+  if(error) { showToast(error.message, 'error'); return; }
+  showToast('Asistencia actualizada');
+  await loadCitas(currentCitaTab);
+}
+
+async function deleteCita(id) {
+  if(!confirm('¿Eliminar esta cita?')) return;
+  const { error } = await supabase.from('citas').delete().eq('id', id);
+  if(error) { showToast(error.message, 'error'); return; }
+  showToast('Cita eliminada');
+  await loadCitas(currentCitaTab);
+}
+
+async function openCitaModal(id=null) {
+  const isEdit = !!id;
+  // Cargar pacientes para select
+  const { data: pacientes } = await supabase.from('pacientes').select('id, nombres, apellidos, cedula').order('nombres');
+
+  const modalId = 'citaModal';
+  let existing = document.getElementById(modalId);
+  if(existing) existing.remove();
+
+  let pacOptions = '<option value="">Seleccione paciente</option>';
+  (pacientes || []).forEach(p => {
+    pacOptions += `<option value="${p.id}">${p.cedula} - ${p.nombres} ${p.apellidos}</option>`;
+  });
+
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay active';
+  modal.id = modalId;
+  modal.innerHTML = `
+    <div class="modal-box">
+      <h3>${isEdit ? 'Editar' : 'Nueva'} Cita</h3>
+      <form id="citaForm" onsubmit="saveCita(event, '${id || ''}')">
+        <div class="form-group">
+          <label>Paciente *</label>
+          <select id="cPaciente" required>${pacOptions}</select>
+        </div>
+        <div class="form-group">
+          <label>Fecha *</label>
+          <input type="date" id="cFecha" required onchange="validarFechaCita()">
+        </div>
+        <div class="form-group">
+          <label>Hora *</label>
+          <input type="time" id="cHora" required>
+        </div>
+        <div class="form-group">
+          <label>Tipo</label>
+          <select id="cTipo"><option value="">Seleccione</option><option value="consulta">Consulta</option><option value="rehabilitacion">Rehabilitación</option></select>
+        </div>
+        <div class="form-group">
+          <label>Observaciones</label>
+          <textarea id="cObs" rows="2"></textarea>
+        </div>
+        <div id="citaError" style="color:var(--danger); font-size:0.85rem; margin-bottom:10px; display:none;"></div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" onclick="document.getElementById('${modalId}').remove()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar</button>
+        </div>
+      </form>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+async function validarFechaCita() {
+  const fecha = document.getElementById('cFecha').value;
+  const errorDiv = document.getElementById('citaError');
+  if(!fecha) return;
+
+  const dia = getDiaSemana(fecha);
+  if(dia === 0 || dia === 6) {
+    errorDiv.textContent = 'No se permiten citas fines de semana.';
+    errorDiv.style.display = 'block';
+    return;
+  }
+
+  const { data: feriado } = await supabase.from('feriados').select('*').eq('fecha', fecha).single();
+  if(feriado) {
+    errorDiv.textContent = `Fecha feriado: ${feriado.descripcion}. No se permiten citas.`;
+    errorDiv.style.display = 'block';
+    return;
+  }
+
+  const { count } = await supabase.from('citas').select('*', { count: 'exact', head: true }).eq('fecha', fecha).neq('estado', 'cancelada');
+  if(count >= 10) {
+    errorDiv.textContent = 'Límite de 10 pacientes por día alcanzado.';
+    errorDiv.style.display = 'block';
+    return;
+  }
+
+  errorDiv.style.display = 'none';
+}
+
+async function saveCita(e, id) {
+  e.preventDefault();
+  const data = {
+    paciente_id: document.getElementById('cPaciente').value,
+    fecha: document.getElementById('cFecha').value,
+    hora: document.getElementById('cHora').value,
+    tipo: document.getElementById('cTipo').value,
+    observaciones: document.getElementById('cObs').value,
+    creado_por: currentUser.id
+  };
+
+  const dia = getDiaSemana(data.fecha);
+  if(dia === 0 || dia === 6) { showToast('No se permiten citas fines de semana', 'error'); return; }
+
+  if(id) {
+    const { error } = await supabase.from('citas').update(data).eq('id', id);
+    if(error) { showToast(error.message, 'error'); return; }
+    showToast('Cita actualizada');
+  } else {
+    const { error } = await supabase.from('citas').insert(data);
+    if(error) { showToast(error.message, 'error'); return; }
+    showToast('Cita registrada');
+  }
+  document.getElementById('citaModal').remove();
+  await loadCitas(currentCitaTab);
+}
+
+function editCita(id) { openCitaModal(id); }
+
+// ==================== CONSULTAS / HISTORIA MÉDICA (Imagen11) ====================
+async function renderConsultas(container) {
+  container.innerHTML = `
+    <div class="card">
+      <div class="card-header"><h4>Consultas e Historias Médicas</h4>
+        <button class="btn btn-primary btn-sm" onclick="openConsultaModal()">+ Nueva Consulta</button>
+      </div>
+      <div class="search-bar"><input type="text" id="searchConsulta" placeholder="Buscar por paciente..." oninput="filterConsultas()"></div>
+      <div id="consultasTable"></div>
+    </div>`;
+  await loadConsultas();
+}
+
+let allConsultas = [];
+async function loadConsultas() {
+  const { data, error } = await supabase.from('historias_medicas').select('*, pacientes(nombres, apellidos, cedula), medico:medico_id(nombre, apellido)').order('fecha', { ascending: false });
+  if(error) { showToast(error.message, 'error'); return; }
+  allConsultas = data || [];
+  renderConsultasTable(allConsultas);
+}
+
+function renderConsultasTable(list) {
+  const div = document.getElementById('consultasTable');
+  if(!list.length) { div.innerHTML = '<div class="empty-state">No hay consultas registradas</div>'; return; }
+  let html = `<table class="data-table"><thead><tr><th>Fecha</th><th>Paciente</th><th>Médico</th><th>Condición</th><th>Acciones</th></tr></thead><tbody>`;
+  list.forEach(h => {
+    const pac = h.pacientes ? h.pacientes.nombres + ' ' + h.pacientes.apellidos : 'N/A';
+    const med = h.medico ? h.medico.nombre + ' ' + h.medico.apellido : 'N/A';
+    html += `<tr>
+      <td>${formatDate(h.fecha)}</td>
+      <td>${pac}</td>
+      <td>${med}</td>
+      <td>${h.condicion_salud || '-'}</td>
+      <td>
+        <button class="btn btn-sm btn-secondary" onclick="verConsulta('${h.id}')">Ver</button>
+        ${currentRole === 'super_admin' ? `<button class="btn btn-sm btn-danger" onclick="deleteConsulta('${h.id}')">Eliminar</button>` : ''}
+      </td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  div.innerHTML = html;
+}
+
+function filterConsultas() {
+  const q = document.getElementById('searchConsulta').value.toLowerCase();
+  const filtered = allConsultas.filter(h => {
+    const pac = h.pacientes ? (h.pacientes.nombres + ' ' + h.pacientes.apellidos + ' ' + h.pacientes.cedula).toLowerCase() : '';
+    return pac.includes(q);
+  });
+  renderConsultasTable(filtered);
+}
+
+async function openConsultaModal() {
+  const { data: pacientes } = await supabase.from('pacientes').select('id, nombres, apellidos, cedula, fecha_nacimiento, sexo, condicion_salud').order('nombres');
+  const { data: medicos } = await supabase.from('usuarios').select('id, nombre, apellido').eq('rol', 'fisiatra');
+
+  let pacOptions = '<option value="">Seleccione paciente</option>';
+  (pacientes || []).forEach(p => {
+    pacOptions += `<option value="${p.id}" data-nac="${p.fecha_nacimiento}" data-sexo="${p.sexo}" data-cond="${p.condicion_salud||''}">${p.cedula} - ${p.nombres} ${p.apellidos}</option>`;
+  });
+  let medOptions = '<option value="">Seleccione médico</option>';
+  (medicos || []).forEach(m => {
+    medOptions += `<option value="${m.id}">${m.nombre} ${m.apellido}</option>`;
+  });
+
+  const modalId = 'consultaModal';
+  let existing = document.getElementById(modalId);
+  if(existing) existing.remove();
+
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay active';
+  modal.id = modalId;
+  modal.innerHTML = `
+    <div class="modal-box wide">
+      <h3>Registro de Consulta</h3>
+      <form id="consultaForm" onsubmit="saveConsulta(event)">
+        <div class="form-grid">
+          <div class="form-group"><label>N° Consulta</label><input type="text" id="hNumero" placeholder="Auto-generado" readonly></div>
+          <div class="form-group"><label>Fecha *</label><input type="date" id="hFecha" value="${new Date().toISOString().split('T')[0]}" required></div>
+          <div class="form-group"><label>Hora</label><input type="time" id="hHora" value="${new Date().toTimeString().slice(0,5)}"></div>
+          <div class="form-group full-width"><label>Paciente *</label><select id="hPaciente" required onchange="fillPacienteData(this)">${pacOptions}</select></div>
+          <div class="form-group"><label>Nombre</label><input type="text" id="hNombre" readonly></div>
+          <div class="form-group"><label>Apellido</label><input type="text" id="hApellido" readonly></div>
+          <div class="form-group"><label>Cédula</label><input type="text" id="hCedula" readonly></div>
+          <div class="form-group"><label>Fecha Nacimiento</label><input type="date" id="hFechaNac" readonly></div>
+          <div class="form-group"><label>Edad</label><input type="text" id="hEdad" readonly></div>
+          <div class="form-group"><label>Sexo</label><input type="text" id="hSexo" readonly></div>
+          <div class="form-group full-width"><label>Condición de Salud (Paciente)</label><input type="text" id="hCondPac" readonly></div>
+          <div class="form-group full-width"><label>Médico *</label><select id="hMedico" required>${medOptions}</select></div>
+          <div class="form-group full-width"><label>Condición de Salud / Diagnóstico</label><textarea id="hCondicion" rows="3"></textarea></div>
+          <div class="form-group full-width"><label>Tratamiento</label><textarea id="hTratamiento" rows="4"></textarea></div>
+          <div class="form-group full-width">
+            <label>Foto / Evidencia</label>
+            <div class="consulta-foto" onclick="document.getElementById('hFotoInput').click()">
+              <span id="hFotoPreview">📷 Haga clic para subir foto</span>
+              <input type="file" id="hFotoInput" accept="image/*" onchange="previewFoto(this)">
+            </div>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" onclick="document.getElementById('${modalId}').remove()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar Consulta</button>
+        </div>
+      </form>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+function fillPacienteData(select) {
+  const opt = select.options[select.selectedIndex];
+  if(!opt.value) return;
+  // Buscar paciente en lista cargada previamente - simplificado
+  const pacId = opt.value;
+  // Recargar datos del paciente
+  supabase.from('pacientes').select('*').eq('id', pacId).single().then(({data}) => {
+    if(data) {
+      document.getElementById('hNombre').value = data.nombres;
+      document.getElementById('hApellido').value = data.apellidos;
+      document.getElementById('hCedula').value = data.cedula;
+      document.getElementById('hFechaNac').value = data.fecha_nacimiento;
+      document.getElementById('hEdad').value = (data.edad || calcularEdad(data.fecha_nacimiento)) + ' años';
+      document.getElementById('hSexo').value = data.sexo || '';
+      document.getElementById('hCondPac').value = data.condicion_salud || '';
+    }
+  });
+}
+
+function previewFoto(input) {
+  const preview = document.getElementById('hFotoPreview');
+  if(input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = e => { preview.innerHTML = `<img src="${e.target.result}" style="max-height:160px">`; };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+async function saveConsulta(e) {
+  e.preventDefault();
+  const pacienteId = document.getElementById('hPaciente').value;
+  const fotoInput = document.getElementById('hFotoInput');
+  let fotoUrl = '';
+
+  if(fotoInput.files && fotoInput.files[0]) {
+    const file = fotoInput.files[0];
+    const fileName = `historia_${Date.now()}_${file.name}`;
+    const { data: upData, error: upError } = await supabase.storage.from('fotos_historias').upload(fileName, file);
+    if(upError) { showToast('Error subiendo foto: ' + upError.message, 'error'); }
+    else {
+      const { data: urlData } = supabase.storage.from('fotos_historias').getPublicUrl(fileName);
+      fotoUrl = urlData.publicUrl;
+    }
+  }
+
+  const data = {
+    paciente_id: pacienteId,
+    numero_consulta: 'CONS-' + Date.now().toString().slice(-6),
+    fecha: document.getElementById('hFecha').value,
+    hora: document.getElementById('hHora').value,
+    medico_id: document.getElementById('hMedico').value,
+    condicion_salud: document.getElementById('hCondicion').value,
+    tratamiento: document.getElementById('hTratamiento').value,
+    foto_url: fotoUrl,
+    creado_por: currentUser.id
+  };
+
+  const { error } = await supabase.from('historias_medicas').insert(data);
+  if(error) { showToast(error.message, 'error'); return; }
+  showToast('Consulta registrada');
+  document.getElementById('consultaModal').remove();
+  await loadConsultas();
+}
+
+async function verConsulta(id) {
+  const { data } = await supabase.from('historias_medicas').select('*, pacientes(*), medico:medico_id(nombre, apellido)').eq('id', id).single();
+  if(!data) return;
+  const modalId = 'verConsultaModal';
+  let existing = document.getElementById(modalId);
+  if(existing) existing.remove();
+
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay active';
+  modal.id = modalId;
+  modal.innerHTML = `
+    <div class="modal-box wide">
+      <h3>Detalle de Consulta</h3>
+      <div class="form-grid">
+        <div class="form-group"><label>N° Consulta</label><input type="text" value="${data.numero_consulta||''}" readonly></div>
+        <div class="form-group"><label>Fecha</label><input type="text" value="${formatDate(data.fecha)}" readonly></div>
+        <div class="form-group"><label>Paciente</label><input type="text" value="${data.pacientes ? data.pacientes.nombres+' '+data.pacientes.apellidos : ''}" readonly></div>
+        <div class="form-group"><label>Médico</label><input type="text" value="${data.medico ? data.medico.nombre+' '+data.medico.apellido : ''}" readonly></div>
+        <div class="form-group full-width"><label>Condición de Salud</label><textarea readonly rows="2">${data.condicion_salud||''}</textarea></div>
+        <div class="form-group full-width"><label>Tratamiento</label><textarea readonly rows="3">${data.tratamiento||''}</textarea></div>
+        ${data.foto_url ? `<div class="form-group full-width"><label>Foto</label><img src="${data.foto_url}" style="max-width:100%; max-height:300px; border-radius:8px;"></div>` : ''}
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-secondary" onclick="document.getElementById('${modalId}').remove()">Cerrar</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+async function deleteConsulta(id) {
+  if(!confirm('¿Eliminar esta consulta?')) return;
+  const { error } = await supabase.from('historias_medicas').delete().eq('id', id);
+  if(error) { showToast(error.message, 'error'); return; }
+  showToast('Consulta eliminada');
+  await loadConsultas();
+}
+
+// ==================== CONTROL REHABILITACIÓN (Imagen12) ====================
+async function renderRehabilitacion(container) {
+  container.innerHTML = `
+    <div class="card">
+      <div class="card-header"><h4>Control de Rehabilitación</h4>
+        <button class="btn btn-primary btn-sm" onclick="openRehabModal()">+ Nuevo Control</button>
+      </div>
+      <div class="search-bar"><input type="text" id="searchRehab" placeholder="Buscar por paciente..." oninput="filterRehab()"></div>
+      <div id="rehabTable"></div>
+    </div>`;
+  await loadRehab();
+}
+
+let allRehab = [];
+async function loadRehab() {
+  const { data, error } = await supabase.from('control_rehabilitacion').select('*, pacientes(nombres, apellidos, cedula)').order('fecha_creacion', { ascending: false });
+  if(error) { showToast(error.message, 'error'); return; }
+  allRehab = data || [];
+  renderRehabTable(allRehab);
+}
+
+function renderRehabTable(list) {
+  const div = document.getElementById('rehabTable');
+  if(!list.length) { div.innerHTML = '<div class="empty-state">No hay controles de rehabilitación</div>'; return; }
+  let html = `<table class="data-table"><thead><tr><th>N° Historia</th><th>Paciente</th><th>Fecha Inicio</th><th>Sesiones</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>`;
+  list.forEach(r => {
+    const pac = r.pacientes ? r.pacientes.nombres + ' ' + r.pacientes.apellidos : 'N/A';
+    html += `<tr>
+      <td>${r.numero_historia || '-'}</td>
+      <td>${pac}</td>
+      <td>${formatDate(r.fecha_inicio)}</td>
+      <td>${r.sesiones_completadas || 0}/${r.total_sesiones || 0}</td>
+      <td>${r.estado || '-'}</td>
+      <td>
+        <button class="btn btn-sm btn-secondary" onclick="verRehab('${r.id}')">Ver / Editar Sesiones</button>
+        ${currentRole === 'super_admin' ? `<button class="btn btn-sm btn-danger" onclick="deleteRehab('${r.id}')">Eliminar</button>` : ''}
+      </td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  div.innerHTML = html;
+}
+
+function filterRehab() {
+  const q = document.getElementById('searchRehab').value.toLowerCase();
+  const filtered = allRehab.filter(r => {
+    const pac = r.pacientes ? (r.pacientes.nombres + ' ' + r.pacientes.apellidos + ' ' + r.pacientes.cedula).toLowerCase() : '';
+    return pac.includes(q);
+  });
+  renderRehabTable(filtered);
+}
+
+async function openRehabModal() {
+  const { data: pacientes } = await supabase.from('pacientes').select('id, nombres, apellidos, cedula').order('nombres');
+  let pacOptions = '<option value="">Seleccione paciente</option>';
+  (pacientes || []).forEach(p => {
+    pacOptions += `<option value="${p.id}">${p.cedula} - ${p.nombres} ${p.apellidos}</option>`;
+  });
+
+  const modalId = 'rehabModal';
+  let existing = document.getElementById(modalId);
+  if(existing) existing.remove();
+
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay active';
+  modal.id = modalId;
+  modal.innerHTML = `
+    <div class="modal-box wide">
+      <h3>Nuevo Control de Rehabilitación</h3>
+      <form id="rehabForm" onsubmit="saveRehab(event)">
+        <div class="form-grid">
+          <div class="form-group"><label>N° Historia</label><input type="text" id="rNumero" placeholder="Ej: RH-001"></div>
+          <div class="form-group"><label>Paciente *</label><select id="rPaciente" required>${pacOptions}</select></div>
+          <div class="form-group"><label>Fecha Inicio</label><input type="date" id="rFechaInicio" value="${new Date().toISOString().split('T')[0]}"></div>
+          <div class="form-group"><label>Total Sesiones</label><input type="number" id="rTotal" value="14" min="1" max="14"></div>
+          <div class="form-group"><label>Estado</label><input type="text" id="rEstado" placeholder="Activo / En tratamiento"></div>
+          <div class="form-group full-width"><label>Condición de Salud</label><textarea id="rCondicion" rows="2"></textarea></div>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" onclick="document.getElementById('${modalId}').remove()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar y Agregar Sesiones</button>
+        </div>
+      </form>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+async function saveRehab(e) {
+  e.preventDefault();
+  const data = {
+    numero_historia: document.getElementById('rNumero').value,
+    paciente_id: document.getElementById('rPaciente').value,
+    fecha_inicio: document.getElementById('rFechaInicio').value,
+    total_sesiones: parseInt(document.getElementById('rTotal').value) || 14,
+    estado: document.getElementById('rEstado').value,
+    condicion_salud: document.getElementById('rCondicion').value,
+    creado_por: currentUser.id
+  };
+  const { data: inserted, error } = await supabase.from('control_rehabilitacion').insert(data).select().single();
+  if(error) { showToast(error.message, 'error'); return; }
+  showToast('Control creado. Ahora puede agregar las sesiones de terapia.');
+  document.getElementById('rehabModal').remove();
+  await loadRehab();
+  verRehab(inserted.id);
+}
+
+async function verRehab(id) {
+  const { data: control } = await supabase.from('control_rehabilitacion').select('*, pacientes(*)').eq('id', id).single();
+  const { data: sesiones } = await supabase.from('sesiones_terapia').select('*, terapista:terapista_id(nombre, apellido)').eq('control_id', id).order('numero_sesion');
+  const { data: terapistas } = await supabase.from('usuarios').select('id, nombre, apellido').in('rol', ['fisiatra', 'asistente']);
+
+  const modalId = 'verRehabModal';
+  let existing = document.getElementById(modalId);
+  if(existing) existing.remove();
+
+  let terOptions = '<option value="">Seleccione</option>';
+  (terapistas || []).forEach(t => {
+    terOptions += `<option value="${t.id}">${t.nombre} ${t.apellido}</option>`;
+  });
+
+  // Generar 14 sesiones grid como Imagen12
+  let sesionesHtml = '<div class="rehab-grid">';
+  for(let i=1; i<=14; i++) {
+    const s = (sesiones || []).find(x => x.numero_sesion === i);
+    sesionesHtml += `
+      <div class="rehab-session">
+        <h6>Sesión ${i}</h6>
+        <div class="form-group">
+          <label style="font-size:0.75rem">Terapista</label>
+          <select id="sesT_${i}" style="width:100%">${terOptions.replace(`value="${s?.terapista_id || ''}"`, `value="${s?.terapista_id || ''}" selected`)}</select>
+        </div>
+        <div class="form-group">
+          <label style="font-size:0.75rem">Terapia</label>
+          <input type="text" id="sesTer_${i}" value="${s?.terapia || ''}" placeholder="Tipo de terapia">
+        </div>
+        <div class="form-group">
+          <label style="font-size:0.75rem">Fecha</label>
+          <input type="date" id="sesF_${i}" value="${s?.fecha || ''}">
+        </div>
+        <input type="hidden" id="sesId_${i}" value="${s?.id || ''}">
+      </div>
+    `;
+  }
+  sesionesHtml += '</div>';
+
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay active';
+  modal.id = modalId;
+  modal.innerHTML = `
+    <div class="modal-box wide" style="max-width:1000px">
+      <h3>Control de Rehabilitación - ${control.pacientes ? control.pacientes.nombres+' '+control.pacientes.apellidos : ''}</h3>
+      <p style="font-size:0.9rem; color:var(--text-light)">N° Historia: ${control.numero_historia || '-'} | Estado: ${control.estado || '-'} | Inicio: ${formatDate(control.fecha_inicio)}</p>
+      <form onsubmit="saveSesiones(event, '${id}')">
+        ${sesionesHtml}
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" onclick="document.getElementById('${modalId}').remove()">Cerrar</button>
+          <button type="submit" class="btn btn-primary">Guardar Sesiones</button>
+        </div>
+      </form>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+async function saveSesiones(e, controlId) {
+  e.preventDefault();
+  const inserts = [];
+  const updates = [];
+  for(let i=1; i<=14; i++) {
+    const terapista = document.getElementById(`sesT_${i}`).value;
+    const terapia = document.getElementById(`sesTer_${i}`).value;
+    const fecha = document.getElementById(`sesF_${i}`).value;
+    const sesId = document.getElementById(`sesId_${i}`).value;
+    if(!terapista && !terapia && !fecha) continue;
+    const obj = { control_id: controlId, numero_sesion: i, terapista_id: terapista || null, terapia: terapia || null, fecha: fecha || null };
+    if(sesId) {
+      updates.push({ id: sesId, ...obj });
+    } else {
+      inserts.push(obj);
+    }
+  }
+
+  if(inserts.length) {
+    const { error } = await supabase.from('sesiones_terapia').insert(inserts);
+    if(error) { showToast('Error guardando sesiones: ' + error.message, 'error'); return; }
+  }
+  for(const u of updates) {
+    const { id, ...rest } = u;
+    await supabase.from('sesiones_terapia').update(rest).eq('id', id);
+  }
+
+  // Actualizar contador
+  const completadas = inserts.length + updates.filter(u => u.fecha).length; // aproximado
+  await supabase.from('control_rehabilitacion').update({ sesiones_completadas: (await supabase.from('sesiones_terapia').select('*', {count:'exact', head:true}).eq('control_id', controlId).not('fecha', 'is', null)).count || 0 }).eq('id', controlId);
+
+  showToast('Sesiones guardadas');
+  document.getElementById('verRehabModal').remove();
+  await loadRehab();
+}
+
+async function deleteRehab(id) {
+  if(!confirm('¿Eliminar este control de rehabilitación?')) return;
+  const { error } = await supabase.from('control_rehabilitacion').delete().eq('id', id);
+  if(error) { showToast(error.message, 'error'); return; }
+  showToast('Control eliminado');
+  await loadRehab();
+}
+
+// ==================== USUARIOS (Super Admin) ====================
+async function renderUsuarios(container) {
+  container.innerHTML = `
+    <div class="card">
+      <div class="card-header"><h4>Gestión de Usuarios</h4>
+        <button class="btn btn-primary btn-sm" onclick="openUsuarioModal()">+ Nuevo Usuario</button>
+      </div>
+      <div id="usuariosTable"></div>
+    </div>`;
+  await loadUsuarios();
+}
+
+async function loadUsuarios() {
+  const { data, error } = await supabase.from('usuarios').select('*').order('fecha_ingreso', { ascending: false });
+  if(error) { showToast(error.message, 'error'); return; }
+  renderUsuariosTable(data || []);
+}
+
+function renderUsuariosTable(list) {
+  const div = document.getElementById('usuariosTable');
+  if(!list.length) { div.innerHTML = '<div class="empty-state">No hay usuarios</div>'; return; }
+  let html = `<table class="data-table"><thead><tr><th>Nombre</th><th>Correo</th><th>Cédula</th><th>Rol</th><th>Ingreso</th><th>Acciones</th></tr></thead><tbody>`;
+  list.forEach(u => {
+    html += `<tr>
+      <td>${u.nombre} ${u.apellido}</td>
+      <td>${u.email}</td>
+      <td>${u.cedula || '-'}</td>
+      <td><span class="badge badge-info">${formatRole(u.rol)}</span></td>
+      <td>${formatDate(u.fecha_ingreso)}</td>
+      <td>
+        <button class="btn btn-sm btn-secondary" onclick="editUsuario('${u.id}')">Editar</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteUsuario('${u.id}')">Eliminar</button>
+      </td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  div.innerHTML = html;
+}
+
+function openUsuarioModal() {
+  const modalId = 'usuarioModal';
+  let existing = document.getElementById(modalId);
+  if(existing) existing.remove();
+
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay active';
+  modal.id = modalId;
+  modal.innerHTML = `
+    <div class="modal-box">
+      <h3>Crear Nuevo Usuario</h3>
+      <p style="font-size:0.85rem; color:var(--text-light)">Se enviará una clave temporal al correo del usuario.</p>
+      <form id="usuarioForm" onsubmit="saveUsuario(event)">
+        <div class="form-group"><label>Nombres *</label><input type="text" id="uNombre" required></div>
+        <div class="form-group"><label>Apellidos *</label><input type="text" id="uApellido" required></div>
+        <div class="form-group"><label>Correo Electrónico *</label><input type="email" id="uEmail" required></div>
+        <div class="form-group"><label>Cédula</label><input type="text" id="uCedula"></div>
+        <div class="form-group"><label>Teléfono</label><input type="tel" id="uTelefono"></div>
+        <div class="form-group"><label>Rol *</label>
+          <select id="uRol" required>
+            <option value="">Seleccione</option>
+            <option value="fisiatra">Fisiatra</option>
+            <option value="administrativo">Administrativo</option>
+            <option value="asistente">Asistente</option>
+          </select>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" onclick="document.getElementById('${modalId}').remove()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Crear y Enviar Clave</button>
+        </div>
+      </form>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+async function saveUsuario(e) {
+  e.preventDefault();
+  const data = {
+    nombre: document.getElementById('uNombre').value,
+    apellido: document.getElementById('uApellido').value,
+    email: document.getElementById('uEmail').value,
+    cedula: document.getElementById('uCedula').value,
+    telefono: document.getElementById('uTelefono').value,
+    rol: document.getElementById('uRol').value
+  };
+
+  // Llamar Edge Function para crear usuario en auth y enviar correo
+  const { data: result, error } = await supabase.functions.invoke('create-user-send-email', {
+    body: JSON.stringify(data)
+  });
+
+  if(error) { showToast('Error: ' + error.message, 'error'); return; }
+  showToast('Usuario creado y clave enviada al correo');
+  document.getElementById('usuarioModal').remove();
+  await loadUsuarios();
+}
+
+async function deleteUsuario(id) {
+  if(!confirm('¿Eliminar este usuario?')) return;
+  const { error } = await supabase.functions.invoke('delete-user', {
+    body: JSON.stringify({ user_id: id })
+  });
+  if(error) { showToast(error.message, 'error'); return; }
+  showToast('Usuario eliminado');
+  await loadUsuarios();
+}
+
+function editUsuario(id) {
+  // Simplificado: solo mostrar info o cambiar rol
+  showToast('Función de edición: usar modal similar a creación con datos precargados');
+}
+
+// ==================== PERFIL ====================
+async function renderPerfil(container) {
+  container.innerHTML = `
+    <div class="card">
+      <div class="card-header"><h4>Mi Perfil</h4></div>
+      <form id="perfilForm" onsubmit="savePerfil(event)">
+        <div class="form-grid">
+          <div class="form-group"><label>Nombres</label><input type="text" id="perNombre" value="${currentUser.nombre||''}"></div>
+          <div class="form-group"><label>Apellidos</label><input type="text" id="perApellido" value="${currentUser.apellido||''}"></div>
+          <div class="form-group"><label>Correo</label><input type="email" value="${currentUser.email}" readonly></div>
+          <div class="form-group"><label>Cédula</label><input type="text" id="perCedula" value="${currentUser.cedula||''}"></div>
+          <div class="form-group"><label>Teléfono</label><input type="tel" id="perTelefono" value="${currentUser.telefono||''}"></div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+        </div>
+      </form>
+    </div>
+    <div class="card" style="margin-top:20px">
+      <div class="card-header"><h4>Cambiar Contraseña</h4></div>
+      <form onsubmit="changePassword(event)">
+        <div class="form-grid">
+          <div class="form-group"><label>Nueva Contraseña</label><input type="password" id="newPass" required minlength="6"></div>
+          <div class="form-group"><label>Confirmar Contraseña</label><input type="password" id="confirmPass" required minlength="6"></div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-accent">Actualizar Contraseña</button>
+        </div>
+      </form>
+    </div>`;
+}
+
+async function savePerfil(e) {
+  e.preventDefault();
+  const data = {
+    nombre: document.getElementById('perNombre').value,
+    apellido: document.getElementById('perApellido').value,
+    cedula: document.getElementById('perCedula').value,
+    telefono: document.getElementById('perTelefono').value
+  };
+  const { error } = await supabase.from('usuarios').update(data).eq('id', currentUser.id);
+  if(error) { showToast(error.message, 'error'); return; }
+  showToast('Perfil actualizado');
+  currentUser = { ...currentUser, ...data };
+  document.getElementById('userNameDisplay').textContent = currentUser.nombre + ' ' + currentUser.apellido;
+}
+
+async function changePassword(e) {
+  e.preventDefault();
+  const p1 = document.getElementById('newPass').value;
+  const p2 = document.getElementById('confirmPass').value;
+  if(p1 !== p2) { showToast('Las contraseñas no coinciden', 'error'); return; }
+  const { error } = await supabase.auth.updateUser({ password: p1 });
+  if(error) { showToast(error.message, 'error'); return; }
+  showToast('Contraseña actualizada');
+  e.target.reset();
+}
+
+// ==================== REGISTRO PACIENTE (DESDE LOGIN) ====================
+function showRegisterModal() {
+  openModal('registerModal');
+}
+
+async function showRecoverModal() {
+  const email = prompt('Ingrese su correo electrónico:');
+  if(!email) return;
+  const { error } = await supabase.auth.resetPasswordForEmail(email);
+  if(error) { showToast(error.message, 'error'); }
+  else { showToast('Se ha enviado un enlace de recuperación a su correo'); }
+}
+
+document.getElementById('registerForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('registerBtn');
+  btn.innerHTML = '<span class="loading"></span>';
+
+  const email = document.getElementById('regCorreo').value.trim();
+  const password = Math.random().toString(36).slice(-8); // clave temporal
+  const nombres = document.getElementById('regNombres').value;
+  const apellidos = document.getElementById('regApellidos').value;
+  const cedula = document.getElementById('regCedula').value;
+
+  // Crear usuario en auth
+  const { data: authData, error: authError } = await supabase.auth.signUp({
+    email, password,
+    options: { data: { nombre: nombres, apellido: apellidos } }
+  });
+
+  if(authError) {
+    showToast(authError.message, 'error');
+    btn.innerHTML = 'Registrarse';
+    return;
+  }
+
+  // Crear perfil en usuarios
+  const { error: profError } = await supabase.from('usuarios').insert({
+    id: authData.user.id,
+    email: email,
+    nombre: nombres,
+    apellido: apellidos,
+    cedula: cedula,
+    rol: 'paciente'
+  });
+
+  if(profError) {
+    showToast('Error creando perfil: ' + profError.message, 'error');
+    btn.innerHTML = 'Registrarse';
+    return;
+  }
+
+  // Crear paciente
+  const { error: pacError } = await supabase.from('pacientes').insert({
+    cedula: cedula,
+    nombres: nombres,
+    apellidos: apellidos,
+    fecha_nacimiento: document.getElementById('regFechaNac').value,
+    sexo: document.getElementById('regSexo').value,
+    telefono: document.getElementById('regTelefono').value,
+    correo: email,
+    direccion: document.getElementById('regDireccion').value,
+    condicion_salud: document.getElementById('regCondicion').value,
+    creado_por: authData.user.id
+  });
+
+  btn.innerHTML = 'Registrarse';
+  if(pacError) { showToast('Error registrando paciente: ' + pacError.message, 'error'); return; }
+
+  showToast('Registro exitoso. Su clave temporal es: ' + password + ' (también se envió al correo si está configurado)');
+  closeModal('registerModal');
+  document.getElementById('registerForm').reset();
+});
+
+// ==================== INICIALIZACIÓN ====================
+async function init() {
+  const { data: { session } } = await supabase.auth.getSession();
+  if(session) {
+    await loadSession();
+  }
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+init();
+</script>
+</body>
+</html>
