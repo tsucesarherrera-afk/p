@@ -924,7 +924,6 @@ body {
 @keyframes pulse {
     0%, 100% { transform: scale(1); }
     50% { transform: scale(1.1); }
-}
     </style>
 <base target="_blank">
 </head>
@@ -949,15 +948,20 @@ const SUPABASE_URL = 'https://yihppicvaaeyopopzkeo.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_HYY79FIsinczIVNK-biaRg_54Q6CIaT';
 
 // Inicializar cliente Supabase
-let supabase;
+let supabase = null;
 try {
-    supabase = supabaseJs.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-        auth: {
-            autoRefreshToken: true,
-            persistSession: true,
-            detectSessionInUrl: false
-        }
-    });
+    // El CDN UMD expone el objeto global 'supabase' con el método createClient
+    if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+            auth: {
+                autoRefreshToken: true,
+                persistSession: true,
+                detectSessionInUrl: false
+            }
+        });
+    } else {
+        console.error('La librería de Supabase no se cargó correctamente. Verifique su conexión a internet.');
+    }
 } catch(e) {
     console.error('Error inicializando Supabase:', e);
 }
@@ -1016,6 +1020,19 @@ function showAlert(message, type = 'info') {
 // ============================================================
 
 async function initAuth() {
+    // Verificar que Supabase se haya inicializado correctamente
+    if (!supabase) {
+        showLogin();
+        setTimeout(() => {
+            const errorDiv = $('loginError');
+            if (errorDiv) {
+                errorDiv.textContent = 'Error: No se pudo conectar con Supabase. Verifique su conexión a internet y recargue la página.';
+                errorDiv.classList.remove('hidden');
+            }
+        }, 100);
+        return;
+    }
+
     // Verificar sesión existente
     try {
         const { data: { session }, error } = await supabase.auth.getSession();
@@ -1040,11 +1057,17 @@ async function initAuth() {
             currentUser = null;
             currentProfile = null;
             showLogin();
+            showAlert('Sesión cerrada correctamente', 'info');
         }
     });
 }
 
 async function login() {
+    if (!supabase) {
+        showAlert('Error: Supabase no está disponible. Recargue la página.', 'danger');
+        return;
+    }
+
     const email = $('loginEmail').value.trim();
     const password = $('loginPassword').value;
     const btn = $('loginBtn');
@@ -1085,7 +1108,7 @@ async function login() {
 }
 
 async function loadUserProfile() {
-    if(!currentUser) return;
+    if(!currentUser || !supabase) return;
     try {
         const { data, error } = await supabase
             .from('perfiles_usuarios')
@@ -1111,6 +1134,7 @@ async function loadUserProfile() {
 }
 
 async function logout() {
+    if (!supabase) return;
     try {
         await supabase.auth.signOut();
         currentUser = null;
@@ -1388,6 +1412,7 @@ async function renderDashboard(container) {
 }
 
 async function loadDashboardData() {
+    if (!supabase) return;
     try {
         // Contar gestantes
         const { count: totalGestantes } = await supabase
@@ -1497,6 +1522,7 @@ async function renderGestantes(container) {
 }
 
 async function loadGestantes() {
+    if (!supabase) return;
     try {
         const { data, error } = await supabase
             .from('gestantes')
@@ -1610,6 +1636,7 @@ async function renderRegistros(container) {
 }
 
 async function loadRegistros() {
+    if (!supabase) return;
     try {
         let query = supabase
             .from('registros_ruta_materna')
@@ -1874,6 +1901,11 @@ function calcularDatosEmbarazo() {
 }
 
 async function guardarGestante() {
+    if (!supabase) {
+        showAlert('Error: Supabase no está disponible.', 'danger');
+        return;
+    }
+
     const id = $('gestanteId').value;
     const data = {
         cedula: $('gCedula').value,
@@ -2047,6 +2079,7 @@ function renderRegistroModal(id = null) {
 }
 
 async function buscarGestanteParaRegistro() {
+    if (!supabase) return;
     const query = $('rBuscarCedula').value.trim();
     const resultados = $('rResultadosBusqueda');
 
@@ -2091,6 +2124,11 @@ function seleccionarGestante(id, cedula, nombre, fur) {
 }
 
 async function guardarRegistro() {
+    if (!supabase) {
+        showAlert('Error: Supabase no está disponible.', 'danger');
+        return;
+    }
+
     const gestanteId = $('rGestanteId').value;
     if(!gestanteId) {
         showAlert('Debe seleccionar una gestante', 'warning');
@@ -2180,21 +2218,24 @@ async function renderReportes(container) {
     `;
 
     // Cargar consultorios
-    try {
-        const { data } = await supabase.from('consultorios').select('id, nombre').eq('activo', true);
-        const select = $('reportConsultorio');
-        if(data) {
-            data.forEach(c => {
-                const opt = document.createElement('option');
-                opt.value = c.id;
-                opt.textContent = c.nombre;
-                select.appendChild(opt);
-            });
-        }
-    } catch(e) {}
+    if (supabase) {
+        try {
+            const { data } = await supabase.from('consultorios').select('id, nombre').eq('activo', true);
+            const select = $('reportConsultorio');
+            if(data) {
+                data.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c.id;
+                    opt.textContent = c.nombre;
+                    select.appendChild(opt);
+                });
+            }
+        } catch(e) {}
+    }
 }
 
 async function generarReporte() {
+    if (!supabase) return;
     const semana = parseInt($('reportSemana').value);
     const anio = parseInt($('reportAnio').value);
     const consultorioId = $('reportConsultorio').value;
@@ -2343,6 +2384,7 @@ async function renderConsolidado(container) {
 }
 
 async function generarConsolidado() {
+    if (!supabase) return;
     const semana = parseInt($('consSemana').value);
     const anio = parseInt($('consAnio').value);
 
@@ -2524,6 +2566,7 @@ async function renderConsultorios(container) {
         </div>
     `;
 
+    if (!supabase) return;
     try {
         const { data, error } = await supabase
             .from('consultorios')
