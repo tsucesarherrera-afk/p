@@ -7,11 +7,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
     <style>
-/* ============================================================
-   SISTEMA RUTA MATERNA - ASIC ANTONIO JOSÉ DE SUCRE
-   Estilos principales - Diseño institucional
-   ============================================================ */
-
 :root {
     --color-primary: #1a5f7a;
     --color-primary-dark: #134b61;
@@ -42,11 +37,7 @@
     --transition: all 0.3s ease;
 }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
     font-family: var(--font-family);
@@ -55,13 +46,7 @@ body {
     color: var(--color-gray-800);
 }
 
-/* ============================================================
-   LAYOUT PRINCIPAL
-   ============================================================ */
-.app-container {
-    display: flex;
-    min-height: 100vh;
-}
+.app-container { display: flex; min-height: 100vh; }
 
 .sidebar {
     width: 280px;
@@ -82,8 +67,7 @@ body {
 }
 
 .sidebar-logo {
-    width: 60px;
-    height: 60px;
+    width: 60px; height: 60px;
     background: var(--color-white);
     border-radius: 50%;
     display: flex;
@@ -102,11 +86,7 @@ body {
     line-height: 1.4;
 }
 
-.sidebar-subtitle {
-    font-size: 11px;
-    opacity: 0.8;
-    margin-top: 5px;
-}
+.sidebar-subtitle { font-size: 11px; opacity: 0.8; margin-top: 5px; }
 
 .sidebar-user {
     padding: 15px 20px;
@@ -114,15 +94,10 @@ body {
     border-bottom: 1px solid rgba(255,255,255,0.1);
 }
 
-.user-info {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
+.user-info { display: flex; align-items: center; gap: 10px; }
 
 .user-avatar {
-    width: 40px;
-    height: 40px;
+    width: 40px; height: 40px;
     background: var(--color-secondary);
     border-radius: 50%;
     display: flex;
@@ -132,24 +107,13 @@ body {
     font-size: 16px;
 }
 
-.user-details {
-    flex: 1;
-}
+.user-details { flex: 1; }
 
-.user-name {
-    font-size: 14px;
-    font-weight: 600;
-}
+.user-name { font-size: 14px; font-weight: 600; }
 
-.user-role {
-    font-size: 11px;
-    opacity: 0.8;
-    text-transform: uppercase;
-}
+.user-role { font-size: 11px; opacity: 0.8; text-transform: uppercase; }
 
-.sidebar-nav {
-    padding: 15px 0;
-}
+.sidebar-nav { padding: 15px 0; }
 
 .nav-item {
     display: flex;
@@ -166,22 +130,12 @@ body {
     text-align: left;
 }
 
-.nav-item:hover {
-    background: rgba(255,255,255,0.1);
-    color: var(--color-white);
-}
+.nav-item:hover { background: rgba(255,255,255,0.1); color: var(--color-white); }
 
 .nav-item.active {
     background: rgba(255,255,255,0.15);
     border-left: 3px solid var(--color-secondary);
     color: var(--color-white);
-}
-
-.nav-item i {
-    width: 24px;
-    margin-right: 12px;
-    font-size: 16px;
-    text-align: center;
 }
 
 .nav-section-title {
@@ -193,16 +147,8 @@ body {
     font-weight: 600;
 }
 
-.main-content {
-    flex: 1;
-    margin-left: 280px;
-    padding: 20px;
-    min-height: 100vh;
-}
+.main-content { flex: 1; margin-left: 280px; padding: 20px; min-height: 100vh; }
 
-/* ============================================================
-   HEADER
-   ============================================================ */
 .top-header {
     background: var(--color-white);
     padding: 15px 25px;
@@ -214,17 +160,9 @@ body {
     margin-bottom: 20px;
 }
 
-.header-title {
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--color-primary);
-}
+.header-title { font-size: 20px; font-weight: 700; color: var(--color-primary); }
 
-.header-actions {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-}
+.header-actions { display: flex; gap: 10px; align-items: center; }
 
 .semana-badge {
     background: linear-gradient(135deg, var(--color-secondary), var(--color-accent));
@@ -235,9 +173,6 @@ body {
     font-size: 13px;
 }
 
-/* ============================================================
-   CARDS Y CONTENEDORES
-   ============================================================ */
 .card {
     background: var(--color-white);
     border-radius: var(--border-radius);
@@ -254,19 +189,10 @@ body {
     align-items: center;
 }
 
-.card-title {
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--color-gray-800);
-}
+.card-title { font-size: 16px; font-weight: 600; color: var(--color-gray-800); }
 
-.card-body {
-    padding: 20px;
-}
+.card-body { padding: 20px; }
 
-/* ============================================================
-   BOTONES
-   ============================================================ */
 .btn {
     display: inline-flex;
     align-items: center;
@@ -286,68 +212,25 @@ body {
     color: var(--color-white);
 }
 
-.btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(26, 95, 122, 0.3);
-}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(26, 95, 122, 0.3); }
 
-.btn-success {
-    background: linear-gradient(135deg, var(--color-success), #34ce57);
-    color: var(--color-white);
-}
+.btn-success { background: linear-gradient(135deg, var(--color-success), #34ce57); color: var(--color-white); }
 
-.btn-danger {
-    background: linear-gradient(135deg, var(--color-danger), #e4606d);
-    color: var(--color-white);
-}
+.btn-danger { background: linear-gradient(135deg, var(--color-danger), #e4606d); color: var(--color-white); }
 
-.btn-warning {
-    background: linear-gradient(135deg, var(--color-warning), #ffdb6d);
-    color: var(--color-gray-800);
-}
+.btn-warning { background: linear-gradient(135deg, var(--color-warning), #ffdb6d); color: var(--color-gray-800); }
 
-.btn-info {
-    background: linear-gradient(135deg, var(--color-info), #1fc8e3);
-    color: var(--color-white);
-}
+.btn-info { background: linear-gradient(135deg, var(--color-info), #1fc8e3); color: var(--color-white); }
 
-.btn-secondary {
-    background: var(--color-gray-200);
-    color: var(--color-gray-700);
-}
+.btn-secondary { background: var(--color-gray-200); color: var(--color-gray-700); }
 
-.btn-outline {
-    background: transparent;
-    border: 2px solid var(--color-primary);
-    color: var(--color-primary);
-}
+.btn-sm { padding: 6px 12px; font-size: 12px; }
 
-.btn-outline:hover {
-    background: var(--color-primary);
-    color: var(--color-white);
-}
+.btn-lg { padding: 14px 28px; font-size: 16px; }
 
-.btn-sm {
-    padding: 6px 12px;
-    font-size: 12px;
-}
+.btn-block { width: 100%; justify-content: center; }
 
-.btn-lg {
-    padding: 14px 28px;
-    font-size: 16px;
-}
-
-.btn-block {
-    width: 100%;
-    justify-content: center;
-}
-
-/* ============================================================
-   FORMULARIOS
-   ============================================================ */
-.form-group {
-    margin-bottom: 15px;
-}
+.form-group { margin-bottom: 15px; }
 
 .form-label {
     display: block;
@@ -357,10 +240,7 @@ body {
     margin-bottom: 5px;
 }
 
-.form-label.required::after {
-    content: ' *';
-    color: var(--color-danger);
-}
+.form-label.required::after { content: ' *'; color: var(--color-danger); }
 
 .form-control {
     width: 100%;
@@ -378,10 +258,7 @@ body {
     box-shadow: 0 0 0 3px rgba(26, 95, 122, 0.1);
 }
 
-.form-control:disabled {
-    background: var(--color-gray-100);
-    cursor: not-allowed;
-}
+.form-control:disabled { background: var(--color-gray-100); cursor: not-allowed; }
 
 .form-row {
     display: grid;
@@ -389,11 +266,7 @@ body {
     gap: 15px;
 }
 
-.form-section {
-    margin-bottom: 25px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid var(--color-gray-200);
-}
+.form-section { margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px solid var(--color-gray-200); }
 
 .form-section-title {
     font-size: 14px;
@@ -407,12 +280,7 @@ body {
     gap: 8px;
 }
 
-/* ============================================================
-   TABLAS
-   ============================================================ */
-.table-container {
-    overflow-x: auto;
-}
+.table-container { overflow-x: auto; }
 
 .data-table {
     width: 100%;
@@ -432,23 +300,12 @@ body {
     white-space: nowrap;
 }
 
-.data-table td {
-    padding: 12px 15px;
-    border-bottom: 1px solid var(--color-gray-200);
-    vertical-align: middle;
-}
+.data-table td { padding: 12px 15px; border-bottom: 1px solid var(--color-gray-200); vertical-align: middle; }
 
-.data-table tr:hover {
-    background: var(--color-gray-100);
-}
+.data-table tr:hover { background: var(--color-gray-100); }
 
-.data-table tr:nth-child(even) {
-    background: rgba(26, 95, 122, 0.02);
-}
+.data-table tr:nth-child(even) { background: rgba(26, 95, 122, 0.02); }
 
-/* ============================================================
-   BADGES Y ETIQUETAS
-   ============================================================ */
 .badge {
     display: inline-block;
     padding: 4px 10px;
@@ -459,55 +316,22 @@ body {
     letter-spacing: 0.5px;
 }
 
-.badge-captacion {
-    background: #d4edda;
-    color: #155724;
-}
+.badge-captacion { background: #d4edda; color: #155724; }
+.badge-control { background: #cce5ff; color: #004085; }
+.badge-emergencia { background: #f8d7da; color: #721c24; }
+.badge-referencia { background: #fff3cd; color: #856404; }
+.badge-gestante { background: #e3f2fd; color: #1565c0; }
+.badge-puerpera { background: #fce4ec; color: #c2185b; }
+.badge-lactante { background: #f3e5f5; color: #7b1fa2; }
+.badge-alta { background: #e8f5e9; color: #2e7d32; }
 
-.badge-control {
-    background: #cce5ff;
-    color: #004085;
-}
+.badge-superadmin { background: #fff3e0; color: #e65100; }
+.badge-admin { background: #e3f2fd; color: #1565c0; }
+.badge-consultorio { background: #e8f5e9; color: #2e7d32; }
 
-.badge-emergencia {
-    background: #f8d7da;
-    color: #721c24;
-}
-
-.badge-referencia {
-    background: #fff3cd;
-    color: #856404;
-}
-
-.badge-gestante {
-    background: #e3f2fd;
-    color: #1565c0;
-}
-
-.badge-puerpera {
-    background: #fce4ec;
-    color: #c2185b;
-}
-
-.badge-lactante {
-    background: #f3e5f5;
-    color: #7b1fa2;
-}
-
-.badge-alta {
-    background: #e8f5e9;
-    color: #2e7d32;
-}
-
-/* ============================================================
-   MODALES
-   ============================================================ */
 .modal-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    top: 0; left: 0; right: 0; bottom: 0;
     background: rgba(0,0,0,0.5);
     display: flex;
     align-items: center;
@@ -518,26 +342,21 @@ body {
     transition: var(--transition);
 }
 
-.modal-overlay.active {
-    opacity: 1;
-    visibility: visible;
-}
+.modal-overlay.active { opacity: 1; visibility: visible; }
 
 .modal {
     background: var(--color-white);
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow-lg);
     width: 90%;
-    max-width: 800px;
+    max-width: 700px;
     max-height: 90vh;
     overflow-y: auto;
     transform: translateY(-20px);
     transition: var(--transition);
 }
 
-.modal-overlay.active .modal {
-    transform: translateY(0);
-}
+.modal-overlay.active .modal { transform: translateY(0); }
 
 .modal-header {
     padding: 20px;
@@ -549,10 +368,7 @@ body {
     color: var(--color-white);
 }
 
-.modal-title {
-    font-size: 18px;
-    font-weight: 600;
-}
+.modal-title { font-size: 18px; font-weight: 600; }
 
 .modal-close {
     background: none;
@@ -564,13 +380,9 @@ body {
     transition: var(--transition);
 }
 
-.modal-close:hover {
-    opacity: 1;
-}
+.modal-close:hover { opacity: 1; }
 
-.modal-body {
-    padding: 20px;
-}
+.modal-body { padding: 20px; }
 
 .modal-footer {
     padding: 15px 20px;
@@ -580,9 +392,6 @@ body {
     gap: 10px;
 }
 
-/* ============================================================
-   ALERTAS Y NOTIFICACIONES
-   ============================================================ */
 .alert {
     padding: 15px 20px;
     border-radius: var(--border-radius);
@@ -592,33 +401,11 @@ body {
     gap: 10px;
 }
 
-.alert-success {
-    background: #d4edda;
-    color: #155724;
-    border-left: 4px solid var(--color-success);
-}
+.alert-success { background: #d4edda; color: #155724; border-left: 4px solid var(--color-success); }
+.alert-danger { background: #f8d7da; color: #721c24; border-left: 4px solid var(--color-danger); }
+.alert-warning { background: #fff3cd; color: #856404; border-left: 4px solid var(--color-warning); }
+.alert-info { background: #d1ecf1; color: #0c5460; border-left: 4px solid var(--color-info); }
 
-.alert-danger {
-    background: #f8d7da;
-    color: #721c24;
-    border-left: 4px solid var(--color-danger);
-}
-
-.alert-warning {
-    background: #fff3cd;
-    color: #856404;
-    border-left: 4px solid var(--color-warning);
-}
-
-.alert-info {
-    background: #d1ecf1;
-    color: #0c5460;
-    border-left: 4px solid var(--color-info);
-}
-
-/* ============================================================
-   DASHBOARD Y ESTADÍSTICAS
-   ============================================================ */
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -637,14 +424,10 @@ body {
     transition: var(--transition);
 }
 
-.stat-card:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--box-shadow-lg);
-}
+.stat-card:hover { transform: translateY(-3px); box-shadow: var(--box-shadow-lg); }
 
 .stat-icon {
-    width: 50px;
-    height: 50px;
+    width: 50px; height: 50px;
     border-radius: 12px;
     display: flex;
     align-items: center;
@@ -658,16 +441,9 @@ body {
 .stat-icon.danger { background: rgba(220, 53, 69, 0.1); color: var(--color-danger); }
 .stat-icon.info { background: rgba(23, 162, 184, 0.1); color: var(--color-info); }
 
-.stat-info {
-    flex: 1;
-}
+.stat-info { flex: 1; }
 
-.stat-value {
-    font-size: 28px;
-    font-weight: 700;
-    color: var(--color-gray-800);
-    line-height: 1;
-}
+.stat-value { font-size: 28px; font-weight: 700; color: var(--color-gray-800); line-height: 1; }
 
 .stat-label {
     font-size: 12px;
@@ -677,9 +453,6 @@ body {
     letter-spacing: 0.5px;
 }
 
-/* ============================================================
-   LOGIN
-   ============================================================ */
 .login-container {
     min-height: 100vh;
     display: flex;
@@ -706,8 +479,7 @@ body {
 }
 
 .login-logo {
-    width: 80px;
-    height: 80px;
+    width: 80px; height: 80px;
     background: var(--color-white);
     border-radius: 50%;
     display: flex;
@@ -718,28 +490,13 @@ body {
     color: var(--color-primary);
 }
 
-.login-title {
-    font-size: 20px;
-    font-weight: 700;
-    margin-bottom: 5px;
-}
+.login-title { font-size: 20px; font-weight: 700; margin-bottom: 5px; }
 
-.login-subtitle {
-    font-size: 13px;
-    opacity: 0.9;
-}
+.login-subtitle { font-size: 13px; opacity: 0.9; }
 
-.login-body {
-    padding: 30px;
-}
+.login-body { padding: 30px; }
 
-/* ============================================================
-   BUSCADOR DE CÉDULA
-   ============================================================ */
-.cedula-search {
-    position: relative;
-    margin-bottom: 20px;
-}
+.cedula-search { position: relative; margin-bottom: 20px; }
 
 .cedula-search input {
     width: 100%;
@@ -765,19 +522,6 @@ body {
     font-size: 18px;
 }
 
-.cedula-search .search-loader {
-    position: absolute;
-    right: 18px;
-    top: 50%;
-    transform: translateY(-50%);
-    display: none;
-}
-
-.cedula-search.loading .search-loader {
-    display: block;
-}
-
-/* Resultados de búsqueda */
 .search-results {
     background: var(--color-white);
     border: 1px solid var(--color-gray-300);
@@ -798,101 +542,26 @@ body {
     transition: var(--transition);
 }
 
-.search-result-item:hover {
-    background: var(--color-gray-100);
-}
+.search-result-item:hover { background: var(--color-gray-100); }
 
-.search-result-item:last-child {
-    border-bottom: none;
-}
+.search-result-item:last-child { border-bottom: none; }
 
-.result-name {
-    font-weight: 600;
-    color: var(--color-gray-800);
-}
+.result-name { font-weight: 600; color: var(--color-gray-800); }
 
-.result-details {
-    font-size: 12px;
-    color: var(--color-gray-600);
-    margin-top: 2px;
-}
+.result-details { font-size: 12px; color: var(--color-gray-600); margin-top: 2px; }
 
-/* ============================================================
-   LOADING Y SPINNERS
-   ============================================================ */
 .spinner {
-    width: 20px;
-    height: 20px;
+    width: 20px; height: 20px;
     border: 3px solid var(--color-gray-300);
     border-top-color: var(--color-primary);
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
 }
 
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
+@keyframes spin { to { transform: rotate(360deg); } }
 
-.loading-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(255,255,255,0.8);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 3000;
-}
-
-/* ============================================================
-   RESPONSIVE
-   ============================================================ */
-@media (max-width: 768px) {
-    .sidebar {
-        width: 100%;
-        position: fixed;
-        left: -100%;
-    }
-
-    .sidebar.active {
-        left: 0;
-    }
-
-    .main-content {
-        margin-left: 0;
-    }
-
-    .stats-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .form-row {
-        grid-template-columns: 1fr;
-    }
-
-    .top-header {
-        flex-direction: column;
-        gap: 10px;
-        text-align: center;
-    }
-}
-
-/* ============================================================
-   UTILIDADES
-   ============================================================ */
 .hidden { display: none !important; }
 .text-center { text-align: center; }
-.text-right { text-align: right; }
-.text-left { text-align: left; }
-.mt-1 { margin-top: 5px; }
-.mt-2 { margin-top: 10px; }
-.mt-3 { margin-top: 15px; }
-.mb-1 { margin-bottom: 5px; }
-.mb-2 { margin-bottom: 10px; }
-.mb-3 { margin-bottom: 15px; }
-.ml-auto { margin-left: auto; }
 .d-flex { display: flex; }
 .align-center { align-items: center; }
 .gap-2 { gap: 10px; }
@@ -924,6 +593,16 @@ body {
 @keyframes pulse {
     0%, 100% { transform: scale(1); }
     50% { transform: scale(1.1); }
+}
+
+@media (max-width: 768px) {
+    .sidebar { width: 100%; position: fixed; left: -100%; }
+    .sidebar.active { left: 0; }
+    .main-content { margin-left: 0; }
+    .stats-grid { grid-template-columns: 1fr; }
+    .form-row { grid-template-columns: 1fr; }
+    .top-header { flex-direction: column; gap: 10px; text-align: center; }
+}
     </style>
 <base target="_blank">
 </head>
@@ -938,32 +617,22 @@ body {
 
 <script>
 // ============================================================
-// SISTEMA RUTA MATERNA - ASIC ANTONIO JOSÉ DE SUCRE
-// JavaScript principal - Autenticación y funcionalidad completa
+// CONFIGURACIÓN SUPABASE
 // ============================================================
-
-// === CONFIGURACIÓN DE SUPABASE ===
-// REEMPLAZA ESTOS VALORES CON LOS DE TU PROYECTO SUPABASE
 const SUPABASE_URL = 'https://yihppicvaaeyopopzkeo.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_HYY79FIsinczIVNK-biaRg_54Q6CIaT';
 
-// Inicializar cliente Supabase
 let supabase = null;
 try {
-    // El CDN UMD expone el objeto global 'supabase' con el método createClient
     if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
         supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-            auth: {
-                autoRefreshToken: true,
-                persistSession: true,
-                detectSessionInUrl: false
-            }
+            auth: { autoRefreshToken: true, persistSession: true, detectSessionInUrl: false }
         });
     } else {
-        console.error('La librería de Supabase no se cargó correctamente. Verifique su conexión a internet.');
+        console.error('Supabase library not loaded');
     }
 } catch(e) {
-    console.error('Error inicializando Supabase:', e);
+    console.error('Error initializing Supabase:', e);
 }
 
 // === ESTADO GLOBAL ===
@@ -973,6 +642,7 @@ let currentSection = 'dashboard';
 let gestantesData = [];
 let registrosData = [];
 let consultoriosData = [];
+let usuariosData = [];
 
 // === UTILIDADES ===
 function $(id) { return document.getElementById(id); }
@@ -983,27 +653,22 @@ function calcularSemanas(fur) {
     if(!fur) return 0;
     const hoy = new Date();
     const furDate = new Date(fur);
-    const diffTime = hoy - furDate;
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    const diffDays = Math.floor((hoy - furDate) / (1000 * 60 * 60 * 24));
     return Math.floor(diffDays / 7);
 }
 function calcularFPP(fur) {
     if(!fur) return null;
-    const furDate = new Date(fur);
-    const fpp = new Date(furDate);
+    const fpp = new Date(fur);
     fpp.setDate(fpp.getDate() + 280);
     return fpp;
 }
 function getSemanaEpidemiologica() {
     const now = new Date();
     const start = new Date(now.getFullYear(), 0, 1);
-    const diff = now - start;
-    const oneWeek = 1000 * 60 * 60 * 24 * 7;
-    return Math.ceil(diff / oneWeek);
+    return Math.ceil((now - start) / (1000 * 60 * 60 * 24 * 7));
 }
 function getAnio() { return new Date().getFullYear(); }
 
-// === NOTIFICACIONES ===
 function showAlert(message, type = 'info') {
     const container = $('alertContainer');
     if(!container) return;
@@ -1020,20 +685,14 @@ function showAlert(message, type = 'info') {
 // ============================================================
 
 async function initAuth() {
-    // Verificar que Supabase se haya inicializado correctamente
     if (!supabase) {
         showLogin();
         setTimeout(() => {
-            const errorDiv = $('loginError');
-            if (errorDiv) {
-                errorDiv.textContent = 'Error: No se pudo conectar con Supabase. Verifique su conexión a internet y recargue la página.';
-                errorDiv.classList.remove('hidden');
-            }
+            const err = $('loginError');
+            if(err) { err.textContent = 'Error: No se pudo conectar con Supabase. Verifique su conexión.'; err.classList.remove('hidden'); }
         }, 100);
         return;
     }
-
-    // Verificar sesión existente
     try {
         const { data: { session }, error } = await supabase.auth.getSession();
         if(session) {
@@ -1044,30 +703,22 @@ async function initAuth() {
             showLogin();
         }
     } catch(e) {
-        console.error('Error verificando sesión:', e);
+        console.error('Error checking session:', e);
         showLogin();
     }
-
-    // Escuchar cambios de autenticación
     supabase.auth.onAuthStateChange((event, session) => {
         if(event === 'SIGNED_IN' && session) {
             currentUser = session.user;
             loadUserProfile().then(() => showApp());
         } else if(event === 'SIGNED_OUT') {
-            currentUser = null;
-            currentProfile = null;
-            showLogin();
+            currentUser = null; currentProfile = null; showLogin();
             showAlert('Sesión cerrada correctamente', 'info');
         }
     });
 }
 
 async function login() {
-    if (!supabase) {
-        showAlert('Error: Supabase no está disponible. Recargue la página.', 'danger');
-        return;
-    }
-
+    if (!supabase) { showAlert('Supabase no disponible', 'danger'); return; }
     const email = $('loginEmail').value.trim();
     const password = $('loginPassword').value;
     const btn = $('loginBtn');
@@ -1078,25 +729,18 @@ async function login() {
         errorDiv.classList.remove('hidden');
         return;
     }
-
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner" style="width:16px;height:16px;border-width:2px;display:inline-block;vertical-align:middle;margin-right:8px;"></span> Ingresando...';
     errorDiv.classList.add('hidden');
 
     try {
-        const { data, error } = await supabase.auth.signInWithPassword({
-            email: email,
-            password: password
-        });
-
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if(error) throw error;
-
         currentUser = data.user;
         await loadUserProfile();
         showApp();
         showAlert('¡Bienvenido al Sistema Ruta Materna!', 'success');
     } catch(error) {
-        console.error('Error login:', error);
         errorDiv.textContent = error.message === 'Invalid login credentials' 
             ? 'Usuario o contraseña incorrectos' 
             : 'Error al iniciar sesión: ' + error.message;
@@ -1115,45 +759,29 @@ async function loadUserProfile() {
             .select('*, consultorios(*)')
             .eq('id', currentUser.id)
             .single();
-
         if(error) {
-            // Si no existe perfil, crear uno básico
-            currentProfile = {
-                id: currentUser.id,
-                nombre_completo: currentUser.email,
-                rol: 'consultorio',
-                consultorio_id: null
-            };
+            currentProfile = { id: currentUser.id, nombre_completo: currentUser.email, rol: 'consultorio', consultorio_id: null, email: currentUser.email };
         } else {
             currentProfile = data;
         }
     } catch(e) {
-        console.error('Error cargando perfil:', e);
-        currentProfile = { nombre_completo: currentUser.email, rol: 'consultorio' };
+        currentProfile = { nombre_completo: currentUser.email, rol: 'consultorio', email: currentUser.email };
     }
 }
 
 async function logout() {
     if (!supabase) return;
-    try {
-        await supabase.auth.signOut();
-        currentUser = null;
-        currentProfile = null;
-        showLogin();
-        showAlert('Sesión cerrada correctamente', 'info');
-    } catch(e) {
-        console.error('Error logout:', e);
-    }
+    try { await supabase.auth.signOut(); currentUser = null; currentProfile = null; showLogin(); }
+    catch(e) { console.error('Error logout:', e); }
 }
 
 // ============================================================
-// RENDERIZADO DE VISTAS
+// VISTAS
 // ============================================================
 
 function showLogin() {
     hide('appLoading');
-    const app = $('app');
-    app.innerHTML = `
+    $('app').innerHTML = `
         <div class="login-container">
             <div class="login-box">
                 <div class="login-header">
@@ -1183,14 +811,8 @@ function showLogin() {
             </div>
         </div>
     `;
-
-    // Permitir Enter para login
-    $('loginPassword').addEventListener('keypress', (e) => {
-        if(e.key === 'Enter') login();
-    });
-    $('loginEmail').addEventListener('keypress', (e) => {
-        if(e.key === 'Enter') $('loginPassword').focus();
-    });
+    $('loginPassword').addEventListener('keypress', (e) => { if(e.key === 'Enter') login(); });
+    $('loginEmail').addEventListener('keypress', (e) => { if(e.key === 'Enter') $('loginPassword').focus(); });
 }
 
 function showApp() {
@@ -1198,16 +820,11 @@ function showApp() {
     const app = $('app');
     const userName = currentProfile?.nombre_completo || currentUser?.email || 'Usuario';
     const userRole = currentProfile?.rol || 'consultorio';
-    const userRoleLabel = {
-        'super_admin': 'Super Administrador',
-        'admin': 'Administrador',
-        'consultorio': 'Personal de Consultorio'
-    }[userRole] || 'Usuario';
+    const userRoleLabel = { 'super_admin': 'Super Administrador', 'admin': 'Administrador', 'consultorio': 'Personal de Consultorio' }[userRole] || 'Usuario';
     const consultorioName = currentProfile?.consultorios?.nombre || 'No asignado';
 
     app.innerHTML = `
         <div class="app-container">
-            <!-- Sidebar -->
             <aside class="sidebar" id="sidebar">
                 <div class="sidebar-header">
                     <div class="sidebar-logo">🏥</div>
@@ -1226,42 +843,25 @@ function showApp() {
                 </div>
                 <nav class="sidebar-nav">
                     <div class="nav-section-title">Principal</div>
-                    <button class="nav-item active" onclick="navigateTo('dashboard')">
-                        <span>📊</span> Dashboard
-                    </button>
-                    <button class="nav-item" onclick="navigateTo('gestantes')">
-                        <span>🤰</span> Gestantes
-                    </button>
-                    <button class="nav-item" onclick="navigateTo('registros')">
-                        <span>📝</span> Registros Semanales
-                    </button>
+                    <button class="nav-item active" onclick="navigateTo('dashboard')"><span>📊</span> Dashboard</button>
+                    <button class="nav-item" onclick="navigateTo('gestantes')"><span>🤰</span> Gestantes</button>
+                    <button class="nav-item" onclick="navigateTo('registros')"><span>📝</span> Registros Semanales</button>
 
                     <div class="nav-section-title">Reportes</div>
-                    <button class="nav-item" onclick="navigateTo('reportes')">
-                        <span>📈</span> Reportes EPI
-                    </button>
-                    <button class="nav-item" onclick="navigateTo('consolidado')">
-                        <span>📋</span> Consolidado EPI 13
-                    </button>
+                    <button class="nav-item" onclick="navigateTo('reportes')"><span>📈</span> Reportes EPI</button>
+                    <button class="nav-item" onclick="navigateTo('consolidado')"><span>📋</span> Consolidado EPI 13</button>
 
                     ${userRole === 'super_admin' || userRole === 'admin' ? `
                     <div class="nav-section-title">Administración</div>
-                    <button class="nav-item" onclick="navigateTo('usuarios')">
-                        <span>👥</span> Usuarios
-                    </button>
-                    <button class="nav-item" onclick="navigateTo('consultorios')">
-                        <span>🏢</span> Consultorios
-                    </button>
+                    <button class="nav-item" onclick="navigateTo('usuarios')"><span>👥</span> Usuarios</button>
+                    <button class="nav-item" onclick="navigateTo('consultorios')"><span>🏢</span> Consultorios</button>
                     ` : ''}
 
                     <div class="nav-section-title">Sistema</div>
-                    <button class="nav-item" onclick="logout()">
-                        <span>🚪</span> Cerrar Sesión
-                    </button>
+                    <button class="nav-item" onclick="logout()"><span>🚪</span> Cerrar Sesión</button>
                 </nav>
             </aside>
 
-            <!-- Main Content -->
             <main class="main-content">
                 <div id="alertContainer"></div>
                 <div class="top-header">
@@ -1274,34 +874,22 @@ function showApp() {
             </main>
         </div>
     `;
-
     navigateTo('dashboard');
 }
 
 function navigateTo(section) {
     currentSection = section;
-
-    // Actualizar navegación activa
     document.querySelectorAll('.nav-item').forEach(item => {
         item.classList.remove('active');
-        if(item.getAttribute('onclick')?.includes(section)) {
-            item.classList.add('active');
-        }
+        if(item.getAttribute('onclick')?.includes(section)) item.classList.add('active');
     });
-
     const titles = {
-        'dashboard': 'Dashboard',
-        'gestantes': 'Gestantes',
-        'registros': 'Registros Semanales',
-        'reportes': 'Reportes EPI',
-        'consolidado': 'Consolidado EPI 13',
-        'usuarios': 'Gestión de Usuarios',
-        'consultorios': 'Consultorios'
+        'dashboard': 'Dashboard', 'gestantes': 'Gestantes', 'registros': 'Registros Semanales',
+        'reportes': 'Reportes EPI', 'consolidado': 'Consolidado EPI 13',
+        'usuarios': 'Gestión de Usuarios', 'consultorios': 'Consultorios'
     };
     $('pageTitle').textContent = titles[section] || section;
-
     const contentArea = $('contentArea');
-
     switch(section) {
         case 'dashboard': renderDashboard(contentArea); break;
         case 'gestantes': renderGestantes(contentArea); break;
@@ -1314,7 +902,6 @@ function navigateTo(section) {
     }
 }
 
-
 // ============================================================
 // DASHBOARD
 // ============================================================
@@ -1322,125 +909,48 @@ function navigateTo(section) {
 async function renderDashboard(container) {
     container.innerHTML = `
         <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-icon primary">🤰</div>
-                <div class="stat-info">
-                    <div class="stat-value" id="statTotalGestantes">-</div>
-                    <div class="stat-label">Total Gestantes</div>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon success">✅</div>
-                <div class="stat-info">
-                    <div class="stat-value" id="statEnControl">-</div>
-                    <div class="stat-label">En Control Prenatal</div>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon warning">📅</div>
-                <div class="stat-info">
-                    <div class="stat-value" id="statEstaSemana">-</div>
-                    <div class="stat-label">Registros Esta Semana</div>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon danger">🚨</div>
-                <div class="stat-info">
-                    <div class="stat-value" id="statEmergencias">-</div>
-                    <div class="stat-label">Emergencias</div>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon info">🍼</div>
-                <div class="stat-info">
-                    <div class="stat-value" id="statPuerperas">-</div>
-                    <div class="stat-label">Puérperas / Lactantes</div>
-                </div>
-            </div>
+            <div class="stat-card"><div class="stat-icon primary">🤰</div><div class="stat-info"><div class="stat-value" id="statTotalGestantes">-</div><div class="stat-label">Total Gestantes</div></div></div>
+            <div class="stat-card"><div class="stat-icon success">✅</div><div class="stat-info"><div class="stat-value" id="statEnControl">-</div><div class="stat-label">En Control Prenatal</div></div></div>
+            <div class="stat-card"><div class="stat-icon warning">📅</div><div class="stat-info"><div class="stat-value" id="statEstaSemana">-</div><div class="stat-label">Registros Esta Semana</div></div></div>
+            <div class="stat-card"><div class="stat-icon danger">🚨</div><div class="stat-info"><div class="stat-value" id="statEmergencias">-</div><div class="stat-label">Emergencias</div></div></div>
+            <div class="stat-card"><div class="stat-icon info">🍼</div><div class="stat-info"><div class="stat-value" id="statPuerperas">-</div><div class="stat-label">Puérperas / Lactantes</div></div></div>
         </div>
-
         <div class="card">
-            <div class="card-header">
-                <div class="card-title">Últimos Registros</div>
-                <button class="btn btn-primary btn-sm" onclick="navigateTo('registros')">Ver Todos</button>
-            </div>
+            <div class="card-header"><div class="card-title">Últimos Registros</div><button class="btn btn-primary btn-sm" onclick="navigateTo('registros')">Ver Todos</button></div>
             <div class="card-body">
                 <div class="table-container">
                     <table class="data-table" id="dashboardTable">
-                        <thead>
-                            <tr>
-                                <th>Fecha</th>
-                                <th>Gestante</th>
-                                <th>Cédula</th>
-                                <th>Tipo</th>
-                                <th>Consultorio</th>
-                                <th>Semana</th>
-                            </tr>
-                        </thead>
-                        <tbody id="dashboardTableBody">
-                            <tr><td colspan="6" class="text-center">Cargando...</td></tr>
-                        </tbody>
+                        <thead><tr><th>Fecha</th><th>Gestante</th><th>Cédula</th><th>Tipo</th><th>Consultorio</th><th>Semana</th></tr></thead>
+                        <tbody id="dashboardTableBody"><tr><td colspan="6" class="text-center">Cargando...</td></tr></tbody>
                     </table>
                 </div>
             </div>
         </div>
-
         <div class="card">
-            <div class="card-header">
-                <div class="card-title">Accesos Rápidos</div>
-            </div>
+            <div class="card-header"><div class="card-title">Accesos Rápidos</div></div>
             <div class="card-body">
                 <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                    <button class="btn btn-success" onclick="openModal('gestante')">
-                        <span>➕</span> Nueva Gestante
-                    </button>
-                    <button class="btn btn-primary" onclick="openModal('registro')">
-                        <span>📝</span> Nuevo Registro
-                    </button>
-                    <button class="btn btn-info" onclick="navigateTo('reportes')">
-                        <span>📊</span> Generar Reporte
-                    </button>
-                    <button class="btn btn-warning" onclick="navigateTo('consolidado')">
-                        <span>📋</span> Consolidado EPI 13
-                    </button>
+                    <button class="btn btn-success" onclick="openModal('gestante')"><span>➕</span> Nueva Gestante</button>
+                    <button class="btn btn-primary" onclick="openModal('registro')"><span>📝</span> Nuevo Registro</button>
+                    <button class="btn btn-info" onclick="navigateTo('reportes')"><span>📊</span> Generar Reporte</button>
+                    <button class="btn btn-warning" onclick="navigateTo('consolidado')"><span>📋</span> Consolidado EPI 13</button>
                 </div>
             </div>
         </div>
     `;
-
     await loadDashboardData();
 }
 
 async function loadDashboardData() {
     if (!supabase) return;
     try {
-        // Contar gestantes
-        const { count: totalGestantes } = await supabase
-            .from('gestantes')
-            .select('*', { count: 'exact', head: true });
-
-        const { count: enControl } = await supabase
-            .from('gestantes')
-            .select('*', { count: 'exact', head: true })
-            .eq('en_control_prenatal', true);
-
-        const { count: puerperas } = await supabase
-            .from('gestantes')
-            .select('*', { count: 'exact', head: true })
-            .in('estado_actual', ['puerpera', 'lactante']);
-
+        const { count: totalGestantes } = await supabase.from('gestantes').select('*', { count: 'exact', head: true });
+        const { count: enControl } = await supabase.from('gestantes').select('*', { count: 'exact', head: true }).eq('en_control_prenatal', true);
+        const { count: puerperas } = await supabase.from('gestantes').select('*', { count: 'exact', head: true }).in('estado_actual', ['puerpera', 'lactante']);
         const semanaActual = getSemanaEpidemiologica();
         const anioActual = getAnio();
-        const { count: estaSemana } = await supabase
-            .from('registros_ruta_materna')
-            .select('*', { count: 'exact', head: true })
-            .eq('semana_epidemiologica', semanaActual)
-            .eq('anio', anioActual);
-
-        const { count: emergencias } = await supabase
-            .from('registros_ruta_materna')
-            .select('*', { count: 'exact', head: true })
-            .eq('tipo_registro', 'emergencia');
+        const { count: estaSemana } = await supabase.from('registros_ruta_materna').select('*', { count: 'exact', head: true }).eq('semana_epidemiologica', semanaActual).eq('anio', anioActual);
+        const { count: emergencias } = await supabase.from('registros_ruta_materna').select('*', { count: 'exact', head: true }).eq('tipo_registro', 'emergencia');
 
         $('statTotalGestantes').textContent = totalGestantes || 0;
         $('statEnControl').textContent = enControl || 0;
@@ -1448,31 +958,21 @@ async function loadDashboardData() {
         $('statEmergencias').textContent = emergencias || 0;
         $('statPuerperas').textContent = puerperas || 0;
 
-        // Últimos registros
         const { data: ultimosRegistros, error } = await supabase
             .from('registros_ruta_materna')
             .select('*, gestantes(nombres, apellidos, cedula), consultorios(nombre)')
-            .order('created_at', { ascending: false })
-            .limit(10);
+            .order('created_at', { ascending: false }).limit(10);
 
         const tbody = $('dashboardTableBody');
         if(error || !ultimosRegistros?.length) {
             tbody.innerHTML = '<tr><td colspan="6" class="text-center">No hay registros recientes</td></tr>';
         } else {
             tbody.innerHTML = ultimosRegistros.map(r => `
-                <tr>
-                    <td>${formatDate(r.fecha_registro)}</td>
-                    <td>${r.gestantes?.nombres || ''} ${r.gestantes?.apellidos || ''}</td>
-                    <td>${r.gestantes?.cedula || '-'}</td>
-                    <td><span class="badge badge-${r.tipo_registro}">${r.tipo_registro}</span></td>
-                    <td>${r.consultorios?.nombre || '-'}</td>
-                    <td>SE ${r.semana_epidemiologica}</td>
-                </tr>
+                <tr><td>${formatDate(r.fecha_registro)}</td><td>${r.gestantes?.nombres || ''} ${r.gestantes?.apellidos || ''}</td><td>${r.gestantes?.cedula || '-'}</td>
+                <td><span class="badge badge-${r.tipo_registro}">${r.tipo_registro}</span></td><td>${r.consultorios?.nombre || '-'}</td><td>SE ${r.semana_epidemiologica}</td></tr>
             `).join('');
         }
-    } catch(e) {
-        console.error('Error cargando dashboard:', e);
-    }
+    } catch(e) { console.error('Error loading dashboard:', e); }
 }
 
 // ============================================================
@@ -1489,91 +989,56 @@ async function renderGestantes(container) {
                         <span class="search-icon">🔍</span>
                         <input type="text" id="searchCedula" placeholder="Buscar por cédula..." onkeyup="searchGestante()">
                     </div>
-                    <button class="btn btn-success" onclick="openModal('gestante')">
-                        <span>➕</span> Nueva Gestante
-                    </button>
+                    <button class="btn btn-success" onclick="openModal('gestante')"><span>➕</span> Nueva Gestante</button>
                 </div>
             </div>
             <div class="card-body">
                 <div class="table-container">
                     <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Cédula</th>
-                                <th>Nombre Completo</th>
-                                <th>Edad</th>
-                                <th>Estado</th>
-                                <th>Semanas</th>
-                                <th>FPP</th>
-                                <th>Control</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="gestantesTableBody">
-                            <tr><td colspan="8" class="text-center">Cargando...</td></tr>
-                        </tbody>
+                        <thead><tr><th>Cédula</th><th>Nombre Completo</th><th>Edad</th><th>Estado</th><th>Semanas</th><th>FPP</th><th>Control</th><th>Acciones</th></tr></thead>
+                        <tbody id="gestantesTableBody"><tr><td colspan="8" class="text-center">Cargando...</td></tr></tbody>
                     </table>
                 </div>
             </div>
         </div>
     `;
-
     await loadGestantes();
 }
 
 async function loadGestantes() {
     if (!supabase) return;
     try {
-        const { data, error } = await supabase
-            .from('gestantes')
-            .select('*')
-            .order('created_at', { ascending: false });
-
+        const { data, error } = await supabase.from('gestantes').select('*').order('created_at', { ascending: false });
         gestantesData = data || [];
         const tbody = $('gestantesTableBody');
-
         if(error || !gestantesData.length) {
-            tbody.innerHTML = '<tr><td colspan="8" class="text-center">No hay gestantes registradas</td></tr>';
-            return;
+            tbody.innerHTML = '<tr><td colspan="8" class="text-center">No hay gestantes registradas</td></tr>'; return;
         }
-
         tbody.innerHTML = gestantesData.map(g => {
             const semanas = calcularSemanas(g.fur);
             const fpp = calcularFPP(g.fur);
-            const estadoClass = {
-                'gestante': 'badge-gestante',
-                'puerpera': 'badge-puerpera',
-                'lactante': 'badge-lactante',
-                'alta': 'badge-alta'
-            }[g.estado_actual] || 'badge-gestante';
-
+            const estadoClass = { 'gestante': 'badge-gestante', 'puerpera': 'badge-puerpera', 'lactante': 'badge-lactante', 'alta': 'badge-alta' }[g.estado_actual] || 'badge-gestante';
             return `
                 <tr>
-                    <td><strong>${g.cedula}</strong></td>
-                    <td>${g.nombres} ${g.apellidos}</td>
-                    <td>${g.edad || '-'}</td>
+                    <td><strong>${g.cedula}</strong></td><td>${g.nombres} ${g.apellidos}</td><td>${g.edad || '-'}</td>
                     <td><span class="badge ${estadoClass}">${g.estado_actual}</span></td>
-                    <td>${semanas > 0 ? semanas + ' sem' : '-'}</td>
-                    <td>${fpp ? formatDate(fpp) : '-'}</td>
+                    <td>${semanas > 0 ? semanas + ' sem' : '-'}</td><td>${fpp ? formatDate(fpp) : '-'}</td>
                     <td>${g.en_control_prenatal ? '✅ Sí' : '❌ No'}</td>
                     <td>
                         <button class="btn btn-sm btn-info" onclick="verGestante('${g.id}')">👁️</button>
                         <button class="btn btn-sm btn-primary" onclick="editarGestante('${g.id}')">✏️</button>
                         <button class="btn btn-sm btn-success" onclick="nuevoRegistroGestante('${g.id}')">📝</button>
                     </td>
-                </tr>
-            `;
+                </tr>`;
         }).join('');
     } catch(e) {
-        console.error('Error cargando gestantes:', e);
         $('gestantesTableBody').innerHTML = '<tr><td colspan="8" class="text-center text-danger">Error al cargar datos</td></tr>';
     }
 }
 
 function searchGestante() {
     const query = $('searchCedula').value.toLowerCase();
-    const rows = document.querySelectorAll('#gestantesTableBody tr');
-    rows.forEach(row => {
+    document.querySelectorAll('#gestantesTableBody tr').forEach(row => {
         const cedula = row.cells[0]?.textContent?.toLowerCase() || '';
         const nombre = row.cells[1]?.textContent?.toLowerCase() || '';
         row.style.display = (cedula.includes(query) || nombre.includes(query)) ? '' : 'none';
@@ -1590,93 +1055,43 @@ async function renderRegistros(container) {
             <div class="card-header">
                 <div class="card-title">Registros de Ruta Materna</div>
                 <div class="d-flex gap-2">
-                    <select id="filterSemana" class="form-control" style="width:auto;" onchange="loadRegistros()">
-                        <option value="">Todas las semanas</option>
-                    </select>
-                    <button class="btn btn-success" onclick="openModal('registro')">
-                        <span>➕</span> Nuevo Registro
-                    </button>
+                    <select id="filterSemana" class="form-control" style="width:auto;" onchange="loadRegistros()"><option value="">Todas las semanas</option></select>
+                    <button class="btn btn-success" onclick="openModal('registro')"><span>➕</span> Nuevo Registro</button>
                 </div>
             </div>
             <div class="card-body">
                 <div class="table-container">
                     <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Fecha</th>
-                                <th>Gestante</th>
-                                <th>Cédula</th>
-                                <th>Tipo</th>
-                                <th>Consultorio</th>
-                                <th>SE</th>
-                                <th>Edad Gest.</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="registrosTableBody">
-                            <tr><td colspan="8" class="text-center">Cargando...</td></tr>
-                        </tbody>
+                        <thead><tr><th>Fecha</th><th>Gestante</th><th>Cédula</th><th>Tipo</th><th>Consultorio</th><th>SE</th><th>Edad Gest.</th><th>Acciones</th></tr></thead>
+                        <tbody id="registrosTableBody"><tr><td colspan="8" class="text-center">Cargando...</td></tr></tbody>
                     </table>
                 </div>
             </div>
         </div>
     `;
-
-    // Llenar filtro de semanas
     const semanaSelect = $('filterSemana');
-    for(let i = 1; i <= 52; i++) {
-        const option = document.createElement('option');
-        option.value = i;
-        option.textContent = `Semana ${i}`;
-        if(i === getSemanaEpidemiologica()) option.selected = true;
-        semanaSelect.appendChild(option);
-    }
-
+    for(let i = 1; i <= 52; i++) { const opt = document.createElement('option'); opt.value = i; opt.textContent = `Semana ${i}`; if(i === getSemanaEpidemiologica()) opt.selected = true; semanaSelect.appendChild(opt); }
     await loadRegistros();
 }
 
 async function loadRegistros() {
     if (!supabase) return;
     try {
-        let query = supabase
-            .from('registros_ruta_materna')
-            .select('*, gestantes(nombres, apellidos, cedula), consultorios(nombre)')
-            .order('fecha_registro', { ascending: false });
-
+        let query = supabase.from('registros_ruta_materna').select('*, gestantes(nombres, apellidos, cedula), consultorios(nombre)').order('fecha_registro', { ascending: false });
         const semanaFilter = $('filterSemana')?.value;
-        if(semanaFilter) {
-            query = query.eq('semana_epidemiologica', semanaFilter);
-        }
-
+        if(semanaFilter) query = query.eq('semana_epidemiologica', semanaFilter);
         const { data, error } = await query;
         registrosData = data || [];
-
         const tbody = $('registrosTableBody');
-        if(error || !registrosData.length) {
-            tbody.innerHTML = '<tr><td colspan="8" class="text-center">No hay registros</td></tr>';
-            return;
-        }
-
+        if(error || !registrosData.length) { tbody.innerHTML = '<tr><td colspan="8" class="text-center">No hay registros</td></tr>'; return; }
         tbody.innerHTML = registrosData.map(r => `
-            <tr>
-                <td>${formatDate(r.fecha_registro)}</td>
-                <td>${r.gestantes?.nombres || ''} ${r.gestantes?.apellidos || ''}</td>
-                <td>${r.gestantes?.cedula || '-'}</td>
-                <td><span class="badge badge-${r.tipo_registro}">${r.tipo_registro}</span></td>
-                <td>${r.consultorios?.nombre || '-'}</td>
-                <td>SE ${r.semana_epidemiologica}</td>
-                <td>${r.edad_gestacional_actual || '-'} sem</td>
-                <td>
-                    <button class="btn btn-sm btn-info" onclick="verRegistro('${r.id}')">👁️</button>
-                    <button class="btn btn-sm btn-primary" onclick="editarRegistro('${r.id}')">✏️</button>
-                </td>
-            </tr>
+            <tr><td>${formatDate(r.fecha_registro)}</td><td>${r.gestantes?.nombres || ''} ${r.gestantes?.apellidos || ''}</td><td>${r.gestantes?.cedula || '-'}</td>
+            <td><span class="badge badge-${r.tipo_registro}">${r.tipo_registro}</span></td><td>${r.consultorios?.nombre || '-'}</td><td>SE ${r.semana_epidemiologica}</td>
+            <td>${r.edad_gestacional_actual || '-'} sem</td>
+            <td><button class="btn btn-sm btn-info" onclick="verRegistro('${r.id}')">👁️</button><button class="btn btn-sm btn-primary" onclick="editarRegistro('${r.id}')">✏️</button></td></tr>
         `).join('');
-    } catch(e) {
-        console.error('Error cargando registros:', e);
-    }
+    } catch(e) { console.error('Error loading records:', e); }
 }
-
 
 // ============================================================
 // MODALES
@@ -1686,130 +1101,58 @@ function openModal(type, id = null) {
     const overlay = document.createElement('div');
     overlay.className = 'modal-overlay active';
     overlay.id = 'modalOverlay';
-
     let content = '';
-
-    if(type === 'gestante') {
-        content = renderGestanteModal(id);
-    } else if(type === 'registro') {
-        content = renderRegistroModal(id);
-    }
-
-    overlay.innerHTML = `
-        <div class="modal">
-            ${content}
-        </div>
-    `;
-
+    if(type === 'gestante') content = renderGestanteModal(id);
+    else if(type === 'registro') content = renderRegistroModal(id);
+    else if(type === 'usuario') content = renderUsuarioModal(id);
+    overlay.innerHTML = `<div class="modal">${content}</div>`;
     document.body.appendChild(overlay);
-
-    // Cerrar al hacer click fuera
-    overlay.addEventListener('click', (e) => {
-        if(e.target === overlay) closeModal();
-    });
+    overlay.addEventListener('click', (e) => { if(e.target === overlay) closeModal(); });
 }
 
-function closeModal() {
-    const overlay = $('modalOverlay');
-    if(overlay) overlay.remove();
-}
+function closeModal() { const overlay = $('modalOverlay'); if(overlay) overlay.remove(); }
 
 function renderGestanteModal(id = null) {
     const isEdit = !!id;
     const g = isEdit ? gestantesData.find(x => x.id === id) : null;
-
     return `
-        <div class="modal-header">
-            <div class="modal-title">${isEdit ? 'Editar' : 'Nueva'} Gestante</div>
-            <button class="modal-close" onclick="closeModal()">&times;</button>
-        </div>
+        <div class="modal-header"><div class="modal-title">${isEdit ? 'Editar' : 'Nueva'} Gestante</div><button class="modal-close" onclick="closeModal()">&times;</button></div>
         <div class="modal-body">
             <form id="gestanteForm" onsubmit="return false;">
                 <input type="hidden" id="gestanteId" value="${g?.id || ''}">
-
                 <div class="form-section">
                     <div class="form-section-title">📋 Datos Personales</div>
                     <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label required">Cédula</label>
-                            <input type="text" id="gCedula" class="form-control" value="${g?.cedula || ''}" placeholder="V-12345678" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label required">Nombres</label>
-                            <input type="text" id="gNombres" class="form-control" value="${g?.nombres || ''}" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label required">Apellidos</label>
-                            <input type="text" id="gApellidos" class="form-control" value="${g?.apellidos || ''}" required>
-                        </div>
+                        <div class="form-group"><label class="form-label required">Cédula</label><input type="text" id="gCedula" class="form-control" value="${g?.cedula || ''}" placeholder="V-12345678" required></div>
+                        <div class="form-group"><label class="form-label required">Nombres</label><input type="text" id="gNombres" class="form-control" value="${g?.nombres || ''}" required></div>
+                        <div class="form-group"><label class="form-label required">Apellidos</label><input type="text" id="gApellidos" class="form-control" value="${g?.apellidos || ''}" required></div>
                     </div>
                     <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label">Fecha de Nacimiento</label>
-                            <input type="date" id="gFechaNac" class="form-control" value="${g?.fecha_nacimiento || ''}">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Edad</label>
-                            <input type="number" id="gEdad" class="form-control" value="${g?.edad || ''}">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Teléfono</label>
-                            <input type="tel" id="gTelefono" class="form-control" value="${g?.telefono || ''}">
-                        </div>
+                        <div class="form-group"><label class="form-label">Fecha de Nacimiento</label><input type="date" id="gFechaNac" class="form-control" value="${g?.fecha_nacimiento || ''}"></div>
+                        <div class="form-group"><label class="form-label">Edad</label><input type="number" id="gEdad" class="form-control" value="${g?.edad || ''}"></div>
+                        <div class="form-group"><label class="form-label">Teléfono</label><input type="tel" id="gTelefono" class="form-control" value="${g?.telefono || ''}"></div>
                     </div>
                     <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label">Teléfono Familiar</label>
-                            <input type="tel" id="gTelFamiliar" class="form-control" value="${g?.telefono_familiar || ''}">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Dirección</label>
-                            <input type="text" id="gDireccion" class="form-control" value="${g?.direccion || ''}">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Estado</label>
-                            <input type="text" id="gEstado" class="form-control" value="${g?.estado || 'GUARICO'}">
-                        </div>
+                        <div class="form-group"><label class="form-label">Teléfono Familiar</label><input type="tel" id="gTelFamiliar" class="form-control" value="${g?.telefono_familiar || ''}"></div>
+                        <div class="form-group"><label class="form-label">Dirección</label><input type="text" id="gDireccion" class="form-control" value="${g?.direccion || ''}"></div>
+                        <div class="form-group"><label class="form-label">Estado</label><input type="text" id="gEstado" class="form-control" value="${g?.estado || 'GUARICO'}"></div>
                     </div>
                 </div>
-
                 <div class="form-section">
                     <div class="form-section-title">🤰 Datos del Embarazo</div>
                     <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label required">FUR (Fecha Última Regla)</label>
-                            <input type="date" id="gFUR" class="form-control" value="${g?.fur || ''}" onchange="calcularDatosEmbarazo()" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">FPP (Fecha Probable Parto)</label>
-                            <input type="date" id="gFPP" class="form-control" value="${g?.fpp || ''}" readonly>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Semanas Gestacionales</label>
-                            <input type="number" id="gSemanas" class="form-control" value="${g?.fur ? calcularSemanas(g.fur) : ''}" readonly>
-                        </div>
+                        <div class="form-group"><label class="form-label required">FUR</label><input type="date" id="gFUR" class="form-control" value="${g?.fur || ''}" onchange="calcularDatosEmbarazo()" required></div>
+                        <div class="form-group"><label class="form-label">FPP</label><input type="date" id="gFPP" class="form-control" value="${g?.fpp || ''}" readonly></div>
+                        <div class="form-group"><label class="form-label">Semanas Gestacionales</label><input type="number" id="gSemanas" class="form-control" value="${g?.fur ? calcularSemanas(g.fur) : ''}" readonly></div>
                     </div>
                     <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label">Número de Gestas</label>
-                            <input type="number" id="gNumGestas" class="form-control" value="${g?.num_gestas || 0}">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Número de Partos</label>
-                            <input type="number" id="gNumPartos" class="form-control" value="${g?.num_partos || 0}">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Número de Cesáreas</label>
-                            <input type="number" id="gNumCesareas" class="form-control" value="${g?.num_cesareas || 0}">
-                        </div>
+                        <div class="form-group"><label class="form-label">Número de Gestas</label><input type="number" id="gNumGestas" class="form-control" value="${g?.num_gestas || 0}"></div>
+                        <div class="form-group"><label class="form-label">Número de Partos</label><input type="number" id="gNumPartos" class="form-control" value="${g?.num_partos || 0}"></div>
+                        <div class="form-group"><label class="form-label">Número de Cesáreas</label><input type="number" id="gNumCesareas" class="form-control" value="${g?.num_cesareas || 0}"></div>
                     </div>
                     <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label">Número de Abortos</label>
-                            <input type="number" id="gNumAbortos" class="form-control" value="${g?.num_abortos || 0}">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Estado Actual</label>
+                        <div class="form-group"><label class="form-label">Número de Abortos</label><input type="number" id="gNumAbortos" class="form-control" value="${g?.num_abortos || 0}"></div>
+                        <div class="form-group"><label class="form-label">Estado Actual</label>
                             <select id="gEstadoActual" class="form-control">
                                 <option value="gestante" ${g?.estado_actual === 'gestante' ? 'selected' : ''}>Gestante</option>
                                 <option value="puerpera" ${g?.estado_actual === 'puerpera' ? 'selected' : ''}>Puérpera</option>
@@ -1817,8 +1160,7 @@ function renderGestanteModal(id = null) {
                                 <option value="alta" ${g?.estado_actual === 'alta' ? 'selected' : ''}>Alta</option>
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label">En Control Prenatal</label>
+                        <div class="form-group"><label class="form-label">En Control Prenatal</label>
                             <select id="gEnControl" class="form-control">
                                 <option value="true" ${g?.en_control_prenatal ? 'selected' : ''}>Sí</option>
                                 <option value="false" ${!g?.en_control_prenatal ? 'selected' : ''}>No</option>
@@ -1826,12 +1168,10 @@ function renderGestanteModal(id = null) {
                         </div>
                     </div>
                 </div>
-
                 <div class="form-section">
                     <div class="form-section-title">🏥 Datos de Salud</div>
                     <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label">Tipo de Establecimiento</label>
+                        <div class="form-group"><label class="form-label">Tipo de Establecimiento</label>
                             <select id="gTipoEstablecimiento" class="form-control">
                                 <option value="">Seleccione...</option>
                                 <option value="PUBLICO" ${g?.tipo_establecimiento === 'PUBLICO' ? 'selected' : ''}>Público</option>
@@ -1839,92 +1179,50 @@ function renderGestanteModal(id = null) {
                                 <option value="AMBOS" ${g?.tipo_establecimiento === 'AMBOS' ? 'selected' : ''}>Ambos</option>
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label">¿Posee Carnet Patria?</label>
-                            <select id="gCarnetPatria" class="form-control">
-                                <option value="false" ${!g?.posee_carnet_patria ? 'selected' : ''}>No</option>
-                                <option value="true" ${g?.posee_carnet_patria ? 'selected' : ''}>Sí</option>
-                            </select>
+                        <div class="form-group"><label class="form-label">¿Posee Carnet Patria?</label>
+                            <select id="gCarnetPatria" class="form-control"><option value="false" ${!g?.posee_carnet_patria ? 'selected' : ''}>No</option><option value="true" ${g?.posee_carnet_patria ? 'selected' : ''}>Sí</option></select>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label">¿Recibe Micronutrientes?</label>
-                            <select id="gMicronutrientes" class="form-control">
-                                <option value="false" ${!g?.recibe_micronutrientes ? 'selected' : ''}>No</option>
-                                <option value="true" ${g?.recibe_micronutrientes ? 'selected' : ''}>Sí</option>
-                            </select>
+                        <div class="form-group"><label class="form-label">¿Recibe Micronutrientes?</label>
+                            <select id="gMicronutrientes" class="form-control"><option value="false" ${!g?.recibe_micronutrientes ? 'selected' : ''}>No</option><option value="true" ${g?.recibe_micronutrientes ? 'selected' : ''}>Sí</option></select>
                         </div>
                     </div>
                     <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label">¿Tiene Enfermedad Asociada?</label>
-                            <select id="gTieneEnfermedad" class="form-control">
-                                <option value="false" ${!g?.tiene_enfermedad_asociada ? 'selected' : ''}>No</option>
-                                <option value="true" ${g?.tiene_enfermedad_asociada ? 'selected' : ''}>Sí</option>
-                            </select>
+                        <div class="form-group"><label class="form-label">¿Tiene Enfermedad Asociada?</label>
+                            <select id="gTieneEnfermedad" class="form-control"><option value="false" ${!g?.tiene_enfermedad_asociada ? 'selected' : ''}>No</option><option value="true" ${g?.tiene_enfermedad_asociada ? 'selected' : ''}>Sí</option></select>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label">¿Cuál Enfermedad?</label>
-                            <input type="text" id="gEnfermedadCual" class="form-control" value="${g?.enfermedad_cual || ''}">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">¿Inscrita Parto Humanizado?</label>
-                            <select id="gPartoHumanizado" class="form-control">
-                                <option value="false" ${!g?.inscrita_parto_humanizado ? 'selected' : ''}>No</option>
-                                <option value="true" ${g?.inscrita_parto_humanizado ? 'selected' : ''}>Sí</option>
-                            </select>
+                        <div class="form-group"><label class="form-label">¿Cuál Enfermedad?</label><input type="text" id="gEnfermedadCual" class="form-control" value="${g?.enfermedad_cual || ''}"></div>
+                        <div class="form-group"><label class="form-label">¿Inscrita Parto Humanizado?</label>
+                            <select id="gPartoHumanizado" class="form-control"><option value="false" ${!g?.inscrita_parto_humanizado ? 'selected' : ''}>No</option><option value="true" ${g?.inscrita_parto_humanizado ? 'selected' : ''}>Sí</option></select>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Antecedentes Importantes</label>
-                        <textarea id="gAntecedentes" class="form-control" rows="3">${g?.antecedentes_importantes || ''}</textarea>
-                    </div>
+                    <div class="form-group"><label class="form-label">Antecedentes Importantes</label><textarea id="gAntecedentes" class="form-control" rows="3">${g?.antecedentes_importantes || ''}</textarea></div>
                 </div>
             </form>
         </div>
         <div class="modal-footer">
             <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
-            <button class="btn btn-success" onclick="guardarGestante()">
-                <span>💾</span> ${isEdit ? 'Actualizar' : 'Guardar'} Gestante
-            </button>
+            <button class="btn btn-success" onclick="guardarGestante()"><span>💾</span> ${isEdit ? 'Actualizar' : 'Guardar'} Gestante</button>
         </div>
     `;
 }
 
 function calcularDatosEmbarazo() {
     const fur = $('gFUR').value;
-    if(fur) {
-        const fpp = calcularFPP(fur);
-        const semanas = calcularSemanas(fur);
-        $('gFPP').value = fpp ? fpp.toISOString().split('T')[0] : '';
-        $('gSemanas').value = semanas;
-    }
+    if(fur) { const fpp = calcularFPP(fur); const semanas = calcularSemanas(fur); $('gFPP').value = fpp ? fpp.toISOString().split('T')[0] : ''; $('gSemanas').value = semanas; }
 }
 
 async function guardarGestante() {
-    if (!supabase) {
-        showAlert('Error: Supabase no está disponible.', 'danger');
-        return;
-    }
-
+    if (!supabase) { showAlert('Error: Supabase no disponible', 'danger'); return; }
     const id = $('gestanteId').value;
     const data = {
-        cedula: $('gCedula').value,
-        nombres: $('gNombres').value,
-        apellidos: $('gApellidos').value,
-        fecha_nacimiento: $('gFechaNac').value || null,
-        edad: parseInt($('gEdad').value) || null,
-        telefono: $('gTelefono').value,
-        telefono_familiar: $('gTelFamiliar').value,
-        direccion: $('gDireccion').value,
-        estado: $('gEstado').value,
-        fur: $('gFUR').value || null,
-        fpp: $('gFPP').value || null,
-        num_gestas: parseInt($('gNumGestas').value) || 0,
-        num_partos: parseInt($('gNumPartos').value) || 0,
-        num_cesareas: parseInt($('gNumCesareas').value) || 0,
-        num_abortos: parseInt($('gNumAbortos').value) || 0,
-        estado_actual: $('gEstadoActual').value,
-        en_control_prenatal: $('gEnControl').value === 'true',
+        cedula: $('gCedula').value, nombres: $('gNombres').value, apellidos: $('gApellidos').value,
+        fecha_nacimiento: $('gFechaNac').value || null, edad: parseInt($('gEdad').value) || null,
+        telefono: $('gTelefono').value, telefono_familiar: $('gTelFamiliar').value,
+        direccion: $('gDireccion').value, estado: $('gEstado').value,
+        fur: $('gFUR').value || null, fpp: $('gFPP').value || null,
+        num_gestas: parseInt($('gNumGestas').value) || 0, num_partos: parseInt($('gNumPartos').value) || 0,
+        num_cesareas: parseInt($('gNumCesareas').value) || 0, num_abortos: parseInt($('gNumAbortos').value) || 0,
+        estado_actual: $('gEstadoActual').value, en_control_prenatal: $('gEnControl').value === 'true',
         tipo_establecimiento: $('gTipoEstablecimiento').value || null,
         posee_carnet_patria: $('gCarnetPatria').value === 'true',
         recibe_micronutrientes: $('gMicronutrientes').value === 'true',
@@ -1933,34 +1231,20 @@ async function guardarGestante() {
         inscrita_parto_humanizado: $('gPartoHumanizado').value === 'true',
         antecedentes_importantes: $('gAntecedentes').value
     };
-
     try {
         let result;
-        if(id) {
-            result = await supabase.from('gestantes').update(data).eq('id', id);
-        } else {
-            data.created_by = currentUser.id;
-            result = await supabase.from('gestantes').insert([data]);
-        }
-
+        if(id) { result = await supabase.from('gestantes').update(data).eq('id', id); }
+        else { data.created_by = currentUser.id; result = await supabase.from('gestantes').insert([data]); }
         if(result.error) throw result.error;
-
         showAlert('Gestante guardada correctamente', 'success');
         closeModal();
-        if(currentSection === 'gestantes') loadGestantes();
-        else loadDashboardData();
-    } catch(e) {
-        console.error('Error guardando gestante:', e);
-        showAlert('Error al guardar: ' + e.message, 'danger');
-    }
+        if(currentSection === 'gestantes') loadGestantes(); else loadDashboardData();
+    } catch(e) { showAlert('Error al guardar: ' + e.message, 'danger'); }
 }
 
 function renderRegistroModal(id = null) {
     return `
-        <div class="modal-header">
-            <div class="modal-title">Nuevo Registro de Ruta Materna</div>
-            <button class="modal-close" onclick="closeModal()">&times;</button>
-        </div>
+        <div class="modal-header"><div class="modal-title">Nuevo Registro de Ruta Materna</div><button class="modal-close" onclick="closeModal()">&times;</button></div>
         <div class="modal-body">
             <form id="registroForm" onsubmit="return false;">
                 <div class="form-section">
@@ -1972,108 +1256,45 @@ function renderRegistroModal(id = null) {
                     </div>
                     <input type="hidden" id="rGestanteId">
                     <div id="rInfoGestante" style="margin-top:15px;padding:15px;background:var(--color-gray-100);border-radius:8px;display:none;">
-                        <strong id="rNombreGestante"></strong><br>
-                        <span id="rCedulaGestante"></span> | <span id="rSemanasGestante"></span>
+                        <strong id="rNombreGestante"></strong><br><span id="rCedulaGestante"></span> | <span id="rSemanasGestante"></span>
                     </div>
                 </div>
-
                 <div class="form-section">
                     <div class="form-section-title">📝 Datos del Registro</div>
                     <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label required">Fecha de Registro</label>
-                            <input type="date" id="rFecha" class="form-control" value="${new Date().toISOString().split('T')[0]}">
+                        <div class="form-group"><label class="form-label required">Fecha de Registro</label><input type="date" id="rFecha" class="form-control" value="${new Date().toISOString().split('T')[0]}"></div>
+                        <div class="form-group"><label class="form-label required">Semana Epidemiológica</label><input type="number" id="rSemanaEpi" class="form-control" value="${getSemanaEpidemiologica()}"></div>
+                        <div class="form-group"><label class="form-label required">Año</label><input type="number" id="rAnio" class="form-control" value="${getAnio()}"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label class="form-label required">Tipo de Registro</label>
+                            <select id="rTipoRegistro" class="form-control"><option value="captacion">Captación</option><option value="control" selected>Control</option><option value="emergencia">Emergencia</option><option value="referencia">Referencia</option></select>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label required">Semana Epidemiológica</label>
-                            <input type="number" id="rSemanaEpi" class="form-control" value="${getSemanaEpidemiologica()}">
+                        <div class="form-group"><label class="form-label">Tipo de Consulta</label>
+                            <select id="rTipoConsulta" class="form-control"><option value="">Seleccione...</option><option value="Emerg">Emergencia</option><option value="Consult.">Consulta</option><option value="II NIVEL">II Nivel</option><option value="HOSP.">Hospitalización</option><option value="A.R.O">A.R.O</option></select>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label required">Año</label>
-                            <input type="number" id="rAnio" class="form-control" value="${getAnio()}">
+                        <div class="form-group"><label class="form-label">Condición</label>
+                            <select id="rCondicion" class="form-control"><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option></select>
                         </div>
                     </div>
                     <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label required">Tipo de Registro</label>
-                            <select id="rTipoRegistro" class="form-control">
-                                <option value="captacion">Captación</option>
-                                <option value="control" selected>Control</option>
-                                <option value="emergencia">Emergencia</option>
-                                <option value="referencia">Referencia</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Tipo de Consulta</label>
-                            <select id="rTipoConsulta" class="form-control">
-                                <option value="">Seleccione...</option>
-                                <option value="Emerg">Emergencia</option>
-                                <option value="Consult.">Consulta</option>
-                                <option value="II NIVEL">II Nivel</option>
-                                <option value="HOSP.">Hospitalización</option>
-                                <option value="A.R.O">A.R.O</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Condición</label>
-                            <select id="rCondicion" class="form-control">
-                                <option value="A">A</option>
-                                <option value="B">B</option>
-                                <option value="C">C</option>
-                                <option value="D">D</option>
-                            </select>
-                        </div>
+                        <div class="form-group"><label class="form-label">Edad Gestacional Actual (semanas)</label><input type="number" id="rEdadGestacional" class="form-control"></div>
+                        <div class="form-group"><label class="form-label">Número de Control Prenatal</label><input type="number" id="rNumControl" class="form-control"></div>
+                        <div class="form-group"><label class="form-label">¿Captación Casa a Casa?</label><select id="rCaptacionCasa" class="form-control"><option value="false">No</option><option value="true">Sí</option></select></div>
                     </div>
+                    <div class="form-group"><label class="form-label">Motivo de Consulta</label><textarea id="rMotivo" class="form-control" rows="2"></textarea></div>
+                    <div class="form-group"><label class="form-label">Diagnóstico</label><textarea id="rDiagnostico" class="form-control" rows="2"></textarea></div>
                     <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label">Edad Gestacional Actual (semanas)</label>
-                            <input type="number" id="rEdadGestacional" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Número de Control Prenatal</label>
-                            <input type="number" id="rNumControl" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">¿Captación Casa a Casa?</label>
-                            <select id="rCaptacionCasa" class="form-control">
-                                <option value="false">No</option>
-                                <option value="true">Sí</option>
-                            </select>
-                        </div>
+                        <div class="form-group"><label class="form-label">¿Referido?</label><select id="rReferido" class="form-control"><option value="false">No</option><option value="true">Sí</option></select></div>
+                        <div class="form-group"><label class="form-label">Establecimiento de Referencia</label><input type="text" id="rEstablecimientoRef" class="form-control"></div>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Motivo de Consulta</label>
-                        <textarea id="rMotivo" class="form-control" rows="2"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Diagnóstico</label>
-                        <textarea id="rDiagnostico" class="form-control" rows="2"></textarea>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label">¿Referido?</label>
-                            <select id="rReferido" class="form-control">
-                                <option value="false">No</option>
-                                <option value="true">Sí</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Establecimiento de Referencia</label>
-                            <input type="text" id="rEstablecimientoRef" class="form-control">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Observaciones</label>
-                        <textarea id="rObservaciones" class="form-control" rows="2"></textarea>
-                    </div>
+                    <div class="form-group"><label class="form-label">Observaciones</label><textarea id="rObservaciones" class="form-control" rows="2"></textarea></div>
                 </div>
             </form>
         </div>
         <div class="modal-footer">
             <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
-            <button class="btn btn-success" onclick="guardarRegistro()">
-                <span>💾</span> Guardar Registro
-            </button>
+            <button class="btn btn-success" onclick="guardarRegistro()"><span>💾</span> Guardar Registro</button>
         </div>
     `;
 }
@@ -2082,154 +1303,275 @@ async function buscarGestanteParaRegistro() {
     if (!supabase) return;
     const query = $('rBuscarCedula').value.trim();
     const resultados = $('rResultadosBusqueda');
-
-    if(query.length < 3) {
-        resultados.classList.add('hidden');
-        return;
-    }
-
+    if(query.length < 3) { resultados.classList.add('hidden'); return; }
     try {
-        const { data } = await supabase
-            .from('gestantes')
-            .select('id, cedula, nombres, apellidos, fur')
-            .ilike('cedula', `%${query}%`)
-            .limit(5);
-
-        if(!data?.length) {
-            resultados.innerHTML = '<div class="search-result-item">No se encontraron resultados</div>';
-        } else {
-            resultados.innerHTML = data.map(g => `
-                <div class="search-result-item" onclick="seleccionarGestante('${g.id}', '${g.cedula}', '${g.nombres} ${g.apellidos}', '${g.fur || ''}')">
-                    <div class="result-name">${g.nombres} ${g.apellidos}</div>
-                    <div class="result-details">Cédula: ${g.cedula} | FUR: ${g.fur ? formatDate(g.fur) : 'No registrada'}</div>
-                </div>
-            `).join('');
-        }
+        const { data } = await supabase.from('gestantes').select('id, cedula, nombres, apellidos, fur').ilike('cedula', `%${query}%`).limit(5);
+        if(!data?.length) resultados.innerHTML = '<div class="search-result-item">No se encontraron resultados</div>';
+        else resultados.innerHTML = data.map(g => `
+            <div class="search-result-item" onclick="seleccionarGestante('${g.id}', '${g.cedula}', '${g.nombres} ${g.apellidos}', '${g.fur || ''}')">
+                <div class="result-name">${g.nombres} ${g.apellidos}</div>
+                <div class="result-details">Cédula: ${g.cedula} | FUR: ${g.fur ? formatDate(g.fur) : 'No registrada'}</div>
+            </div>`).join('');
         resultados.classList.remove('hidden');
-    } catch(e) {
-        console.error('Error buscando gestante:', e);
-    }
+    } catch(e) { console.error('Error searching:', e); }
 }
 
 function seleccionarGestante(id, cedula, nombre, fur) {
-    $('rGestanteId').value = id;
-    $('rBuscarCedula').value = cedula;
-    $('rNombreGestante').textContent = nombre;
-    $('rCedulaGestante').textContent = 'Cédula: ' + cedula;
+    $('rGestanteId').value = id; $('rBuscarCedula').value = cedula;
+    $('rNombreGestante').textContent = nombre; $('rCedulaGestante').textContent = 'Cédula: ' + cedula;
     const semanas = fur ? calcularSemanas(fur) : '-';
     $('rSemanasGestante').textContent = 'Semanas: ' + semanas;
     $('rEdadGestacional').value = semanas !== '-' ? semanas : '';
-    $('rInfoGestante').style.display = 'block';
-    $('rResultadosBusqueda').classList.add('hidden');
+    $('rInfoGestante').style.display = 'block'; $('rResultadosBusqueda').classList.add('hidden');
 }
 
 async function guardarRegistro() {
-    if (!supabase) {
-        showAlert('Error: Supabase no está disponible.', 'danger');
-        return;
-    }
-
+    if (!supabase) { showAlert('Error: Supabase no disponible', 'danger'); return; }
     const gestanteId = $('rGestanteId').value;
-    if(!gestanteId) {
-        showAlert('Debe seleccionar una gestante', 'warning');
-        return;
-    }
-
+    if(!gestanteId) { showAlert('Debe seleccionar una gestante', 'warning'); return; }
     const data = {
-        gestante_id: gestanteId,
-        consultorio_id: currentProfile?.consultorio_id,
-        semana_epidemiologica: parseInt($('rSemanaEpi').value),
-        anio: parseInt($('rAnio').value),
-        fecha_registro: $('rFecha').value,
-        tipo_registro: $('rTipoRegistro').value,
-        captacion_casa_casa: $('rCaptacionCasa').value === 'true',
-        condicion: $('rCondicion').value,
+        gestante_id: gestanteId, consultorio_id: currentProfile?.consultorio_id,
+        semana_epidemiologica: parseInt($('rSemanaEpi').value), anio: parseInt($('rAnio').value),
+        fecha_registro: $('rFecha').value, tipo_registro: $('rTipoRegistro').value,
+        captacion_casa_casa: $('rCaptacionCasa').value === 'true', condicion: $('rCondicion').value,
         edad_gestacional_actual: parseInt($('rEdadGestacional').value) || null,
         num_control_prenatal: parseInt($('rNumControl').value) || null,
-        tipo_consulta: $('rTipoConsulta').value || null,
-        motivo_consulta: $('rMotivo').value,
-        diagnostico: $('rDiagnostico').value,
-        referido: $('rReferido').value === 'true',
-        establecimiento_referencia: $('rEstablecimientoRef').value,
-        observaciones: $('rObservaciones').value,
+        tipo_consulta: $('rTipoConsulta').value || null, motivo_consulta: $('rMotivo').value,
+        diagnostico: $('rDiagnostico').value, referido: $('rReferido').value === 'true',
+        establecimiento_referencia: $('rEstablecimientoRef').value, observaciones: $('rObservaciones').value,
         registrado_por: currentUser.id
     };
-
     try {
         const { error } = await supabase.from('registros_ruta_materna').insert([data]);
         if(error) throw error;
-
         showAlert('Registro guardado correctamente', 'success');
         closeModal();
-        if(currentSection === 'registros') loadRegistros();
-        else if(currentSection === 'dashboard') loadDashboardData();
+        if(currentSection === 'registros') loadRegistros(); else if(currentSection === 'dashboard') loadDashboardData();
+    } catch(e) { showAlert('Error al guardar: ' + e.message, 'danger'); }
+}
+
+// ============================================================
+// USUARIOS (CRUD COMPLETO - SUPER ADMIN)
+// ============================================================
+
+async function renderUsuarios(container) {
+    if(!currentProfile || currentProfile.rol !== 'super_admin') {
+        container.innerHTML = '<div class="alert alert-danger">No tiene permisos para acceder a esta sección</div>';
+        return;
+    }
+    container.innerHTML = `
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">Gestión de Usuarios</div>
+                <button class="btn btn-success" onclick="openModal('usuario')"><span>➕</span> Nuevo Usuario</button>
+            </div>
+            <div class="card-body">
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Email</th>
+                                <th>Rol</th>
+                                <th>Consultorio</th>
+                                <th>Registro</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usuariosTableBody">
+                            <tr><td colspan="6" class="text-center">Cargando...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="alert alert-warning" style="margin-top:15px;font-size:12px;">
+                    <strong>Nota:</strong> Al eliminar un usuario aquí, se borra su perfil del sistema. Para eliminar completamente el acceso (autenticación), debe hacerse también desde el panel de Supabase en Authentication > Users.
+                </div>
+            </div>
+        </div>
+    `;
+    await loadUsuarios();
+}
+
+async function loadUsuarios() {
+    if (!supabase) return;
+    try {
+        const { data, error } = await supabase
+            .from('perfiles_usuarios')
+            .select('*, consultorios(nombre)')
+            .order('created_at', { ascending: false });
+        usuariosData = data || [];
+        const tbody = $('usuariosTableBody');
+        if(error || !usuariosData.length) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center">No hay usuarios registrados</td></tr>'; return;
+        }
+        tbody.innerHTML = usuariosData.map(u => {
+            const rolClass = { 'super_admin': 'badge-superadmin', 'admin': 'badge-admin', 'consultorio': 'badge-consultorio' }[u.rol] || 'badge-consultorio';
+            const rolLabel = { 'super_admin': 'Super Admin', 'admin': 'Administrador', 'consultorio': 'Consultorio' }[u.rol] || u.rol;
+            return `
+                <tr>
+                    <td><strong>${u.nombre_completo || '-'}</strong></td>
+                    <td>${u.email || '-'}</td>
+                    <td><span class="badge ${rolClass}">${rolLabel}</span></td>
+                    <td>${u.consultorios?.nombre || 'No asignado'}</td>
+                    <td>${formatDate(u.created_at)}</td>
+                    <td>
+                        <button class="btn btn-sm btn-primary" onclick="editarUsuario('${u.id}')">✏️</button>
+                        <button class="btn btn-sm btn-danger" onclick="eliminarUsuario('${u.id}')">🗑️</button>
+                    </td>
+                </tr>`;
+        }).join('');
     } catch(e) {
-        console.error('Error guardando registro:', e);
-        showAlert('Error al guardar: ' + e.message, 'danger');
+        console.error('Error loading users:', e);
+        $('usuariosTableBody').innerHTML = '<tr><td colspan="6" class="text-center text-danger">Error al cargar usuarios</td></tr>';
     }
 }
 
+function renderUsuarioModal(id = null) {
+    const isEdit = !!id;
+    const u = isEdit ? usuariosData.find(x => x.id === id) : null;
+    const consultoriosOptions = consultoriosData.map(c => `<option value="${c.id}" ${u?.consultorio_id === c.id ? 'selected' : ''}>${c.nombre}</option>`).join('');
+
+    return `
+        <div class="modal-header"><div class="modal-title">${isEdit ? 'Editar' : 'Nuevo'} Usuario</div><button class="modal-close" onclick="closeModal()">&times;</button></div>
+        <div class="modal-body">
+            <form id="usuarioForm" onsubmit="return false;">
+                <input type="hidden" id="uId" value="${u?.id || ''}">
+                <div class="form-row">
+                    <div class="form-group"><label class="form-label required">Correo Electrónico</label><input type="email" id="uEmail" class="form-control" value="${u?.email || ''}" ${isEdit ? 'disabled' : ''} required></div>
+                    <div class="form-group"><label class="form-label required">Nombre Completo</label><input type="text" id="uNombre" class="form-control" value="${u?.nombre_completo || ''}" required></div>
+                </div>
+                ${!isEdit ? `
+                <div class="form-row">
+                    <div class="form-group"><label class="form-label required">Contraseña</label><input type="password" id="uPassword" class="form-control" placeholder="Mínimo 6 caracteres" required></div>
+                    <div class="form-group"><label class="form-label required">Confirmar Contraseña</label><input type="password" id="uPassword2" class="form-control" placeholder="Repita la contraseña" required></div>
+                </div>` : ''}
+                <div class="form-row">
+                    <div class="form-group"><label class="form-label required">Rol</label>
+                        <select id="uRol" class="form-control">
+                            <option value="consultorio" ${u?.rol === 'consultorio' ? 'selected' : ''}>Personal de Consultorio</option>
+                            <option value="admin" ${u?.rol === 'admin' ? 'selected' : ''}>Administrador</option>
+                            <option value="super_admin" ${u?.rol === 'super_admin' ? 'selected' : ''}>Super Administrador</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label class="form-label">Consultorio Asignado</label>
+                        <select id="uConsultorio" class="form-control">
+                            <option value="">Ninguno / No aplica</option>
+                            ${consultoriosOptions}
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+            <button class="btn btn-success" onclick="guardarUsuario()"><span>💾</span> ${isEdit ? 'Actualizar' : 'Guardar'} Usuario</button>
+        </div>
+    `;
+}
+
+async function guardarUsuario() {
+    if (!supabase) { showAlert('Error: Supabase no disponible', 'danger'); return; }
+    const id = $('uId').value;
+    const email = $('uEmail').value.trim();
+    const nombre = $('uNombre').value.trim();
+    const rol = $('uRol').value;
+    const consultorioId = $('uConsultorio').value || null;
+
+    if(!email || !nombre || !rol) { showAlert('Complete todos los campos obligatorios', 'warning'); return; }
+
+    if(!id) {
+        const pass = $('uPassword').value;
+        const pass2 = $('uPassword2').value;
+        if(!pass || pass.length < 6) { showAlert('La contraseña debe tener al menos 6 caracteres', 'warning'); return; }
+        if(pass !== pass2) { showAlert('Las contraseñas no coinciden', 'warning'); return; }
+
+        try {
+            // Guardar sesión actual del admin para restaurarla después
+            const { data: { session: adminSession } } = await supabase.auth.getSession();
+
+            const { data: signUpData, error: signUpError } = await supabase.auth.signUp({ email, password: pass });
+            if(signUpError) throw signUpError;
+            if(!signUpData.user) throw new Error('No se pudo crear el usuario');
+
+            // Restaurar sesión del admin inmediatamente
+            if(adminSession) {
+                await supabase.auth.setSession({
+                    access_token: adminSession.access_token,
+                    refresh_token: adminSession.refresh_token
+                });
+                currentUser = adminSession.user;
+                await loadUserProfile();
+            }
+
+            // Insertar perfil
+            const { error: perfilError } = await supabase.from('perfiles_usuarios').insert([{
+                id: signUpData.user.id, email, nombre_completo: nombre, rol, consultorio_id: consultorioId
+            }]);
+            if(perfilError) throw perfilError;
+
+            showAlert('Usuario creado correctamente', 'success');
+            closeModal(); loadUsuarios();
+        } catch(e) {
+            showAlert('Error al crear usuario: ' + e.message, 'danger');
+        }
+    } else {
+        try {
+            const { error } = await supabase.from('perfiles_usuarios').update({
+                nombre_completo: nombre, rol, consultorio_id: consultorioId
+            }).eq('id', id);
+            if(error) throw error;
+            showAlert('Usuario actualizado correctamente', 'success');
+            closeModal(); loadUsuarios();
+        } catch(e) {
+            showAlert('Error al actualizar: ' + e.message, 'danger');
+        }
+    }
+}
+
+function editarUsuario(id) {
+    openModal('usuario', id);
+}
+
+async function eliminarUsuario(id) {
+    if (!supabase) return;
+    const u = usuariosData.find(x => x.id === id);
+    if(!u) return;
+    if(!confirm(`¿Está seguro de eliminar al usuario "${u.nombre_completo || u.email}"?\n\nEsto eliminará su perfil del sistema. Para eliminar también su acceso de autenticación, deberá hacerlo desde el panel de Supabase.`)) return;
+
+    try {
+        const { error } = await supabase.from('perfiles_usuarios').delete().eq('id', id);
+        if(error) throw error;
+        showAlert('Usuario eliminado del sistema', 'success');
+        loadUsuarios();
+    } catch(e) {
+        showAlert('Error al eliminar: ' + e.message, 'danger');
+    }
+}
 
 // ============================================================
-// REPORTES Y CONSOLIDADO EPI 13
+// REPORTES Y CONSOLIDADO
 // ============================================================
 
 async function renderReportes(container) {
     container.innerHTML = `
         <div class="card">
-            <div class="card-header">
-                <div class="card-title">Reportes EPI - Ruta Materna</div>
-            </div>
+            <div class="card-header"><div class="card-title">Reportes EPI - Ruta Materna</div></div>
             <div class="card-body">
                 <div class="form-row" style="margin-bottom:20px;">
-                    <div class="form-group">
-                        <label class="form-label">Semana Epidemiológica</label>
-                        <select id="reportSemana" class="form-control">
-                            ${Array.from({length:52}, (_,i) => `<option value="${i+1}" ${i+1===getSemanaEpidemiologica()?'selected':''}>Semana ${i+1}</option>`).join('')}
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Año</label>
-                        <select id="reportAnio" class="form-control">
-                            <option value="${getAnio()-1}">${getAnio()-1}</option>
-                            <option value="${getAnio()}" selected>${getAnio()}</option>
-                            <option value="${getAnio()+1}">${getAnio()+1}</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Consultorio</label>
-                        <select id="reportConsultorio" class="form-control">
-                            <option value="">Todos</option>
-                        </select>
-                    </div>
-                    <div class="form-group" style="display:flex;align-items:flex-end;">
-                        <button class="btn btn-primary" onclick="generarReporte()">
-                            <span>📊</span> Generar Reporte
-                        </button>
-                        <button class="btn btn-success" onclick="descargarExcel()" style="margin-left:10px;">
-                            <span>📥</span> Descargar Excel
-                        </button>
-                    </div>
+                    <div class="form-group"><label class="form-label">Semana Epidemiológica</label><select id="reportSemana" class="form-control">${Array.from({length:52}, (_,i) => `<option value="${i+1}" ${i+1===getSemanaEpidemiologica()?'selected':''}>Semana ${i+1}</option>`).join('')}</select></div>
+                    <div class="form-group"><label class="form-label">Año</label><select id="reportAnio" class="form-control"><option value="${getAnio()-1}">${getAnio()-1}</option><option value="${getAnio()}" selected>${getAnio()}</option><option value="${getAnio()+1}">${getAnio()+1}</option></select></div>
+                    <div class="form-group"><label class="form-label">Consultorio</label><select id="reportConsultorio" class="form-control"><option value="">Todos</option></select></div>
+                    <div class="form-group" style="display:flex;align-items:flex-end;"><button class="btn btn-primary" onclick="generarReporte()"><span>📊</span> Generar</button><button class="btn btn-success" onclick="descargarExcel()" style="margin-left:10px;"><span>📥</span> Excel</button></div>
                 </div>
-
                 <div id="reporteResultado"></div>
             </div>
         </div>
     `;
-
-    // Cargar consultorios
-    if (supabase) {
+    if(supabase) {
         try {
             const { data } = await supabase.from('consultorios').select('id, nombre').eq('activo', true);
             const select = $('reportConsultorio');
-            if(data) {
-                data.forEach(c => {
-                    const opt = document.createElement('option');
-                    opt.value = c.id;
-                    opt.textContent = c.nombre;
-                    select.appendChild(opt);
-                });
-            }
+            if(data) data.forEach(c => { const opt = document.createElement('option'); opt.value = c.id; opt.textContent = c.nombre; select.appendChild(opt); });
         } catch(e) {}
     }
 }
@@ -2239,142 +1581,47 @@ async function generarReporte() {
     const semana = parseInt($('reportSemana').value);
     const anio = parseInt($('reportAnio').value);
     const consultorioId = $('reportConsultorio').value;
-
     try {
-        let query = supabase
-            .from('registros_ruta_materna')
-            .select('*, gestantes(*), consultorios(*)')
-            .eq('semana_epidemiologica', semana)
-            .eq('anio', anio);
-
+        let query = supabase.from('registros_ruta_materna').select('*, gestantes(*), consultorios(*)').eq('semana_epidemiologica', semana).eq('anio', anio);
         if(consultorioId) query = query.eq('consultorio_id', consultorioId);
-
         const { data, error } = await query;
-
         const container = $('reporteResultado');
         if(error) throw error;
-
-        if(!data?.length) {
-            container.innerHTML = '<div class="alert alert-info">No hay registros para los filtros seleccionados</div>';
-            return;
-        }
-
-        // Agrupar por tipo
-        const porTipo = {};
-        const porConsultorio = {};
-        data.forEach(r => {
-            porTipo[r.tipo_registro] = (porTipo[r.tipo_registro] || 0) + 1;
-            const consName = r.consultorios?.nombre || 'Sin consultorio';
-            porConsultorio[consName] = (porConsultorio[consName] || 0) + 1;
-        });
-
+        if(!data?.length) { container.innerHTML = '<div class="alert alert-info">No hay registros para los filtros seleccionados</div>'; return; }
+        const porTipo = {}; data.forEach(r => { porTipo[r.tipo_registro] = (porTipo[r.tipo_registro] || 0) + 1; });
         container.innerHTML = `
             <div class="stats-grid" style="margin-bottom:20px;">
-                <div class="stat-card">
-                    <div class="stat-icon primary">📋</div>
-                    <div class="stat-info">
-                        <div class="stat-value">${data.length}</div>
-                        <div class="stat-label">Total Registros</div>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon success">✅</div>
-                    <div class="stat-info">
-                        <div class="stat-value">${porTipo['control'] || 0}</div>
-                        <div class="stat-label">Controles</div>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon warning">🎯</div>
-                    <div class="stat-info">
-                        <div class="stat-value">${porTipo['captacion'] || 0}</div>
-                        <div class="stat-label">Captaciones</div>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon danger">🚨</div>
-                    <div class="stat-info">
-                        <div class="stat-value">${porTipo['emergencia'] || 0}</div>
-                        <div class="stat-label">Emergencias</div>
-                    </div>
-                </div>
+                <div class="stat-card"><div class="stat-icon primary">📋</div><div class="stat-info"><div class="stat-value">${data.length}</div><div class="stat-label">Total Registros</div></div></div>
+                <div class="stat-card"><div class="stat-icon success">✅</div><div class="stat-info"><div class="stat-value">${porTipo['control'] || 0}</div><div class="stat-label">Controles</div></div></div>
+                <div class="stat-card"><div class="stat-icon warning">🎯</div><div class="stat-info"><div class="stat-value">${porTipo['captacion'] || 0}</div><div class="stat-label">Captaciones</div></div></div>
+                <div class="stat-card"><div class="stat-icon danger">🚨</div><div class="stat-info"><div class="stat-value">${porTipo['emergencia'] || 0}</div><div class="stat-label">Emergencias</div></div></div>
             </div>
-
             <div class="table-container">
                 <table class="data-table" id="reporteTable">
-                    <thead>
-                        <tr>
-                            <th>Fecha</th>
-                            <th>Gestante</th>
-                            <th>Cédula</th>
-                            <th>Tipo</th>
-                            <th>Consultorio</th>
-                            <th>Edad Gest.</th>
-                            <th>Condición</th>
-                            <th>Diagnóstico</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${data.map(r => `
-                            <tr>
-                                <td>${formatDate(r.fecha_registro)}</td>
-                                <td>${r.gestantes?.nombres || ''} ${r.gestantes?.apellidos || ''}</td>
-                                <td>${r.gestantes?.cedula || '-'}</td>
-                                <td><span class="badge badge-${r.tipo_registro}">${r.tipo_registro}</span></td>
-                                <td>${r.consultorios?.nombre || '-'}</td>
-                                <td>${r.edad_gestacional_actual || '-'} sem</td>
-                                <td>${r.condicion}</td>
-                                <td>${r.diagnostico || '-'}</td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
+                    <thead><tr><th>Fecha</th><th>Gestante</th><th>Cédula</th><th>Tipo</th><th>Consultorio</th><th>Edad Gest.</th><th>Condición</th><th>Diagnóstico</th></tr></thead>
+                    <tbody>${data.map(r => `<tr><td>${formatDate(r.fecha_registro)}</td><td>${r.gestantes?.nombres || ''} ${r.gestantes?.apellidos || ''}</td><td>${r.gestantes?.cedula || '-'}</td><td><span class="badge badge-${r.tipo_registro}">${r.tipo_registro}</span></td><td>${r.consultorios?.nombre || '-'}</td><td>${r.edad_gestacional_actual || '-'} sem</td><td>${r.condicion}</td><td>${r.diagnostico || '-'}</td></tr>`).join('')}</tbody>
                 </table>
             </div>
         `;
-    } catch(e) {
-        console.error('Error generando reporte:', e);
-        showAlert('Error al generar reporte', 'danger');
-    }
+    } catch(e) { showAlert('Error al generar reporte', 'danger'); }
 }
 
 function descargarExcel() {
     const table = $('reporteTable');
-    if(!table) {
-        showAlert('Primero genere el reporte', 'warning');
-        return;
-    }
-
+    if(!table) { showAlert('Primero genere el reporte', 'warning'); return; }
     const wb = XLSX.utils.table_to_book(table, {sheet: "Reporte"});
-    const semana = $('reportSemana').value;
-    const anio = $('reportAnio').value;
-    XLSX.writeFile(wb, `Reporte_Ruta_Materna_SE${semana}_${anio}.xlsx`);
+    XLSX.writeFile(wb, `Reporte_Ruta_Materna_SE${$('reportSemana').value}_${$('reportAnio').value}.xlsx`);
     showAlert('Reporte descargado correctamente', 'success');
 }
 
 async function renderConsolidado(container) {
     container.innerHTML = `
         <div class="card">
-            <div class="card-header">
-                <div class="card-title">Consolidado EPI 13 - Ruta Materna</div>
-                <button class="btn btn-success" onclick="descargarConsolidadoExcel()">
-                    <span>📥</span> Descargar Excel
-                </button>
-            </div>
+            <div class="card-header"><div class="card-title">Consolidado EPI 13 - Ruta Materna</div><button class="btn btn-success" onclick="descargarConsolidadoExcel()"><span>📥</span> Descargar Excel</button></div>
             <div class="card-body">
                 <div class="form-row" style="margin-bottom:20px;">
-                    <div class="form-group">
-                        <label class="form-label">Semana Epidemiológica</label>
-                        <select id="consSemana" class="form-control" onchange="generarConsolidado()">
-                            ${Array.from({length:52}, (_,i) => `<option value="${i+1}" ${i+1===getSemanaEpidemiologica()?'selected':''}>Semana ${i+1}</option>`).join('')}
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Año</label>
-                        <select id="consAnio" class="form-control" onchange="generarConsolidado()">
-                            <option value="${getAnio()-1}">${getAnio()-1}</option>
-                            <option value="${getAnio()}" selected>${getAnio()}</option>
-                        </select>
-                    </div>
+                    <div class="form-group"><label class="form-label">Semana Epidemiológica</label><select id="consSemana" class="form-control" onchange="generarConsolidado()">${Array.from({length:52}, (_,i) => `<option value="${i+1}" ${i+1===getSemanaEpidemiologica()?'selected':''}>Semana ${i+1}</option>`).join('')}</select></div>
+                    <div class="form-group"><label class="form-label">Año</label><select id="consAnio" class="form-control" onchange="generarConsolidado()"><option value="${getAnio()-1}">${getAnio()-1}</option><option value="${getAnio()}" selected>${getAnio()}</option></select></div>
                 </div>
                 <div id="consolidadoResultado"></div>
             </div>
@@ -2387,208 +1634,67 @@ async function generarConsolidado() {
     if (!supabase) return;
     const semana = parseInt($('consSemana').value);
     const anio = parseInt($('consAnio').value);
-
     try {
-        const { data: registros, error } = await supabase
-            .from('registros_ruta_materna')
-            .select('*, gestantes(*), consultorios(*)')
-            .eq('semana_epidemiologica', semana)
-            .eq('anio', anio);
-
+        const { data: registros, error } = await supabase.from('registros_ruta_materna').select('*, gestantes(*), consultorios(*)').eq('semana_epidemiologica', semana).eq('anio', anio);
         if(error) throw error;
-
         const container = $('consolidadoResultado');
-
-        // Consolidado por consultorio y tipo
         const consolidado = {};
-
         (registros || []).forEach(r => {
             const cons = r.consultorios?.nombre || 'Sin Consultorio';
-            if(!consolidado[cons]) {
-                consolidado[cons] = { captacion: 0, control: 0, emergencia: 0, referencia: 0, total: 0 };
-            }
-            consolidado[cons][r.tipo_registro]++;
-            consolidado[cons].total++;
+            if(!consolidado[cons]) consolidado[cons] = { captacion: 0, control: 0, emergencia: 0, referencia: 0, total: 0 };
+            consolidado[cons][r.tipo_registro]++; consolidado[cons].total++;
         });
-
         const totalGeneral = { captacion: 0, control: 0, emergencia: 0, referencia: 0, total: 0 };
-
-        let html = `
-            <div class="table-container">
-                <table class="data-table" id="consolidadoTable">
-                    <thead>
-                        <tr>
-                            <th>Consultorio</th>
-                            <th>Captación</th>
-                            <th>Control</th>
-                            <th>Emergencia</th>
-                            <th>Referencia</th>
-                            <th>Total</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-        `;
-
+        let html = `<div class="table-container"><table class="data-table" id="consolidadoTable"><thead><tr><th>Consultorio</th><th>Captación</th><th>Control</th><th>Emergencia</th><th>Referencia</th><th>Total</th></tr></thead><tbody>`;
         Object.entries(consolidado).forEach(([cons, datos]) => {
-            totalGeneral.captacion += datos.captacion;
-            totalGeneral.control += datos.control;
-            totalGeneral.emergencia += datos.emergencia;
-            totalGeneral.referencia += datos.referencia;
-            totalGeneral.total += datos.total;
-
-            html += `
-                <tr>
-                    <td><strong>${cons}</strong></td>
-                    <td>${datos.captacion}</td>
-                    <td>${datos.control}</td>
-                    <td>${datos.emergencia}</td>
-                    <td>${datos.referencia}</td>
-                    <td><strong>${datos.total}</strong></td>
-                </tr>
-            `;
+            totalGeneral.captacion += datos.captacion; totalGeneral.control += datos.control;
+            totalGeneral.emergencia += datos.emergencia; totalGeneral.referencia += datos.referencia; totalGeneral.total += datos.total;
+            html += `<tr><td><strong>${cons}</strong></td><td>${datos.captacion}</td><td>${datos.control}</td><td>${datos.emergencia}</td><td>${datos.referencia}</td><td><strong>${datos.total}</strong></td></tr>`;
         });
-
-        html += `
-                        <tr style="background:var(--color-gray-200);font-weight:bold;">
-                            <td>TOTAL GENERAL</td>
-                            <td>${totalGeneral.captacion}</td>
-                            <td>${totalGeneral.control}</td>
-                            <td>${totalGeneral.emergencia}</td>
-                            <td>${totalGeneral.referencia}</td>
-                            <td>${totalGeneral.total}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <div style="margin-top:20px;">
-                <h4 style="color:var(--color-primary);margin-bottom:10px;">Resumen Gráfico</h4>
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon primary">📋</div>
-                        <div class="stat-info">
-                            <div class="stat-value">${totalGeneral.total}</div>
-                            <div class="stat-label">Total Registros SE ${semana}</div>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon success">✅</div>
-                        <div class="stat-info">
-                            <div class="stat-value">${totalGeneral.control}</div>
-                            <div class="stat-label">Controles (${totalGeneral.total > 0 ? Math.round(totalGeneral.control/totalGeneral.total*100) : 0}%)</div>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon warning">🎯</div>
-                        <div class="stat-info">
-                            <div class="stat-value">${totalGeneral.captacion}</div>
-                            <div class="stat-label">Captaciones</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-
+        html += `<tr style="background:var(--color-gray-200);font-weight:bold;"><td>TOTAL GENERAL</td><td>${totalGeneral.captacion}</td><td>${totalGeneral.control}</td><td>${totalGeneral.emergencia}</td><td>${totalGeneral.referencia}</td><td>${totalGeneral.total}</td></tr></tbody></table></div>
+        <div style="margin-top:20px;"><h4 style="color:var(--color-primary);margin-bottom:10px;">Resumen Gráfico</h4><div class="stats-grid">
+            <div class="stat-card"><div class="stat-icon primary">📋</div><div class="stat-info"><div class="stat-value">${totalGeneral.total}</div><div class="stat-label">Total Registros SE ${semana}</div></div></div>
+            <div class="stat-card"><div class="stat-icon success">✅</div><div class="stat-info"><div class="stat-value">${totalGeneral.control}</div><div class="stat-label">Controles (${totalGeneral.total > 0 ? Math.round(totalGeneral.control/totalGeneral.total*100) : 0}%)</div></div></div>
+            <div class="stat-card"><div class="stat-icon warning">🎯</div><div class="stat-info"><div class="stat-value">${totalGeneral.captacion}</div><div class="stat-label">Captaciones</div></div></div>
+        </div></div>`;
         container.innerHTML = html;
-    } catch(e) {
-        console.error('Error generando consolidado:', e);
-        $('consolidadoResultado').innerHTML = '<div class="alert alert-danger">Error al generar consolidado</div>';
-    }
+    } catch(e) { $('consolidadoResultado').innerHTML = '<div class="alert alert-danger">Error al generar consolidado</div>'; }
 }
 
 function descargarConsolidadoExcel() {
     const table = $('consolidadoTable');
-    if(!table) {
-        showAlert('Primero genere el consolidado', 'warning');
-        return;
-    }
-
+    if(!table) { showAlert('Primero genere el consolidado', 'warning'); return; }
     const wb = XLSX.utils.table_to_book(table, {sheet: "Consolidado EPI 13"});
-    const semana = $('consSemana').value;
-    const anio = $('consAnio').value;
-    XLSX.writeFile(wb, `Consolidado_EPI13_SE${semana}_${anio}.xlsx`);
+    XLSX.writeFile(wb, `Consolidado_EPI13_SE${$('consSemana').value}_${$('consAnio').value}.xlsx`);
     showAlert('Consolidado descargado correctamente', 'success');
 }
 
 // ============================================================
-// USUARIOS Y CONSULTORIOS (Admin)
+// CONSULTORIOS
 // ============================================================
-
-async function renderUsuarios(container) {
-    if(!currentProfile || (currentProfile.rol !== 'super_admin' && currentProfile.rol !== 'admin')) {
-        container.innerHTML = '<div class="alert alert-danger">No tiene permisos para acceder a esta sección</div>';
-        return;
-    }
-
-    container.innerHTML = `
-        <div class="card">
-            <div class="card-header">
-                <div class="card-title">Gestión de Usuarios</div>
-            </div>
-            <div class="card-body">
-                <div class="alert alert-info">Función disponible para administradores. Los usuarios se gestionan desde Supabase Auth.</div>
-                <div style="margin-top:20px;">
-                    <p><strong>Instrucciones:</strong></p>
-                    <ol style="margin-left:20px;line-height:2;">
-                        <li>Acceda al panel de Supabase</li>
-                        <li>Vaya a Authentication > Users</li>
-                        <li>Cree nuevos usuarios con email y contraseña</li>
-                        <li>Asigne el rol en la tabla perfiles_usuarios</li>
-                    </ol>
-                </div>
-            </div>
-        </div>
-    `;
-}
 
 async function renderConsultorios(container) {
     container.innerHTML = `
         <div class="card">
-            <div class="card-header">
-                <div class="card-title">Consultorios del ASIC</div>
-            </div>
+            <div class="card-header"><div class="card-title">Consultorios del ASIC</div></div>
             <div class="card-body">
                 <div class="table-container">
                     <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Código</th>
-                                <th>Nombre</th>
-                                <th>Estado</th>
-                            </tr>
-                        </thead>
-                        <tbody id="consultoriosTableBody">
-                            <tr><td colspan="3" class="text-center">Cargando...</td></tr>
-                        </tbody>
+                        <thead><tr><th>Código</th><th>Nombre</th><th>Estado</th></tr></thead>
+                        <tbody id="consultoriosTableBody"><tr><td colspan="3" class="text-center">Cargando...</td></tr></tbody>
                     </table>
                 </div>
             </div>
         </div>
     `;
-
-    if (!supabase) return;
+    if(!supabase) return;
     try {
-        const { data, error } = await supabase
-            .from('consultorios')
-            .select('*')
-            .order('nombre');
-
+        const { data, error } = await supabase.from('consultorios').select('*').order('nombre');
+        consultoriosData = data || [];
         const tbody = $('consultoriosTableBody');
-        if(error || !data?.length) {
-            tbody.innerHTML = '<tr><td colspan="3" class="text-center">No hay consultorios registrados</td></tr>';
-            return;
-        }
-
-        tbody.innerHTML = data.map(c => `
-            <tr>
-                <td><code>${c.codigo}</code></td>
-                <td>${c.nombre}</td>
-                <td>${c.activo ? '✅ Activo' : '❌ Inactivo'}</td>
-            </tr>
-        `).join('');
-    } catch(e) {
-        console.error('Error cargando consultorios:', e);
-    }
+        if(error || !consultoriosData.length) { tbody.innerHTML = '<tr><td colspan="3" class="text-center">No hay consultorios registrados</td></tr>'; return; }
+        tbody.innerHTML = consultoriosData.map(c => `<tr><td><code>${c.codigo}</code></td><td>${c.nombre}</td><td>${c.activo ? '✅ Activo' : '❌ Inactivo'}</td></tr>`).join('');
+    } catch(e) { console.error('Error loading consultorios:', e); }
 }
 
 // ============================================================
@@ -2598,64 +1704,35 @@ async function renderConsultorios(container) {
 function verGestante(id) {
     const g = gestantesData.find(x => x.id === id);
     if(!g) return;
-
     const semanas = calcularSemanas(g.fur);
     const fpp = calcularFPP(g.fur);
-
-    alert(`
-GESTANTE: ${g.nombres} ${g.apellidos}
-Cédula: ${g.cedula}
-Edad: ${g.edad || '-'} años
-Estado: ${g.estado_actual}
-Semanas Gestacionales: ${semanas > 0 ? semanas : '-'}
-FPP: ${fpp ? formatDate(fpp) : '-'}
-Control Prenatal: ${g.en_control_prenatal ? 'Sí' : 'No'}
-Teléfono: ${g.telefono || '-'}
-Dirección: ${g.direccion || '-'}
-    `.trim());
+    alert(`GESTANTE: ${g.nombres} ${g.apellidos}\nCédula: ${g.cedula}\nEdad: ${g.edad || '-'} años\nEstado: ${g.estado_actual}\nSemanas: ${semanas > 0 ? semanas : '-'}\nFPP: ${fpp ? formatDate(fpp) : '-'}\nControl: ${g.en_control_prenatal ? 'Sí' : 'No'}\nTeléfono: ${g.telefono || '-'}\nDirección: ${g.direccion || '-'}`.trim());
 }
 
-function editarGestante(id) {
-    openModal('gestante', id);
-}
+function editarGestante(id) { openModal('gestante', id); }
 
 function nuevoRegistroGestante(gestanteId) {
     openModal('registro');
-    // Pre-seleccionar gestante
     setTimeout(() => {
         const g = gestantesData.find(x => x.id === gestanteId);
-        if(g && $('rGestanteId')) {
-            seleccionarGestante(g.id, g.cedula, `${g.nombres} ${g.apellidos}`, g.fur);
-        }
+        if(g && $('rGestanteId')) seleccionarGestante(g.id, g.cedula, `${g.nombres} ${g.apellidos}`, g.fur);
     }, 100);
 }
 
 function verRegistro(id) {
     const r = registrosData.find(x => x.id === id);
     if(!r) return;
-    alert(`
-REGISTRO: ${r.tipo_registro.toUpperCase()}
-Fecha: ${formatDate(r.fecha_registro)}
-Gestante: ${r.gestantes?.nombres || ''} ${r.gestantes?.apellidos || ''}
-Diagnóstico: ${r.diagnostico || '-'}
-Observaciones: ${r.observaciones || '-'}
-    `.trim());
+    alert(`REGISTRO: ${r.tipo_registro.toUpperCase()}\nFecha: ${formatDate(r.fecha_registro)}\nGestante: ${r.gestantes?.nombres || ''} ${r.gestantes?.apellidos || ''}\nDiagnóstico: ${r.diagnostico || '-'}\nObservaciones: ${r.observaciones || '-'}`.trim());
 }
 
-function editarRegistro(id) {
-    showAlert('Función de edición en desarrollo', 'info');
-}
+function editarRegistro(id) { showAlert('Función de edición en desarrollo', 'info'); }
 
 // ============================================================
 // INICIALIZACIÓN
 // ============================================================
 
 document.addEventListener('DOMContentLoaded', async () => {
-    // Ocultar loading después de un momento
-    setTimeout(() => {
-        hide('appLoading');
-        initAuth();
-    }, 1500);
+    setTimeout(() => { hide('appLoading'); initAuth(); }, 1500);
 });
 </script>
 </body>
