@@ -595,6 +595,77 @@ body {
     50% { transform: scale(1.1); }
 }
 
+/* NUEVO: Estilos para configuración */
+.config-card {
+    background: linear-gradient(135deg, #fff9e6, #fff3cd);
+    border: 1px solid #ffc107;
+    border-radius: var(--border-radius);
+    padding: 15px;
+    margin-bottom: 20px;
+}
+.config-card-title {
+    font-weight: 700;
+    color: #856404;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.config-row {
+    display: flex;
+    gap: 15px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+}
+.config-row .form-group {
+    margin-bottom: 0;
+}
+.config-row .form-control {
+    width: auto;
+    min-width: 150px;
+}
+
+/* NUEVO: Estilos para upload de archivos */
+.file-upload-area {
+    border: 2px dashed var(--color-gray-400);
+    border-radius: var(--border-radius);
+    padding: 30px;
+    text-align: center;
+    cursor: pointer;
+    transition: var(--transition);
+    background: var(--color-gray-100);
+}
+.file-upload-area:hover {
+    border-color: var(--color-primary);
+    background: rgba(26, 95, 122, 0.05);
+}
+.file-upload-area.dragover {
+    border-color: var(--color-success);
+    background: rgba(40, 167, 69, 0.1);
+}
+.file-upload-icon {
+    font-size: 36px;
+    margin-bottom: 10px;
+}
+.file-upload-text {
+    color: var(--color-gray-600);
+    font-size: 14px;
+}
+.file-upload-hint {
+    color: var(--color-gray-500);
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+/* NUEVO: Preview de calendario subido */
+.calendario-preview {
+    max-width: 100%;
+    max-height: 400px;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--color-gray-300);
+    margin-top: 10px;
+}
+
 @media (max-width: 768px) {
     .sidebar { width: 100%; position: fixed; left: -100%; }
     .sidebar.active { left: 0; }
@@ -602,8 +673,11 @@ body {
     .stats-grid { grid-template-columns: 1fr; }
     .form-row { grid-template-columns: 1fr; }
     .top-header { flex-direction: column; gap: 10px; text-align: center; }
+    .config-row { flex-direction: column; align-items: stretch; }
+    .config-row .form-control { width: 100%; }
 }
     </style>
+<base target="_blank">
 <base target="_blank">
 </head>
 <body>
@@ -635,7 +709,101 @@ try {
     console.error('Error initializing Supabase:', e);
 }
 
-// === ESTADO GLOBAL ===
+// ============================================================
+// CONFIGURACIÓN DE SEMANA EPIDEMIOLÓGICA (NUEVO)
+// ============================================================
+// El calendario epidemiológico oficial de Venezuela/OPS:
+// - Semana 1 del 2026: 4 al 10 de enero (domingo a sábado)
+// - Semana 23 del 2026: 7 al 13 de junio
+// ============================================================
+
+// Configuración por año: [año, fecha_inicio_semana_1 (YYYY-MM-DD)]
+const CALENDARIOS_EPI = {
+    2025: { inicio: '2024-12-29', fin: '2026-01-03' },  // SE 1 2025 = 29 dic 2024
+    2026: { inicio: '2026-01-04', fin: '2027-01-02' },  // SE 1 2026 = 4 ene 2026
+    2027: { inicio: '2027-01-03', fin: '2028-01-01' },  // SE 1 2027 = 3 ene 2027
+};
+
+// Semana epidemiológica manual (si el usuario la configura)
+let semanaEpidemiologicaManual = null;
+let anioEpidemiologicoManual = null;
+
+function getSemanaEpidemiologica() {
+    // Si hay configuración manual, usarla
+    if (semanaEpidemiologicaManual !== null) {
+        return parseInt(semanaEpidemiologicaManual);
+    }
+
+    const now = new Date();
+    const anio = now.getFullYear();
+
+    // Buscar el calendario del año actual
+    const cal = CALENDARIOS_EPI[anio];
+    if (!cal) {
+        // Fallback al cálculo simple pero CORREGIDO
+        return calcularSemanaEpidemiologicaCorregida(now);
+    }
+
+    const inicio = new Date(cal.inicio + 'T00:00:00');
+    const fin = new Date(cal.fin + 'T00:00:00');
+
+    // Si estamos antes del inicio del año epidemiológico, usar año anterior
+    if (now < inicio) {
+        const calAnterior = CALENDARIOS_EPI[anio - 1];
+        if (calAnterior) {
+            const inicioAnt = new Date(calAnterior.inicio + 'T00:00:00');
+            const dias = Math.floor((now - inicioAnt) / (1000 * 60 * 60 * 24));
+            return Math.floor(dias / 7) + 1;
+        }
+    }
+
+    // Si estamos después del fin, usar año siguiente
+    if (now > fin) {
+        const calSiguiente = CALENDARIOS_EPI[anio + 1];
+        if (calSiguiente) {
+            const inicioSig = new Date(calSiguiente.inicio + 'T00:00:00');
+            const dias = Math.floor((now - inicioSig) / (1000 * 60 * 60 * 24));
+            return Math.floor(dias / 7) + 1;
+        }
+    }
+
+    // Cálculo normal
+    const dias = Math.floor((now - inicio) / (1000 * 60 * 60 * 24));
+    return Math.floor(dias / 7) + 1;
+}
+
+function calcularSemanaEpidemiologicaCorregida(fecha) {
+    // Método corregido: buscar el primer domingo del año o el 1 de enero si es domingo
+    const anio = fecha.getFullYear();
+    const primerEnero = new Date(anio, 0, 1);
+    const diaSemana = primerEnero.getDay(); // 0=domingo, 1=lunes, ..., 6=sábado
+
+    // Encontrar el inicio de la semana epidemiológica 1
+    // Si 1 de enero es domingo, empieza el 1 de enero
+    // Si no, retroceder al domingo anterior
+    let inicioSE1;
+    if (diaSemana === 0) {
+        inicioSE1 = primerEnero;
+    } else {
+        inicioSE1 = new Date(anio, 0, 1 - diaSemana);
+    }
+
+    const dias = Math.floor((fecha - inicioSE1) / (1000 * 60 * 60 * 24));
+    return Math.floor(dias / 7) + 1;
+}
+
+function getAnioEpidemiologico() {
+    if (anioEpidemiologicoManual !== null) {
+        return parseInt(anioEpidemiologicoManual);
+    }
+    return new Date().getFullYear();
+}
+
+function getAnio() { return new Date().getFullYear(); }
+
+// ============================================================
+// ESTADO GLOBAL
+// ============================================================
 let currentUser = null;
 let currentProfile = null;
 let currentSection = 'dashboard';
@@ -643,8 +811,11 @@ let gestantesData = [];
 let registrosData = [];
 let consultoriosData = [];
 let usuariosData = [];
+let calendarioEpidemiologicoData = null; // NUEVO: datos del calendario subido
 
-// === UTILIDADES ===
+// ============================================================
+// UTILIDADES
+// ============================================================
 function $(id) { return document.getElementById(id); }
 function show(el) { if(typeof el === 'string') $(el).classList.remove('hidden'); else el.classList.remove('hidden'); }
 function hide(el) { if(typeof el === 'string') $(el).classList.add('hidden'); else el.classList.add('hidden'); }
@@ -662,12 +833,6 @@ function calcularFPP(fur) {
     fpp.setDate(fpp.getDate() + 280);
     return fpp;
 }
-function getSemanaEpidemiologica() {
-    const now = new Date();
-    const start = new Date(now.getFullYear(), 0, 1);
-    return Math.ceil((now - start) / (1000 * 60 * 60 * 24 * 7));
-}
-function getAnio() { return new Date().getFullYear(); }
 
 function showAlert(message, type = 'info') {
     const container = $('alertContainer');
@@ -698,7 +863,19 @@ async function initAuth() {
         if(session) {
             currentUser = session.user;
             await loadUserProfile();
-            showApp();
+            if (currentProfile) {
+                showApp();
+            } else {
+                // Si no se pudo cargar el perfil, mostrar error
+                showLogin();
+                setTimeout(() => {
+                    const err = $('loginError');
+                    if(err) { 
+                        err.textContent = 'Error: No se pudo cargar su perfil de usuario. Contacte al administrador.'; 
+                        err.classList.remove('hidden'); 
+                    }
+                }, 100);
+            }
         } else {
             showLogin();
         }
@@ -709,9 +886,14 @@ async function initAuth() {
     supabase.auth.onAuthStateChange((event, session) => {
         if(event === 'SIGNED_IN' && session) {
             currentUser = session.user;
-            loadUserProfile().then(() => showApp());
+            loadUserProfile().then(() => {
+                if (currentProfile) showApp();
+            });
         } else if(event === 'SIGNED_OUT') {
-            currentUser = null; currentProfile = null; showLogin();
+            currentUser = null; currentProfile = null; 
+            semanaEpidemiologicaManual = null;
+            anioEpidemiologicoManual = null;
+            showLogin();
             showAlert('Sesión cerrada correctamente', 'info');
         }
     });
@@ -738,8 +920,12 @@ async function login() {
         if(error) throw error;
         currentUser = data.user;
         await loadUserProfile();
-        showApp();
-        showAlert('¡Bienvenido al Sistema Ruta Materna!', 'success');
+        if (currentProfile) {
+            showApp();
+            showAlert('¡Bienvenido al Sistema Ruta Materna!', 'success');
+        } else {
+            throw new Error('No se pudo cargar el perfil de usuario');
+        }
     } catch(error) {
         errorDiv.textContent = error.message === 'Invalid login credentials' 
             ? 'Usuario o contraseña incorrectos' 
@@ -760,18 +946,30 @@ async function loadUserProfile() {
             .eq('id', currentUser.id)
             .single();
         if(error) {
-            currentProfile = { id: currentUser.id, nombre_completo: currentUser.email, rol: 'consultorio', consultorio_id: null, email: currentUser.email };
+            // CORREGIDO: No asumir rol por defecto. Reportar el error.
+            console.error('Error cargando perfil:', error);
+            currentProfile = null;
+            showAlert('Error al cargar perfil: ' + error.message + '. Verifique que la tabla perfiles_usuarios existe y tiene su registro.', 'danger');
         } else {
             currentProfile = data;
         }
     } catch(e) {
-        currentProfile = { nombre_completo: currentUser.email, rol: 'consultorio', email: currentUser.email };
+        console.error('Exception cargando perfil:', e);
+        currentProfile = null;
+        showAlert('Error crítico al cargar perfil. Contacte al administrador.', 'danger');
     }
 }
 
 async function logout() {
     if (!supabase) return;
-    try { await supabase.auth.signOut(); currentUser = null; currentProfile = null; showLogin(); }
+    try { 
+        await supabase.auth.signOut(); 
+        currentUser = null; 
+        currentProfile = null; 
+        semanaEpidemiologicaManual = null;
+        anioEpidemiologicoManual = null;
+        showLogin(); 
+    }
     catch(e) { console.error('Error logout:', e); }
 }
 
@@ -823,6 +1021,14 @@ function showApp() {
     const userRoleLabel = { 'super_admin': 'Super Administrador', 'admin': 'Administrador', 'consultorio': 'Personal de Consultorio' }[userRole] || 'Usuario';
     const consultorioName = currentProfile?.consultorios?.nombre || 'No asignado';
 
+    // CORREGIDO: Mostrar alerta de diagnóstico de rol
+    const rolDebugInfo = currentProfile ? 
+        `<span style="font-size:10px;opacity:0.5;display:block;margin-top:2px;">Rol detectado: ${userRole}</span>` : '';
+
+    // Determinar si mostrar menú de administración
+    const puedeAdministrar = userRole === 'super_admin' || userRole === 'admin';
+    const esSuperAdmin = userRole === 'super_admin';
+
     app.innerHTML = `
         <div class="app-container">
             <aside class="sidebar" id="sidebar">
@@ -838,6 +1044,7 @@ function showApp() {
                             <div class="user-name">${userName}</div>
                             <div class="user-role">${userRoleLabel}</div>
                             <div style="font-size:10px;opacity:0.6;margin-top:2px;">${consultorioName}</div>
+                            ${rolDebugInfo}
                         </div>
                     </div>
                 </div>
@@ -851,10 +1058,15 @@ function showApp() {
                     <button class="nav-item" onclick="navigateTo('reportes')"><span>📈</span> Reportes EPI</button>
                     <button class="nav-item" onclick="navigateTo('consolidado')"><span>📋</span> Consolidado EPI 13</button>
 
-                    ${userRole === 'super_admin' || userRole === 'admin' ? `
+                    ${puedeAdministrar ? `
                     <div class="nav-section-title">Administración</div>
                     <button class="nav-item" onclick="navigateTo('usuarios')"><span>👥</span> Usuarios</button>
                     <button class="nav-item" onclick="navigateTo('consultorios')"><span>🏢</span> Consultorios</button>
+                    ` : ''}
+
+                    ${esSuperAdmin ? `
+                    <div class="nav-section-title">Configuración</div>
+                    <button class="nav-item" onclick="navigateTo('configuracion')"><span>⚙️</span> Configuración</button>
                     ` : ''}
 
                     <div class="nav-section-title">Sistema</div>
@@ -867,7 +1079,7 @@ function showApp() {
                 <div class="top-header">
                     <div class="header-title" id="pageTitle">Dashboard</div>
                     <div class="header-actions">
-                        <div class="semana-badge">SE ${getSemanaEpidemiologica()} - ${getAnio()}</div>
+                        <div class="semana-badge" id="semanaBadge" title="Semana Epidemiológica">SE ${getSemanaEpidemiologica()} - ${getAnioEpidemiologico()}</div>
                     </div>
                 </div>
                 <div id="contentArea"></div>
@@ -881,12 +1093,13 @@ function navigateTo(section) {
     currentSection = section;
     document.querySelectorAll('.nav-item').forEach(item => {
         item.classList.remove('active');
-        if(item.getAttribute('onclick')?.includes(section)) item.classList.add('active');
+        if(item.getAttribute('onclick')?.includes("'" + section + "'")) item.classList.add('active');
     });
     const titles = {
         'dashboard': 'Dashboard', 'gestantes': 'Gestantes', 'registros': 'Registros Semanales',
         'reportes': 'Reportes EPI', 'consolidado': 'Consolidado EPI 13',
-        'usuarios': 'Gestión de Usuarios', 'consultorios': 'Consultorios'
+        'usuarios': 'Gestión de Usuarios', 'consultorios': 'Consultorios',
+        'configuracion': 'Configuración del Sistema'
     };
     $('pageTitle').textContent = titles[section] || section;
     const contentArea = $('contentArea');
@@ -898,6 +1111,7 @@ function navigateTo(section) {
         case 'consolidado': renderConsolidado(contentArea); break;
         case 'usuarios': renderUsuarios(contentArea); break;
         case 'consultorios': renderConsultorios(contentArea); break;
+        case 'configuracion': renderConfiguracion(contentArea); break;
         default: renderDashboard(contentArea);
     }
 }
@@ -948,7 +1162,7 @@ async function loadDashboardData() {
         const { count: enControl } = await supabase.from('gestantes').select('*', { count: 'exact', head: true }).eq('en_control_prenatal', true);
         const { count: puerperas } = await supabase.from('gestantes').select('*', { count: 'exact', head: true }).in('estado_actual', ['puerpera', 'lactante']);
         const semanaActual = getSemanaEpidemiologica();
-        const anioActual = getAnio();
+        const anioActual = getAnioEpidemiologico();
         const { count: estaSemana } = await supabase.from('registros_ruta_materna').select('*', { count: 'exact', head: true }).eq('semana_epidemiologica', semanaActual).eq('anio', anioActual);
         const { count: emergencias } = await supabase.from('registros_ruta_materna').select('*', { count: 'exact', head: true }).eq('tipo_registro', 'emergencia');
 
@@ -1070,7 +1284,13 @@ async function renderRegistros(container) {
         </div>
     `;
     const semanaSelect = $('filterSemana');
-    for(let i = 1; i <= 52; i++) { const opt = document.createElement('option'); opt.value = i; opt.textContent = `Semana ${i}`; if(i === getSemanaEpidemiologica()) opt.selected = true; semanaSelect.appendChild(opt); }
+    for(let i = 1; i <= 53; i++) { 
+        const opt = document.createElement('option'); 
+        opt.value = i; 
+        opt.textContent = `Semana ${i}`; 
+        if(i === getSemanaEpidemiologica()) opt.selected = true; 
+        semanaSelect.appendChild(opt); 
+    }
     await loadRegistros();
 }
 
@@ -1264,7 +1484,7 @@ function renderRegistroModal(id = null) {
                     <div class="form-row">
                         <div class="form-group"><label class="form-label required">Fecha de Registro</label><input type="date" id="rFecha" class="form-control" value="${new Date().toISOString().split('T')[0]}"></div>
                         <div class="form-group"><label class="form-label required">Semana Epidemiológica</label><input type="number" id="rSemanaEpi" class="form-control" value="${getSemanaEpidemiologica()}"></div>
-                        <div class="form-group"><label class="form-label required">Año</label><input type="number" id="rAnio" class="form-control" value="${getAnio()}"></div>
+                        <div class="form-group"><label class="form-label required">Año</label><input type="number" id="rAnio" class="form-control" value="${getAnioEpidemiologico()}"></div>
                     </div>
                     <div class="form-row">
                         <div class="form-group"><label class="form-label required">Tipo de Registro</label>
@@ -1355,8 +1575,13 @@ async function guardarRegistro() {
 // ============================================================
 
 async function renderUsuarios(container) {
-    if(!currentProfile || currentProfile.rol !== 'super_admin') {
-        container.innerHTML = '<div class="alert alert-danger">No tiene permisos para acceder a esta sección</div>';
+    // CORREGIDO: Verificar que currentProfile existe y tiene rol super_admin
+    if(!currentProfile) {
+        container.innerHTML = '<div class="alert alert-danger">Error: No se pudo cargar su perfil. Cierre sesión e intente nuevamente.</div>';
+        return;
+    }
+    if(currentProfile.rol !== 'super_admin') {
+        container.innerHTML = '<div class="alert alert-danger">No tiene permisos para acceder a esta sección. Su rol actual es: <strong>' + currentProfile.rol + '</strong></div>';
         return;
     }
     container.innerHTML = `
@@ -1471,6 +1696,13 @@ function renderUsuarioModal(id = null) {
 
 async function guardarUsuario() {
     if (!supabase) { showAlert('Error: Supabase no disponible', 'danger'); return; }
+
+    // CORREGIDO: Verificar permisos antes de guardar
+    if(!currentProfile || currentProfile.rol !== 'super_admin') {
+        showAlert('No tiene permisos para gestionar usuarios', 'danger');
+        return;
+    }
+
     const id = $('uId').value;
     const email = $('uEmail').value.trim();
     const nombre = $('uNombre').value.trim();
@@ -1534,6 +1766,13 @@ function editarUsuario(id) {
 
 async function eliminarUsuario(id) {
     if (!supabase) return;
+
+    // CORREGIDO: Verificar permisos antes de eliminar
+    if(!currentProfile || currentProfile.rol !== 'super_admin') {
+        showAlert('No tiene permisos para eliminar usuarios', 'danger');
+        return;
+    }
+
     const u = usuariosData.find(x => x.id === id);
     if(!u) return;
     if(!confirm(`¿Está seguro de eliminar al usuario "${u.nombre_completo || u.email}"?\n\nEsto eliminará su perfil del sistema. Para eliminar también su acceso de autenticación, deberá hacerlo desde el panel de Supabase.`)) return;
@@ -1549,6 +1788,259 @@ async function eliminarUsuario(id) {
 }
 
 // ============================================================
+// CONFIGURACIÓN DEL SISTEMA (NUEVO)
+// ============================================================
+
+async function renderConfiguracion(container) {
+    if(!currentProfile || currentProfile.rol !== 'super_admin') {
+        container.innerHTML = '<div class="alert alert-danger">No tiene permisos para acceder a esta sección</div>';
+        return;
+    }
+
+    // Cargar configuración guardada
+    let configGuardada = { semana_manual: '', anio_manual: '', calendario_url: '' };
+    if(supabase) {
+        try {
+            const { data } = await supabase.from('configuracion_sistema').select('*').eq('clave', 'semana_epidemiologica').single();
+            if(data) {
+                configGuardada = { ...configGuardada, ...data.valor };
+            }
+        } catch(e) {}
+    }
+
+    container.innerHTML = `
+        <div class="card">
+            <div class="card-header"><div class="card-title">⚙️ Configuración del Sistema</div></div>
+            <div class="card-body">
+
+                <!-- Configuración de Semana Epidemiológica -->
+                <div class="config-card">
+                    <div class="config-card-title">📅 Semana Epidemiológica</div>
+                    <p style="font-size:13px;color:#856404;margin-bottom:15px;">
+                        Configure manualmente la semana epidemiológica actual si el cálculo automático no coincide con el calendario oficial del MPPS/OPS.
+                    </p>
+                    <div class="config-row">
+                        <div class="form-group">
+                            <label class="form-label">Semana Epidemiológica Actual</label>
+                            <input type="number" id="configSemana" class="form-control" value="${semanaEpidemiologicaManual || getSemanaEpidemiologica()}" min="1" max="53">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Año Epidemiológico</label>
+                            <input type="number" id="configAnio" class="form-control" value="${anioEpidemiologicoManual || getAnioEpidemiologico()}">
+                        </div>
+                        <button class="btn btn-success" onclick="guardarConfigSemana()" style="margin-bottom:0;">
+                            <span>💾</span> Guardar
+                        </button>
+                        <button class="btn btn-secondary" onclick="resetConfigSemana()" style="margin-bottom:0;">
+                            <span>🔄</span> Restaurar Automático
+                        </button>
+                    </div>
+                    <div style="margin-top:10px;font-size:12px;color:#856404;">
+                        <strong>Valor calculado automáticamente:</strong> SE ${getSemanaEpidemiologica()} - ${getAnioEpidemiologico()} 
+                        ${semanaEpidemiologicaManual !== null ? '(<span style="color:var(--color-danger);">⚠️ Usando valor manual</span>)' : '(Automático)'}
+                    </div>
+                </div>
+
+                <!-- Subir Calendario Epidemiológico -->
+                <div class="config-card" style="background:linear-gradient(135deg, #e8f5e9, #d4edda);border-color:#28a745;">
+                    <div class="config-card-title" style="color:#155724;">📋 Calendario Epidemiológico Oficial</div>
+                    <p style="font-size:13px;color:#155724;margin-bottom:15px;">
+                        Suba el calendario epidemiológico oficial del MPPS/OPS para referencia del personal. Formatos aceptados: PDF, JPG, PNG.
+                    </p>
+
+                    <div class="file-upload-area" id="uploadArea" onclick="document.getElementById('calendarioFile').click()"
+                         ondragover="event.preventDefault();this.classList.add('dragover');" 
+                         ondragleave="this.classList.remove('dragover');"
+                         ondrop="handleFileDrop(event)">
+                        <div class="file-upload-icon">📁</div>
+                        <div class="file-upload-text">Haga clic o arrastre aquí para subir el calendario</div>
+                        <div class="file-upload-hint">PDF, JPG o PNG (máx. 5MB)</div>
+                    </div>
+                    <input type="file" id="calendarioFile" class="hidden" accept=".pdf,.jpg,.jpeg,.png" onchange="handleFileSelect(event)">
+
+                    <div id="calendarioPreviewContainer" class="hidden" style="margin-top:15px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                            <strong style="color:#155724;">Vista previa:</strong>
+                            <button class="btn btn-sm btn-danger" onclick="eliminarCalendario()">🗑️ Eliminar</button>
+                        </div>
+                        <div id="calendarioPreview"></div>
+                    </div>
+
+                    <div style="margin-top:15px;font-size:12px;color:#155724;">
+                        <strong>Calendarios oficiales de referencia:</strong><br>
+                        • <a href="https://mpps.gob.ve/boletines-epidemiologicos/" target="_blank">Boletines Epidemiológicos MPPS Venezuela ↗</a><br>
+                        • <a href="https://www.paho.org/es/venezuela-republica-bolivariana" target="_blank">OPS/OMS Venezuela ↗</a>
+                    </div>
+                </div>
+
+                <!-- Información del Sistema -->
+                <div class="card" style="margin-top:20px;">
+                    <div class="card-header"><div class="card-title">ℹ️ Información del Sistema</div></div>
+                    <div class="card-body">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Usuario Actual</label>
+                                <input type="text" class="form-control" value="${currentProfile?.nombre_completo || currentUser?.email || 'N/A'}" disabled>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Rol Detectado</label>
+                                <input type="text" class="form-control" value="${currentProfile?.rol || 'No detectado'}" disabled>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">ID de Usuario</label>
+                                <input type="text" class="form-control" value="${currentUser?.id || 'N/A'}" disabled style="font-size:11px;">
+                            </div>
+                        </div>
+                        <div style="margin-top:15px;padding:10px;background:var(--color-gray-100);border-radius:8px;font-size:12px;">
+                            <strong>Diagnóstico de permisos:</strong><br>
+                            ${currentProfile?.rol === 'super_admin' ? '✅ Tiene permisos de Super Administrador' : '❌ No tiene permisos de Super Administrador'}<br>
+                            ${currentProfile?.rol === 'super_admin' || currentProfile?.rol === 'admin' ? '✅ Puede ver menú de Administración' : '❌ No puede ver menú de Administración'}
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    `;
+
+    // Cargar preview del calendario si existe
+    await cargarPreviewCalendario();
+}
+
+async function guardarConfigSemana() {
+    const semana = parseInt($('configSemana').value);
+    const anio = parseInt($('configAnio').value);
+
+    if(!semana || semana < 1 || semana > 53) {
+        showAlert('La semana debe estar entre 1 y 53', 'warning');
+        return;
+    }
+
+    semanaEpidemiologicaManual = semana;
+    anioEpidemiologicoManual = anio;
+
+    // Guardar en localStorage para persistencia
+    localStorage.setItem('ruta_materna_semana_manual', semana);
+    localStorage.setItem('ruta_materna_anio_manual', anio);
+
+    // Actualizar badge
+    const badge = $('semanaBadge');
+    if(badge) badge.textContent = `SE ${semana} - ${anio}`;
+
+    showAlert(`Semana epidemiológica configurada: SE ${semana} - ${anio}`, 'success');
+
+    // Recargar la vista de configuración
+    setTimeout(() => renderConfiguracion($('contentArea')), 500);
+}
+
+function resetConfigSemana() {
+    semanaEpidemiologicaManual = null;
+    anioEpidemiologicoManual = null;
+    localStorage.removeItem('ruta_materna_semana_manual');
+    localStorage.removeItem('ruta_materna_anio_manual');
+
+    const badge = $('semanaBadge');
+    if(badge) badge.textContent = `SE ${getSemanaEpidemiologica()} - ${getAnioEpidemiologico()}`;
+
+    showAlert('Configuración restaurada al cálculo automático', 'info');
+    setTimeout(() => renderConfiguracion($('contentArea')), 500);
+}
+
+// Cargar configuración guardada al iniciar
+function cargarConfigGuardada() {
+    const semanaGuardada = localStorage.getItem('ruta_materna_semana_manual');
+    const anioGuardado = localStorage.getItem('ruta_materna_anio_manual');
+    if(semanaGuardada !== null) {
+        semanaEpidemiologicaManual = parseInt(semanaGuardada);
+    }
+    if(anioGuardado !== null) {
+        anioEpidemiologicoManual = parseInt(anioGuardado);
+    }
+}
+
+// ============================================================
+// SUBIR CALENDARIO EPIDEMIOLÓGICO (NUEVO)
+// ============================================================
+
+function handleFileSelect(event) {
+    const file = event.target.files[0];
+    if(file) procesarArchivoCalendario(file);
+}
+
+function handleFileDrop(event) {
+    event.preventDefault();
+    event.currentTarget.classList.remove('dragover');
+    const file = event.dataTransfer.files[0];
+    if(file) procesarArchivoCalendario(file);
+}
+
+function procesarArchivoCalendario(file) {
+    // Validar tipo y tamaño
+    const tiposPermitidos = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+    if(!tiposPermitidos.includes(file.type)) {
+        showAlert('Formato no válido. Use PDF, JPG o PNG.', 'danger');
+        return;
+    }
+    if(file.size > 5 * 1024 * 1024) {
+        showAlert('El archivo es demasiado grande. Máximo 5MB.', 'danger');
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const dataUrl = e.target.result;
+        calendarioEpidemiologicoData = {
+            nombre: file.name,
+            tipo: file.type,
+            data: dataUrl,
+            fecha_subida: new Date().toISOString()
+        };
+
+        // Guardar en localStorage
+        localStorage.setItem('ruta_materna_calendario', JSON.stringify(calendarioEpidemiologicoData));
+
+        mostrarPreviewCalendario();
+        showAlert('Calendario subido correctamente', 'success');
+    };
+    reader.readAsDataURL(file);
+}
+
+function mostrarPreviewCalendario() {
+    if(!calendarioEpidemiologicoData) return;
+
+    const container = $('calendarioPreviewContainer');
+    const preview = $('calendarioPreview');
+
+    if(calendarioEpidemiologicoData.tipo === 'application/pdf') {
+        preview.innerHTML = `<embed src="${calendarioEpidemiologicoData.data}" type="application/pdf" width="100%" height="400px" style="border-radius:8px;">`;
+    } else {
+        preview.innerHTML = `<img src="${calendarioEpidemiologicoData.data}" class="calendario-preview" alt="Calendario Epidemiológico">`;
+    }
+
+    container.classList.remove('hidden');
+}
+
+async function cargarPreviewCalendario() {
+    const guardado = localStorage.getItem('ruta_materna_calendario');
+    if(guardado) {
+        try {
+            calendarioEpidemiologicoData = JSON.parse(guardado);
+            mostrarPreviewCalendario();
+        } catch(e) {
+            console.error('Error cargando calendario:', e);
+        }
+    }
+}
+
+function eliminarCalendario() {
+    if(!confirm('¿Eliminar el calendario epidemiológico subido?')) return;
+    calendarioEpidemiologicoData = null;
+    localStorage.removeItem('ruta_materna_calendario');
+    $('calendarioPreviewContainer').classList.add('hidden');
+    showAlert('Calendario eliminado', 'info');
+}
+
+// ============================================================
 // REPORTES Y CONSOLIDADO
 // ============================================================
 
@@ -1558,7 +2050,7 @@ async function renderReportes(container) {
             <div class="card-header"><div class="card-title">Reportes EPI - Ruta Materna</div></div>
             <div class="card-body">
                 <div class="form-row" style="margin-bottom:20px;">
-                    <div class="form-group"><label class="form-label">Semana Epidemiológica</label><select id="reportSemana" class="form-control">${Array.from({length:52}, (_,i) => `<option value="${i+1}" ${i+1===getSemanaEpidemiologica()?'selected':''}>Semana ${i+1}</option>`).join('')}</select></div>
+                    <div class="form-group"><label class="form-label">Semana Epidemiológica</label><select id="reportSemana" class="form-control">${Array.from({length:53}, (_,i) => `<option value="${i+1}" ${i+1===getSemanaEpidemiologica()?'selected':''}>Semana ${i+1}</option>`).join('')}</select></div>
                     <div class="form-group"><label class="form-label">Año</label><select id="reportAnio" class="form-control"><option value="${getAnio()-1}">${getAnio()-1}</option><option value="${getAnio()}" selected>${getAnio()}</option><option value="${getAnio()+1}">${getAnio()+1}</option></select></div>
                     <div class="form-group"><label class="form-label">Consultorio</label><select id="reportConsultorio" class="form-control"><option value="">Todos</option></select></div>
                     <div class="form-group" style="display:flex;align-items:flex-end;"><button class="btn btn-primary" onclick="generarReporte()"><span>📊</span> Generar</button><button class="btn btn-success" onclick="descargarExcel()" style="margin-left:10px;"><span>📥</span> Excel</button></div>
@@ -1620,7 +2112,7 @@ async function renderConsolidado(container) {
             <div class="card-header"><div class="card-title">Consolidado EPI 13 - Ruta Materna</div><button class="btn btn-success" onclick="descargarConsolidadoExcel()"><span>📥</span> Descargar Excel</button></div>
             <div class="card-body">
                 <div class="form-row" style="margin-bottom:20px;">
-                    <div class="form-group"><label class="form-label">Semana Epidemiológica</label><select id="consSemana" class="form-control" onchange="generarConsolidado()">${Array.from({length:52}, (_,i) => `<option value="${i+1}" ${i+1===getSemanaEpidemiologica()?'selected':''}>Semana ${i+1}</option>`).join('')}</select></div>
+                    <div class="form-group"><label class="form-label">Semana Epidemiológica</label><select id="consSemana" class="form-control" onchange="generarConsolidado()">${Array.from({length:53}, (_,i) => `<option value="${i+1}" ${i+1===getSemanaEpidemiologica()?'selected':''}>Semana ${i+1}</option>`).join('')}</select></div>
                     <div class="form-group"><label class="form-label">Año</label><select id="consAnio" class="form-control" onchange="generarConsolidado()"><option value="${getAnio()-1}">${getAnio()-1}</option><option value="${getAnio()}" selected>${getAnio()}</option></select></div>
                 </div>
                 <div id="consolidadoResultado"></div>
@@ -1732,6 +2224,9 @@ function editarRegistro(id) { showAlert('Función de edición en desarrollo', 'i
 // ============================================================
 
 document.addEventListener('DOMContentLoaded', async () => {
+    // Cargar configuración guardada
+    cargarConfigGuardada();
+
     setTimeout(() => { hide('appLoading'); initAuth(); }, 1500);
 });
 </script>
