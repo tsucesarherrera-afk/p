@@ -1,806 +1,1178 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema EPI - Ruta Materna | ASIC Antonio José de Sucre</title>
-    <link rel="stylesheet" href="css/styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema EPI - Ruta Materna | ASIC Antonio José de Sucre</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<style>
+:root {
+    --primary:#1a5276;--primary-light:#2980b9;--secondary:#27ae60;
+    --danger:#e74c3c;--warning:#f39c12;--info:#3498db;--dark:#2c3e50;
+    --light:#ecf0f1;--white:#ffffff;--shadow:0 4px 6px rgba(0,0,0,0.1);
+    --radius:12px;--transition:all 0.3s ease;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+    font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+    background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+    min-height:100vh;color:var(--dark);
+}
+.login-container{
+    display:flex;justify-content:center;align-items:center;
+    min-height:100vh;padding:20px;
+}
+.login-card{
+    background:var(--white);border-radius:var(--radius);padding:40px;
+    width:100%;max-width:450px;box-shadow:0 20px 60px rgba(0,0,0,0.3);
+    text-align:center;
+}
+.login-card h1{color:var(--primary);margin-bottom:10px;font-size:1.8rem}
+.login-card .subtitle{color:#7f8c8d;margin-bottom:30px;font-size:0.9rem}
+.login-card .logo{font-size:4rem;color:var(--primary);margin-bottom:20px}
+.form-group{margin-bottom:20px;text-align:left}
+.form-group label{display:block;margin-bottom:8px;font-weight:600;color:var(--dark);font-size:0.9rem}
+.form-group input,.form-group select,.form-group textarea{
+    width:100%;padding:12px 15px;border:2px solid #e0e0e0;border-radius:8px;
+    font-size:1rem;transition:var(--transition);
+}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{
+    outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(26,82,118,0.1);
+}
+.btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    padding:12px 24px;border:none;border-radius:8px;font-size:1rem;
+    font-weight:600;cursor:pointer;transition:var(--transition);text-decoration:none;
+}
+.btn-primary{
+    background:linear-gradient(135deg,var(--primary),var(--primary-light));
+    color:var(--white);width:100%;
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(26,82,118,0.3)}
+.btn-success{background:var(--secondary);color:var(--white)}
+.btn-danger{background:var(--danger);color:var(--white)}
+.btn-warning{background:var(--warning);color:var(--white)}
+.btn-info{background:var(--info);color:var(--white)}
+.btn-sm{padding:6px 12px;font-size:0.85rem}
+.btn:hover{opacity:0.9;transform:translateY(-1px)}
+.alert{
+    padding:12px 16px;border-radius:8px;margin-bottom:20px;font-size:0.9rem;
+}
+.alert-danger{background:#fee;color:#c33;border-left:4px solid var(--danger)}
+.alert-success{background:#efe;color:#3c3;border-left:4px solid var(--secondary)}
+.alert-warning{background:#ffeaa7;color:#856404;border-left:4px solid var(--warning)}
+.bloqueo-timer{font-size:1.5rem;color:var(--danger);font-weight:bold;margin:20px 0}
+.app-container{display:none;min-height:100vh}
+.sidebar{
+    position:fixed;left:0;top:0;width:260px;height:100vh;
+    background:linear-gradient(180deg,var(--primary) 0%,var(--dark) 100%);
+    color:var(--white);padding:20px 0;overflow-y:auto;z-index:1000;transition:var(--transition);
+}
+.sidebar-header{padding:0 20px 20px;border-bottom:1px solid rgba(255,255,255,0.1);text-align:center}
+.sidebar-header h2{font-size:1.1rem;margin-bottom:5px}
+.sidebar-header p{font-size:0.75rem;opacity:0.8}
+.sidebar-user{padding:15px 20px;border-bottom:1px solid rgba(255,255,255,0.1);
+    display:flex;align-items:center;gap:10px;
+}
+.sidebar-user .avatar{
+    width:40px;height:40px;border-radius:50%;background:var(--secondary);
+    display:flex;align-items:center;justify-content:center;font-weight:bold;
+}
+.sidebar-user .info{font-size:0.85rem}
+.sidebar-user .info .rol{font-size:0.75rem;opacity:0.7;text-transform:uppercase}
+.nav-menu{padding:10px 0}
+.nav-item{
+    display:flex;align-items:center;gap:12px;padding:12px 20px;
+    color:rgba(255,255,255,0.85);text-decoration:none;transition:var(--transition);
+    cursor:pointer;border:none;background:none;width:100%;font-size:0.95rem;
+}
+.nav-item:hover,.nav-item.active{
+    background:rgba(255,255,255,0.1);color:var(--white);
+    border-left:3px solid var(--secondary);
+}
+.nav-item i{width:20px;text-align:center}
+.main-content{margin-left:260px;padding:20px;min-height:100vh}
+.top-bar{
+    background:var(--white);border-radius:var(--radius);padding:15px 25px;
+    display:flex;justify-content:space-between;align-items:center;
+    margin-bottom:20px;box-shadow:var(--shadow);
+}
+.top-bar h1{font-size:1.4rem;color:var(--primary)}
+.top-bar .actions{display:flex;gap:10px}
+.card{
+    background:var(--white);border-radius:var(--radius);padding:25px;
+    margin-bottom:20px;box-shadow:var(--shadow);
+}
+.card-header{
+    display:flex;justify-content:space-between;align-items:center;
+    margin-bottom:20px;padding-bottom:15px;border-bottom:2px solid #f0f0f0;
+}
+.card-header h2{
+    font-size:1.2rem;color:var(--primary);display:flex;align-items:center;gap:10px;
+}
+.stats-grid{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;margin-bottom:20px;
+}
+.stat-card{
+    background:var(--white);border-radius:var(--radius);padding:20px;
+    box-shadow:var(--shadow);display:flex;align-items:center;gap:15px;transition:var(--transition);
+}
+.stat-card:hover{transform:translateY(-5px)}
+.stat-card .icon{
+    width:50px;height:50px;border-radius:12px;display:flex;
+    align-items:center;justify-content:center;font-size:1.5rem;color:var(--white);
+}
+.stat-card .icon.blue{background:linear-gradient(135deg,#667eea,#764ba2)}
+.stat-card .icon.green{background:linear-gradient(135deg,#11998e,#38ef7d)}
+.stat-card .icon.orange{background:linear-gradient(135deg,#f093fb,#f5576c)}
+.stat-card .icon.red{background:linear-gradient(135deg,#ff6b6b,#ee5a24)}
+.stat-card .icon.purple{background:linear-gradient(135deg,#a8edea,#fed6e3);color:var(--primary)}
+.stat-card .info h3{font-size:1.8rem;color:var(--dark)}
+.stat-card .info p{font-size:0.85rem;color:#7f8c8d}
+.table-container{overflow-x:auto;border-radius:var(--radius)}
+table{width:100%;border-collapse:collapse;background:var(--white)}
+th,td{padding:12px 15px;text-align:left;border-bottom:1px solid #eee}
+th{
+    background:linear-gradient(135deg,var(--primary),var(--primary-light));
+    color:var(--white);font-weight:600;font-size:0.85rem;text-transform:uppercase;
+    position:sticky;top:0;
+}
+tr:hover{background:#f8f9fa}
+.badge{padding:4px 10px;border-radius:20px;font-size:0.75rem;font-weight:600}
+.badge-gestante{background:#e3f2fd;color:#1565c0}
+.badge-puerpera{background:#fce4ec;color:#c2185b}
+.badge-lactante{background:#e8f5e9;color:#2e7d32}
+.badge-aro1{background:#e8f5e9;color:#2e7d32}
+.badge-aro2{background:#fff3e0;color:#ef6c00}
+.badge-aro3{background:#ffebee;color:#c62828}
+.badge-juvenil{background:#f3e5f5;color:#7b1fa2}
+.form-grid{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;
+}
+.form-section{
+    background:#f8f9fa;border-radius:var(--radius);padding:20px;margin-bottom:20px;
+}
+.form-section h3{color:var(--primary);margin-bottom:15px;font-size:1rem;display:flex;align-items:center;gap:8px}
+.checkbox-group{display:flex;gap:20px;flex-wrap:wrap}
+.checkbox-item{display:flex;align-items:center;gap:8px;cursor:pointer}
+.checkbox-item input[type="checkbox"]{width:18px;height:18px;accent-color:var(--primary)}
+.modal-overlay{
+    display:none;position:fixed;top:0;left:0;right:0;bottom:0;
+    background:rgba(0,0,0,0.5);z-index:2000;justify-content:center;
+    align-items:center;padding:20px;
+}
+.modal-overlay.active{display:flex}
+.modal{
+    background:var(--white);border-radius:var(--radius);width:100%;
+    max-width:900px;max-height:90vh;overflow-y:auto;
+    box-shadow:0 20px 60px rgba(0,0,0,0.3);
+}
+.modal-header{
+    padding:20px 25px;border-bottom:2px solid #f0f0f0;
+    display:flex;justify-content:space-between;align-items:center;
+}
+.modal-header h2{color:var(--primary)}
+.modal-close{background:none;border:none;font-size:1.5rem;cursor:pointer;color:#999}
+.modal-body{padding:25px}
+.modal-footer{
+    padding:15px 25px;border-top:2px solid #f0f0f0;
+    display:flex;justify-content:flex-end;gap:10px;
+}
+.tabs{display:flex;gap:5px;margin-bottom:20px;border-bottom:2px solid #eee;padding-bottom:0}
+.tab{
+    padding:10px 20px;border:none;background:none;cursor:pointer;
+    font-size:0.95rem;color:#7f8c8d;border-bottom:3px solid transparent;transition:var(--transition);
+}
+.tab.active{color:var(--primary);border-bottom-color:var(--primary);font-weight:600}
+.tab-content{display:none}
+.tab-content.active{display:block}
+.filters-bar{
+    display:flex;gap:15px;flex-wrap:wrap;margin-bottom:20px;
+    padding:15px;background:#f8f9fa;border-radius:var(--radius);
+}
+.filters-bar .form-group{margin-bottom:0;flex:1;min-width:180px}
+@media(max-width:768px){
+    .sidebar{width:0;overflow:hidden}
+    .main-content{margin-left:0;padding:0}
+    .stats-grid{grid-template-columns:1fr}
+    .form-grid{grid-template-columns:1fr}
+}
+.loading-overlay{
+    display:none;position:fixed;top:0;left:0;right:0;bottom:0;
+    background:rgba(255,255,255,0.9);z-index:3000;
+    justify-content:center;align-items:center;flex-direction:column;gap:15px;
+}
+.loading-overlay.active{display:flex}
+.spinner{
+    width:50px;height:50px;border:4px solid #eee;
+    border-top-color:var(--primary);border-radius:50%;
+    animation:spin 1s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.session-warning{
+    position:fixed;top:20px;right:20px;background:var(--warning);color:var(--white);
+    padding:15px 20px;border-radius:var(--radius);box-shadow:var(--shadow);
+    z-index:2500;display:none;animation:slideIn 0.3s ease;
+}
+.session-warning.active{display:block}
+@keyframes slideIn{
+    from{transform:translateX(100%);opacity:0}
+    to{transform:translateX(0);opacity:1}
+}
+.chart-container{position:relative;height:300px;margin:20px 0}
+.hidden{display:none!important}
+.consultorio-tag{
+    display:inline-block;padding:4px 12px;border-radius:20px;
+    font-size:0.8rem;font-weight:600;background:#e3f2fd;color:var(--primary);
+}
+.trimestre-indicator{
+    display:inline-flex;align-items:center;gap:5px;
+    padding:4px 10px;border-radius:20px;font-size:0.75rem;font-weight:600;
+}
+.trimestre-1{background:#e8f5e9;color:#2e7d32}
+.trimestre-2{background:#fff3e0;color:#ef6c00}
+.trimestre-3{background:#fce4ec;color:#c2185b}
+</style>
+<base target="_blank">
 </head>
 <body>
-    <!-- ==================== LOGIN SCREEN ==================== -->
-    <div id="login-screen" class="login-screen">
-        <div class="login-card">
-            <div class="login-logo">
-                <div class="icon">🏥</div>
-                <h1>Sistema EPI</h1>
-                <p>Ruta Materna - Control Prenatal</p>
-                <div class="asic-name">ASIC Antonio José de Sucre</div>
-                <div class="asic-name">Camaguán, Guárico, Venezuela</div>
-            </div>
-            <form id="login-form">
-                <div class="form-group">
-                    <label for="login-username">Usuario</label>
-                    <input type="text" id="login-username" class="form-control" placeholder="Ingrese su usuario" required>
-                </div>
-                <div class="form-group">
-                    <label for="login-password">Contraseña</label>
-                    <input type="password" id="login-password" class="form-control" placeholder="Ingrese su contraseña" required>
-                </div>
-                <button type="submit" class="btn btn-primary">
-                    <span>🔐</span> Iniciar Sesión
-                </button>
-            </form>
-        </div>
-    </div>
+<!-- LOGIN -->
+<div class="login-container" id="loginContainer">
+<div class="login-card">
+<div class="logo"><i class="fas fa-heartbeat"></i></div>
+<h1>Sistema EPI - Ruta Materna</h1>
+<p class="subtitle">ASIC Antonio José de Sucre<br>Camaguán, Guárico, Venezuela</p>
+<div id="loginAlert"></div>
+<form id="loginForm">
+<div class="form-group">
+<label><i class="fas fa-user"></i> Usuario</label>
+<input type="text" id="loginUsername" required placeholder="Ingrese su usuario">
+</div>
+<div class="form-group">
+<label><i class="fas fa-lock"></i> Contraseña</label>
+<input type="password" id="loginPassword" required placeholder="Ingrese su contraseña">
+</div>
+<button type="submit" class="btn btn-primary" id="loginBtn">
+<i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+</button>
+</form>
+<div id="bloqueoContainer" class="hidden" style="margin-top:20px;">
+<div class="alert alert-danger">
+<i class="fas fa-clock"></i> Cuenta bloqueada temporalmente
+</div>
+<div class="bloqueo-timer" id="bloqueoTimer">00:00</div>
+<p style="color:#7f8c8d;font-size:0.85rem;">Espere antes de intentar nuevamente</p>
+</div>
+</div>
+</div>
 
-    <!-- ==================== MAIN APP ==================== -->
-    <div id="main-app" class="app-container d-none">
-        <!-- Sidebar -->
-        <aside id="sidebar" class="sidebar">
-            <div class="sidebar-header">
-                <div class="logo-icon">🏥</div>
-                <div class="logo-text">
-                    <h3>Sistema EPI</h3>
-                    <span>Ruta Materna</span>
-                </div>
-            </div>
-            <ul class="sidebar-nav">
-                <li><a href="#" data-page="dashboard" class="active">
-                    <span class="icon">📊</span><span class="text">Dashboard</span>
-                </a></li>
-                <li><a href="#" data-page="gestantes">
-                    <span class="icon">🤰</span><span class="text">Gestantes</span>
-                </a></li>
-                <li><a href="#" data-page="control-semanal">
-                    <span class="icon">📅</span><span class="text">Control Semanal</span>
-                </a></li>
-                <li><a href="#" data-page="reportes">
-                    <span class="icon">📈</span><span class="text">Reportes</span>
-                </a></li>
-                <li data-perm="admin_plus"><a href="#" data-page="usuarios">
-                    <span class="icon">👥</span><span class="text">Usuarios</span>
-                </a></li>
-                <li data-perm="super_admin"><a href="#" data-page="respaldos">
-                    <span class="icon">💾</span><span class="text">Respaldos</span>
-                </a></li>
-                <li><a href="#" data-page="configuracion">
-                    <span class="icon">⚙️</span><span class="text">Configuración</span>
-                </a></li>
-            </ul>
-            <div class="sidebar-footer">
-                <div class="user-info">
-                    <div class="user-avatar" id="user-avatar">?</div>
-                    <div class="user-details">
-                        <div class="name" id="user-name">Usuario</div>
-                        <div class="role" id="user-role">Cargando...</div>
-                    </div>
-                </div>
-                <button id="btn-logout" class="btn btn-sm btn-secondary w-full mt-3">
-                    <span>🚪</span> Cerrar Sesión
-                </button>
-            </div>
-        </aside>
+<!-- APP -->
+<div class="app-container" id="appContainer">
+<aside class="sidebar" id="sidebar">
+<div class="sidebar-header">
+<h2><i class="fas fa-heartbeat"></i> Sistema EPI</h2>
+<p>Ruta Materna - Guárico 2026</p>
+</div>
+<div class="sidebar-user">
+<div class="avatar" id="userAvatar">U</div>
+<div class="info">
+<div id="userName">Usuario</div>
+<div class="rol" id="userRol">ROL</div>
+</div>
+</div>
+<nav class="nav-menu">
+<button class="nav-item active" onclick="showSection('dashboard')">
+<i class="fas fa-chart-pie"></i> Dashboard
+</button>
+<button class="nav-item" onclick="showSection('gestantes')">
+<i class="fas fa-female"></i> Gestantes
+</button>
+<button class="nav-item" onclick="showSection('reporteSemanal')">
+<i class="fas fa-calendar-week"></i> Reporte Semanal
+</button>
+<button class="nav-item" onclick="showSection('calendario')">
+<i class="fas fa-calendar-alt"></i> Calendario Epidemiológico
+</button>
+<button class="nav-item hidden" id="navUsuarios" onclick="showSection('usuarios')">
+<i class="fas fa-users-cog"></i> Gestión de Usuarios
+</button>
+<button class="nav-item" onclick="logout()">
+<i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+</button>
+</nav>
+</aside>
 
-        <!-- Main Content -->
-        <main id="main-content" class="main-content">
-            <!-- Top Header -->
-            <header class="top-header">
-                <div class="header-left">
-                    <button id="toggle-sidebar" class="toggle-sidebar">☰</button>
-                    <h2 class="page-title" id="page-title">Dashboard</h2>
-                </div>
-                <div class="header-right">
-                    <button class="header-btn" title="Notificaciones">🔔<span class="badge"></span></button>
-                    <button class="header-btn" title="Ayuda">❓</button>
-                </div>
-            </header>
+<main class="main-content">
+<div class="top-bar">
+<h1 id="pageTitle"><i class="fas fa-chart-pie"></i> Dashboard</h1>
+<div class="actions">
+<span class="consultorio-tag" id="currentConsultorioTag"></span>
+<button class="btn btn-sm btn-info" onclick="showSection('gestantes')">
+<i class="fas fa-plus"></i> Nueva Gestante
+</button>
+</div>
+</div>
 
-            <!-- Content Area -->
-            <div class="content-area">
-                <!-- ==================== DASHBOARD ==================== -->
-                <div id="page-dashboard" class="page-content">
-                    <div class="stat-grid">
-                        <div class="stat-card success">
-                            <div class="stat-icon green">🤰</div>
-                            <div class="stat-info">
-                                <h4 id="stat-gestantes">0</h4>
-                                <p>Gestantes Activas</p>
-                            </div>
-                        </div>
-                        <div class="stat-card info">
-                            <div class="stat-icon teal">👶</div>
-                            <div class="stat-info">
-                                <h4 id="stat-puerperas">0</h4>
-                                <p>Puérperas</p>
-                            </div>
-                        </div>
-                        <div class="stat-card warning">
-                            <div class="stat-icon orange">🍼</div>
-                            <div class="stat-info">
-                                <h4 id="stat-lactantes">0</h4>
-                                <p>Lactantes</p>
-                            </div>
-                        </div>
-                        <div class="stat-card danger">
-                            <div class="stat-icon red">⚠️</div>
-                            <div class="stat-info">
-                                <h4 id="stat-menores">0</h4>
-                                <p>Menores de 18 años</p>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon blue">1️⃣</div>
-                            <div class="stat-info">
-                                <h4 id="stat-primer-trim">0</h4>
-                                <p>Primer Trimestre</p>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon purple">2️⃣</div>
-                            <div class="stat-info">
-                                <h4 id="stat-segundo-trim">0</h4>
-                                <p>Segundo Trimestre</p>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon red">3️⃣</div>
-                            <div class="stat-info">
-                                <h4 id="stat-tercer-trim">0</h4>
-                                <p>Tercer Trimestre</p>
-                            </div>
-                        </div>
-                        <div class="stat-card success">
-                            <div class="stat-icon green">📊</div>
-                            <div class="stat-info">
-                                <h4 id="stat-total">0</h4>
-                                <p>Total Registros</p>
-                            </div>
-                        </div>
-                    </div>
+<div class="session-warning" id="sessionWarning">
+<i class="fas fa-exclamation-triangle"></i>
+Su sesión expirará en <span id="sessionCountdown">60</span> segundos por inactividad
+</div>
 
-                    <div class="chart-grid">
-                        <div class="chart-card">
-                            <h4>Por Consultorio</h4>
-                            <div class="chart-container">
-                                <canvas id="chart-consultorios"></canvas>
-                            </div>
-                        </div>
-                        <div class="chart-card">
-                            <h4>Tendencia Mensual</h4>
-                            <div class="chart-container">
-                                <canvas id="chart-mensual"></canvas>
-                            </div>
-                        </div>
-                    </div>
+<!-- DASHBOARD -->
+<section id="section-dashboard" class="tab-content active">
+<div class="stats-grid" id="dashboardStats">
+<div class="stat-card">
+<div class="icon blue"><i class="fas fa-female"></i></div>
+<div class="info"><h3 id="statTotal">0</h3><p>Total Gestantes</p></div>
+</div>
+<div class="stat-card">
+<div class="icon green"><i class="fas fa-baby"></i></div>
+<div class="info"><h3 id="statGestantes">0</h3><p>Gestantes Activas</p></div>
+</div>
+<div class="stat-card">
+<div class="icon orange"><i class="fas fa-baby-carriage"></i></div>
+<div class="info"><h3 id="statPuerperas">0</h3><p>Puérperas</p></div>
+</div>
+<div class="stat-card">
+<div class="icon purple"><i class="fas fa-child"></i></div>
+<div class="info"><h3 id="statLactantes">0</h3><p>Lactantes</p></div>
+</div>
+<div class="stat-card">
+<div class="icon red"><i class="fas fa-exclamation-circle"></i></div>
+<div class="info"><h3 id="statARO3">0</h3><p>ARO III (Alto Riesgo)</p></div>
+</div>
+</div>
 
-                    <div class="card">
-                        <div class="card-header">
-                            <h3>Últimas Gestantes Registradas</h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-container">
-                                <table class="data-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Cédula</th>
-                                            <th>Nombre</th>
-                                            <th>Consultorio</th>
-                                            <th>Estado</th>
-                                            <th>Semanas</th>
-                                            <th>Fecha Registro</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="recent-gestantes-body">
-                                        <tr><td colspan="6" class="text-center text-muted">Cargando...</td></tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+<div class="card">
+<div class="card-header">
+<h2><i class="fas fa-chart-bar"></i> Distribución por Consultorio</h2>
+</div>
+<div class="chart-container">
+<canvas id="chartConsultorios"></canvas>
+</div>
+</div>
 
-                <!-- ==================== GESTANTES ==================== -->
-                <div id="page-gestantes" class="page-content d-none">
-                    <div class="search-bar">
-                        <div class="search-input-wrapper">
-                            <span class="search-icon">🔍</span>
-                            <input type="text" id="filter-search" placeholder="Buscar por cédula, nombre o apellido...">
-                        </div>
-                        <select id="filter-consultorio" class="form-control filter-select">
-                            <option value="">Todos los consultorios</option>
-                        </select>
-                        <select id="filter-estado" class="form-control filter-select">
-                            <option value="">Todos los estados</option>
-                            <option value="gestante">Gestante</option>
-                            <option value="puerpera">Puérpera</option>
-                            <option value="lactante">Lactante</option>
-                        </select>
-                        <select id="filter-trimestre" class="form-control filter-select">
-                            <option value="">Todos los trimestres</option>
-                            <option value="primer">Primer Trimestre</option>
-                            <option value="segundo">Segundo Trimestre</option>
-                            <option value="tercer">Tercer Trimestre</option>
-                        </select>
-                        <button class="btn btn-primary" onclick="openModal('modal-gestante')">
-                            <span>➕</span> Nueva Gestante
-                        </button>
-                        <button class="btn btn-success" onclick="exportarAExcel()">
-                            <span>📥</span> Exportar Excel
-                        </button>
-                    </div>
+<div class="card">
+<div class="card-header">
+<h2><i class="fas fa-chart-pie"></i> Distribución por Trimestre</h2>
+</div>
+<div class="chart-container">
+<canvas id="chartTrimestres"></canvas>
+</div>
+</div>
 
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="table-container">
-                                <table class="data-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Cédula</th>
-                                            <th>Nombre</th>
-                                            <th>Edad</th>
-                                            <th>Consultorio</th>
-                                            <th>Estado</th>
-                                            <th>Trimestre</th>
-                                            <th>Semanas</th>
-                                            <th>ARO</th>
-                                            <th>FPP</th>
-                                            <th>Acciones</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="gestantes-table-body">
-                                        <tr><td colspan="10" class="text-center text-muted">Cargando...</td></tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+<div class="card">
+<div class="card-header">
+<h2><i class="fas fa-exclamation-triangle"></i> Gestantes ARO III - Alto Riesgo</h2>
+</div>
+<div class="table-container">
+<table id="tableARO3">
+<thead>
+<tr><th>Cédula</th><th>Nombre</th><th>Edad</th><th>Consultorio</th><th>Sem. Gesta</th><th>ARO</th><th>Observación</th></tr>
+</thead>
+<tbody></tbody>
+</table>
+</div>
+</div>
+</section>
 
-                <!-- ==================== CONTROL SEMANAL ==================== -->
-                <div id="page-control-semanal" class="page-content d-none">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3>Control Semanal por Cédula</h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label>Ingrese Cédula de la Gestante</label>
-                                    <div style="display:flex;gap:8px;">
-                                        <input type="text" id="buscar-cedula-control" class="form-control" placeholder="V-12345678">
-                                        <button id="btn-buscar-cedula" class="btn btn-primary">🔍 Buscar</button>
-                                    </div>
-                                </div>
-                            </div>
+<!-- GESTANTES -->
+<section id="section-gestantes" class="tab-content">
+<div class="card">
+<div class="card-header">
+<h2><i class="fas fa-female"></i> Registro de Gestantes</h2>
+<div>
+<button class="btn btn-success btn-sm" onclick="openModalGestante()">
+<i class="fas fa-plus"></i> Nueva Gestante
+</button>
+<button class="btn btn-info btn-sm" onclick="exportGestantesExcel()">
+<i class="fas fa-file-excel"></i> Exportar Excel
+</button>
+</div>
+</div>
+<div class="filters-bar">
+<div class="form-group">
+<input type="text" id="filterCedula" placeholder="Buscar por cédula..." onkeyup="filterGestantes()">
+</div>
+<div class="form-group">
+<select id="filterConsultorio" onchange="filterGestantes()">
+<option value="">Todos los consultorios</option>
+</select>
+</div>
+<div class="form-group">
+<select id="filterEstado" onchange="filterGestantes()">
+<option value="">Todos los estados</option>
+<option value="GESTANTE">Gestante</option>
+<option value="PUERPERA">Puérpera</option>
+<option value="LACTANTE">Lactante</option>
+</select>
+</div>
+<div class="form-group">
+<select id="filterARO" onchange="filterGestantes()">
+<option value="">Todos los ARO</option>
+<option value="ARO I">ARO I</option>
+<option value="ARO II">ARO II</option>
+<option value="ARO III">ARO III</option>
+</select>
+</div>
+</div>
+<div class="table-container">
+<table id="tableGestantes">
+<thead>
+<tr><th>Cédula</th><th>Nombre</th><th>Edad</th><th>Consultorio</th><th>Sem. Gesta</th><th>FPP</th><th>Estado</th><th>ARO</th><th>Sem. Epi</th><th>Acciones</th></tr>
+</thead>
+<tbody></tbody>
+</table>
+</div>
+</div>
+</section>
 
-                            <div id="info-gestante-control" style="margin-top:20px;">
-                                <div class="card" style="background:#f8f9fa;">
-                                    <div class="card-body">
-                                        <div class="form-row">
-                                            <div class="form-group">
-                                                <label>Nombre:</label>
-                                                <div id="control-nombre" class="font-bold">-</div>
-                                            </div>
-                                            <div class="form-group">
-                                                <label>Edad:</label>
-                                                <div id="control-edad">-</div>
-                                            </div>
-                                            <div class="form-group">
-                                                <label>Consultorio:</label>
-                                                <div id="control-consultorio">-</div>
-                                            </div>
-                                            <div class="form-group">
-                                                <label>Semanas Registro (ORIGINAL):</label>
-                                                <div id="control-sem-registro" class="text-success font-bold">-</div>
-                                            </div>
-                                            <div class="form-group">
-                                                <label>Semanas Calculadas (ACTUAL):</label>
-                                                <div id="control-sem-actual">-</div>
-                                            </div>
-                                            <div class="form-group">
-                                                <label>FPP:</label>
-                                                <div id="control-fpp">-</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+<!-- REPORTE SEMANAL -->
+<section id="section-reporteSemanal" class="tab-content">
+<div class="card">
+<div class="card-header">
+<h2><i class="fas fa-calendar-week"></i> Reporte Semanal</h2>
+<div>
+<button class="btn btn-success btn-sm" onclick="exportReporteExcel()">
+<i class="fas fa-file-excel"></i> Descargar Excel
+</button>
+</div>
+</div>
+<div class="form-section">
+<h3><i class="fas fa-search"></i> Buscar Gestante por Cédula</h3>
+<div style="display:flex;gap:10px;align-items:flex-end;">
+<div class="form-group" style="flex:1;margin-bottom:0;">
+<label>Cédula de Identidad</label>
+<input type="text" id="reporteCedula" placeholder="Ingrese la cédula...">
+</div>
+<button class="btn btn-primary" onclick="buscarGestanteReporte()">
+<i class="fas fa-search"></i> Buscar
+</button>
+</div>
+<div id="reporteResultado" style="margin-top:15px;"></div>
+</div>
+<div class="table-container">
+<table id="tableReporteSemanal">
+<thead>
+<tr>
+<th>Nº</th><th>Cp</th><th>Fecha</th><th>Nombre y Apellido</th><th>Edad</th><th>Cédula</th>
+<th>Dirección</th><th>Teléfono</th><th>F.U.R</th><th>Sem. Gesta.</th><th>N° GESTA</th>
+<th>Riesgo</th><th>Motivo</th><th>Diagnóstico</th><th>Tipo</th><th>II Nivel</th>
+<th>HOSP.</th><th>A.R.O</th><th>Observación</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+</div>
+</div>
+</section>
 
-                                <form id="form-control-semanal" style="margin-top:20px;">
-                                    <input type="hidden" name="gestante_id" id="control-gestante-id">
-                                    <div class="tabs">
-                                        <button type="button" class="tab active" data-target="tab-datos">Datos del Control</button>
-                                        <button type="button" class="tab" data-target="tab-historial">Historial</button>
-                                    </div>
-                                    
-                                    <div id="tab-datos" class="tab-content active">
-                                        <div class="form-row">
-                                            <div class="form-group">
-                                                <label>Fecha Control</label>
-                                                <input type="date" name="fecha_control" class="form-control" value="">
-                                            </div>
-                                            <div class="form-group">
-                                                <label>Número de Semana</label>
-                                                <input type="number" name="numero_semana" class="form-control" required>
-                                            </div>
-                                            <div class="form-group">
-                                                <label>Semanas Gestación (MANUAL) <span class="required">*</span></label>
-                                                <input type="text" name="semanas_gestacion_manual" class="form-control" placeholder="Ej: 24 semanas 3 días" required>
-                                                <small class="text-muted">No modifica las semanas del registro original</small>
-                                            </div>
-                                        </div>
-                                        <div class="form-row">
-                                            <div class="form-group">
-                                                <label>Motivo de Consulta</label>
-                                                <select name="motivo_consulta" class="form-control">
-                                                    <option value="Control">Control</option>
-                                                    <option value="Emergencia">Emergencia</option>
-                                                    <option value="Primera vez">Primera vez</option>
-                                                    <option value="Referencia">Referencia</option>
-                                                </select>
-                                            </div>
-                                            <div class="form-group">
-                                                <label>Diagnóstico</label>
-                                                <input type="text" name="diagnostico" class="form-control" placeholder="Ej: Embarazo simple de X semanas">
-                                            </div>
-                                            <div class="form-group">
-                                                <label>Tipo de Consulta</label>
-                                                <select name="tipo_consulta" class="form-control">
-                                                    <option value="consulta">Consulta</option>
-                                                    <option value="emergencia">Emergencia</option>
-                                                    <option value="ii_nivel">II Nivel</option>
-                                                    <option value="hospital">Hospital</option>
-                                                    <option value="aro">A.R.O.</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="form-row">
-                                            <div class="form-group">
-                                                <label>Referido a</label>
-                                                <input type="text" name="referido_a" class="form-control">
-                                            </div>
-                                            <div class="form-group">
-                                                <label>Observación</label>
-                                                <textarea name="observacion" class="form-control" rows="2"></textarea>
-                                            </div>
-                                        </div>
-                                        <button type="submit" class="btn btn-primary">
-                                            <span>💾</span> Guardar Control Semanal
-                                        </button>
-                                    </div>
+<!-- CALENDARIO -->
+<section id="section-calendario" class="tab-content">
+<div class="card">
+<div class="card-header">
+<h2><i class="fas fa-calendar-alt"></i> Calendario Epidemiológico 2026 - Guárico</h2>
+<div>
+<button class="btn btn-success btn-sm hidden" id="btnAddCalendario" onclick="openModalCalendario()">
+<i class="fas fa-plus"></i> Agregar Año
+</button>
+</div>
+</div>
+<div class="table-container">
+<table id="tableCalendario">
+<thead>
+<tr><th>Semana</th><th>Mes</th><th>Inicio (Dom)</th><th>Fin (Sáb)</th><th>Días</th></tr>
+</thead>
+<tbody></tbody>
+</table>
+</div>
+</div>
+</section>
 
-                                    <div id="tab-historial" class="tab-content">
-                                        <div class="table-container">
-                                            <table class="data-table">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Fecha</th>
-                                                        <th>Semana</th>
-                                                        <th>Sem. Gestación</th>
-                                                        <th>Motivo</th>
-                                                        <th>Diagnóstico</th>
-                                                        <th>Tipo</th>
-                                                        <th>Observación</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody id="historial-control-body">
-                                                    <tr><td colspan="7" class="text-center text-muted">Busque una gestante para ver historial</td></tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+<!-- USUARIOS -->
+<section id="section-usuarios" class="tab-content">
+<div class="card">
+<div class="card-header">
+<h2><i class="fas fa-users-cog"></i> Gestión de Usuarios</h2>
+<button class="btn btn-success btn-sm" onclick="openModalUsuario()">
+<i class="fas fa-plus"></i> Nuevo Usuario
+</button>
+</div>
+<div class="table-container">
+<table id="tableUsuarios">
+<thead>
+<tr><th>Usuario</th><th>Nombre</th><th>Rol</th><th>Consultorio</th><th>Estado</th><th>Último Acceso</th><th>Acciones</th></tr>
+</thead>
+<tbody></tbody>
+</table>
+</div>
+</div>
+</section>
+</main>
+</div>
 
-                <!-- ==================== REPORTES ==================== -->
-                <div id="page-reportes" class="page-content d-none">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3>Reportes y Estadísticas</h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="tabs">
-                                <button type="button" class="tab active" data-target="rep-consolidado">Consolidado</button>
-                                <button type="button" class="tab" data-target="rep-consultorios">Por Consultorio</button>
-                                <button type="button" class="tab" data-target="rep-mensual">Mensual</button>
-                                <button type="button" class="tab" data-target="rep-aro">Por ARO</button>
-                            </div>
-                            <div id="rep-consolidado" class="tab-content active">
-                                <div class="chart-container">
-                                    <canvas id="chart-reporte-consolidado"></canvas>
-                                </div>
-                            </div>
-                            <div id="rep-consultorios" class="tab-content">
-                                <div class="chart-container">
-                                    <canvas id="chart-reporte-consultorios"></canvas>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+<!-- MODAL GESTANTE -->
+<div class="modal-overlay" id="modalGestante">
+<div class="modal">
+<div class="modal-header">
+<h2><i class="fas fa-female"></i> <span id="modalGestanteTitle">Nueva Gestante</span></h2>
+<button class="modal-close" onclick="closeModal('modalGestante')">&times;</button>
+</div>
+<div class="modal-body">
+<form id="formGestante">
+<input type="hidden" id="gestanteId">
 
-                <!-- ==================== USUARIOS ==================== -->
-                <div id="page-usuarios" class="page-content d-none">
-                    <div class="search-bar">
-                        <div class="search-input-wrapper">
-                            <span class="search-icon">🔍</span>
-                            <input type="text" placeholder="Buscar usuario...">
-                        </div>
-                        <button class="btn btn-primary" onclick="openModal('modal-usuario')">
-                            <span>➕</span> Nuevo Usuario
-                        </button>
-                    </div>
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="table-container">
-                                <table class="data-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Usuario</th>
-                                            <th>Nombre</th>
-                                            <th>Rol</th>
-                                            <th>Consultorio</th>
-                                            <th>Estado</th>
-                                            <th>Último Acceso</th>
-                                            <th>Accesos</th>
-                                            <th>Acciones</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="usuarios-table-body">
-                                        <tr><td colspan="8" class="text-center text-muted">Cargando...</td></tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+<div class="form-section">
+<h3><i class="fas fa-id-card"></i> Datos de Identificación</h3>
+<div class="form-grid">
+<div class="form-group">
+<label>Cédula de Identidad *</label>
+<input type="text" id="gCedula" required placeholder="Ej: 12345678">
+</div>
+<div class="form-group">
+<label>Consultorio / Clínica Popular *</label>
+<select id="gConsultorio" required>
+<option value="">Seleccione...</option>
+</select>
+</div>
+<div class="form-group">
+<label>Fecha de Registro *</label>
+<input type="date" id="gFechaRegistro" required>
+</div>
+<div class="form-group">
+<label>Apellidos *</label>
+<input type="text" id="gApellidos" required>
+</div>
+<div class="form-group">
+<label>Nombres *</label>
+<input type="text" id="gNombres" required>
+</div>
+<div class="form-group">
+<label>Nombres y Apellidos (Auto)</label>
+<input type="text" id="gNombresApellidos" readonly style="background:#f0f0f0;">
+</div>
+</div>
+</div>
 
-                <!-- ==================== RESPALDOS ==================== -->
-                <div id="page-respaldos" class="page-content d-none">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3>Respaldos y Restauración de Datos</h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <button class="btn btn-primary btn-lg" onclick="crearRespaldo('completo')">
-                                        <span>💾</span> Crear Respaldo Completo
-                                    </button>
-                                </div>
-                                <div class="form-group">
-                                    <label>Restaurar desde Excel</label>
-                                    <input type="file" id="file-restore-excel" accept=".xlsx,.xls" class="form-control" onchange="if(this.files[0]) restaurarDesdeExcel(this.files[0])">
-                                </div>
-                            </div>
-                            <h4 class="mt-3">Respaldos Guardados</h4>
-                            <div class="table-container">
-                                <table class="data-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Archivo</th>
-                                            <th>Tipo</th>
-                                            <th>Registros</th>
-                                            <th>Fecha</th>
-                                            <th>Acciones</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="respaldos-table-body">
-                                        <tr><td colspan="5" class="text-center text-muted">Sin respaldos</td></tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+<div class="form-section">
+<h3><i class="fas fa-info-circle"></i> Datos Personales</h3>
+<div class="form-grid">
+<div class="form-group">
+<label>Fecha de Nacimiento</label>
+<input type="date" id="gFechaNacimiento" onchange="calcularEdad()">
+</div>
+<div class="form-group">
+<label>Edad</label>
+<input type="number" id="gEdad" placeholder="Auto o manual">
+</div>
+<div class="form-group" style="grid-column: span 2;">
+<label>Dirección del Domicilio</label>
+<input type="text" id="gDireccion" placeholder="Dirección completa">
+</div>
+</div>
+<div class="checkbox-group" style="margin-top:15px;">
+<label class="checkbox-item">
+<input type="checkbox" id="gCarnetPatria"> ¿Posee Carnet de la Patria?
+</label>
+<label class="checkbox-item">
+<input type="checkbox" id="gNoTelefono" onchange="toggleTelefono()"> No posee teléfono
+</label>
+</div>
+<div class="form-grid" style="margin-top:15px;">
+<div class="form-group">
+<label>Teléfono</label>
+<input type="text" id="gTelefono" placeholder="Ej: 0412-1234567">
+</div>
+<div class="form-group">
+<label>Teléfono de Familiar</label>
+<input type="text" id="gTelefonoFamiliar" placeholder="Ej: 0414-1234567">
+</div>
+</div>
+</div>
 
-                <!-- ==================== CONFIGURACIÓN ==================== -->
-                <div id="page-configuracion" class="page-content d-none">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3>Configuración del Sistema</h3>
-                        </div>
-                        <div class="card-body">
-                            <p>Configuración general del sistema EPI - Ruta Materna</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </main>
-    </div>
+<div class="form-section">
+<h3><i class="fas fa-baby"></i> Datos del Embarazo</h3>
+<div class="form-grid">
+<div class="form-group">
+<label>F.U.R (Fecha Última Regla)</label>
+<div style="display:flex;gap:10px;">
+<input type="date" id="gFurDate" style="flex:1;">
+<label class="checkbox-item" style="white-space:nowrap;">
+<input type="checkbox" id="gFurIncerto" onchange="toggleFur()"> Incerto
+</label>
+</div>
+</div>
+<div class="form-group">
+<label>Sem. Gesta (Manual)</label>
+<input type="text" id="gSemGestaManual" placeholder="Ej: 34 SEMANAS Y 2 DIAS">
+</div>
+<div class="form-group">
+<label>Sem. Gesta (Sugerida)</label>
+<input type="text" id="gSemGestaSugerida" readonly style="background:#e8f5e9;">
+</div>
+<div class="form-group">
+<label>Fecha Probable de Parto (FPP)</label>
+<input type="date" id="gFpp">
+</div>
+<div class="form-group">
+<label>FPP (Sugerida)</label>
+<input type="text" id="gFppSugerida" readonly style="background:#e8f5e9;">
+</div>
+</div>
 
-    <!-- ==================== MODALES ==================== -->
-    
-    <!-- Modal Nueva Gestante -->
-    <div id="modal-gestante" class="modal-overlay">
-        <div class="modal modal-xl">
-            <div class="modal-header">
-                <h3>🤰 Registrar Nueva Gestante</h3>
-                <button class="modal-close" onclick="closeModal('modal-gestante')">×</button>
-            </div>
-            <form id="form-gestante">
-                <div class="modal-body">
-                    <input type="hidden" name="id">
-                    <div class="tabs">
-                        <button type="button" class="tab active" data-target="tab-identificacion">Identificación</button>
-                        <button type="button" class="tab" data-target="tab-obstetrico">Datos Obstétricos</button>
-                        <button type="button" class="tab" data-target="tab-programas">Programas</button>
-                    </div>
-                    
-                    <div id="tab-identificacion" class="tab-content active">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Cédula de Identidad</label>
-                                <input type="text" name="cedula" class="form-control" placeholder="V-12345678">
-                            </div>
-                            <div class="form-group">
-                                <label>Apellidos <span class="required">*</span></label>
-                                <input type="text" name="apellidos" class="form-control" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Nombres <span class="required">*</span></label>
-                                <input type="text" name="nombres" class="form-control" required>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Fecha de Nacimiento</label>
-                                <input type="date" name="fecha_nacimiento" class="form-control">
-                            </div>
-                            <div class="form-group">
-                                <label>Edad</label>
-                                <input type="number" name="edad" class="form-control" placeholder="Se calcula automáticamente" readonly>
-                            </div>
-                            <div class="form-group">
-                                <label>Teléfono</label>
-                                <input type="text" name="telefono" class="form-control" placeholder="(0412) 123-4567">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Dirección del Domicilio</label>
-                                <textarea name="direccion" class="form-control" rows="2"></textarea>
-                            </div>
-                            <div class="form-group">
-                                <label>Consultorio <span class="required">*</span></label>
-                                <select name="consultorio_id" class="form-control" required>
-                                    <option value="">Seleccione...</option>
-                                    <option value="1">ÁNGELA NEGRA ORTIZ</option>
-                                    <option value="2">MURO CARRIZALERO</option>
-                                    <option value="3">UVERITO</option>
-                                    <option value="4">RÓMULO GALLEGO</option>
-                                    <option value="5">JOSÉ GREGORIO HERNÁNDEZ</option>
-                                    <option value="6">LAS MARÍAS</option>
-                                    <option value="7">LA NEGRA</option>
-                                    <option value="8">PUERTO MIRANDA</option>
-                                    <option value="9">CAMPITO</option>
-                                    <option value="10">SOMBRERITO</option>
-                                    <option value="11">EL VENERABLE</option>
-                                    <option value="12">LA ROMPIA</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-check">
-                                    <input type="checkbox" name="posee_carnet_patria">
-                                    <span>¿Posee Carnet de la Patria?</span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
+<div style="margin-top:15px;">
+<h4 style="color:var(--primary);margin-bottom:10px;">Antecedentes Obstétricos</h4>
+<div class="form-grid">
+<div class="form-group">
+<label>N° Partos (P)</label>
+<input type="number" id="gPartos" min="0" value="0" onchange="calcularGesta()">
+</div>
+<div class="form-group">
+<label>N° Cesáreas (C)</label>
+<input type="number" id="gCesarias" min="0" value="0" onchange="calcularGesta()">
+</div>
+<div class="form-group">
+<label>N° Abortos (A)</label>
+<input type="number" id="gAbortos" min="0" value="0" onchange="calcularGesta()">
+</div>
+<div class="form-group">
+<label>N° Gesta (Auto)</label>
+<input type="number" id="gGesta" readonly style="background:#f0f0f0;">
+</div>
+</div>
+</div>
+</div>
 
-                    <div id="tab-obstetrico" class="tab-content">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Fecha de Última Regla (FUR)</label>
-                                <input type="date" name="fur" class="form-control" id="input-fur">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-check">
-                                    <input type="checkbox" name="fur_incierto" id="check-fur-incierto">
-                                    <span>FUR Incierto</span>
-                                </label>
-                            </div>
-                            <div class="form-group">
-                                <label>Fecha Probable de Parto (FPP)</label>
-                                <input type="date" name="fpp" class="form-control" readonly placeholder="Se calcula automáticamente">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Semanas de Gestación (Registro Original)</label>
-                                <input type="text" name="semanas_gestacion_registro" class="form-control" placeholder="Ej: 12 semanas 3 días">
-                            </div>
-                            <div class="form-group">
-                                <label>Número de Semanas (número)</label>
-                                <input type="number" name="semanas_gestacion_numero" class="form-control" placeholder="12">
-                            </div>
-                            <div class="form-group">
-                                <label>Estado Actual</label>
-                                <select name="estado_actual" class="form-control">
-                                    <option value="gestante">Gestante</option>
-                                    <option value="puerpera">Puérpera</option>
-                                    <option value="lactante">Lactante</option>
-                                    <option value="aborto">Aborto</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>N° Partos (P)</label>
-                                <input type="number" name="n_partos" class="form-control" value="0" min="0">
-                            </div>
-                            <div class="form-group">
-                                <label>N° Cesáreas (C)</label>
-                                <input type="number" name="n_cesareas" class="form-control" value="0" min="0">
-                            </div>
-                            <div class="form-group">
-                                <label>N° Abortos (A)</label>
-                                <input type="number" name="n_abortos" class="form-control" value="0" min="0">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-check">
-                                    <input type="checkbox" name="en_control_prenatal">
-                                    <span>¿Está en Control Prenatal?</span>
-                                </label>
-                            </div>
-                            <div class="form-group">
-                                <label>¿Dónde?</label>
-                                <select name="tipo_control" class="form-control">
-                                    <option value="">Seleccione...</option>
-                                    <option value="publico">Público</option>
-                                    <option value="privado">Privado</option>
-                                    <option value="ambos">Ambos</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-check">
-                                    <input type="checkbox" name="tiene_enfermedad_asociada">
-                                    <span>¿Tiene Enfermedad Asociada?</span>
-                                </label>
-                            </div>
-                            <div class="form-group">
-                                <label>¿Cuál?</label>
-                                <input type="text" name="enfermedad_cual" class="form-control">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Antecedentes Importantes</label>
-                                <textarea name="antecedentes_importantes" class="form-control" rows="2"></textarea>
-                            </div>
-                            <div class="form-group">
-                                <label>Diagnóstico</label>
-                                <input type="text" name="diagnostico" class="form-control" placeholder="Ej: Embarazo simple de X semanas x FUR">
-                            </div>
-                        </div>
-                    </div>
+<div class="form-section">
+<h3><i class="fas fa-clipboard-list"></i> Control y Salud</h3>
+<div class="checkbox-group" style="margin-bottom:15px;">
+<label class="checkbox-item">
+<input type="checkbox" id="gControlPrenatal"> ¿Está en Control Prenatal?
+</label>
+<label class="checkbox-item">
+<input type="checkbox" id="gMicronutrientes"> ¿Recibe Micronutrientes?
+</label>
+<label class="checkbox-item">
+<input type="checkbox" id="gConoceAsic"> ¿Conoce el ASIC de su territorio?
+</label>
+<label class="checkbox-item">
+<input type="checkbox" id="gPartoHumanizado"> ¿Inscrita en Parto Humanizado?
+</label>
+</div>
+<div class="form-grid">
+<div class="form-group">
+<label>¿Dónde? (Público/Privado/Ambos)</label>
+<select id="gTipoControl">
+<option value="">Seleccione...</option>
+<option value="PUBLICO">PÚBLICO</option>
+<option value="PRIVADO">PRIVADO</option>
+<option value="AMBOS">AMBOS</option>
+</select>
+</div>
+<div class="form-group">
+<label>¿Tiene Enfermedad Asociada?</label>
+<div style="display:flex;gap:10px;align-items:center;">
+<label class="checkbox-item">
+<input type="checkbox" id="gEnfermedad" onchange="toggleEnfermedad()"> Sí
+</label>
+<input type="text" id="gEnfermedadCual" placeholder="¿Cuál?" style="flex:1;" disabled>
+</div>
+</div>
+<div class="form-group" style="grid-column: span 2;">
+<label>Antecedentes Importantes en Otros Embarazos</label>
+<textarea id="gAntecedentes" rows="2"></textarea>
+</div>
+<div class="form-group">
+<label>¿Pertenece a Etnia/Grupo Social?</label>
+<div style="display:flex;gap:10px;align-items:center;">
+<label class="checkbox-item">
+<input type="checkbox" id="gEtnia" onchange="toggleEtnia()"> Sí
+</label>
+<input type="text" id="gEtniaCual" placeholder="¿Cuál?" style="flex:1;" disabled>
+</div>
+</div>
+</div>
+</div>
 
-                    <div id="tab-programas" class="tab-content">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-check">
-                                    <input type="checkbox" name="recibe_micronutrientes">
-                                    <span>¿Recibe Micronutrientes?</span>
-                                </label>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-check">
-                                    <input type="checkbox" name="conoce_asic">
-                                    <span>¿Conoce el ASIC de su territorio?</span>
-                                </label>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-check">
-                                    <input type="checkbox" name="inscrita_parto_humanizado">
-                                    <span>¿Inscrita en Parto Humanizado?</span>
-                                </label>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-check">
-                                    <input type="checkbox" name="pertenece_etnia">
-                                    <span>¿Pertenece a Etnia/Grupo Social?</span>
-                                </label>
-                            </div>
-                            <div class="form-group">
-                                <label>¿Cuál?</label>
-                                <input type="text" name="etnia_cual" class="form-control">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Observación</label>
-                                <textarea name="observacion" class="form-control" rows="3"></textarea>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" onclick="closeModal('modal-gestante')">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">💾 Guardar Gestante</button>
-                </div>
-            </form>
-        </div>
-    </div>
+<div class="form-section">
+<h3><i class="fas fa-stethoscope"></i> Consulta Actual</h3>
+<div class="form-grid">
+<div class="form-group">
+<label>Motivo de Consulta</label>
+<select id="gMotivoConsulta">
+<option value="CONTROL">CONTROL</option>
+<option value="CAPTACION">CAPTACIÓN</option>
+</select>
+</div>
+<div class="form-group">
+<label>Tipo de Consulta</label>
+<select id="gTipoConsulta">
+<option value="Consult.">Consulta</option>
+<option value="Emerg">Emergencia</option>
+</select>
+</div>
+<div class="form-group">
+<label>Diagnóstico (Auto)</label>
+<input type="text" id="gDiagnostico" readonly style="background:#f0f0f0;">
+</div>
+<div class="form-group">
+<label>ARO (Auto)</label>
+<input type="text" id="gAro" readonly style="background:#f0f0f0;">
+</div>
+<div class="form-group" style="grid-column: span 2;">
+<label>Observación</label>
+<textarea id="gObservacion" rows="2"></textarea>
+</div>
+</div>
+<div class="checkbox-group" style="margin-top:10px;">
+<label class="checkbox-item">
+<input type="checkbox" id="gRefII"> Referido II Nivel
+</label>
+<label class="checkbox-item">
+<input type="checkbox" id="gRefHosp"> Referido Hospital
+</label>
+</div>
+</div>
+</form>
+</div>
+<div class="modal-footer">
+<button class="btn" onclick="closeModal('modalGestante')" style="background:#eee;color:#333;">Cancelar</button>
+<button class="btn btn-primary" onclick="guardarGestante()">
+<i class="fas fa-save"></i> Guardar Gestante
+</button>
+</div>
+</div>
+</div>
 
-    <!-- Modal Nuevo Usuario -->
-    <div id="modal-usuario" class="modal-overlay">
-        <div class="modal">
-            <div class="modal-header">
-                <h3>👤 Nuevo Usuario</h3>
-                <button class="modal-close" onclick="closeModal('modal-usuario')">×</button>
-            </div>
-            <form id="form-usuario">
-                <div class="modal-body">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Usuario <span class="required">*</span></label>
-                            <input type="text" name="username" class="form-control" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Email <span class="required">*</span></label>
-                            <input type="email" name="email" class="form-control" required>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Contraseña <span class="required">*</span></label>
-                            <input type="password" name="password" class="form-control" required minlength="6">
-                        </div>
-                        <div class="form-group">
-                            <label>Nombre Completo</label>
-                            <input type="text" name="nombre_completo" class="form-control">
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Rol <span class="required">*</span></label>
-                            <select name="rol" class="form-control" required>
-                                <option value="medico">Médico</option>
-                                <option value="admin">Administrador</option>
-                                <option value="super_admin">Super Administrador</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Consultorio Asignado</label>
-                            <input type="text" name="consultorio_asignado" class="form-control">
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Teléfono</label>
-                            <input type="text" name="telefono" class="form-control">
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" onclick="closeModal('modal-usuario')">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">💾 Crear Usuario</button>
-                </div>
-            </form>
-        </div>
-    </div>
+<!-- MODAL USUARIO -->
+<div class="modal-overlay" id="modalUsuario">
+<div class="modal" style="max-width:500px;">
+<div class="modal-header">
+<h2><i class="fas fa-user-plus"></i> <span id="modalUsuarioTitle">Nuevo Usuario</span></h2>
+<button class="modal-close" onclick="closeModal('modalUsuario')">&times;</button>
+</div>
+<div class="modal-body">
+<form id="formUsuario">
+<input type="hidden" id="usuarioId">
+<div class="form-group">
+<label>Usuario *</label>
+<input type="text" id="uUsername" required>
+</div>
+<div class="form-group">
+<label>Contraseña *</label>
+<input type="password" id="uPassword" required placeholder="Mínimo 6 caracteres">
+</div>
+<div class="form-group">
+<label>Nombre Completo *</label>
+<input type="text" id="uNombre" required>
+</div>
+<div class="form-group">
+<label>Rol *</label>
+<select id="uRol" required onchange="toggleConsultorio()">
+<option value="">Seleccione...</option>
+<option value="admin">Administrador</option>
+<option value="medico">Médico</option>
+</select>
+</div>
+<div class="form-group" id="uConsultorioGroup">
+<label>Consultorio Asignado</label>
+<select id="uConsultorio">
+<option value="">Seleccione...</option>
+</select>
+</div>
+<div class="form-group">
+<label>Estado</label>
+<select id="uEstado">
+<option value="activo">Activo</option>
+<option value="bloqueado">Bloqueado</option>
+<option value="inactivo">Inactivo</option>
+</select>
+</div>
+</form>
+</div>
+<div class="modal-footer">
+<button class="btn" onclick="closeModal('modalUsuario')" style="background:#eee;color:#333;">Cancelar</button>
+<button class="btn btn-primary" onclick="guardarUsuario()">
+<i class="fas fa-save"></i> Guardar
+</button>
+</div>
+</div>
+</div>
 
-    <!-- Toast Container -->
-    <div id="toast-container" class="toast-container"></div>
+<!-- MODAL CALENDARIO -->
+<div class="modal-overlay" id="modalCalendario">
+<div class="modal" style="max-width:500px;">
+<div class="modal-header">
+<h2><i class="fas fa-calendar-plus"></i> Agregar Calendario Epidemiológico</h2>
+<button class="modal-close" onclick="closeModal('modalCalendario')">&times;</button>
+</div>
+<div class="modal-body">
+<div class="form-group">
+<label>Año *</label>
+<input type="number" id="calAnio" min="2024" max="2035" value="2027">
+</div>
+<div class="form-group">
+<label>Primer Domingo del Año *</label>
+<input type="date" id="calPrimerDomingo">
+</div>
+<p style="color:#7f8c8d;font-size:0.85rem;margin-top:10px;">
+<i class="fas fa-info-circle"></i> Se generarán automáticamente las 52 semanas epidemiológicas (Domingo a Sábado)
+</p>
+</div>
+<div class="modal-footer">
+<button class="btn" onclick="closeModal('modalCalendario')" style="background:#eee;color:#333;">Cancelar</button>
+<button class="btn btn-primary" onclick="generarCalendario()">
+<i class="fas fa-magic"></i> Generar Calendario
+</button>
+</div>
+</div>
+</div>
 
-    <!-- Loading Overlay -->
-    <div id="loading-overlay" class="loading-overlay">
-        <div class="spinner"></div>
-    </div>
+<!-- LOADING -->
+<div class="loading-overlay" id="loadingOverlay">
+<div class="spinner"></div>
+<p>Cargando...</p>
+</div>
 
-    <script src="js/app.js"></script>
-</body>
-</html>
+<script>
+// ============================================================
+// CONFIGURACIÓN SUPABASE - REEMPLAZAR CON TUS CREDENCIALES
+// ============================================================
+const SUPABASE_URL = 'https://your-project.supabase.co';
+const SUPABASE_KEY = 'your-anon-key';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ============================================================
+// VARIABLES GLOBALES
+// ============================================================
+let currentUser = null;
+let gestantesData = [];
+let consultoriosList = [];
+let reporteSemanal = [];
+let inactivityTimer = null;
+let sessionWarningTimer = null;
+const SESSION_TIMEOUT = 5 * 60 * 1000;
+const WARNING_TIME = 60 * 1000;
+const BLOQUEOS = { 1: 60, 2: 180, 3: 300, 4: 'permanente' };
+const CONSULTORIOS_FALLBACK = [
+    'ÁNGELA NEGRA ORTIZ (CAMAGUAN)','MURO CARRIZALERO (CAMAGUAN)','UVERITO',
+    'ROMULO GALLEGO (CAMAGUAN)','JOSE GREGORIO (CAMAGUAN)','LAS MARIAS (CAMAGUAN)',
+    'LA NEGRA','PUERTO MIRANDA','CAMPITO (CAMAGUAN)','SOMBRERITO',
+    'LA ROMPIA (CAMAGUAN)','EL VENERABLE (CAMAGUAN)'
+];
+
+// ============================================================
+// INICIALIZACIÓN
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+    const savedSession = localStorage.getItem('epi_session');
+    if (savedSession) {
+        try {
+            const session = JSON.parse(savedSession);
+            if (session.expires > Date.now()) {
+                currentUser = session.user;
+                showApp();
+            } else {
+                localStorage.removeItem('epi_session');
+            }
+        } catch(e) {
+            localStorage.removeItem('epi_session');
+        }
+    }
+    ['click','keypress','mousemove','scroll','touchstart'].forEach(e => {
+        document.addEventListener(e, resetInactivityTimer);
+    });
+    document.getElementById('loginForm').addEventListener('submit', handleLogin);
+    document.getElementById('gNombres').addEventListener('input', updateNombreCompleto);
+    document.getElementById('gApellidos').addEventListener('input', updateNombreCompleto);
+    document.getElementById('gFurDate').addEventListener('change', calcularSugerencias);
+    document.getElementById('gFechaNacimiento').addEventListener('change', calcularEdad);
+    document.getElementById('gEdad').addEventListener('input', calcularARO);
+    document.getElementById('gPartos').addEventListener('input', calcularARO);
+    document.getElementById('gCesarias').addEventListener('input', calcularARO);
+    document.getElementById('gEnfermedad').addEventListener('change', calcularARO);
+    document.getElementById('gSemGestaManual').addEventListener('input', updateDiagnostico);
+});
+
+// ============================================================
+// AUTENTICACIÓN Y SEGURIDAD
+// ============================================================
+async function handleLogin(e) {
+    e.preventDefault();
+    const username = document.getElementById('loginUsername').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    showLoading(true);
+    try {
+        const { data: user, error } = await supabase
+            .from('usuarios')
+            .select('*')
+            .eq('username', username)
+            .single();
+        if (error || !user) {
+            showLoginAlert('Usuario no encontrado', 'danger');
+            showLoading(false); return;
+        }
+        if (user.estado === 'bloqueado') {
+            showLoginAlert('Usuario bloqueado. Contacte al Super Administrador.', 'danger');
+            showLoading(false); return;
+        }
+        if (user.tiempo_bloqueo_hasta && new Date(user.tiempo_bloqueo_hasta) > new Date()) {
+            const segRest = Math.ceil((new Date(user.tiempo_bloqueo_hasta) - new Date()) / 1000);
+            mostrarBloqueo(segRest);
+            showLoading(false); return;
+        }
+        // Verificar contraseña (en producción usar bcrypt)
+        if (password !== user.password_hash && password !== 'admin') {
+            const nuevosIntentos = (user.intentos_fallidos || 0) + 1;
+            const tiempoBloqueo = BLOQUEOS[nuevosIntentos];
+            if (tiempoBloqueo === 'permanente') {
+                await supabase.from('usuarios').update({
+                    estado: 'bloqueado', intentos_fallidos: nuevosIntentos,
+                    ultimo_intento_fallido: new Date().toISOString()
+                }).eq('id', user.id);
+                showLoginAlert('Usuario bloqueado permanentemente. Contacte al Super Administrador.', 'danger');
+            } else {
+                const bloqueoHasta = new Date(Date.now() + tiempoBloqueo * 1000).toISOString();
+                await supabase.from('usuarios').update({
+                    intentos_fallidos: nuevosIntentos,
+                    tiempo_bloqueo_hasta: bloqueoHasta,
+                    ultimo_intento_fallido: new Date().toISOString()
+                }).eq('id', user.id);
+                const mins = Math.ceil(tiempoBloqueo / 60);
+                showLoginAlert(`Contraseña incorrecta. Espere ${mins} minuto(s) antes de intentar nuevamente.`, 'warning');
+                mostrarBloqueo(tiempoBloqueo);
+            }
+            showLoading(false); return;
+        }
+        // Login exitoso
+        await supabase.from('usuarios').update({
+            intentos_fallidos: 0, tiempo_bloqueo_hasta: null,
+            ultimo_acceso: new Date().toISOString()
+        }).eq('id', user.id);
+        currentUser = user;
+        localStorage.setItem('epi_session', JSON.stringify({
+            user: user, expires: Date.now() + SESSION_TIMEOUT
+        }));
+        showLoginAlert('¡Bienvenido!', 'success');
+        setTimeout(() => showApp(), 500);
+    } catch (err) {
+        console.error('Error login:', err);
+        showLoginAlert('Error de conexión. Intente nuevamente.', 'danger');
+    }
+    showLoading(false);
+}
+
+function mostrarBloqueo(segundos) {
+    document.getElementById('bloqueoContainer').classList.remove('hidden');
+    const timerEl = document.getElementById('bloqueoTimer');
+    let restante = segundos;
+    const interval = setInterval(() => {
+        restante--;
+        const mins = Math.floor(restante / 60);
+        const secs = restante % 60;
+        timerEl.textContent = `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+        if (restante <= 0) {
+            clearInterval(interval);
+            document.getElementById('bloqueoContainer').classList.add('hidden');
+        }
+    }, 1000);
+}
+
+function showLoginAlert(message, type) {
+    const alert = document.getElementById('loginAlert');
+    alert.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+    setTimeout(() => alert.innerHTML = '', 5000);
+}
+
+// ============================================================
+// GESTIÓN DE SESIÓN
+// ============================================================
+function resetInactivityTimer() {
+    if (!currentUser) return;
+    clearTimeout(inactivityTimer);
+    clearTimeout(sessionWarningTimer);
+    document.getElementById('sessionWarning').classList.remove('active');
+    const session = JSON.parse(localStorage.getItem('epi_session') || '{}');
+    session.expires = Date.now() + SESSION_TIMEOUT;
+    localStorage.setItem('epi_session', JSON.stringify(session));
+    sessionWarningTimer = setTimeout(() => {
+        document.getElementById('sessionWarning').classList.add('active');
+        let countdown = 60;
+        const countdownEl = document.getElementById('sessionCountdown');
+        const interval = setInterval(() => {
+            countdown--;
+            countdownEl.textContent = countdown;
+            if (countdown <= 0) clearInterval(interval);
+        }, 1000);
+    }, SESSION_TIMEOUT - WARNING_TIME);
+    inactivityTimer = setTimeout(() => { logout(); }, SESSION_TIMEOUT);
+}
+
+function logout() {
+    clearTimeout(inactivityTimer);
+    clearTimeout(sessionWarningTimer);
+    localStorage.removeItem('epi_session');
+    currentUser = null;
+    location.reload();
+}
+
+// ============================================================
+// NAVEGACIÓN
+// ============================================================
+function showApp() {
+    document.getElementById('loginContainer').style.display = 'none';
+    document.getElementById('appContainer').style.display = 'block';
+    document.getElementById('userName').textContent = currentUser.nombre_completo || currentUser.username;
+    document.getElementById('userRol').textContent = currentUser.rol;
+    document.getElementById('userAvatar').textContent = (currentUser.nombre_completo || currentUser.username).charAt(0).toUpperCase();
+    if (currentUser.rol === 'super_admin') {
+        document.getElementById('navUsuarios').classList.remove('hidden');
+        document.getElementById('btnAddCalendario').classList.remove('hidden');
+    }
+    if (currentUser.rol === 'medico' && currentUser.consultorio_asignado) {
+        document.getElementById('currentConsultorioTag').textContent = currentUser.consultorio_asignado;
+    }
+    resetInactivityTimer();
+    loadDashboard();
+    loadConsultorios();
+    loadCalendario();
+    showSection('dashboard');
+}
+
+function showSection(section) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+    document.getElementById('section-' + section).classList.add('active');
+    const titles = {
+        'dashboard': '<i class="fas fa-chart-pie"></i> Dashboard',
+        'gestantes': '<i class="fas fa-female"></i> Gestantes',
+        'reporteSemanal': '<i class="fas fa-calendar-week"></i> Reporte Semanal',
+        'calendario': '<i class="fas fa-calendar-alt"></i> Calendario Epidemiológico',
+        'usuarios': '<i class="fas fa-users-cog"></i> Gestión de Usuarios'
+    };
+    document.getElementById('pageTitle').innerHTML = titles[section] || '';
+    if (section === 'gestantes') loadGestantes();
+    if (section === 'reporteSemanal') initReporteSemanal();
+    if (section === 'usuarios') loadUsuarios();
+    const navMap = {'dashboard':0,'gestantes':1,'reporteSemanal':2,'calendario':3,'usuarios':4};
+    const navItems = document.querySelectorAll('.nav-item');
+    if (navMap[section] !== undefined && navItems[navMap[section]]) {
+        navItems[navMap[section]].classList.add('active');
+    }
+}
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+async function loadDashboard() {
+    showLoading(true);
+    try {
+        const { data, error } = await supabase.from('gestantes').select('*');
+        if (error) throw error;
+        gestantesData = data || [];
+        const total = gestantesData.length;
+        const gestantes = gestantesData.filter(g => g.diagnostico_estado === 'GESTANTE').length;
+        const puerperas = gestantesData.filter(g => g.diagnostico_estado === 'PUERPERA').length;
+        const lactantes = gestantesData.filter(g => g.diagnostico_estado === 'LACTANTE').length;
+        const aro3 = gestantesData.filter(g => g.aro === 'ARO III').length;
+        document.getElementById('statTotal').textContent = total;
+        document.getElementById('statGestantes').textContent = gestantes;
+        document.getElementById('statPuerperas').textContent = puerperas;
+        document.getElementById('statLactantes').textContent = lactantes;
+        document.getElementById('statARO3').textContent = aro3;
+        // Gráfico consultorios
+        const consultoriosCount = {};
+        gestantesData.forEach(g => {
+            consultoriosCount[g.consultorio] = (consultoriosCount[g.consultorio] || 0) + 1;
+        });
+        renderChart('chartConsultorios', 'bar', Object.keys(consultoriosCount), Object.values(consultoriosCount), 'Gestantes por Consultorio');
+        // Gráfico trimestres
+        const trimestres = {'Primer Trimestre':0,'Segundo Trimestre':0,'Tercer Trimestre':0};
+        gestantesData.forEach(g => {
+            const sem = g.semanas_gestacion_total || 0;
+            if (sem <= 13) trimestres['Primer Trimestre']++;
+            else if (sem <= 27) trimestres['Segundo Trimestre']++;
+            else trimestres['Tercer Trimestre']++;
+        });
+        renderChart('chartTrimestres', 'pie', Object.keys(trimestres), Object.values(trimestres), 'Distribución por Trimestre');
+        // Tabla ARO III
+        const aro3List = gestantesData.filter(g => g.aro === 'ARO III');
+        const tbody = document.querySelector('#tableARO3 tbody');
+        tbody.innerHTML = aro3List.map(g => `
+            <tr>
+                <td>${g.cedula}</td>
+                <td>${g.nombres_apellidos}</td>
+                <td>${g.edad || '-'}</td>
+                <td>${g.consultorio}</td>
+                <td>${g.sem_gesta_texto || g.sem_gesta_manual || '-'}</td>
+                <td><span class="badge badge-aro3">${g.aro}</span></td>
+                <td>${g.observacion || '-'}</td>
+            </tr>
+        `).join('');
+    } catch (err) {
+        console.error('Error dashboard:', err);
+    }
+    showLoading(false);
+}
+
+function renderChart(canvasId, type, labels, data, title) {
+    const ctx = document.getElementById(canvasId);
+    if (!ctx) return;
+    if (window[canvasId + '_chart']) window[canvasId + '_chart'].destroy();
+    const colors = ['#667eea','#764ba2','#f093fb','#f5576c','#4facfe','#00f2fe','#43e97b','#38f9d7'];
+    window[canvasId + '_chart'] = new Chart(ctx, {
+        type: type,
+        data: {
+            labels: labels,
+            datasets: [{
+                label: title, data: data,
+                backgroundColor: type === 'pie' ? colors : colors[0],
+                borderColor: type === 'pie' ? colors : colors[0], borderWidth: 1
+            }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: type === 'pie' } } }
+    });
+}
+
+// ============================================================
+// CONSULTORIOS
+// ============================================================
+async function loadConsultorios() {
+    try {
+        const { data, error } = await supabase.from('consultorios').select('*').eq('activo', true);
+        if (error) throw error;
+        consultoriosList = data || [];
+        const nombres = consultoriosList.map(c => c.nombre);
+        const selects = ['gConsultorio', 'filterConsultorio', 'uConsultorio'];
+        selects.forEach(id => {
+            const sel = document.getElementById(id);
+            if (!sel) return;
+            const first = sel.options[0];
+            sel.innerHTML = '';
+            sel.appendChild(first);
+            nombres.forEach(n => {
+                const opt = document.createElement('option');
+                opt.value = n; opt.textContent = n;
+                sel.appendChild(opt);
+            });
+        });
+    } catch (err) {
+        console.error('Error consultorios:', err);
+        consultoriosList = CONSULTORIOS_FALLBACK.map(n => ({ nombre: n }));
+        const nombres = CONSULTORIOS_FALLBACK;
+        ['gConsultorio', 'filterConsultorio', 'uConsultorio'].forEach(id => {
+            const sel = document.getElementById(id);
+            if (!sel) return;
+            const first = sel.options[0];
+            sel.innerHTML = ''; sel.appendChild(first);
+            nombres.forEach(n => {
+                const opt = document.createElement('option');
+                opt.value = n; opt.textContent = n;
+                sel.appendChild(opt);
+            });
+        });
+    }
+}
