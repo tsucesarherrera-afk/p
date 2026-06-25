@@ -148,7 +148,6 @@ tr:hover{background:#f8f9fa}
 .badge-aro1{background:#e8f5e9;color:#2e7d32}
 .badge-aro2{background:#fff3e0;color:#ef6c00}
 .badge-aro3{background:#ffebee;color:#c62828}
-.badge-juvenil{background:#f3e5f5;color:#7b1fa2}
 .form-grid{
     display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;
 }
@@ -196,7 +195,7 @@ tr:hover{background:#f8f9fa}
 .filters-bar .form-group{margin-bottom:0;flex:1;min-width:180px}
 @media(max-width:768px){
     .sidebar{width:0;overflow:hidden}
-    .main-content{margin-left:0;padding:0}
+    .main-content{margin-left:0;padding:10px}
     .stats-grid{grid-template-columns:1fr}
     .form-grid{grid-template-columns:1fr}
 }
@@ -228,15 +227,9 @@ tr:hover{background:#f8f9fa}
     display:inline-block;padding:4px 12px;border-radius:20px;
     font-size:0.8rem;font-weight:600;background:#e3f2fd;color:var(--primary);
 }
-.trimestre-indicator{
-    display:inline-flex;align-items:center;gap:5px;
-    padding:4px 10px;border-radius:20px;font-size:0.75rem;font-weight:600;
-}
-.trimestre-1{background:#e8f5e9;color:#2e7d32}
-.trimestre-2{background:#fff3e0;color:#ef6c00}
-.trimestre-3{background:#fce4ec;color:#c2185b}
+.empty-state{text-align:center;padding:40px;color:#7f8c8d}
+.empty-state i{font-size:3rem;margin-bottom:15px;color:#bdc3c7}
 </style>
-<base target="_blank">
 </head>
 <body>
 <!-- LOGIN -->
@@ -249,11 +242,11 @@ tr:hover{background:#f8f9fa}
 <form id="loginForm">
 <div class="form-group">
 <label><i class="fas fa-user"></i> Usuario</label>
-<input type="text" id="loginUsername" required placeholder="Ingrese su usuario">
+<input type="text" id="loginUsername" required placeholder="Ingrese su usuario" autocomplete="username">
 </div>
 <div class="form-group">
 <label><i class="fas fa-lock"></i> Contraseña</label>
-<input type="password" id="loginPassword" required placeholder="Ingrese su contraseña">
+<input type="password" id="loginPassword" required placeholder="Ingrese su contraseña" autocomplete="current-password">
 </div>
 <button type="submit" class="btn btn-primary" id="loginBtn">
 <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
@@ -314,11 +307,6 @@ tr:hover{background:#f8f9fa}
 <i class="fas fa-plus"></i> Nueva Gestante
 </button>
 </div>
-</div>
-
-<div class="session-warning" id="sessionWarning">
-<i class="fas fa-exclamation-triangle"></i>
-Su sesión expirará en <span id="sessionCountdown">60</span> segundos por inactividad
 </div>
 
 <!-- DASHBOARD -->
@@ -566,7 +554,7 @@ Su sesión expirará en <span id="sessionCountdown">60</span> segundos por inact
 </div>
 <div class="form-group">
 <label>Edad</label>
-<input type="number" id="gEdad" placeholder="Auto o manual">
+<input type="number" id="gEdad" placeholder="Auto o manual" onchange="calcularARO()">
 </div>
 <div class="form-group" style="grid-column: span 2;">
 <label>Dirección del Domicilio</label>
@@ -599,7 +587,7 @@ Su sesión expirará en <span id="sessionCountdown">60</span> segundos por inact
 <div class="form-group">
 <label>F.U.R (Fecha Última Regla)</label>
 <div style="display:flex;gap:10px;">
-<input type="date" id="gFurDate" style="flex:1;">
+<input type="date" id="gFurDate" style="flex:1;" onchange="calcularSugerencias()">
 <label class="checkbox-item" style="white-space:nowrap;">
 <input type="checkbox" id="gFurIncerto" onchange="toggleFur()"> Incerto
 </label>
@@ -607,7 +595,7 @@ Su sesión expirará en <span id="sessionCountdown">60</span> segundos por inact
 </div>
 <div class="form-group">
 <label>Sem. Gesta (Manual)</label>
-<input type="text" id="gSemGestaManual" placeholder="Ej: 34 SEMANAS Y 2 DIAS">
+<input type="text" id="gSemGestaManual" placeholder="Ej: 34 SEMANAS Y 2 DIAS" oninput="updateDiagnostico()">
 </div>
 <div class="form-group">
 <label>Sem. Gesta (Sugerida)</label>
@@ -628,15 +616,15 @@ Su sesión expirará en <span id="sessionCountdown">60</span> segundos por inact
 <div class="form-grid">
 <div class="form-group">
 <label>N° Partos (P)</label>
-<input type="number" id="gPartos" min="0" value="0" onchange="calcularGesta()">
+<input type="number" id="gPartos" min="0" value="0" onchange="calcularGesta(); calcularARO();">
 </div>
 <div class="form-group">
 <label>N° Cesáreas (C)</label>
-<input type="number" id="gCesarias" min="0" value="0" onchange="calcularGesta()">
+<input type="number" id="gCesarias" min="0" value="0" onchange="calcularGesta(); calcularARO();">
 </div>
 <div class="form-group">
 <label>N° Abortos (A)</label>
-<input type="number" id="gAbortos" min="0" value="0" onchange="calcularGesta()">
+<input type="number" id="gAbortos" min="0" value="0" onchange="calcularGesta();">
 </div>
 <div class="form-group">
 <label>N° Gesta (Auto)</label>
@@ -676,7 +664,7 @@ Su sesión expirará en <span id="sessionCountdown">60</span> segundos por inact
 <label>¿Tiene Enfermedad Asociada?</label>
 <div style="display:flex;gap:10px;align-items:center;">
 <label class="checkbox-item">
-<input type="checkbox" id="gEnfermedad" onchange="toggleEnfermedad()"> Sí
+<input type="checkbox" id="gEnfermedad" onchange="toggleEnfermedad(); calcularARO();"> Sí
 </label>
 <input type="text" id="gEnfermedadCual" placeholder="¿Cuál?" style="flex:1;" disabled>
 </div>
@@ -773,6 +761,7 @@ Su sesión expirará en <span id="sessionCountdown">60</span> segundos por inact
 <label>Rol *</label>
 <select id="uRol" required onchange="toggleConsultorio()">
 <option value="">Seleccione...</option>
+<option value="super_admin">Super Administrador</option>
 <option value="admin">Administrador</option>
 <option value="medico">Médico</option>
 </select>
@@ -839,10 +828,12 @@ Su sesión expirará en <span id="sessionCountdown">60</span> segundos por inact
 
 <script>
 // ============================================================
-// CONFIGURACIÓN SUPABASE - REEMPLAZAR CON TUS CREDENCIALES
+// CONFIGURACIÓN - ACTUALIZAR CON TUS DATOS
 // ============================================================
 const SUPABASE_URL = 'https://kteybvyhgxfupnjoqhcf.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_w5XfH-wSppQo8JudvHkssg_8eIGYWWC';
+const EDGE_BASE_URL = 'https://kteybvyhgxfupnjoqhcf.supabase.co/functions/v1';
+
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // ============================================================
@@ -852,11 +843,6 @@ let currentUser = null;
 let gestantesData = [];
 let consultoriosList = [];
 let reporteSemanal = [];
-let inactivityTimer = null;
-let sessionWarningTimer = null;
-const SESSION_TIMEOUT = 5 * 60 * 1000;
-const WARNING_TIME = 60 * 1000;
-const BLOQUEOS = { 1: 60, 2: 180, 3: 300, 4: 'permanente' };
 const CONSULTORIOS_FALLBACK = [
     'ÁNGELA NEGRA ORTIZ (CAMAGUAN)','MURO CARRIZALERO (CAMAGUAN)','UVERITO',
     'ROMULO GALLEGO (CAMAGUAN)','JOSE GREGORIO (CAMAGUAN)','LAS MARIAS (CAMAGUAN)',
@@ -868,23 +854,7 @@ const CONSULTORIOS_FALLBACK = [
 // INICIALIZACIÓN
 // ============================================================
 document.addEventListener('DOMContentLoaded', () => {
-    const savedSession = localStorage.getItem('epi_session');
-    if (savedSession) {
-        try {
-            const session = JSON.parse(savedSession);
-            if (session.expires > Date.now()) {
-                currentUser = session.user;
-                showApp();
-            } else {
-                localStorage.removeItem('epi_session');
-            }
-        } catch(e) {
-            localStorage.removeItem('epi_session');
-        }
-    }
-    ['click','keypress','mousemove','scroll','touchstart'].forEach(e => {
-        document.addEventListener(e, resetInactivityTimer);
-    });
+    checkSession();
     document.getElementById('loginForm').addEventListener('submit', handleLogin);
     document.getElementById('gNombres').addEventListener('input', updateNombreCompleto);
     document.getElementById('gApellidos').addEventListener('input', updateNombreCompleto);
@@ -898,87 +868,82 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ============================================================
-// AUTENTICACIÓN Y SEGURIDAD
+// AUTENTICACIÓN CON SUPABASE AUTH NATIVO
 // ============================================================
+async function checkSession() {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) {
+        const { data: userData } = await supabase
+            .from('usuarios')
+            .select('*')
+            .eq('auth_id', session.user.id)
+            .single();
+        if (userData) {
+            if (userData.estado === 'bloqueado') {
+                await supabase.auth.signOut();
+                showLoginAlert('Usuario bloqueado. Contacte al Super Administrador.', 'danger');
+                return;
+            }
+            currentUser = userData;
+            showApp();
+        }
+    }
+}
+
 async function handleLogin(e) {
     e.preventDefault();
     const username = document.getElementById('loginUsername').value.trim();
     const password = document.getElementById('loginPassword').value;
     showLoading(true);
+
     try {
-        const { data: user, error } = await supabase
+        const email = `${username}@epi.local`;
+        const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+            email,
+            password
+        });
+
+        if (authError) {
+            showLoginAlert('Usuario o contraseña incorrectos', 'danger');
+            showLoading(false);
+            return;
+        }
+
+        const { data: userData, error: userError } = await supabase
             .from('usuarios')
             .select('*')
-            .eq('username', username)
+            .eq('auth_id', authData.user.id)
             .single();
-        if (error || !user) {
-            showLoginAlert('Usuario no encontrado', 'danger');
-            showLoading(false); return;
+
+        if (userError || !userData) {
+            await supabase.auth.signOut();
+            showLoginAlert('Error obteniendo datos de usuario', 'danger');
+            showLoading(false);
+            return;
         }
-        if (user.estado === 'bloqueado') {
+
+        if (userData.estado === 'bloqueado') {
+            await supabase.auth.signOut();
             showLoginAlert('Usuario bloqueado. Contacte al Super Administrador.', 'danger');
-            showLoading(false); return;
+            showLoading(false);
+            return;
         }
-        if (user.tiempo_bloqueo_hasta && new Date(user.tiempo_bloqueo_hasta) > new Date()) {
-            const segRest = Math.ceil((new Date(user.tiempo_bloqueo_hasta) - new Date()) / 1000);
-            mostrarBloqueo(segRest);
-            showLoading(false); return;
-        }
-        // Verificar contraseña (en producción usar bcrypt)
-        if (password !== user.password_hash && password !== 'admin') {
-            const nuevosIntentos = (user.intentos_fallidos || 0) + 1;
-            const tiempoBloqueo = BLOQUEOS[nuevosIntentos];
-            if (tiempoBloqueo === 'permanente') {
-                await supabase.from('usuarios').update({
-                    estado: 'bloqueado', intentos_fallidos: nuevosIntentos,
-                    ultimo_intento_fallido: new Date().toISOString()
-                }).eq('id', user.id);
-                showLoginAlert('Usuario bloqueado permanentemente. Contacte al Super Administrador.', 'danger');
-            } else {
-                const bloqueoHasta = new Date(Date.now() + tiempoBloqueo * 1000).toISOString();
-                await supabase.from('usuarios').update({
-                    intentos_fallidos: nuevosIntentos,
-                    tiempo_bloqueo_hasta: bloqueoHasta,
-                    ultimo_intento_fallido: new Date().toISOString()
-                }).eq('id', user.id);
-                const mins = Math.ceil(tiempoBloqueo / 60);
-                showLoginAlert(`Contraseña incorrecta. Espere ${mins} minuto(s) antes de intentar nuevamente.`, 'warning');
-                mostrarBloqueo(tiempoBloqueo);
-            }
-            showLoading(false); return;
-        }
-        // Login exitoso
+
+        // Actualizar último acceso
         await supabase.from('usuarios').update({
-            intentos_fallidos: 0, tiempo_bloqueo_hasta: null,
-            ultimo_acceso: new Date().toISOString()
-        }).eq('id', user.id);
-        currentUser = user;
-        localStorage.setItem('epi_session', JSON.stringify({
-            user: user, expires: Date.now() + SESSION_TIMEOUT
-        }));
+            ultimo_acceso: new Date().toISOString(),
+            intentos_fallidos: 0
+        }).eq('id', userData.id);
+
+        currentUser = userData;
         showLoginAlert('¡Bienvenido!', 'success');
         setTimeout(() => showApp(), 500);
+
     } catch (err) {
         console.error('Error login:', err);
         showLoginAlert('Error de conexión. Intente nuevamente.', 'danger');
     }
     showLoading(false);
-}
-
-function mostrarBloqueo(segundos) {
-    document.getElementById('bloqueoContainer').classList.remove('hidden');
-    const timerEl = document.getElementById('bloqueoTimer');
-    let restante = segundos;
-    const interval = setInterval(() => {
-        restante--;
-        const mins = Math.floor(restante / 60);
-        const secs = restante % 60;
-        timerEl.textContent = `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
-        if (restante <= 0) {
-            clearInterval(interval);
-            document.getElementById('bloqueoContainer').classList.add('hidden');
-        }
-    }, 1000);
 }
 
 function showLoginAlert(message, type) {
@@ -987,34 +952,8 @@ function showLoginAlert(message, type) {
     setTimeout(() => alert.innerHTML = '', 5000);
 }
 
-// ============================================================
-// GESTIÓN DE SESIÓN
-// ============================================================
-function resetInactivityTimer() {
-    if (!currentUser) return;
-    clearTimeout(inactivityTimer);
-    clearTimeout(sessionWarningTimer);
-    document.getElementById('sessionWarning').classList.remove('active');
-    const session = JSON.parse(localStorage.getItem('epi_session') || '{}');
-    session.expires = Date.now() + SESSION_TIMEOUT;
-    localStorage.setItem('epi_session', JSON.stringify(session));
-    sessionWarningTimer = setTimeout(() => {
-        document.getElementById('sessionWarning').classList.add('active');
-        let countdown = 60;
-        const countdownEl = document.getElementById('sessionCountdown');
-        const interval = setInterval(() => {
-            countdown--;
-            countdownEl.textContent = countdown;
-            if (countdown <= 0) clearInterval(interval);
-        }, 1000);
-    }, SESSION_TIMEOUT - WARNING_TIME);
-    inactivityTimer = setTimeout(() => { logout(); }, SESSION_TIMEOUT);
-}
-
-function logout() {
-    clearTimeout(inactivityTimer);
-    clearTimeout(sessionWarningTimer);
-    localStorage.removeItem('epi_session');
+async function logout() {
+    await supabase.auth.signOut();
     currentUser = null;
     location.reload();
 }
@@ -1035,7 +974,6 @@ function showApp() {
     if (currentUser.rol === 'medico' && currentUser.consultorio_asignado) {
         document.getElementById('currentConsultorioTag').textContent = currentUser.consultorio_asignado;
     }
-    resetInactivityTimer();
     loadDashboard();
     loadConsultorios();
     loadCalendario();
@@ -1083,13 +1021,13 @@ async function loadDashboard() {
         document.getElementById('statPuerperas').textContent = puerperas;
         document.getElementById('statLactantes').textContent = lactantes;
         document.getElementById('statARO3').textContent = aro3;
-        // Gráfico consultorios
+
         const consultoriosCount = {};
         gestantesData.forEach(g => {
             consultoriosCount[g.consultorio] = (consultoriosCount[g.consultorio] || 0) + 1;
         });
         renderChart('chartConsultorios', 'bar', Object.keys(consultoriosCount), Object.values(consultoriosCount), 'Gestantes por Consultorio');
-        // Gráfico trimestres
+
         const trimestres = {'Primer Trimestre':0,'Segundo Trimestre':0,'Tercer Trimestre':0};
         gestantesData.forEach(g => {
             const sem = g.semanas_gestacion_total || 0;
@@ -1098,20 +1036,24 @@ async function loadDashboard() {
             else trimestres['Tercer Trimestre']++;
         });
         renderChart('chartTrimestres', 'pie', Object.keys(trimestres), Object.values(trimestres), 'Distribución por Trimestre');
-        // Tabla ARO III
+
         const aro3List = gestantesData.filter(g => g.aro === 'ARO III');
         const tbody = document.querySelector('#tableARO3 tbody');
-        tbody.innerHTML = aro3List.map(g => `
-            <tr>
-                <td>${g.cedula}</td>
-                <td>${g.nombres_apellidos}</td>
-                <td>${g.edad || '-'}</td>
-                <td>${g.consultorio}</td>
-                <td>${g.sem_gesta_texto || g.sem_gesta_manual || '-'}</td>
-                <td><span class="badge badge-aro3">${g.aro}</span></td>
-                <td>${g.observacion || '-'}</td>
-            </tr>
-        `).join('');
+        if (aro3List.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><i class="fas fa-check-circle"></i><p>No hay gestantes ARO III</p></td></tr>';
+        } else {
+            tbody.innerHTML = aro3List.map(g => `
+                <tr>
+                    <td>${g.cedula}</td>
+                    <td>${g.nombres_apellidos}</td>
+                    <td>${g.edad || '-'}</td>
+                    <td>${g.consultorio}</td>
+                    <td>${g.sem_gesta_texto || g.sem_gesta_manual || '-'}</td>
+                    <td><span class="badge badge-aro3">${g.aro}</span></td>
+                    <td>${g.observacion || '-'}</td>
+                </tr>
+            `).join('');
+        }
     } catch (err) {
         console.error('Error dashboard:', err);
     }
@@ -1145,6 +1087,7 @@ async function loadConsultorios() {
         const { data, error } = await supabase.from('consultorios').select('*').eq('activo', true);
         if (error) throw error;
         consultoriosList = data || [];
+        if (consultoriosList.length === 0) throw new Error('No hay consultorios');
         const nombres = consultoriosList.map(c => c.nombre);
         const selects = ['gConsultorio', 'filterConsultorio', 'uConsultorio'];
         selects.forEach(id => {
@@ -1176,3 +1119,636 @@ async function loadConsultorios() {
         });
     }
 }
+
+// ============================================================
+// GESTANTES
+// ============================================================
+async function loadGestantes() {
+    showLoading(true);
+    try {
+        let query = supabase.from('gestantes').select('*');
+        if (currentUser.rol === 'medico' && currentUser.consultorio_asignado) {
+            query = query.eq('consultorio', currentUser.consultorio_asignado);
+        }
+        const { data, error } = await query;
+        if (error) throw error;
+        gestantesData = data || [];
+        renderGestantesTable(gestantesData);
+    } catch (err) {
+        console.error('Error gestantes:', err);
+        showLoginAlert('Error cargando gestantes: ' + err.message, 'danger');
+    }
+    showLoading(false);
+}
+
+function renderGestantesTable(data) {
+    const tbody = document.querySelector('#tableGestantes tbody');
+    if (data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="10" class="empty-state"><i class="fas fa-inbox"></i><p>No hay gestantes registradas</p></td></tr>';
+        return;
+    }
+    tbody.innerHTML = data.map(g => {
+        const estadoBadge = {
+            'GESTANTE': 'badge-gestante',
+            'PUERPERA': 'badge-puerpera',
+            'LACTANTE': 'badge-lactante'
+        }[g.diagnostico_estado] || 'badge-gestante';
+        const aroBadge = {
+            'ARO I': 'badge-aro1',
+            'ARO II': 'badge-aro2',
+            'ARO III': 'badge-aro3'
+        }[g.aro] || '';
+        return `
+            <tr>
+                <td>${g.cedula}</td>
+                <td>${g.nombres_apellidos}</td>
+                <td>${g.edad || '-'}</td>
+                <td>${g.consultorio}</td>
+                <td>${g.sem_gesta_texto || g.sem_gesta_manual || '-'}</td>
+                <td>${g.fpp ? new Date(g.fpp).toLocaleDateString('es-VE') : '-'}</td>
+                <td><span class="badge ${estadoBadge}">${g.diagnostico_estado}</span></td>
+                <td><span class="badge ${aroBadge}">${g.aro || '-'}</span></td>
+                <td>${g.semana_epidemiologica || '-'}</td>
+                <td>
+                    <button class="btn btn-sm btn-info" onclick="editarGestante('${g.id}')" title="Editar"><i class="fas fa-edit"></i></button>
+                    ${currentUser.rol === 'super_admin' ? `<button class="btn btn-sm btn-danger" onclick="eliminarGestante('${g.id}')" title="Eliminar"><i class="fas fa-trash"></i></button>` : ''}
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function filterGestantes() {
+    const cedula = document.getElementById('filterCedula').value.toLowerCase();
+    const consultorio = document.getElementById('filterConsultorio').value;
+    const estado = document.getElementById('filterEstado').value;
+    const aro = document.getElementById('filterARO').value;
+    const filtered = gestantesData.filter(g => {
+        return (!cedula || g.cedula.toLowerCase().includes(cedula)) &&
+               (!consultorio || g.consultorio === consultorio) &&
+               (!estado || g.diagnostico_estado === estado) &&
+               (!aro || g.aro === aro);
+    });
+    renderGestantesTable(filtered);
+}
+
+function openModalGestante(id = null) {
+    document.getElementById('formGestante').reset();
+    document.getElementById('gestanteId').value = '';
+    document.getElementById('modalGestanteTitle').textContent = id ? 'Editar Gestante' : 'Nueva Gestante';
+    document.getElementById('gFechaRegistro').valueAsDate = new Date();
+    if (id) {
+        const g = gestantesData.find(x => x.id === id);
+        if (!g) return;
+        document.getElementById('gestanteId').value = g.id;
+        document.getElementById('gCedula').value = g.cedula;
+        document.getElementById('gConsultorio').value = g.consultorio;
+        document.getElementById('gFechaRegistro').value = g.fecha_registro;
+        document.getElementById('gApellidos').value = g.apellidos;
+        document.getElementById('gNombres').value = g.nombres;
+        document.getElementById('gNombresApellidos').value = g.nombres_apellidos;
+        document.getElementById('gFechaNacimiento').value = g.fecha_nacimiento;
+        document.getElementById('gEdad').value = g.edad;
+        document.getElementById('gDireccion').value = g.direccion || '';
+        document.getElementById('gCarnetPatria').checked = g.posee_carnet_patria;
+        document.getElementById('gTelefono').value = g.telefono || '';
+        document.getElementById('gTelefonoFamiliar').value = g.telefono_familiar || '';
+        document.getElementById('gFurDate').value = g.fur_date;
+        document.getElementById('gSemGestaManual').value = g.sem_gesta_manual || '';
+        document.getElementById('gSemGestaSugerida').value = g.sem_gesta_texto || '';
+        document.getElementById('gFpp').value = g.fpp;
+        document.getElementById('gFppSugerida').value = g.fpp ? new Date(g.fpp).toLocaleDateString('es-VE') : '';
+        document.getElementById('gPartos').value = g.num_partos || 0;
+        document.getElementById('gCesarias').value = g.num_cesarias || 0;
+        document.getElementById('gAbortos').value = g.num_abortos || 0;
+        document.getElementById('gGesta').value = g.num_gesta || 0;
+        document.getElementById('gControlPrenatal').checked = g.control_prenatal;
+        document.getElementById('gMicronutrientes').checked = g.recibe_micronutrientes;
+        document.getElementById('gConoceAsic').checked = g.conoce_asic;
+        document.getElementById('gPartoHumanizado').checked = g.inscrita_parto_humanizado;
+        document.getElementById('gTipoControl').value = g.tipo_control || '';
+        document.getElementById('gEnfermedad').checked = g.tiene_enfermedad;
+        document.getElementById('gEnfermedadCual').value = g.enfermedad_cual || '';
+        document.getElementById('gEnfermedadCual').disabled = !g.tiene_enfermedad;
+        document.getElementById('gAntecedentes').value = g.antecedentes_embarazos || '';
+        document.getElementById('gEtnia').checked = g.pertenece_etnia;
+        document.getElementById('gEtniaCual').value = g.etnia_cual || '';
+        document.getElementById('gEtniaCual').disabled = !g.pertenece_etnia;
+        document.getElementById('gMotivoConsulta').value = g.motivo_consulta;
+        document.getElementById('gTipoConsulta').value = g.tipo_consulta || 'Consult.';
+        document.getElementById('gDiagnostico').value = g.diagnostico || '';
+        document.getElementById('gAro').value = g.aro || '';
+        document.getElementById('gObservacion').value = g.observacion || '';
+        document.getElementById('gRefII').checked = g.referido_ii_nivel;
+        document.getElementById('gRefHosp').checked = g.referido_hospital;
+        calcularARO();
+    }
+    document.getElementById('modalGestante').classList.add('active');
+}
+
+function closeModal(id) {
+    document.getElementById(id).classList.remove('active');
+}
+
+async function guardarGestante() {
+    const id = document.getElementById('gestanteId').value;
+    const cedula = document.getElementById('gCedula').value.trim();
+    if (!cedula) { alert('La cédula es obligatoria'); return; }
+    const payload = {
+        cedula: cedula,
+        consultorio: document.getElementById('gConsultorio').value,
+        fecha_registro: document.getElementById('gFechaRegistro').value,
+        apellidos: document.getElementById('gApellidos').value.trim(),
+        nombres: document.getElementById('gNombres').value.trim(),
+        fecha_nacimiento: document.getElementById('gFechaNacimiento').value || null,
+        edad: parseInt(document.getElementById('gEdad').value) || null,
+        direccion: document.getElementById('gDireccion').value.trim() || null,
+        posee_carnet_patria: document.getElementById('gCarnetPatria').checked,
+        telefono: document.getElementById('gTelefono').value.trim() || null,
+        telefono_familiar: document.getElementById('gTelefonoFamiliar').value.trim() || null,
+        fur_date: document.getElementById('gFurDate').value || null,
+        sem_gesta_manual: document.getElementById('gSemGestaManual').value.trim() || null,
+        sem_gesta_texto: document.getElementById('gSemGestaSugerida').value || null,
+        fpp: document.getElementById('gFpp').value || null,
+        num_partos: parseInt(document.getElementById('gPartos').value) || 0,
+        num_cesarias: parseInt(document.getElementById('gCesarias').value) || 0,
+        num_abortos: parseInt(document.getElementById('gAbortos').value) || 0,
+        control_prenatal: document.getElementById('gControlPrenatal').checked,
+        tipo_control: document.getElementById('gTipoControl').value || null,
+        tiene_enfermedad: document.getElementById('gEnfermedad').checked,
+        enfermedad_cual: document.getElementById('gEnfermedadCual').value.trim() || null,
+        antecedentes_embarazos: document.getElementById('gAntecedentes').value.trim() || null,
+        recibe_micronutrientes: document.getElementById('gMicronutrientes').checked,
+        conoce_asic: document.getElementById('gConoceAsic').checked,
+        inscrita_parto_humanizado: document.getElementById('gPartoHumanizado').checked,
+        pertenece_etnia: document.getElementById('gEtnia').checked,
+        etnia_cual: document.getElementById('gEtniaCual').value.trim() || null,
+        motivo_consulta: document.getElementById('gMotivoConsulta').value,
+        tipo_consulta: document.getElementById('gTipoConsulta').value,
+        diagnostico: document.getElementById('gDiagnostico').value || null,
+        aro: document.getElementById('gAro').value || null,
+        observacion: document.getElementById('gObservacion').value.trim() || null,
+        referido_ii_nivel: document.getElementById('gRefII').checked,
+        referido_hospital: document.getElementById('gRefHosp').checked,
+        updated_by: currentUser.id
+    };
+    showLoading(true);
+    try {
+        let res;
+        if (id) {
+            res = await supabase.from('gestantes').update(payload).eq('id', id).select();
+        } else {
+            payload.created_by = currentUser.id;
+            res = await supabase.from('gestantes').insert([payload]).select();
+        }
+        if (res.error) throw res.error;
+        closeModal('modalGestante');
+        await loadGestantes();
+        await loadDashboard();
+        showLoginAlert(id ? 'Gestante actualizada correctamente' : 'Gestante registrada correctamente', 'success');
+    } catch (err) {
+        console.error('Error guardando gestante:', err);
+        alert('Error: ' + err.message);
+    }
+    showLoading(false);
+}
+
+async function editarGestante(id) {
+    openModalGestante(id);
+}
+
+async function eliminarGestante(id) {
+    if (!confirm('¿Está seguro de eliminar esta gestante? Esta acción no se puede deshacer.')) return;
+    showLoading(true);
+    try {
+        const { error } = await supabase.from('gestantes').delete().eq('id', id);
+        if (error) throw error;
+        await loadGestantes();
+        await loadDashboard();
+        showLoginAlert('Gestante eliminada correctamente', 'success');
+    } catch (err) {
+        console.error('Error eliminando:', err);
+        alert('Error: ' + err.message);
+    }
+    showLoading(false);
+}
+
+function updateNombreCompleto() {
+    const nombres = document.getElementById('gNombres').value.trim();
+    const apellidos = document.getElementById('gApellidos').value.trim();
+    document.getElementById('gNombresApellidos').value = (nombres + ' ' + apellidos).trim();
+}
+
+function calcularEdad() {
+    const fechaNac = document.getElementById('gFechaNacimiento').value;
+    if (!fechaNac) return;
+    const hoy = new Date();
+    const nac = new Date(fechaNac);
+    let edad = hoy.getFullYear() - nac.getFullYear();
+    const mes = hoy.getMonth() - nac.getMonth();
+    if (mes < 0 || (mes === 0 && hoy.getDate() < nac.getDate())) edad--;
+    document.getElementById('gEdad').value = edad;
+    calcularARO();
+}
+
+function calcularSugerencias() {
+    const furDate = document.getElementById('gFurDate').value;
+    if (!furDate) return;
+    const fur = new Date(furDate);
+    const hoy = new Date();
+    const diffTime = Math.abs(hoy - fur);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const semanas = Math.floor(diffDays / 7);
+    const dias = diffDays % 7;
+    const texto = dias > 0 ? `${semanas} SEMANAS Y ${dias} DIAS` : `${semanas} SEMANAS`;
+    document.getElementById('gSemGestaSugerida').value = texto;
+    const fpp = new Date(fur);
+    fpp.setDate(fpp.getDate() + 280);
+    document.getElementById('gFpp').valueAsDate = fpp;
+    document.getElementById('gFppSugerida').value = fpp.toLocaleDateString('es-VE');
+    updateDiagnostico();
+}
+
+function toggleFur() {
+    const incerto = document.getElementById('gFurIncerto').checked;
+    document.getElementById('gFurDate').disabled = incerto;
+    if (incerto) {
+        document.getElementById('gFurDate').value = '';
+        document.getElementById('gSemGestaSugerida').value = '';
+        document.getElementById('gFppSugerida').value = '';
+    }
+}
+
+function toggleTelefono() {
+    const noTel = document.getElementById('gNoTelefono').checked;
+    document.getElementById('gTelefono').disabled = noTel;
+    if (noTel) document.getElementById('gTelefono').value = '';
+}
+
+function calcularGesta() {
+    const p = parseInt(document.getElementById('gPartos').value) || 0;
+    const c = parseInt(document.getElementById('gCesarias').value) || 0;
+    const a = parseInt(document.getElementById('gAbortos').value) || 0;
+    document.getElementById('gGesta').value = p + c + a;
+}
+
+function calcularARO() {
+    const edad = parseInt(document.getElementById('gEdad').value) || 0;
+    const gesta = parseInt(document.getElementById('gGesta').value) || 0;
+    const cesarias = parseInt(document.getElementById('gCesarias').value) || 0;
+    const enfermedad = document.getElementById('gEnfermedad').checked;
+    let aro = 'ARO I';
+    if (edad >= 18 && edad <= 35 && gesta <= 3 && cesarias === 0 && !enfermedad) {
+        aro = 'ARO I';
+    } else if (edad > 40 || gesta > 5 || cesarias >= 2 || enfermedad) {
+        aro = 'ARO III';
+    } else {
+        aro = 'ARO II';
+    }
+    document.getElementById('gAro').value = aro;
+    updateDiagnostico();
+}
+
+function toggleEnfermedad() {
+    const checked = document.getElementById('gEnfermedad').checked;
+    document.getElementById('gEnfermedadCual').disabled = !checked;
+    if (!checked) document.getElementById('gEnfermedadCual').value = '';
+}
+
+function toggleEtnia() {
+    const checked = document.getElementById('gEtnia').checked;
+    document.getElementById('gEtniaCual').disabled = !checked;
+    if (!checked) document.getElementById('gEtniaCual').value = '';
+}
+
+function updateDiagnostico() {
+    const semManual = document.getElementById('gSemGestaManual').value;
+    const semSug = document.getElementById('gSemGestaSugerida').value;
+    const sem = semManual || semSug || '';
+    let diag = 'EMBARAZO';
+    if (sem) {
+        const match = sem.match(/(\\d+)/);
+        if (match) {
+            const numSem = parseInt(match[1]);
+            if (numSem <= 13) diag = 'EMBARAZO PRIMER TRIMESTRE';
+            else if (numSem <= 27) diag = 'EMBARAZO SEGUNDO TRIMESTRE';
+            else diag = 'EMBARAZO TERCER TRIMESTRE';
+        }
+    }
+    document.getElementById('gDiagnostico').value = diag;
+}
+
+function exportGestantesExcel() {
+    const data = gestantesData.map(g => ({
+        'Cédula': g.cedula,
+        'Apellidos': g.apellidos,
+        'Nombres': g.nombres,
+        'Consultorio': g.consultorio,
+        'Edad': g.edad,
+        'Teléfono': g.telefono,
+        'FUR': g.fur_date,
+        'Semanas Gestación': g.sem_gesta_texto || g.sem_gesta_manual,
+        'FPP': g.fpp,
+        'ARO': g.aro,
+        'Estado': g.diagnostico_estado,
+        'Dirección': g.direccion
+    }));
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Gestantes');
+    XLSX.writeFile(wb, 'Gestantes_EPI_' + new Date().toISOString().split('T')[0] + '.xlsx');
+}
+
+// ============================================================
+// REPORTE SEMANAL
+// ============================================================
+async function initReporteSemanal() {
+    showLoading(true);
+    try {
+        let query = supabase.from('gestantes').select('*');
+        if (currentUser.rol === 'medico' && currentUser.consultorio_asignado) {
+            query = query.eq('consultorio', currentUser.consultorio_asignado);
+        }
+        const { data, error } = await query;
+        if (error) throw error;
+        reporteSemanal = data || [];
+        renderReporteTable(reporteSemanal);
+    } catch (err) {
+        console.error('Error reporte:', err);
+    }
+    showLoading(false);
+}
+
+function renderReporteTable(data) {
+    const tbody = document.querySelector('#tableReporteSemanal tbody');
+    if (data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="19" class="empty-state"><i class="fas fa-inbox"></i><p>No hay registros</p></td></tr>';
+        return;
+    }
+    tbody.innerHTML = data.map((g, i) => `
+        <tr>
+            <td>${i + 1}</td>
+            <td>${g.consultorio}</td>
+            <td>${g.fecha_registro ? new Date(g.fecha_registro).toLocaleDateString('es-VE') : '-'}</td>
+            <td>${g.nombres_apellidos}</td>
+            <td>${g.edad || '-'}</td>
+            <td>${g.cedula}</td>
+            <td>${g.direccion || '-'}</td>
+            <td>${g.telefono || '-'}</td>
+            <td>${g.fur_date || '-'}</td>
+            <td>${g.sem_gesta_texto || g.sem_gesta_manual || '-'}</td>
+            <td>${g.num_gesta || 0}</td>
+            <td>${g.aro || '-'}</td>
+            <td>${g.motivo_consulta}</td>
+            <td>${g.diagnostico || '-'}</td>
+            <td>${g.tipo_consulta || '-'}</td>
+            <td>${g.referido_ii_nivel ? 'SÍ' : 'NO'}</td>
+            <td>${g.referido_hospital ? 'SÍ' : 'NO'}</td>
+            <td>${g.aro || '-'}</td>
+            <td>${g.observacion || '-'}</td>
+        </tr>
+    `).join('');
+}
+
+function buscarGestanteReporte() {
+    const cedula = document.getElementById('reporteCedula').value.trim();
+    if (!cedula) { alert('Ingrese una cédula'); return; }
+    const found = gestantesData.filter(g => g.cedula.includes(cedula));
+    renderReporteTable(found);
+    const resDiv = document.getElementById('reporteResultado');
+    resDiv.innerHTML = found.length > 0 
+        ? `<div class="alert alert-success"><i class="fas fa-check"></i> ${found.length} resultado(s) encontrado(s)</div>`
+        : `<div class="alert alert-warning"><i class="fas fa-exclamation-triangle"></i> No se encontraron resultados</div>`;
+}
+
+function exportReporteExcel() {
+    const data = reporteSemanal.map((g, i) => ({
+        'Nº': i + 1,
+        'Cp': g.consultorio,
+        'Fecha': g.fecha_registro,
+        'Nombre y Apellido': g.nombres_apellidos,
+        'Edad': g.edad,
+        'Cédula': g.cedula,
+        'Dirección': g.direccion,
+        'Teléfono': g.telefono,
+        'F.U.R': g.fur_date,
+        'Sem. Gesta': g.sem_gesta_texto || g.sem_gesta_manual,
+        'N° GESTA': g.num_gesta,
+        'Riesgo': g.aro,
+        'Motivo': g.motivo_consulta,
+        'Diagnóstico': g.diagnostico,
+        'Tipo': g.tipo_consulta,
+        'II Nivel': g.referido_ii_nivel ? 'SÍ' : 'NO',
+        'HOSP.': g.referido_hospital ? 'SÍ' : 'NO',
+        'A.R.O': g.aro,
+        'Observación': g.observacion
+    }));
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Reporte Semanal');
+    XLSX.writeFile(wb, 'Reporte_Semanal_EPI_' + new Date().toISOString().split('T')[0] + '.xlsx');
+}
+
+// ============================================================
+// CALENDARIO EPIDEMIOLÓGICO
+// ============================================================
+async function loadCalendario() {
+    showLoading(true);
+    try {
+        const { data, error } = await supabase.from('calendarios_epidemiologicos').select('*').eq('anio', 2026).order('semana', { ascending: true });
+        if (error) throw error;
+        const tbody = document.querySelector('#tableCalendario tbody');
+        if (!data || data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><i class="fas fa-calendar"></i><p>No hay calendario registrado</p></td></tr>';
+            showLoading(false); return;
+        }
+        tbody.innerHTML = data.map(c => {
+            const inicio = new Date(c.fecha_inicio).toLocaleDateString('es-VE');
+            const fin = new Date(c.fecha_fin).toLocaleDateString('es-VE');
+            const dias = Math.round((new Date(c.fecha_fin) - new Date(c.fecha_inicio)) / (1000*60*60*24)) + 1;
+            return `<tr><td>${c.semana}</td><td>${c.mes}</td><td>${inicio}</td><td>${fin}</td><td>${dias}</td></tr>`;
+        }).join('');
+    } catch (err) {
+        console.error('Error calendario:', err);
+    }
+    showLoading(false);
+}
+
+function openModalCalendario() {
+    document.getElementById('calAnio').value = new Date().getFullYear() + 1;
+    document.getElementById('calPrimerDomingo').value = '';
+    document.getElementById('modalCalendario').classList.add('active');
+}
+
+async function generarCalendario() {
+    const anio = parseInt(document.getElementById('calAnio').value);
+    const primerDomingo = document.getElementById('calPrimerDomingo').value;
+    if (!primerDomingo) { alert('Seleccione el primer domingo'); return; }
+    showLoading(true);
+    try {
+        const meses = ['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];
+        const registros = [];
+        let fechaInicio = new Date(primerDomingo);
+        for (let semana = 1; semana <= 52; semana++) {
+            let fechaFin = new Date(fechaInicio);
+            fechaFin.setDate(fechaFin.getDate() + 6);
+            registros.push({
+                anio: anio,
+                semana: semana,
+                fecha_inicio: fechaInicio.toISOString().split('T')[0],
+                fecha_fin: fechaFin.toISOString().split('T')[0],
+                mes: meses[fechaInicio.getMonth()]
+            });
+            fechaInicio = new Date(fechaFin);
+            fechaInicio.setDate(fechaInicio.getDate() + 1);
+        }
+        const { error } = await supabase.from('calendarios_epidemiologicos').insert(registros);
+        if (error) throw error;
+        closeModal('modalCalendario');
+        await loadCalendario();
+        showLoginAlert('Calendario generado correctamente', 'success');
+    } catch (err) {
+        console.error('Error generando calendario:', err);
+        alert('Error: ' + err.message);
+    }
+    showLoading(false);
+}
+
+// ============================================================
+// USUARIOS (Vía Edge Functions)
+// ============================================================
+async function loadUsuarios() {
+    showLoading(true);
+    try {
+        const { data: { session } } = await supabase.auth.getSession();
+        const res = await fetch(`${EDGE_BASE_URL}/list-users`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ requester_auth_id: session.user.id })
+        });
+        const result = await res.json();
+        if (!res.ok) throw new Error(result.error);
+        const tbody = document.querySelector('#tableUsuarios tbody');
+        if (!result.users || result.users.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><i class="fas fa-users"></i><p>No hay usuarios registrados</p></td></tr>';
+            showLoading(false); return;
+        }
+        tbody.innerHTML = result.users.map(u => `
+            <tr>
+                <td>${u.username}</td>
+                <td>${u.nombre_completo}</td>
+                <td>${u.rol}</td>
+                <td>${u.consultorio_asignado || '-'}</td>
+                <td><span class="badge ${u.estado === 'activo' ? 'badge-aro1' : 'badge-aro3'}">${u.estado}</span></td>
+                <td>${u.ultimo_acceso ? new Date(u.ultimo_acceso).toLocaleString('es-VE') : 'Nunca'}</td>
+                <td>
+                    <button class="btn btn-sm btn-info" onclick="editarUsuario('${u.id}')" title="Editar"><i class="fas fa-edit"></i></button>
+                    ${u.id !== currentUser.id ? `<button class="btn btn-sm btn-danger" onclick="eliminarUsuario('${u.id}')" title="Eliminar"><i class="fas fa-trash"></i></button>` : ''}
+                </td>
+            </tr>
+        `).join('');
+    } catch (err) {
+        console.error('Error usuarios:', err);
+        showLoginAlert('Error cargando usuarios: ' + err.message, 'danger');
+    }
+    showLoading(false);
+}
+
+function openModalUsuario(id = null) {
+    document.getElementById('formUsuario').reset();
+    document.getElementById('usuarioId').value = '';
+    document.getElementById('modalUsuarioTitle').textContent = id ? 'Editar Usuario' : 'Nuevo Usuario';
+    document.getElementById('uPassword').required = !id;
+    if (id) {
+        // Cargar datos para edición (simplificado)
+    }
+    document.getElementById('modalUsuario').classList.add('active');
+}
+
+function toggleConsultorio() {
+    const rol = document.getElementById('uRol').value;
+    const group = document.getElementById('uConsultorioGroup');
+    if (rol === 'super_admin') {
+        group.style.display = 'none';
+        document.getElementById('uConsultorio').value = '';
+    } else {
+        group.style.display = 'block';
+    }
+}
+
+async function guardarUsuario() {
+    const id = document.getElementById('usuarioId').value;
+    const username = document.getElementById('uUsername').value.trim();
+    const password = document.getElementById('uPassword').value;
+    const nombre = document.getElementById('uNombre').value.trim();
+    const rol = document.getElementById('uRol').value;
+    const consultorio = document.getElementById('uConsultorio').value;
+    const estado = document.getElementById('uEstado').value;
+    if (!username || !nombre || !rol) { alert('Complete los campos obligatorios'); return; }
+    if (!id && !password) { alert('La contraseña es obligatoria para nuevos usuarios'); return; }
+
+    showLoading(true);
+    try {
+        const { data: { session } } = await supabase.auth.getSession();
+        const endpoint = id ? `${EDGE_BASE_URL}/update-user` : `${EDGE_BASE_URL}/create-user`;
+        const payload = {
+            username, password, nombre_completo: nombre, rol,
+            consultorio_asignado: consultorio, estado,
+            requester_auth_id: session.user.id
+        };
+        if (id) payload.user_id = id;
+
+        const res = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const result = await res.json();
+        if (!res.ok) throw new Error(result.error);
+
+        closeModal('modalUsuario');
+        await loadUsuarios();
+        showLoginAlert(id ? 'Usuario actualizado' : 'Usuario creado correctamente', 'success');
+    } catch (err) {
+        console.error('Error guardando usuario:', err);
+        alert('Error: ' + err.message);
+    }
+    showLoading(false);
+}
+
+async function editarUsuario(id) {
+    alert('Función de edición en desarrollo. Puede eliminar y recrear el usuario.');
+}
+
+async function eliminarUsuario(id) {
+    if (!confirm('¿Eliminar este usuario permanentemente?')) return;
+    showLoading(true);
+    try {
+        const { data: { session } } = await supabase.auth.getSession();
+        const res = await fetch(`${EDGE_BASE_URL}/delete-user`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_id: id, requester_auth_id: session.user.id })
+        });
+        const result = await res.json();
+        if (!res.ok) throw new Error(result.error);
+        await loadUsuarios();
+        showLoginAlert('Usuario eliminado correctamente', 'success');
+    } catch (err) {
+        console.error('Error eliminando usuario:', err);
+        alert('Error: ' + err.message);
+    }
+    showLoading(false);
+}
+
+// ============================================================
+// UTILIDADES
+// ============================================================
+function showLoading(show) {
+    const el = document.getElementById('loadingOverlay');
+    if (show) el.classList.add('active');
+    else el.classList.remove('active');
+}
+</script>
+</body>
+</html>
