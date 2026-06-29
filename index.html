@@ -7,6 +7,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bcryptjs/2.4.3/bcrypt.min.js"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 <style>
 :root {
@@ -232,6 +233,7 @@ tr:hover{background:#f8f9fa}
 </style>
 </head>
 <body>
+
 <!-- LOGIN -->
 <div class="login-container" id="loginContainer">
 <div class="login-card">
@@ -828,12 +830,10 @@ tr:hover{background:#f8f9fa}
 
 <script>
 // ============================================================
-// CONFIGURACIÓN - ACTUALIZAR CON TUS DATOS
+// CONFIGURACIÓN - REEMPLAZAR CON TUS CREDENCIALES
 // ============================================================
 const SUPABASE_URL = 'https://kteybvyhgxfupnjoqhcf.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_w5XfH-wSppQo8JudvHkssg_8eIGYWWC';
-const EDGE_BASE_URL = 'https://kteybvyhgxfupnjoqhcf.supabase.co/functions/v1';
-
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // ============================================================
@@ -843,6 +843,11 @@ let currentUser = null;
 let gestantesData = [];
 let consultoriosList = [];
 let reporteSemanal = [];
+let inactivityTimer = null;
+let sessionWarningTimer = null;
+const SESSION_TIMEOUT = 30 * 60 * 1000;
+const WARNING_TIME = 60 * 1000;
+const BLOQUEOS = { 1: 60, 2: 180, 3: 300, 4: 'permanente' };
 const CONSULTORIOS_FALLBACK = [
     'ÁNGELA NEGRA ORTIZ (CAMAGUAN)','MURO CARRIZALERO (CAMAGUAN)','UVERITO',
     'ROMULO GALLEGO (CAMAGUAN)','JOSE GREGORIO (CAMAGUAN)','LAS MARIAS (CAMAGUAN)',
@@ -854,7 +859,23 @@ const CONSULTORIOS_FALLBACK = [
 // INICIALIZACIÓN
 // ============================================================
 document.addEventListener('DOMContentLoaded', () => {
-    checkSession();
+    const savedSession = localStorage.getItem('epi_session');
+    if (savedSession) {
+        try {
+            const session = JSON.parse(savedSession);
+            if (session.expires > Date.now()) {
+                currentUser = session.user;
+                showApp();
+            } else {
+                localStorage.removeItem('epi_session');
+            }
+        } catch(e) {
+            localStorage.removeItem('epi_session');
+        }
+    }
+    ['click','keypress','mousemove','scroll','touchstart'].forEach(e => {
+        document.addEventListener(e, resetInactivityTimer);
+    });
     document.getElementById('loginForm').addEventListener('submit', handleLogin);
     document.getElementById('gNombres').addEventListener('input', updateNombreCompleto);
     document.getElementById('gApellidos').addEventListener('input', updateNombreCompleto);
@@ -868,82 +889,88 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ============================================================
-// AUTENTICACIÓN CON SUPABASE AUTH NATIVO
+// AUTENTICACIÓN Y SEGURIDAD
 // ============================================================
-async function checkSession() {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session) {
-        const { data: userData } = await supabase
-            .from('usuarios')
-            .select('*')
-            .eq('auth_id', session.user.id)
-            .single();
-        if (userData) {
-            if (userData.estado === 'bloqueado') {
-                await supabase.auth.signOut();
-                showLoginAlert('Usuario bloqueado. Contacte al Super Administrador.', 'danger');
-                return;
-            }
-            currentUser = userData;
-            showApp();
-        }
-    }
-}
-
 async function handleLogin(e) {
     e.preventDefault();
     const username = document.getElementById('loginUsername').value.trim();
     const password = document.getElementById('loginPassword').value;
     showLoading(true);
-
     try {
-        const email = `${username}@epi.local`;
-        const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-            email,
-            password
-        });
-
-        if (authError) {
-            showLoginAlert('Usuario o contraseña incorrectos', 'danger');
-            showLoading(false);
-            return;
-        }
-
-        const { data: userData, error: userError } = await supabase
+        const { data: user, error } = await supabase
             .from('usuarios')
             .select('*')
-            .eq('auth_id', authData.user.id)
+            .eq('username', username)
             .single();
-
-        if (userError || !userData) {
-            await supabase.auth.signOut();
-            showLoginAlert('Error obteniendo datos de usuario', 'danger');
-            showLoading(false);
-            return;
+        if (error || !user) {
+            showLoginAlert('Usuario no encontrado', 'danger');
+            showLoading(false); return;
         }
-
-        if (userData.estado === 'bloqueado') {
-            await supabase.auth.signOut();
+        if (user.estado === 'bloqueado') {
             showLoginAlert('Usuario bloqueado. Contacte al Super Administrador.', 'danger');
-            showLoading(false);
-            return;
+            showLoading(false); return;
         }
-
-        // Actualizar último acceso
+        if (user.tiempo_bloqueo_hasta && new Date(user.tiempo_bloqueo_hasta) > new Date()) {
+            const segRest = Math.ceil((new Date(user.tiempo_bloqueo_hasta) - new Date()) / 1000);
+            mostrarBloqueo(segRest);
+            showLoading(false); return;
+        }
+        // Verificar contraseña con bcrypt
+        const validPassword = dcodeIO.bcrypt.compareSync(password, user.password_hash);
+        if (!validPassword) {
+            const nuevosIntentos = (user.intentos_fallidos || 0) + 1;
+            const tiempoBloqueo = BLOQUEOS[nuevosIntentos];
+            if (tiempoBloqueo === 'permanente') {
+                await supabase.from('usuarios').update({
+                    estado: 'bloqueado', intentos_fallidos: nuevosIntentos,
+                    ultimo_intento_fallido: new Date().toISOString()
+                }).eq('id', user.id);
+                showLoginAlert('Usuario bloqueado permanentemente. Contacte al Super Administrador.', 'danger');
+            } else {
+                const bloqueoHasta = new Date(Date.now() + tiempoBloqueo * 1000).toISOString();
+                await supabase.from('usuarios').update({
+                    intentos_fallidos: nuevosIntentos,
+                    tiempo_bloqueo_hasta: bloqueoHasta,
+                    ultimo_intento_fallido: new Date().toISOString()
+                }).eq('id', user.id);
+                const mins = Math.ceil(tiempoBloqueo / 60);
+                showLoginAlert(`Contraseña incorrecta. Espere ${mins} minuto(s) antes de intentar nuevamente.`, 'warning');
+                mostrarBloqueo(tiempoBloqueo);
+            }
+            showLoading(false); return;
+        }
+        // Login exitoso
         await supabase.from('usuarios').update({
-            ultimo_acceso: new Date().toISOString(),
-            intentos_fallidos: 0
-        }).eq('id', userData.id);
-
-        currentUser = userData;
+            intentos_fallidos: 0, tiempo_bloqueo_hasta: null,
+            ultimo_acceso: new Date().toISOString()
+        }).eq('id', user.id);
+        currentUser = user;
+        localStorage.setItem('epi_session', JSON.stringify({
+            user: user, expires: Date.now() + SESSION_TIMEOUT
+        }));
         showLoginAlert('¡Bienvenido!', 'success');
         setTimeout(() => showApp(), 500);
-
     } catch (err) {
         console.error('Error login:', err);
         showLoginAlert('Error de conexión. Intente nuevamente.', 'danger');
     }
     showLoading(false);
+}
+
+function mostrarBloqueo(segundos) {
+    document.getElementById('bloqueoContainer').classList.remove('hidden');
+    const timerEl = document.getElementById('bloqueoTimer');
+    let restante = segundos;
+    const interval = setInterval(() => {
+        restante--;
+        const mins = Math.floor(restante / 60);
+        const secs = restante % 60;
+        timerEl.textContent = `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+        if (restante <= 0) {
+            clearInterval(interval);
+            document.getElementById('bloqueoContainer').classList.add('hidden');
+        }
+    }, 1000);
 }
 
 function showLoginAlert(message, type) {
@@ -952,8 +979,34 @@ function showLoginAlert(message, type) {
     setTimeout(() => alert.innerHTML = '', 5000);
 }
 
-async function logout() {
-    await supabase.auth.signOut();
+// ============================================================
+// GESTIÓN DE SESIÓN
+// ============================================================
+function resetInactivityTimer() {
+    if (!currentUser) return;
+    clearTimeout(inactivityTimer);
+    clearTimeout(sessionWarningTimer);
+    document.getElementById('sessionWarning').classList.remove('active');
+    const session = JSON.parse(localStorage.getItem('epi_session') || '{}');
+    session.expires = Date.now() + SESSION_TIMEOUT;
+    localStorage.setItem('epi_session', JSON.stringify(session));
+    sessionWarningTimer = setTimeout(() => {
+        document.getElementById('sessionWarning').classList.add('active');
+        let countdown = 60;
+        const countdownEl = document.getElementById('sessionCountdown');
+        const interval = setInterval(() => {
+            countdown--;
+            countdownEl.textContent = countdown;
+            if (countdown <= 0) clearInterval(interval);
+        }, 1000);
+    }, SESSION_TIMEOUT - WARNING_TIME);
+    inactivityTimer = setTimeout(() => { logout(); }, SESSION_TIMEOUT);
+}
+
+function logout() {
+    clearTimeout(inactivityTimer);
+    clearTimeout(sessionWarningTimer);
+    localStorage.removeItem('epi_session');
     currentUser = null;
     location.reload();
 }
@@ -974,6 +1027,7 @@ function showApp() {
     if (currentUser.rol === 'medico' && currentUser.consultorio_asignado) {
         document.getElementById('currentConsultorioTag').textContent = currentUser.consultorio_asignado;
     }
+    resetInactivityTimer();
     loadDashboard();
     loadConsultorios();
     loadCalendario();
@@ -1023,6 +1077,10 @@ async function loadDashboard() {
         document.getElementById('statARO3').textContent = aro3;
 
         const consultoriosCount = {};
+        gestantesData.forEach(g => {
+            consultoriosCount[g.consultorio] =
+    // ... (continuación desde donde se cortó)
+
         gestantesData.forEach(g => {
             consultoriosCount[g.consultorio] = (consultoriosCount[g.consultorio] || 0) + 1;
         });
@@ -1427,7 +1485,7 @@ function updateDiagnostico() {
     const sem = semManual || semSug || '';
     let diag = 'EMBARAZO';
     if (sem) {
-        const match = sem.match(/(\\d+)/);
+        const match = sem.match(/(\d+)/);
         if (match) {
             const numSem = parseInt(match[1]);
             if (numSem <= 13) diag = 'EMBARAZO PRIMER TRIMESTRE';
@@ -1615,25 +1673,19 @@ async function generarCalendario() {
 }
 
 // ============================================================
-// USUARIOS (Vía Edge Functions)
+// USUARIOS
 // ============================================================
 async function loadUsuarios() {
     showLoading(true);
     try {
-        const { data: { session } } = await supabase.auth.getSession();
-        const res = await fetch(`${EDGE_BASE_URL}/list-users`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ requester_auth_id: session.user.id })
-        });
-        const result = await res.json();
-        if (!res.ok) throw new Error(result.error);
+        const { data, error } = await supabase.from('usuarios').select('*').order('created_at', { ascending: false });
+        if (error) throw error;
         const tbody = document.querySelector('#tableUsuarios tbody');
-        if (!result.users || result.users.length === 0) {
+        if (!data || data.length === 0) {
             tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><i class="fas fa-users"></i><p>No hay usuarios registrados</p></td></tr>';
             showLoading(false); return;
         }
-        tbody.innerHTML = result.users.map(u => `
+        tbody.innerHTML = data.map(u => `
             <tr>
                 <td>${u.username}</td>
                 <td>${u.nombre_completo}</td>
@@ -1649,7 +1701,6 @@ async function loadUsuarios() {
         `).join('');
     } catch (err) {
         console.error('Error usuarios:', err);
-        showLoginAlert('Error cargando usuarios: ' + err.message, 'danger');
     }
     showLoading(false);
 }
@@ -1686,26 +1737,25 @@ async function guardarUsuario() {
     const estado = document.getElementById('uEstado').value;
     if (!username || !nombre || !rol) { alert('Complete los campos obligatorios'); return; }
     if (!id && !password) { alert('La contraseña es obligatoria para nuevos usuarios'); return; }
-
     showLoading(true);
     try {
-        const { data: { session } } = await supabase.auth.getSession();
-        const endpoint = id ? `${EDGE_BASE_URL}/update-user` : `${EDGE_BASE_URL}/create-user`;
         const payload = {
-            username, password, nombre_completo: nombre, rol,
-            consultorio_asignado: consultorio, estado,
-            requester_auth_id: session.user.id
+            username: username,
+            nombre_completo: nombre,
+            rol: rol,
+            consultorio_asignado: rol === 'super_admin' ? null : (consultorio || null),
+            estado: estado
         };
-        if (id) payload.user_id = id;
-
-        const res = await fetch(endpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
-        const result = await res.json();
-        if (!res.ok) throw new Error(result.error);
-
+        if (password) {
+            payload.password_hash = dcodeIO.bcrypt.hashSync(password, 10);
+        }
+        let res;
+        if (id) {
+            res = await supabase.from('usuarios').update(payload).eq('id', id).select();
+        } else {
+            res = await supabase.from('usuarios').insert([payload]).select();
+        }
+        if (res.error) throw res.error;
         closeModal('modalUsuario');
         await loadUsuarios();
         showLoginAlert(id ? 'Usuario actualizado' : 'Usuario creado correctamente', 'success');
@@ -1724,14 +1774,8 @@ async function eliminarUsuario(id) {
     if (!confirm('¿Eliminar este usuario permanentemente?')) return;
     showLoading(true);
     try {
-        const { data: { session } } = await supabase.auth.getSession();
-        const res = await fetch(`${EDGE_BASE_URL}/delete-user`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ user_id: id, requester_auth_id: session.user.id })
-        });
-        const result = await res.json();
-        if (!res.ok) throw new Error(result.error);
+        const { error } = await supabase.from('usuarios').delete().eq('id', id);
+        if (error) throw error;
         await loadUsuarios();
         showLoginAlert('Usuario eliminado correctamente', 'success');
     } catch (err) {
