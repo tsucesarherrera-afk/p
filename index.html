@@ -3,950 +3,310 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EPI - Ruta Materna | Consultorio Popular Puerto Miranda</title>
+<title>EPI - Ruta Materna | Diagnóstico de Login</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
   * { font-family: 'Inter', sans-serif; }
-  body { background: #f3f4f6; }
-  .sidebar { transition: all 0.3s; }
   .glass { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); }
-  .card-hover { transition: transform 0.2s, box-shadow 0.2s; }
-  .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); }
-  .fade-in { animation: fadeIn 0.4s ease-in; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-  .trimester-1 { border-left: 4px solid #10b981; }
-  .trimester-2 { border-left: 4px solid #3b82f6; }
-  .trimester-3 { border-left: 4px solid #f59e0b; }
-  .puerpera { border-left: 4px solid #8b5cf6; }
-  .lactante { border-left: 4px solid #ec4899; }
-  .aro-1 { background: #d1fae5; color: #065f46; }
-  .aro-2 { background: #fef3c7; color: #92400e; }
-  .aro-3 { background: #fee2e2; color: #991b1b; }
-  .spinner { border: 3px solid #f3f3f3; border-top: 3px solid #3b82f6; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
-  @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-  .modal-overlay { background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
-  .table-container { overflow-x: auto; }
-  ::-webkit-scrollbar { width: 8px; height: 8px; }
-  ::-webkit-scrollbar-track { background: #f1f1f1; }
-  ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
-  ::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+  .log-line { font-family: monospace; font-size: 12px; padding: 2px 0; }
+  .log-error { color: #dc2626; }
+  .log-success { color: #16a34a; }
+  .log-info { color: #2563eb; }
+  .log-warn { color: #ca8a04; }
 </style>
 <base target="_blank">
 </head>
-<body class="text-gray-800">
+<body class="bg-gradient-to-br from-blue-600 to-indigo-800 min-h-screen">
 
-<!-- LOGIN -->
-<div id="loginScreen" class="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-blue-600 to-indigo-800">
-  <div class="glass rounded-2xl shadow-2xl p-8 w-full max-w-md mx-4">
-    <div class="text-center mb-6">
-      <div class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 text-white text-2xl">
-        <i class="fas fa-hospital"></i>
-      </div>
-      <h1 class="text-2xl font-bold text-gray-800">EPI - Ruta Materna</h1>
-      <p class="text-sm text-gray-500 mt-1">Consultorio Popular Tipo II Puerto Miranda</p>
-      <p class="text-xs text-gray-400">Camaguán, Guárico, Venezuela</p>
+<div class="max-w-4xl mx-auto p-6">
+  <!-- HEADER -->
+  <div class="text-center mb-8 pt-8">
+    <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-4 text-blue-600 text-3xl shadow-lg">
+      <i class="fas fa-hospital"></i>
     </div>
+    <h1 class="text-3xl font-bold text-white">EPI - Ruta Materna</h1>
+    <p class="text-blue-100 mt-2">Consultorio Popular Tipo II Puerto Miranda</p>
+    <p class="text-blue-200 text-sm">Camaguán, Guárico, Venezuela</p>
+  </div>
+
+  <!-- CONFIGURACIÓN SUPABASE -->
+  <div class="glass rounded-2xl shadow-2xl p-6 mb-6">
+    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+      <i class="fas fa-cog text-blue-600"></i> 1. Configuración de Supabase
+    </h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Supabase URL</label>
+        <input type="text" id="supabaseUrl" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="https://tu-proyecto.supabase.co" value="">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Anon Key</label>
+        <input type="text" id="supabaseKey" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-xs" placeholder="eyJhbGciOiJIUzI1NiIs..." value="">
+      </div>
+    </div>
+    <button onclick="guardarConfig()" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition">
+      <i class="fas fa-save mr-2"></i>Guardar Configuración
+    </button>
+    <div id="configStatus" class="mt-2 text-sm"></div>
+  </div>
+
+  <!-- DIAGNÓSTICO -->
+  <div class="glass rounded-2xl shadow-2xl p-6 mb-6">
+    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+      <i class="fas fa-stethoscope text-green-600"></i> 2. Diagnóstico del Sistema
+    </h2>
+    <button onclick="ejecutarDiagnostico()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition mb-4">
+      <i class="fas fa-play mr-2"></i>Ejecutar Diagnóstico Completo
+    </button>
+    <div id="diagnosticoLog" class="bg-gray-900 text-gray-100 rounded-lg p-4 max-h-64 overflow-y-auto font-mono text-xs">
+      <p class="text-gray-500">Presiona "Ejecutar Diagnóstico" para verificar el sistema...</p>
+    </div>
+  </div>
+
+  <!-- LOGIN NORMAL -->
+  <div class="glass rounded-2xl shadow-2xl p-6 mb-6">
+    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+      <i class="fas fa-sign-in-alt text-blue-600"></i> 3. Login Normal
+    </h2>
     <form id="loginForm" class="space-y-4">
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Correo electrónico</label>
-        <input type="email" id="loginEmail" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="usuario@ejemplo.com" required>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+        <input type="email" id="loginEmail" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="usuario@ejemplo.com">
       </div>
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
-        <input type="password" id="loginPassword" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="••••••••" required>
+        <input type="password" id="loginPassword" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="••••••••">
       </div>
-      <button type="submit" id="loginBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition flex items-center justify-center gap-2">
-        <span>Ingresar al Sistema</span>
+      <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition">
+        Ingresar al Sistema
       </button>
     </form>
-    <div id="loginError" class="hidden mt-4 p-3 bg-red-50 text-red-700 text-sm rounded-lg border border-red-200"></div>
-    <div class="mt-4 text-center text-xs text-gray-400">
-      <p>¿Primera vez? Contacte al Super Administrador</p>
-    </div>
+    <div id="loginResult" class="mt-4 p-3 rounded-lg hidden"></div>
   </div>
-</div>
 
-<!-- APP -->
-<div id="appScreen" class="hidden min-h-screen flex">
-  <!-- Sidebar -->
-  <aside id="sidebar" class="sidebar w-64 bg-white border-r border-gray-200 flex-shrink-0 fixed h-full z-30 overflow-y-auto">
-    <div class="p-6 border-b border-gray-100">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white">
-          <i class="fas fa-hospital"></i>
-        </div>
-        <div>
-          <h2 class="font-bold text-gray-800 text-sm leading-tight">EPI Ruta Materna</h2>
-          <p class="text-xs text-gray-400">Puerto Miranda</p>
-        </div>
-      </div>
-    </div>
-    <nav class="p-4 space-y-1">
-      <button onclick="showSection('dashboard')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 transition" data-section="dashboard">
-        <i class="fas fa-chart-pie w-5"></i> Dashboard
-      </button>
-      <button onclick="showSection('gestantes')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 transition" data-section="gestantes">
-        <i class="fas fa-female w-5"></i> Gestantes
-      </button>
-      <button onclick="showSection('controlSemanal')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 transition" data-section="controlSemanal">
-        <i class="fas fa-calendar-week w-5"></i> Control Semanal
-      </button>
-      <button onclick="showSection('puerperas')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 transition" data-section="puerperas">
-        <i class="fas fa-baby w-5"></i> Puérperas / Lactantes
-      </button>
-      <button onclick="showSection('archivados')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 transition" data-section="archivados">
-        <i class="fas fa-archive w-5"></i> Archivados / Abortos
-      </button>
-      <button id="menuUsuarios" onclick="showSection('usuarios')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 transition hidden" data-section="usuarios">
-        <i class="fas fa-users-cog w-5"></i> Usuarios
-      </button>
-      <button id="menuCalendarios" onclick="showSection('calendarios')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 transition hidden" data-section="calendarios">
-        <i class="fas fa-calendar-alt w-5"></i> Calendarios Epi.
-      </button>
-      <button onclick="showSection('backup')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 transition" data-section="backup">
-        <i class="fas fa-database w-5"></i> Backup / Restore
-      </button>
-    </nav>
-    <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100 bg-white">
-      <div class="flex items-center gap-3 mb-3">
-        <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-gray-600 text-xs">
-          <i class="fas fa-user"></i>
-        </div>
-        <div class="flex-1 min-w-0">
-          <p id="userName" class="text-sm font-medium text-gray-800 truncate">Usuario</p>
-          <p id="userRole" class="text-xs text-gray-400 truncate">Rol</p>
-        </div>
-      </div>
-      <button onclick="logout()" class="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition">
-        <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
-      </button>
-    </div>
-  </aside>
-
-  <!-- Main Content -->
-  <main class="flex-1 ml-64">
-    <!-- Top Bar -->
-    <header class="bg-white border-b border-gray-200 px-8 py-4 flex items-center justify-between sticky top-0 z-20">
+  <!-- SOLUCIÓN DE EMERGENCIA -->
+  <div class="glass rounded-2xl shadow-2xl p-6 mb-6 border-2 border-orange-400">
+    <h2 class="text-xl font-bold text-orange-700 mb-4 flex items-center gap-2">
+      <i class="fas fa-exclamation-triangle"></i> 4. Solución de Emergencia (Bypass)
+    </h2>
+    <p class="text-sm text-gray-600 mb-4">
+      Si el login normal no funciona (por ejemplo, el usuario no está confirmado o hay problemas con el trigger), 
+      usa esta opción para ingresar directamente como Super Admin. 
+      <strong class="text-red-600">Solo para recuperación de emergencia.</strong>
+    </p>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
       <div>
-        <h1 id="pageTitle" class="text-xl font-bold text-gray-800">Dashboard</h1>
-        <p id="pageSubtitle" class="text-sm text-gray-500">Resumen general del sistema</p>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Email del Super Admin</label>
+        <input type="email" id="bypassEmail" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" placeholder="superadmin@ejemplo.com">
       </div>
-      <div class="flex items-center gap-4">
-        <div class="text-right">
-          <p id="currentDate" class="text-sm font-medium text-gray-700"></p>
-          <p id="currentEpiWeek" class="text-xs text-blue-600 font-medium"></p>
-        </div>
-        <button onclick="toggleSidebar()" class="lg:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-lg">
-          <i class="fas fa-bars"></i>
-        </button>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Service Role Key (opcional)</label>
+        <input type="text" id="serviceKey" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none text-xs" placeholder="eyJhbGciOiJIUzI1NiIs... (solo si tienes)">
       </div>
-    </header>
-
-    <div class="p-8">
-      <!-- DASHBOARD -->
-      <section id="dashboard" class="section fade-in">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 card-hover">
-            <div class="flex items-center justify-between mb-4">
-              <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600">
-                <i class="fas fa-female text-xl"></i>
-              </div>
-              <span class="text-xs font-medium text-gray-400">Total</span>
-            </div>
-            <h3 id="dashTotal" class="text-2xl font-bold text-gray-800">0</h3>
-            <p class="text-sm text-gray-500 mt-1">Gestantes Activas</p>
-          </div>
-          <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 card-hover">
-            <div class="flex items-center justify-between mb-4">
-              <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center text-purple-600">
-                <i class="fas fa-baby text-xl"></i>
-              </div>
-              <span class="text-xs font-medium text-gray-400">Total</span>
-            </div>
-            <h3 id="dashPuerperas" class="text-2xl font-bold text-gray-800">0</h3>
-            <p class="text-sm text-gray-500 mt-1">Puérperas / Lactantes</p>
-          </div>
-          <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 card-hover">
-            <div class="flex items-center justify-between mb-4">
-              <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center text-green-600">
-                <i class="fas fa-child text-xl"></i>
-              </div>
-              <span class="text-xs font-medium text-gray-400">< 18 años</span>
-            </div>
-            <h3 id="dashMenores" class="text-2xl font-bold text-gray-800">0</h3>
-            <p class="text-sm text-gray-500 mt-1">Embarazos Juveniles</p>
-          </div>
-          <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 card-hover">
-            <div class="flex items-center justify-between mb-4">
-              <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center text-orange-600">
-                <i class="fas fa-calendar-check text-xl"></i>
-              </div>
-              <span class="text-xs font-medium text-gray-400">Semana</span>
-            </div>
-            <h3 id="dashSemanaEpi" class="text-2xl font-bold text-gray-800">-</h3>
-            <p class="text-sm text-gray-500 mt-1">Epidemiológica Actual</p>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-            <h3 class="font-bold text-gray-800 mb-4">Distribución por Trimestre</h3>
-            <canvas id="chartTrimestres" height="200"></canvas>
-          </div>
-          <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-            <h3 class="font-bold text-gray-800 mb-4">Distribución por Consultorio</h3>
-            <canvas id="chartConsultorios" height="200"></canvas>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 lg:col-span-2">
-            <h3 class="font-bold text-gray-800 mb-4">Gestantes por Riesgo (ARO)</h3>
-            <canvas id="chartARO" height="150"></canvas>
-          </div>
-          <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-            <h3 class="font-bold text-gray-800 mb-4">Registros Recientes</h3>
-            <div id="recentRecords" class="space-y-3 max-h-64 overflow-y-auto">
-              <p class="text-sm text-gray-400 text-center py-4">Cargando...</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- GESTANTES -->
-      <section id="gestantes" class="section hidden fade-in">
-        <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
-          <div class="flex items-center gap-3">
-            <div class="relative">
-              <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-              <input type="text" id="searchGestante" oninput="filterGestantes()" placeholder="Buscar por cédula, nombre..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none w-72">
-            </div>
-            <select id="filterConsultorio" onchange="filterGestantes()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-              <option value="">Todos los consultorios</option>
-            </select>
-            <select id="filterEstado" onchange="filterGestantes()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-              <option value="">Todos los estados</option>
-              <option value="gestante">Gestante</option>
-              <option value="puerpera">Puérpera</option>
-              <option value="lactante">Lactante</option>
-            </select>
-          </div>
-          <button onclick="openGestanteModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition">
-            <i class="fas fa-plus"></i> Nueva Embarazada
-          </button>
-        </div>
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <div class="table-container">
-            <table class="w-full text-sm">
-              <thead class="bg-gray-50 text-gray-600 font-medium">
-                <tr>
-                  <th class="px-4 py-3 text-left">Cédula</th>
-                  <th class="px-4 py-3 text-left">Nombre y Apellido</th>
-                  <th class="px-4 py-3 text-left">Edad</th>
-                  <th class="px-4 py-3 text-left">Consultorio</th>
-                  <th class="px-4 py-3 text-left">Sem. Gesta.</th>
-                  <th class="px-4 py-3 text-left">FPP</th>
-                  <th class="px-4 py-3 text-left">Estado</th>
-                  <th class="px-4 py-3 text-left">ARO</th>
-                  <th class="px-4 py-3 text-center">Acciones</th>
-                </tr>
-              </thead>
-              <tbody id="gestantesTable" class="divide-y divide-gray-100">
-              </tbody>
-            </table>
-          </div>
-          <div id="gestantesEmpty" class="hidden p-8 text-center text-gray-400">
-            <i class="fas fa-inbox text-4xl mb-2"></i>
-            <p>No hay registros</p>
-          </div>
-        </div>
-      </section>
-
-      <!-- CONTROL SEMANAL -->
-      <section id="controlSemanal" class="section hidden fade-in">
-        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mb-6">
-          <div class="flex flex-wrap items-end gap-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Semana Epidemiológica</label>
-              <select id="semanaEpiSelect" onchange="loadControlSemanal()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-                <option value="">Seleccione semana</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Año</label>
-              <select id="anioEpiSelect" onchange="loadSemanasDisponibles()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-                <option value="2026">2026</option>
-              </select>
-            </div>
-            <button onclick="generarReporteSemanal()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition">
-              <i class="fas fa-file-medical"></i> Generar Reporte
-            </button>
-            <button onclick="exportarExcelSemanal()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition">
-              <i class="fas fa-file-excel"></i> Exportar Excel
-            </button>
-          </div>
-        </div>
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <div class="table-container">
-            <table class="w-full text-sm">
-              <thead class="bg-gray-50 text-gray-600 font-medium">
-                <tr>
-                  <th class="px-4 py-3 text-left">Nº</th>
-                  <th class="px-4 py-3 text-left">CP</th>
-                  <th class="px-4 py-3 text-left">Fecha</th>
-                  <th class="px-4 py-3 text-left">Nombre y Apellido</th>
-                  <th class="px-4 py-3 text-left">Edad</th>
-                  <th class="px-4 py-3 text-left">Cédula</th>
-                  <th class="px-4 py-3 text-left">Dirección</th>
-                  <th class="px-4 py-3 text-left">Teléfono</th>
-                  <th class="px-4 py-3 text-left">F.U.R</th>
-                  <th class="px-4 py-3 text-left">Sem. Gesta.</th>
-                  <th class="px-4 py-3 text-left">N° Gesta</th>
-                  <th class="px-4 py-3 text-left">Riesgo</th>
-                  <th class="px-4 py-3 text-left">Motivo</th>
-                  <th class="px-4 py-3 text-left">Diagnóstico</th>
-                  <th class="px-4 py-3 text-left">Tipo</th>
-                  <th class="px-4 py-3 text-left">Referido</th>
-                  <th class="px-4 py-3 text-left">Observación</th>
-                  <th class="px-4 py-3 text-center">Acciones</th>
-                </tr>
-              </thead>
-              <tbody id="controlTable" class="divide-y divide-gray-100">
-              </tbody>
-            </table>
-          </div>
-          <div id="controlEmpty" class="hidden p-8 text-center text-gray-400">
-            <i class="fas fa-calendar-week text-4xl mb-2"></i>
-            <p>Seleccione una semana epidemiológica</p>
-          </div>
-        </div>
-      </section>
-
-      <!-- PUÉRPERAS / LACTANTES -->
-      <section id="puerperas" class="section hidden fade-in">
-        <div class="flex items-center justify-between mb-6">
-          <div class="relative">
-            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-            <input type="text" id="searchPuerpera" oninput="filterPuerperas()" placeholder="Buscar..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none w-72">
-          </div>
-        </div>
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <div class="table-container">
-            <table class="w-full text-sm">
-              <thead class="bg-gray-50 text-gray-600 font-medium">
-                <tr>
-                  <th class="px-4 py-3 text-left">Cédula</th>
-                  <th class="px-4 py-3 text-left">Nombre</th>
-                  <th class="px-4 py-3 text-left">Consultorio</th>
-                  <th class="px-4 py-3 text-left">Fecha Parto</th>
-                  <th class="px-4 py-3 text-left">Días Postparto</th>
-                  <th class="px-4 py-3 text-left">Estado</th>
-                  <th class="px-4 py-3 text-left">ARO</th>
-                  <th class="px-4 py-3 text-center">Acciones</th>
-                </tr>
-              </thead>
-              <tbody id="puerperasTable" class="divide-y divide-gray-100">
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      <!-- ARCHIVADOS -->
-      <section id="archivados" class="section hidden fade-in">
-        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-          <h3 class="font-bold text-gray-800 mb-4">Registros Archivados (Abortos / Cierre)</h3>
-          <div class="table-container">
-            <table class="w-full text-sm">
-              <thead class="bg-gray-50 text-gray-600 font-medium">
-                <tr>
-                  <th class="px-4 py-3 text-left">Cédula</th>
-                  <th class="px-4 py-3 text-left">Apellidos</th>
-                  <th class="px-4 py-3 text-left">Nombres</th>
-                  <th class="px-4 py-3 text-left">Motivo Archivo</th>
-                  <th class="px-4 py-3 text-left">Fecha Archivo</th>
-                  <th class="px-4 py-3 text-center">Acciones</th>
-                </tr>
-              </thead>
-              <tbody id="archivadosTable" class="divide-y divide-gray-100">
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      <!-- USUARIOS -->
-      <section id="usuarios" class="section hidden fade-in">
-        <div class="flex items-center justify-between mb-6">
-          <h3 class="font-bold text-gray-800">Gestión de Usuarios</h3>
-          <button onclick="openUserModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition">
-            <i class="fas fa-user-plus"></i> Nuevo Usuario
-          </button>
-        </div>
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <table class="w-full text-sm">
-            <thead class="bg-gray-50 text-gray-600 font-medium">
-              <tr>
-                <th class="px-4 py-3 text-left">Correo</th>
-                <th class="px-4 py-3 text-left">Nombre</th>
-                <th class="px-4 py-3 text-left">Rol</th>
-                <th class="px-4 py-3 text-left">Consultorio</th>
-                <th class="px-4 py-3 text-left">Estado</th>
-                <th class="px-4 py-3 text-center">Acciones</th>
-              </tr>
-            </thead>
-            <tbody id="usersTable" class="divide-y divide-gray-100">
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <!-- CALENDARIOS -->
-      <section id="calendarios" class="section hidden fade-in">
-        <div class="flex items-center justify-between mb-6">
-          <h3 class="font-bold text-gray-800">Calendarios Epidemiológicos</h3>
-          <button onclick="openCalendarioModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition">
-            <i class="fas fa-calendar-plus"></i> Agregar Año
-          </button>
-        </div>
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-          <div id="calendariosList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          </div>
-        </div>
-      </section>
-
-      <!-- BACKUP / RESTORE -->
-      <section id="backup" class="section hidden fade-in">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-            <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
-              <i class="fas fa-download text-blue-600"></i> Backup Encriptado
-            </h3>
-            <p class="text-sm text-gray-500 mb-4">Exporta todos los datos del sistema en un archivo JSON encriptado.</p>
-            <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 mb-1">Clave de encriptación</label>
-              <input type="password" id="backupKey" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Mínimo 8 caracteres">
-            </div>
-            <button onclick="backupData()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg transition">
-              Descargar Backup (.epi)
-            </button>
-          </div>
-          <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-            <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
-              <i class="fas fa-upload text-green-600"></i> Restore Encriptado
-            </h3>
-            <p class="text-sm text-gray-500 mb-4">Restaura los datos desde un archivo de backup encriptado.</p>
-            <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 mb-1">Archivo .epi</label>
-              <input type="file" id="restoreFile" accept=".epi,.json" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-            </div>
-            <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 mb-1">Clave de encriptación</label>
-              <input type="password" id="restoreKey" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ingrese la clave">
-            </div>
-            <button onclick="restoreData()" class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg transition">
-              Restaurar Datos
-            </button>
-          </div>
-        </div>
-        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mt-6">
-          <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <i class="fas fa-file-excel text-green-600"></i> Importar / Exportar Excel
-          </h3>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <p class="text-sm text-gray-500 mb-3">Exportar datos de gestantes a Excel encriptado.</p>
-              <div class="mb-3">
-                <input type="password" id="excelKey" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Clave para encriptar Excel">
-              </div>
-              <button onclick="exportarExcel()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition">
-                <i class="fas fa-file-export mr-2"></i>Exportar Excel
-              </button>
-            </div>
-            <div>
-              <p class="text-sm text-gray-500 mb-3">Importar gestantes desde Excel.</p>
-              <input type="file" id="excelImport" accept=".xlsx,.xls" class="w-full px-4 py-2 border border-gray-300 rounded-lg mb-3">
-              <button onclick="importarExcel()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition">
-                <i class="fas fa-file-import mr-2"></i>Importar Excel
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
     </div>
-  </main>
-</div>
-
-<!-- MODAL GESTANTE -->
-<div id="gestanteModal" class="fixed inset-0 z-50 hidden">
-  <div class="modal-overlay absolute inset-0" onclick="closeGestanteModal()"></div>
-  <div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-y-auto pointer-events-auto">
-      <div class="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between z-10">
-        <h2 id="gestanteModalTitle" class="text-xl font-bold text-gray-800">Nueva Embarazada</h2>
-        <button onclick="closeGestanteModal()" class="text-gray-400 hover:text-gray-600 text-xl"><i class="fas fa-times"></i></button>
-      </div>
-      <form id="gestanteForm" class="p-6 space-y-6">
-        <input type="hidden" id="gestanteId">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Cédula de Identidad</label>
-            <input type="text" id="gCedula" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Nombres</label>
-            <input type="text" id="gNombres" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Apellidos</label>
-            <input type="text" id="gApellidos" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
-          </div>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Fecha de Nacimiento</label>
-            <input type="date" id="gFechaNac" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Edad</label>
-            <input type="number" id="gEdad" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" min="10" max="80">
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
-            <input type="text" id="gTelefono" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-          </div>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Consultorio</label>
-            <select id="gConsultorio" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
-              <option value="">Seleccione...</option>
-              <option>ÁNGELA NEGRA ORTIZ (CAMAGUAN)</option>
-              <option>MURO CARRIZALERO (CAMAGUAN)</option>
-              <option>UVERITO</option>
-              <option>ROMULO GALLEGO (CAMAGUAN)</option>
-              <option>JOSE GREGORIO (CAMAGUAN)</option>
-              <option>LAS MARIAS (CAMAGUAN)</option>
-              <option>LA NEGRA</option>
-              <option>PUERTO MIRANDA</option>
-              <option>CAMPITO (CAMAGUAN)</option>
-              <option>SOMBRERITO</option>
-              <option>LA ROMPIA (CAMAGUAN)</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Dirección</label>
-            <input type="text" id="gDireccion" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Carnet de la Patria</label>
-            <select id="gCarnet" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-              <option value="">Seleccione...</option>
-              <option value="SI">SI</option>
-              <option value="NO">NO</option>
-            </select>
-          </div>
-        </div>
-        <div class="border-t border-gray-100 pt-4">
-          <h4 class="font-semibold text-gray-700 mb-3">Datos Obstétricos</h4>
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">F.U.R</label>
-              <input type="date" id="gFur" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">N° P (Partos)</label>
-              <input type="number" id="gNP" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" min="0">
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">N° C (Cesáreas)</label>
-              <input type="number" id="gNC" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" min="0">
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">N° A (Abortos)</label>
-              <input type="number" id="gNA" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" min="0">
-            </div>
-          </div>
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">N° G (Gestas)</label>
-              <input type="number" id="gNG" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" min="0">
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Sem. Gestación (calculada)</label>
-              <input type="text" id="gSemGesta" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50" readonly>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">FPP</label>
-              <input type="date" id="gFpp" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50" readonly>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">ARO</label>
-              <select id="gAro" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-                <option value="">Ninguno</option>
-                <option value="I">ARO I</option>
-                <option value="II">ARO II</option>
-                <option value="III">ARO III</option>
-              </select>
-            </div>
-          </div>
-        </div>
-        <div class="border-t border-gray-100 pt-4">
-          <h4 class="font-semibold text-gray-700 mb-3">Información Adicional</h4>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Control Prenatal</label>
-              <select id="gControlPre" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-                <option value="SI">SI</option>
-                <option value="NO">NO</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">¿Dónde?</label>
-              <select id="gDonde" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-                <option value="PUBLICO">PÚBLICO</option>
-                <option value="PRIVADO">PRIVADO</option>
-                <option value="AMBOS">AMBOS</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Enfermedad Asociada</label>
-              <select id="gEnfermedad" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-                <option value="NO">NO</option>
-                <option value="SI">SI</option>
-              </select>
-            </div>
-          </div>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">¿Cuál Enfermedad?</label>
-              <input type="text" id="gCualEnf" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Micronutrientes</label>
-              <select id="gMicro" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-                <option value="NO">NO</option>
-                <option value="SI">SI</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Conoce ASIC</label>
-              <select id="gAsic" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-                <option value="SI">SI</option>
-                <option value="NO">NO</option>
-              </select>
-            </div>
-          </div>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Parto Humanizado</label>
-              <select id="gPartoHum" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-                <option value="NO">NO</option>
-                <option value="SI">SI</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Etnia/Grupo Social</label>
-              <input type="text" id="gEtnia" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Antecedentes Importantes</label>
-              <input type="text" id="gAntecedentes" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-            </div>
-          </div>
-        </div>
-        <div class="border-t border-gray-100 pt-4">
-          <h4 class="font-semibold text-gray-700 mb-3">Última Consulta</h4>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Motivo de Consulta</label>
-              <select id="gMotivo" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-                <option value="CAPTACION">CAPTACIÓN</option>
-                <option value="CONTROL">CONTROL</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Diagnóstico</label>
-              <input type="text" id="gDiagnostico" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Consulta</label>
-              <select id="gTipoConsulta" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-                <option value="Emergencia">Emergencia</option>
-                <option value="Consulta">Consulta</option>
-                <option value="II NIVEL">II NIVEL</option>
-                <option value="HOSP.">HOSP.</option>
-                <option value="A.R.O">A.R.O</option>
-              </select>
-            </div>
-          </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Referido</label>
-              <input type="text" id="gReferido" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Observación</label>
-              <input type="text" id="gObservacion" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-            </div>
-          </div>
-        </div>
-        <div class="border-t border-gray-100 pt-4">
-          <h4 class="font-semibold text-gray-700 mb-3">Acciones Especiales</h4>
-          <div class="flex flex-wrap gap-3">
-            <button type="button" onclick="marcarPuerpera()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm transition">
-              <i class="fas fa-baby mr-2"></i>Marcar como Puérpera / Lactante
-            </button>
-            <button type="button" onclick="marcarAborto()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm transition">
-              <i class="fas fa-archive mr-2"></i>Archivar (Aborto / Cierre)
-            </button>
-            <button type="button" onclick="nuevoEmbarazo()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm transition">
-              <i class="fas fa-plus-circle mr-2"></i>Nuevo Embarazo (Reactivar)
-            </button>
-          </div>
-        </div>
-        <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
-          <button type="button" onclick="closeGestanteModal()" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition">Cancelar</button>
-          <button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">Guardar</button>
-        </div>
-      </form>
-    </div>
+    <button onclick="bypassLogin()" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2.5 rounded-lg transition">
+      <i class="fas fa-key mr-2"></i>Ingresar como Super Admin (Bypass)
+    </button>
+    <div id="bypassResult" class="mt-4 p-3 rounded-lg hidden"></div>
   </div>
-</div>
 
-<!-- MODAL USUARIO -->
-<div id="userModal" class="fixed inset-0 z-50 hidden">
-  <div class="modal-overlay absolute inset-0" onclick="closeUserModal()"></div>
-  <div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md pointer-events-auto">
-      <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-        <h2 class="text-xl font-bold text-gray-800">Nuevo Usuario</h2>
-        <button onclick="closeUserModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+  <!-- INSTRUCCIONES RÁPIDAS -->
+  <div class="glass rounded-2xl shadow-2xl p-6">
+    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+      <i class="fas fa-book text-purple-600"></i> Guía Rápida de Solución
+    </h2>
+    <div class="space-y-3 text-sm text-gray-700">
+      <div class="flex items-start gap-3">
+        <span class="w-6 h-6 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">1</span>
+        <p><strong>Verifica que las credenciales estén correctas</strong> en los campos de arriba (URL y Anon Key de tu proyecto Supabase).</p>
       </div>
-      <form id="userForm" class="p-6 space-y-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Correo Electrónico</label>
-          <input type="email" id="uEmail" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Nombre Completo</label>
-          <input type="text" id="uNombre" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Contraseña Temporal</label>
-          <input type="password" id="uPassword" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required minlength="6">
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Rol</label>
-          <select id="uRol" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
-            <option value="medico">Médico / Usuario</option>
-            <option value="admin">Administrador</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Consultorio Asignado</label>
-          <select id="uConsultorio" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-            <option value="">Ninguno (Todos)</option>
-            <option>ÁNGELA NEGRA ORTIZ (CAMAGUAN)</option>
-            <option>MURO CARRIZALERO (CAMAGUAN)</option>
-            <option>UVERITO</option>
-            <option>ROMULO GALLEGO (CAMAGUAN)</option>
-            <option>JOSE GREGORIO (CAMAGUAN)</option>
-            <option>LAS MARIAS (CAMAGUAN)</option>
-            <option>LA NEGRA</option>
-            <option>PUERTO MIRANDA</option>
-            <option>CAMPITO (CAMAGUAN)</option>
-            <option>SOMBRERITO</option>
-            <option>LA ROMPIA (CAMAGUAN)</option>
-          </select>
-        </div>
-        <div class="flex justify-end gap-3 pt-4">
-          <button type="button" onclick="closeUserModal()" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Cancelar</button>
-          <button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">Crear Usuario</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL CALENDARIO -->
-<div id="calendarioModal" class="fixed inset-0 z-50 hidden">
-  <div class="modal-overlay absolute inset-0" onclick="closeCalendarioModal()"></div>
-  <div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md pointer-events-auto">
-      <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-        <h2 class="text-xl font-bold text-gray-800">Agregar Calendario Epidemiológico</h2>
-        <button onclick="closeCalendarioModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+      <div class="flex items-start gap-3">
+        <span class="w-6 h-6 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">2</span>
+        <p><strong>El usuario debe estar confirmado:</strong> En Supabase Dashboard → Authentication → Users, verifica que tu usuario tenga un check verde (confirmed). Si no, haz click en los 3 puntos → "Confirm email".</p>
       </div>
-      <form id="calendarioForm" class="p-6 space-y-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Año</label>
-          <input type="number" id="cAnio" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required min="2024" max="2100">
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Fecha Inicio Semana 1 (Domingo)</label>
-          <input type="date" id="cFechaInicio" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
-        </div>
-        <p class="text-xs text-gray-500">El sistema generará automáticamente 52 semanas (domingo a sábado).</p>
-        <div class="flex justify-end gap-3 pt-4">
-          <button type="button" onclick="closeCalendarioModal()" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Cancelar</button>
-          <button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">Generar Calendario</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL CONTROL SEMANAL EDIT -->
-<div id="controlEditModal" class="fixed inset-0 z-50 hidden">
-  <div class="modal-overlay absolute inset-0" onclick="closeControlEditModal()"></div>
-  <div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg pointer-events-auto">
-      <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-        <h2 class="text-xl font-bold text-gray-800">Editar Control Semanal</h2>
-        <button onclick="closeControlEditModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+      <div class="flex items-start gap-3">
+        <span class="w-6 h-6 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">3</span>
+        <p><strong>Verifica que el trigger exista:</strong> En SQL Editor ejecuta: <code class="bg-gray-100 px-1 rounded">SELECT * FROM pg_trigger WHERE tgname = 'on_auth_user_created';</code></p>
       </div>
-      <form id="controlEditForm" class="p-6 space-y-4">
-        <input type="hidden" id="ceId">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Semana de Gestación</label>
-          <input type="text" id="ceSemGesta" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Motivo de Consulta</label>
-          <select id="ceMotivo" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-            <option value="CAPTACION">CAPTACIÓN</option>
-            <option value="CONTROL">CONTROL</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Diagnóstico</label>
-          <input type="text" id="ceDiagnostico" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Consulta</label>
-          <select id="ceTipo" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-            <option value="Emergencia">Emergencia</option>
-            <option value="Consulta">Consulta</option>
-            <option value="II NIVEL">II NIVEL</option>
-            <option value="HOSP.">HOSP.</option>
-            <option value="A.R.O">A.R.O</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Referido</label>
-          <input type="text" id="ceReferido" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Observación</label>
-          <input type="text" id="ceObservacion" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-        </div>
-        <div class="flex justify-end gap-3 pt-4">
-          <button type="button" onclick="closeControlEditModal()" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Cancelar</button>
-          <button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">Guardar Cambios</button>
-        </div>
-      </form>
+      <div class="flex items-start gap-3">
+        <span class="w-6 h-6 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">4</span>
+        <p><strong>Verifica que el perfil existe:</strong> Ejecuta: <code class="bg-gray-100 px-1 rounded">SELECT * FROM public.profiles;</code> Debe aparecer tu email con role='superadmin'.</p>
+      </div>
+      <div class="flex items-start gap-3">
+        <span class="w-6 h-6 bg-orange-100 text-orange-700 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">!</span>
+        <p><strong>Si todo falla:</strong> Usa la "Solución de Emergencia" arriba para ingresar directamente y luego crea un nuevo usuario desde el panel de Supabase.</p>
+      </div>
     </div>
-  </div>
-</div>
-
-<!-- TOAST -->
-<div id="toast" class="fixed bottom-4 right-4 z-50 transform translate-y-20 opacity-0 transition-all duration-300">
-  <div class="bg-gray-800 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3">
-    <i id="toastIcon" class="fas fa-check-circle text-green-400"></i>
-    <span id="toastMessage">Operación exitosa</span>
   </div>
 </div>
 
 <script>
-// ==================== CONFIGURACIÓN SUPABASE ====================
-// REEMPLACE ESTOS VALORES CON LOS DE SU PROYECTO SUPABASE
-const SUPABASE_URL = 'https://kwvltqnxirdnxoshgcge.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_Ua7O9tt7sz2G-I2MOWXA1Q_jsJEoPfA';
+// ==================== CONFIGURACIÓN ====================
+let supabase = null;
+let supabaseUrl = localStorage.getItem('https://kwvltqnxirdnxoshgcge.supabase.co') || '';
+let supabaseKey = localStorage.getItem('sb_publishable_Ua7O9tt7sz2G-I2MOWXA1Q_jsJEoPfA') || '';
 
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+document.getElementById('supabaseUrl').value = supabaseUrl;
+document.getElementById('supabaseKey').value = supabaseKey;
 
-// ==================== VARIABLES GLOBALES ====================
-let currentUser = null;
-let currentProfile = null;
-let gestantesData = [];
-let controlData = [];
-let usersData = [];
-let calendariosData = [];
-let charts = {};
+function guardarConfig() {
+  supabaseUrl = document.getElementById('supabaseUrl').value.trim();
+  supabaseKey = document.getElementById('supabaseKey').value.trim();
+  localStorage.setItem('sb_url', supabaseUrl);
+  localStorage.setItem('sb_key', supabaseKey);
+  document.getElementById('configStatus').innerHTML = '<span class="text-green-600"><i class="fas fa-check-circle"></i> Configuración guardada</span>';
+  initSupabase();
+}
 
-const CONSULTORIOS = [
-  'ÁNGELA NEGRA ORTIZ (CAMAGUAN)',
-  'MURO CARRIZALERO (CAMAGUAN)',
-  'UVERITO',
-  'ROMULO GALLEGO (CAMAGUAN)',
-  'JOSE GREGORIO (CAMAGUAN)',
-  'LAS MARIAS (CAMAGUAN)',
-  'LA NEGRA',
-  'PUERTO MIRANDA',
-  'CAMPITO (CAMAGUAN)',
-  'SOMBRERITO',
-  'LA ROMPIA (CAMAGUAN)'
-];
-
-// ==================== CALENDARIO EPIDEMIOLÓGICO 2026 GUÁRICO ====================
-// Basado en la imagen: Semana 1 = 04-10 enero 2026 (domingo a sábado)
-function generarCalendario2026() {
-  const semanas = [];
-  const inicio = new Date(2026, 0, 4); // 4 de enero 2026 (domingo)
-  for (let i = 1; i <= 52; i++) {
-    const ini = new Date(inicio);
-    ini.setDate(inicio.getDate() + (i - 1) * 7);
-    const fin = new Date(ini);
-    fin.setDate(ini.getDate() + 6);
-    semanas.push({
-      semana: i,
-      fecha_inicio: ini.toISOString().split('T')[0],
-      fecha_fin: fin.toISOString().split('T')[0]
-    });
+function initSupabase() {
+  if (supabaseUrl && supabaseKey) {
+    try {
+      supabase = supabase.createClient(supabaseUrl, supabaseKey);
+      return true;
+    } catch (e) {
+      log('ERROR inicializando Supabase: ' + e.message, 'error');
+      return false;
+    }
   }
-  return semanas;
+  return false;
 }
 
-function getSemanaEpidemiologica(fecha, calendario) {
-  if (!fecha || !calendario || calendario.length === 0) return null;
-  const f = new Date(fecha);
-  f.setHours(0, 0, 0, 0);
-  for (const sem of calendario) {
-    const ini = new Date(sem.fecha_inicio + 'T00:00:00');
-    const fin = new Date(sem.fecha_fin + 'T00:00:00');
-    fin.setHours(23, 59, 59, 999);
-    if (f >= ini && f <= fin) return sem.semana;
+// ==================== DIAGNÓSTICO ====================
+function log(msg, type = 'info') {
+  const div = document.getElementById('diagnosticoLog');
+  const line = document.createElement('div');
+  line.className = `log-line log-${type}`;
+  line.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+  div.appendChild(line);
+  div.scrollTop = div.scrollHeight;
+}
+
+async function ejecutarDiagnostico() {
+  const div = document.getElementById('diagnosticoLog');
+  div.innerHTML = '';
+
+  log('=== INICIANDO DIAGNÓSTICO ===', 'info');
+
+  // 1. Verificar config
+  if (!supabaseUrl || !supabaseKey) {
+    log('ERROR: No hay URL o Key configurados. Ingresa tus credenciales arriba.', 'error');
+    return;
   }
-  return null;
+  log('✓ Credenciales configuradas', 'success');
+
+  // 2. Inicializar
+  if (!initSupabase()) {
+    log('ERROR: No se pudo inicializar Supabase', 'error');
+    return;
+  }
+  log('✓ Cliente Supabase inicializado', 'success');
+
+  // 3. Verificar conexión
+  try {
+    const { data, error } = await supabase.from('profiles').select('count').limit(1);
+    if (error) {
+      log('✗ No se puede conectar a la tabla profiles: ' + error.message, 'error');
+      log('  Posible causa: El SQL no fue ejecutado o RLS bloquea el acceso', 'warn');
+    } else {
+      log('✓ Conexión a base de datos OK', 'success');
+    }
+  } catch (e) {
+    log('✗ Error de conexión: ' + e.message, 'error');
+  }
+
+  // 4. Verificar sesión actual
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session) {
+    log('✓ Hay sesión activa: ' + session.user.email, 'success');
+    log('  User ID: ' + session.user.id, 'info');
+  } else {
+    log('✗ No hay sesión activa', 'warn');
+  }
+
+  // 5. Verificar tabla profiles
+  try {
+    const { data: profiles, error } = await supabase.from('profiles').select('*');
+    if (error) {
+      log('✗ Error consultando profiles: ' + error.message, 'error');
+    } else {
+      log('✓ Tabla profiles accesible. Registros: ' + profiles.length, 'success');
+      profiles.forEach(p => {
+        log(`  → ${p.email} | rol: ${p.role} | activo: ${p.activo}`, 'info');
+      });
+    }
+  } catch (e) {
+    log('✗ Error: ' + e.message, 'error');
+  }
+
+  // 6. Verificar tabla gestantes
+  try {
+    const { data, error } = await supabase.from('gestantes').select('count').limit(1);
+    if (error) {
+      log('✗ Tabla gestantes no accesible: ' + error.message, 'error');
+    } else {
+      log('✓ Tabla gestantes OK', 'success');
+    }
+  } catch (e) {
+    log('✗ Error gestantes: ' + e.message, 'error');
+  }
+
+  // 7. Verificar calendarios
+  try {
+    const { data, error } = await supabase.from('calendarios_epidemiologicos').select('count').limit(1);
+    if (error) {
+      log('✗ Tabla calendarios no accesible: ' + error.message, 'error');
+    } else {
+      log('✓ Tabla calendarios OK', 'success');
+    }
+  } catch (e) {
+    log('✗ Error calendarios: ' + e.message, 'error');
+  }
+
+  // 8. Verificar trigger
+  try {
+    const { data, error } = await supabase.rpc('check_trigger_exists');
+    // Si no existe la función RPC, intentamos otra forma
+    log('ℹ Para verificar triggers, ejecuta en SQL Editor:', 'info');
+    log('   SELECT * FROM pg_trigger WHERE tgname = \'on_auth_user_created\';', 'info');
+  } catch (e) {
+    log('ℹ Verificar trigger manualmente en SQL Editor', 'info');
+  }
+
+  log('=== DIAGNÓSTICO COMPLETADO ===', 'info');
 }
 
-function getCurrentSemanaEpidemiologica() {
-  const hoy = new Date();
-  const cal2026 = generarCalendario2026();
-  return getSemanaEpidemiologica(hoy, cal2026) || '-';
-}
-
-// ==================== AUTH ====================
+// ==================== LOGIN NORMAL ====================
 document.getElementById('loginForm').addEventListener('submit', async (e) => {
   e.preventDefault();
+  const resultDiv = document.getElementById('loginResult');
+  resultDiv.classList.remove('hidden');
+
+  if (!initSupabase()) {
+    resultDiv.innerHTML = '<div class="bg-red-50 text-red-700 p-3 rounded">Primero guarda la configuración de Supabase arriba</div>';
+    return;
+  }
+
   const email = document.getElementById('loginEmail').value.trim();
   const password = document.getElementById('loginPassword').value;
-  const btn = document.getElementById('loginBtn');
-  const errorDiv = document.getElementById('loginError');
 
-  btn.innerHTML = '<div class="spinner"></div>';
-  btn.disabled = true;
+  resultDiv.innerHTML = '<div class="text-blue-600"><i class="fas fa-spinner fa-spin mr-2"></i>Verificando credenciales...</div>';
 
   try {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) throw error;
+
+    if (error) {
+      let msg = error.message;
+      if (msg.includes('Email not confirmed') || msg.includes('not confirmed')) {
+        msg = 'El email no está confirmado. Ve a Supabase Dashboard → Authentication → Users, busca tu usuario y haz click en "Confirm email".';
+      } else if (msg.includes('Invalid login credentials')) {
+        msg = 'Email o contraseña incorrectos. Verifica que el usuario exista en Authentication → Users.';
+      }
+      resultDiv.innerHTML = `<div class="bg-red-50 text-red-700 p-3 rounded"><strong>Error:</strong> ${msg}</div>`;
+      return;
+    }
 
     // Verificar perfil
     const { data: profile, error: pError } = await supabase
@@ -956,998 +316,95 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
       .single();
 
     if (pError || !profile) {
-      await supabase.auth.signOut();
-      throw new Error('Usuario no tiene perfil asignado en el sistema');
+      resultDiv.innerHTML = '<div class="bg-orange-50 text-orange-700 p-3 rounded">Usuario autenticado pero NO tiene perfil en el sistema. El trigger no funcionó. Usa la "Solución de Emergencia" abajo.</div>';
+      return;
     }
 
     if (!profile.activo) {
-      await supabase.auth.signOut();
-      throw new Error('Usuario desactivado. Contacte al administrador');
+      resultDiv.innerHTML = '<div class="bg-red-50 text-red-700 p-3 rounded">Usuario desactivado. Contacte al administrador.</div>';
+      return;
     }
 
-    currentUser = data.user;
-    currentProfile = profile;
-    initApp();
-  } catch (err) {
-    errorDiv.textContent = err.message;
-    errorDiv.classList.remove('hidden');
-  } finally {
-    btn.innerHTML = '<span>Ingresar al Sistema</span>';
-    btn.disabled = false;
-  }
-});
-
-async function logout() {
-  await supabase.auth.signOut();
-  location.reload();
-}
-
-// ==================== INICIALIZACIÓN ====================
-async function initApp() {
-  document.getElementById('loginScreen').classList.add('hidden');
-  document.getElementById('appScreen').classList.remove('hidden');
-
-  document.getElementById('userName').textContent = currentProfile.nombre || currentUser.email;
-  document.getElementById('userRole').textContent = getRoleName(currentProfile.role);
-
-  // Mostrar menús según rol
-  if (currentProfile.role === 'superadmin') {
-    document.getElementById('menuUsuarios').classList.remove('hidden');
-    document.getElementById('menuCalendarios').classList.remove('hidden');
-  } else if (currentProfile.role === 'admin') {
-    document.getElementById('menuUsuarios').classList.add('hidden');
-    document.getElementById('menuCalendarios').classList.add('hidden');
-  } else {
-    document.getElementById('menuUsuarios').classList.add('hidden');
-    document.getElementById('menuCalendarios').classList.add('hidden');
-  }
-
-  // Fecha actual
-  const opciones = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-  document.getElementById('currentDate').textContent = new Date().toLocaleDateString('es-VE', opciones);
-  document.getElementById('currentEpiWeek').textContent = 'SE ' + getCurrentSemanaEpidemiologica();
-
-  // Cargar calendarios
-  await loadCalendarios();
-
-  // Cargar datos
-  await loadGestantes();
-  await loadUsers();
-
-  // Inicializar selects
-  initConsultoriosSelects();
-  initSemanasSelect();
-
-  showSection('dashboard');
-}
-
-function getRoleName(role) {
-  const map = { superadmin: 'Super Administrador', admin: 'Administrador', medico: 'Médico' };
-  return map[role] || role;
-}
-
-function initConsultoriosSelects() {
-  const selects = ['filterConsultorio', 'gConsultorio', 'uConsultorio'];
-  selects.forEach(id => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    if (id === 'filterConsultorio') {
-      el.innerHTML = '<option value="">Todos los consultorios</option>';
-    }
-    CONSULTORIOS.forEach(c => {
-      const opt = document.createElement('option');
-      opt.value = c;
-      opt.textContent = c;
-      el.appendChild(opt);
-    });
-  });
-}
-
-function initSemanasSelect() {
-  const sel = document.getElementById('semanaEpiSelect');
-  sel.innerHTML = '<option value="">Seleccione semana</option>';
-  for (let i = 1; i <= 52; i++) {
-    const opt = document.createElement('option');
-    opt.value = i;
-    const cal = generarCalendario2026().find(s => s.semana === i);
-    opt.textContent = `SE ${i} (${cal.fecha_inicio} al ${cal.fecha_fin})`;
-    sel.appendChild(opt);
-  }
-}
-
-// ==================== NAVEGACIÓN ====================
-function showSection(section) {
-  document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
-  document.getElementById(section).classList.remove('hidden');
-  document.querySelectorAll('.nav-btn').forEach(b => {
-    b.classList.remove('bg-blue-50', 'text-blue-600');
-    b.classList.add('text-gray-600');
-  });
-  const active = document.querySelector(`[data-section="${section}"]`);
-  if (active) {
-    active.classList.add('bg-blue-50', 'text-blue-600');
-    active.classList.remove('text-gray-600');
-  }
-
-  const titles = {
-    dashboard: ['Dashboard', 'Resumen general del sistema'],
-    gestantes: ['Gestantes', 'Registro y control de embarazadas'],
-    controlSemanal: ['Control Semanal', 'Reporte semanal por semana epidemiológica'],
-    puerperas: ['Puérperas / Lactantes', 'Mujeres en periodo postparto'],
-    archivados: ['Archivados', 'Registros de abortos y cierres'],
-    usuarios: ['Usuarios', 'Gestión de usuarios del sistema'],
-    calendarios: ['Calendarios', 'Calendarios epidemiológicos'],
-    backup: ['Backup / Restore', 'Respaldo y restauración de datos']
-  };
-  document.getElementById('pageTitle').textContent = titles[section][0];
-  document.getElementById('pageSubtitle').textContent = titles[section][1];
-
-  if (section === 'dashboard') renderDashboard();
-  if (section === 'gestantes') renderGestantes();
-  if (section === 'controlSemanal') loadControlSemanal();
-  if (section === 'puerperas') renderPuerperas();
-  if (section === 'archivados') renderArchivados();
-  if (section === 'usuarios') renderUsers();
-  if (section === 'calendarios') renderCalendarios();
-}
-
-function toggleSidebar() {
-  const sb = document.getElementById('sidebar');
-  sb.classList.toggle('-translate-x-full');
-}
-
-// ==================== GESTANTES CRUD ====================
-async function loadGestantes() {
-  let query = supabase.from('gestantes').select('*').order('fecha_registro', { ascending: false });
-  if (currentProfile.role === 'medico' && currentProfile.consultorio) {
-    query = query.eq('consultorio', currentProfile.consultorio);
-  }
-  const { data, error } = await query;
-  if (error) { showToast('Error cargando gestantes: ' + error.message, 'error'); return; }
-  gestantesData = data || [];
-  renderGestantes();
-  renderDashboard();
-}
-
-function renderGestantes() {
-  const tbody = document.getElementById('gestantesTable');
-  const empty = document.getElementById('gestantesEmpty');
-  const search = document.getElementById('searchGestante').value.toLowerCase();
-  const fConsultorio = document.getElementById('filterConsultorio').value;
-  const fEstado = document.getElementById('filterEstado').value;
-
-  let filtered = gestantesData.filter(g => {
-    const matchSearch = !search || 
-      (g.cedula && g.cedula.toLowerCase().includes(search)) ||
-      (g.nombres && g.nombres.toLowerCase().includes(search)) ||
-      (g.apellidos && g.apellidos.toLowerCase().includes(search));
-    const matchCons = !fConsultorio || g.consultorio === fConsultorio;
-    const matchEst = !fEstado || g.estado === fEstado;
-    return matchSearch && matchCons && matchEst && g.estado !== 'archivado';
-  });
-
-  if (filtered.length === 0) {
-    tbody.innerHTML = '';
-    empty.classList.remove('hidden');
-    return;
-  }
-  empty.classList.add('hidden');
-
-  tbody.innerHTML = filtered.map(g => {
-    const trimClass = g.trimestre === 1 ? 'trimester-1' : g.trimestre === 2 ? 'trimester-2' : g.trimestre === 3 ? 'trimester-3' : g.estado === 'puerpera' ? 'puerpera' : g.estado === 'lactante' ? 'lactante' : '';
-    const aroClass = g.aro === 'I' ? 'aro-1' : g.aro === 'II' ? 'aro-2' : g.aro === 'III' ? 'aro-3' : '';
-    const aroText = g.aro ? `ARO ${g.aro}` : '-';
-    const estadoBadge = g.estado === 'gestante' ? '<span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium">Gestante</span>' :
-      g.estado === 'puerpera' ? '<span class="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs font-medium">Puérpera</span>' :
-      g.estado === 'lactante' ? '<span class="px-2 py-1 bg-pink-100 text-pink-700 rounded text-xs font-medium">Lactante</span>' : '-';
-
-    const canEdit = currentProfile.role === 'superadmin' || currentProfile.role === 'admin' || 
-      (currentProfile.role === 'medico' && currentProfile.consultorio === g.consultorio);
-
-    return `<tr class="hover:bg-gray-50 ${trimClass}">
-      <td class="px-4 py-3">${g.cedula || ''}</td>
-      <td class="px-4 py-3 font-medium">${g.nombres || ''} ${g.apellidos || ''}</td>
-      <td class="px-4 py-3">${g.edad || ''}</td>
-      <td class="px-4 py-3 text-xs">${g.consultorio || ''}</td>
-      <td class="px-4 py-3 font-medium">${g.semana_gestacion || ''}</td>
-      <td class="px-4 py-3">${g.fpp || ''}</td>
-      <td class="px-4 py-3">${estadoBadge}</td>
-      <td class="px-4 py-3"><span class="px-2 py-1 rounded text-xs font-medium ${aroClass}">${aroText}</span></td>
-      <td class="px-4 py-3 text-center">
-        <button onclick="editGestante('${g.id}')" class="text-blue-600 hover:text-blue-800 mx-1 ${canEdit ? '' : 'opacity-50 cursor-not-allowed'}" title="Editar" ${canEdit ? '' : 'disabled'}><i class="fas fa-edit"></i></button>
-        ${currentProfile.role === 'superadmin' ? `<button onclick="deleteGestante('${g.id}')" class="text-red-600 hover:text-red-800 mx-1" title="Eliminar"><i class="fas fa-trash"></i></button>` : ''}
-      </td>
-    </tr>`;
-  }).join('');
-}
-
-function filterGestantes() { renderGestantes(); }
-
-function openGestanteModal() {
-  document.getElementById('gestanteForm').reset();
-  document.getElementById('gestanteId').value = '';
-  document.getElementById('gestanteModalTitle').textContent = 'Nueva Embarazada';
-  document.getElementById('gestanteModal').classList.remove('hidden');
-  calcularSemanasFPP();
-}
-
-function closeGestanteModal() {
-  document.getElementById('gestanteModal').classList.add('hidden');
-}
-
-function editGestante(id) {
-  const g = gestantesData.find(x => x.id === id);
-  if (!g) return;
-  document.getElementById('gestanteId').value = g.id;
-  document.getElementById('gCedula').value = g.cedula || '';
-  document.getElementById('gNombres').value = g.nombres || '';
-  document.getElementById('gApellidos').value = g.apellidos || '';
-  document.getElementById('gFechaNac').value = g.fecha_nacimiento || '';
-  document.getElementById('gEdad').value = g.edad || '';
-  document.getElementById('gTelefono').value = g.telefono || '';
-  document.getElementById('gConsultorio').value = g.consultorio || '';
-  document.getElementById('gDireccion').value = g.direccion || '';
-  document.getElementById('gCarnet').value = g.carnet_patria || '';
-  document.getElementById('gFur').value = g.fur || '';
-  document.getElementById('gNP').value = g.num_p || 0;
-  document.getElementById('gNC').value = g.num_c || 0;
-  document.getElementById('gNA').value = g.num_a || 0;
-  document.getElementById('gNG').value = g.num_g || 0;
-  document.getElementById('gSemGesta').value = g.semana_gestacion || '';
-  document.getElementById('gFpp').value = g.fpp || '';
-  document.getElementById('gAro').value = g.aro || '';
-  document.getElementById('gControlPre').value = g.control_prenatal || 'SI';
-  document.getElementById('gDonde').value = g.donde_publico_privado || 'PUBLICO';
-  document.getElementById('gEnfermedad').value = g.enfermedad_asociada || 'NO';
-  document.getElementById('gCualEnf').value = g.cual_enfermedad || '';
-  document.getElementById('gMicro').value = g.micronutrientes || 'NO';
-  document.getElementById('gAsic').value = g.conoce_asic || 'SI';
-  document.getElementById('gPartoHum').value = g.parto_humanizado || 'NO';
-  document.getElementById('gEtnia').value = g.etnia || '';
-  document.getElementById('gAntecedentes').value = g.antecedentes || '';
-  document.getElementById('gMotivo').value = g.motivo_consulta || 'CAPTACION';
-  document.getElementById('gDiagnostico').value = g.diagnostico || '';
-  document.getElementById('gTipoConsulta').value = g.tipo_consulta || 'Consulta';
-  document.getElementById('gReferido').value = g.referido || '';
-  document.getElementById('gObservacion').value = g.observacion || '';
-  document.getElementById('gestanteModalTitle').textContent = 'Editar Embarazada';
-  document.getElementById('gestanteModal').classList.remove('hidden');
-}
-
-async function deleteGestante(id) {
-  if (!confirm('¿Eliminar permanentemente este registro?')) return;
-  const { error } = await supabase.from('gestantes').delete().eq('id', id);
-  if (error) { showToast('Error: ' + error.message, 'error'); return; }
-  showToast('Registro eliminado');
-  await loadGestantes();
-}
-
-// Cálculos automáticos
-document.getElementById('gFur').addEventListener('change', calcularSemanasFPP);
-document.getElementById('gFur').addEventListener('input', calcularSemanasFPP);
-
-function calcularSemanasFPP() {
-  const fur = document.getElementById('gFur').value;
-  if (!fur) return;
-  const furDate = new Date(fur + 'T00:00:00');
-  const hoy = new Date();
-  const diffTime = hoy - furDate;
-  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-  const semanas = Math.floor(diffDays / 7);
-  const dias = diffDays % 7;
-
-  if (semanas >= 0 && semanas <= 42) {
-    document.getElementById('gSemGesta').value = `${semanas} SEMANAS Y ${dias} DIAS`;
-    // FPP = FUR + 280 días
-    const fpp = new Date(furDate);
-    fpp.setDate(fpp.getDate() + 280);
-    document.getElementById('gFpp').value = fpp.toISOString().split('T')[0];
-  }
-}
-
-document.getElementById('gestanteForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const id = document.getElementById('gestanteId').value;
-  const fur = document.getElementById('gFur').value;
-  const semGesta = document.getElementById('gSemGesta').value;
-  let trimestre = 0;
-  const semNum = parseInt(semGesta);
-  if (semNum <= 13) trimestre = 1;
-  else if (semNum <= 27) trimestre = 2;
-  else if (semNum > 27) trimestre = 3;
-
-  const data = {
-    cedula: document.getElementById('gCedula').value.trim(),
-    nombres: document.getElementById('gNombres').value.trim().toUpperCase(),
-    apellidos: document.getElementById('gApellidos').value.trim().toUpperCase(),
-    fecha_nacimiento: document.getElementById('gFechaNac').value || null,
-    edad: parseInt(document.getElementById('gEdad').value) || null,
-    telefono: document.getElementById('gTelefono').value.trim(),
-    consultorio: document.getElementById('gConsultorio').value,
-    direccion: document.getElementById('gDireccion').value.trim().toUpperCase(),
-    carnet_patria: document.getElementById('gCarnet').value,
-    fur: fur || null,
-    num_p: parseInt(document.getElementById('gNP').value) || 0,
-    num_c: parseInt(document.getElementById('gNC').value) || 0,
-    num_a: parseInt(document.getElementById('gNA').value) || 0,
-    num_g: parseInt(document.getElementById('gNG').value) || 0,
-    semana_gestacion: semGesta,
-    fpp: document.getElementById('gFpp').value || null,
-    aro: document.getElementById('gAro').value || null,
-    control_prenatal: document.getElementById('gControlPre').value,
-    donde_publico_privado: document.getElementById('gDonde').value,
-    enfermedad_asociada: document.getElementById('gEnfermedad').value,
-    cual_enfermedad: document.getElementById('gCualEnf').value.trim().toUpperCase(),
-    micronutrientes: document.getElementById('gMicro').value,
-    conoce_asic: document.getElementById('gAsic').value,
-    parto_humanizado: document.getElementById('gPartoHum').value,
-    etnia: document.getElementById('gEtnia').value.trim().toUpperCase(),
-    antecedentes: document.getElementById('gAntecedentes').value.trim().toUpperCase(),
-    motivo_consulta: document.getElementById('gMotivo').value,
-    diagnostico: document.getElementById('gDiagnostico').value.trim().toUpperCase(),
-    tipo_consulta: document.getElementById('gTipoConsulta').value,
-    referido: document.getElementById('gReferido').value.trim().toUpperCase(),
-    observacion: document.getElementById('gObservacion').value.trim().toUpperCase(),
-    trimestre: trimestre,
-    fecha_registro: id ? undefined : new Date().toISOString(),
-    fecha_ultima_actualizacion: new Date().toISOString(),
-    created_by: currentUser.id
-  };
-
-  if (id) {
-    const { error } = await supabase.from('gestantes').update(data).eq('id', id);
-    if (error) { showToast('Error: ' + error.message, 'error'); return; }
-    showToast('Registro actualizado');
-  } else {
-    const { error } = await supabase.from('gestantes').insert([data]);
-    if (error) { showToast('Error: ' + error.message, 'error'); return; }
-    showToast('Gestante registrada');
-  }
-  closeGestanteModal();
-  await loadGestantes();
-});
-
-// ==================== ACCIONES ESPECIALES ====================
-async function marcarPuerpera() {
-  const id = document.getElementById('gestanteId').value;
-  if (!id) { showToast('Guarde el registro primero', 'error'); return; }
-  if (!confirm('¿Marcar como Puérpera / Lactante? Se calculará desde la fecha de hoy.')) return;
-  const { error } = await supabase.from('gestantes').update({
-    estado: 'puerpera',
-    fecha_parto: new Date().toISOString(),
-    fecha_ultima_actualizacion: new Date().toISOString()
-  }).eq('id', id);
-  if (error) { showToast('Error: ' + error.message, 'error'); return; }
-  showToast('Marcada como Puérpera');
-  closeGestanteModal();
-  await loadGestantes();
-}
-
-async function marcarAborto() {
-  const id = document.getElementById('gestanteId').value;
-  if (!id) { showToast('Guarde el registro primero', 'error'); return; }
-  if (!confirm('¿Archivar este registro? Se guardarán nombre, apellido y cédula para futuras consultas.')) return;
-  const g = gestantesData.find(x => x.id === id);
-  const { error } = await supabase.from('gestantes').update({
-    estado: 'archivado',
-    motivo_archivo: 'ABORTO',
-    fecha_archivo: new Date().toISOString(),
-    fecha_ultima_actualizacion: new Date().toISOString()
-  }).eq('id', id);
-  if (error) { showToast('Error: ' + error.message, 'error'); return; }
-  showToast('Registro archivado');
-  closeGestanteModal();
-  await loadGestantes();
-}
-
-async function nuevoEmbarazo() {
-  const id = document.getElementById('gestanteId').value;
-  if (!id) { showToast('Guarde el registro primero', 'error'); return; }
-  if (!confirm('¿Reactivar para nuevo embarazo? Se limpiarán datos obstétricos y se conservarán datos personales.')) return;
-  const { error } = await supabase.from('gestantes').update({
-    estado: 'gestante',
-    fur: null,
-    semana_gestacion: null,
-    fpp: null,
-    num_p: 0, num_c: 0, num_a: 0, num_g: 0,
-    trimestre: 0,
-    fecha_parto: null,
-    motivo_archivo: null,
-    fecha_archivo: null,
-    fecha_registro: new Date().toISOString(),
-    fecha_ultima_actualizacion: new Date().toISOString()
-  }).eq('id', id);
-  if (error) { showToast('Error: ' + error.message, 'error'); return; }
-  showToast('Reactivada para nuevo embarazo');
-  closeGestanteModal();
-  await loadGestantes();
-}
-
-// ==================== PUÉRPERAS ====================
-function renderPuerperas() {
-  const tbody = document.getElementById('puerperasTable');
-  const search = document.getElementById('searchPuerpera').value.toLowerCase();
-  const ahora = new Date();
-
-  let filtered = gestantesData.filter(g => {
-    const esPuerpera = g.estado === 'puerpera' || g.estado === 'lactante';
-    if (!esPuerpera) return false;
-    const diasPost = g.fecha_parto ? Math.floor((ahora - new Date(g.fecha_parto)) / (1000 * 60 * 60 * 24)) : 0;
-    const matchSearch = !search || (g.nombres + ' ' + g.apellidos).toLowerCase().includes(search) || (g.cedula || '').toLowerCase().includes(search);
-    return matchSearch && diasPost <= 365;
-  });
-
-  tbody.innerHTML = filtered.map(g => {
-    const diasPost = g.fecha_parto ? Math.floor((ahora - new Date(g.fecha_parto)) / (1000 * 60 * 60 * 24)) : 0;
-    const estado = diasPost <= 42 ? 'Puérpera' : 'Lactante';
-    const aroClass = g.aro === 'I' ? 'aro-1' : g.aro === 'II' ? 'aro-2' : g.aro === 'III' ? 'aro-3' : '';
-    return `<tr>
-      <td class="px-4 py-3">${g.cedula || ''}</td>
-      <td class="px-4 py-3 font-medium">${g.nombres || ''} ${g.apellidos || ''}</td>
-      <td class="px-4 py-3 text-xs">${g.consultorio || ''}</td>
-      <td class="px-4 py-3">${g.fecha_parto ? g.fecha_parto.split('T')[0] : ''}</td>
-      <td class="px-4 py-3">${diasPost} días</td>
-      <td class="px-4 py-3"><span class="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs">${estado}</span></td>
-      <td class="px-4 py-3"><span class="px-2 py-1 rounded text-xs font-medium ${aroClass}">${g.aro ? 'ARO ' + g.aro : '-'}</span></td>
-      <td class="px-4 py-3 text-center">
-        <button onclick="editGestante('${g.id}')" class="text-blue-600 hover:text-blue-800"><i class="fas fa-edit"></i></button>
-      </td>
-    </tr>`;
-  }).join('');
-}
-
-function filterPuerperas() { renderPuerperas(); }
-
-// ==================== ARCHIVADOS ====================
-function renderArchivados() {
-  const tbody = document.getElementById('archivadosTable');
-  const archivados = gestantesData.filter(g => g.estado === 'archivado');
-  tbody.innerHTML = archivados.map(g => `
-    <tr>
-      <td class="px-4 py-3">${g.cedula || ''}</td>
-      <td class="px-4 py-3">${g.apellidos || ''}</td>
-      <td class="px-4 py-3">${g.nombres || ''}</td>
-      <td class="px-4 py-3">${g.motivo_archivo || 'ABORTO'}</td>
-      <td class="px-4 py-3">${g.fecha_archivo ? g.fecha_archivo.split('T')[0] : ''}</td>
-      <td class="px-4 py-3 text-center">
-        <button onclick="reactivarArchivado('${g.id}')" class="text-green-600 hover:text-green-800" title="Nuevo Embarazo"><i class="fas fa-plus-circle"></i></button>
-      </td>
-    </tr>
-  `).join('');
-}
-
-async function reactivarArchivado(id) {
-  if (!confirm('¿Reactivar este registro para nuevo embarazo?')) return;
-  const { error } = await supabase.from('gestantes').update({
-    estado: 'gestante',
-    fur: null, semana_gestacion: null, fpp: null,
-    num_p: 0, num_c: 0, num_a: 0, num_g: 0, trimestre: 0,
-    fecha_parto: null, motivo_archivo: null, fecha_archivo: null,
-    fecha_registro: new Date().toISOString(),
-    fecha_ultima_actualizacion: new Date().toISOString()
-  }).eq('id', id);
-  if (error) { showToast('Error: ' + error.message, 'error'); return; }
-  showToast('Reactivada para nuevo embarazo');
-  await loadGestantes();
-  showSection('archivados');
-}
-
-// ==================== CONTROL SEMANAL ====================
-async function loadControlSemanal() {
-  const semana = document.getElementById('semanaEpiSelect').value;
-  const anio = document.getElementById('anioEpiSelect').value;
-  const tbody = document.getElementById('controlTable');
-  const empty = document.getElementById('controlEmpty');
-
-  if (!semana) {
-    tbody.innerHTML = '';
-    empty.classList.remove('hidden');
-    return;
-  }
-  empty.classList.add('hidden');
-
-  // Cargar controles de esa semana
-  const { data, error } = await supabase
-    .from('control_semanal')
-    .select('*, gestantes(*)')
-    .eq('semana_epidemiologica', parseInt(semana))
-    .eq('anio', parseInt(anio));
-
-  if (error) { showToast('Error: ' + error.message, 'error'); return; }
-  controlData = data || [];
-  renderControlTable();
-}
-
-function renderControlTable() {
-  const tbody = document.getElementById('controlTable');
-  if (controlData.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="18" class="px-4 py-8 text-center text-gray-400">No hay registros para esta semana</td></tr>';
-    return;
-  }
-  tbody.innerHTML = controlData.map((c, i) => {
-    const g = c.gestantes || {};
-    const canEdit = currentProfile.role !== 'medico' || currentProfile.consultorio === g.consultorio;
-    return `<tr class="hover:bg-gray-50">
-      <td class="px-4 py-3">${i + 1}</td>
-      <td class="px-4 py-3 text-xs">${g.consultorio || ''}</td>
-      <td class="px-4 py-3">${c.fecha_control ? c.fecha_control.split('T')[0] : ''}</td>
-      <td class="px-4 py-3 font-medium">${g.nombres || ''} ${g.apellidos || ''}</td>
-      <td class="px-4 py-3">${g.edad || ''}</td>
-      <td class="px-4 py-3">${g.cedula || ''}</td>
-      <td class="px-4 py-3 text-xs">${g.direccion || ''}</td>
-      <td class="px-4 py-3">${g.telefono || ''}</td>
-      <td class="px-4 py-3">${g.fur || ''}</td>
-      <td class="px-4 py-3 font-medium">${c.semana_gestacion || g.semana_gestacion || ''}</td>
-      <td class="px-4 py-3">${g.num_g || 0}</td>
-      <td class="px-4 py-3">${g.aro ? 'NO' : 'NO'}</td>
-      <td class="px-4 py-3">${c.motivo || ''}</td>
-      <td class="px-4 py-3">${c.diagnostico || ''}</td>
-      <td class="px-4 py-3">${c.tipo_consulta || ''}</td>
-      <td class="px-4 py-3">${c.referido || ''}</td>
-      <td class="px-4 py-3">${c.observacion || ''}</td>
-      <td class="px-4 py-3 text-center">
-        <button onclick="editControl('${c.id}')" class="text-blue-600 hover:text-blue-800 mx-1 ${canEdit ? '' : 'opacity-50 cursor-not-allowed'}" ${canEdit ? '' : 'disabled'}><i class="fas fa-edit"></i></button>
-      </td>
-    </tr>`;
-  }).join('');
-}
-
-async function generarReporteSemanal() {
-  const semana = document.getElementById('semanaEpiSelect').value;
-  const anio = document.getElementById('anioEpiSelect').value;
-  if (!semana) { showToast('Seleccione una semana epidemiológica', 'error'); return; }
-
-  // Obtener gestantes activas del consultorio del usuario (o todos si es admin/super)
-  let query = supabase.from('gestantes').select('*').in('estado', ['gestante', 'puerpera', 'lactante']);
-  if (currentProfile.role === 'medico' && currentProfile.consultorio) {
-    query = query.eq('consultorio', currentProfile.consultorio);
-  }
-  const { data: gestantes, error } = await query;
-  if (error) { showToast('Error: ' + error.message, 'error'); return; }
-
-  // Verificar cuáles ya tienen control esta semana
-  const { data: existentes } = await supabase
-    .from('control_semanal')
-    .select('gestante_id')
-    .eq('semana_epidemiologica', parseInt(semana))
-    .eq('anio', parseInt(anio));
-  const existentesIds = new Set((existentes || []).map(e => e.gestante_id));
-
-  const nuevos = gestantes.filter(g => !existentesIds.has(g.id));
-  if (nuevos.length === 0) { showToast('Todas las gestantes ya están en el reporte'); return; }
-
-  const inserts = nuevos.map(g => ({
-    gestante_id: g.id,
-    semana_epidemiologica: parseInt(semana),
-    anio: parseInt(anio),
-    fecha_control: new Date().toISOString(),
-    semana_gestacion: g.semana_gestacion,
-    motivo: 'CONTROL',
-    diagnostico: g.diagnostico || `EMBARAZO SIMPLE DE ${g.semana_gestacion || ''} x FUR`,
-    tipo_consulta: 'Consulta',
-    referido: '',
-    observacion: g.observacion || '',
-    created_by: currentUser.id
-  }));
-
-  const { error: iError } = await supabase.from('control_semanal').insert(inserts);
-  if (iError) { showToast('Error: ' + iError.message, 'error'); return; }
-  showToast(`${inserts.length} gestantes agregadas al reporte`);
-  await loadControlSemanal();
-}
-
-function editControl(id) {
-  const c = controlData.find(x => x.id === id);
-  if (!c) return;
-  document.getElementById('ceId').value = c.id;
-  document.getElementById('ceSemGesta').value = c.semana_gestacion || '';
-  document.getElementById('ceMotivo').value = c.motivo || 'CONTROL';
-  document.getElementById('ceDiagnostico').value = c.diagnostico || '';
-  document.getElementById('ceTipo').value = c.tipo_consulta || 'Consulta';
-  document.getElementById('ceReferido').value = c.referido || '';
-  document.getElementById('ceObservacion').value = c.observacion || '';
-  document.getElementById('controlEditModal').classList.remove('hidden');
-}
-
-function closeControlEditModal() {
-  document.getElementById('controlEditModal').classList.add('hidden');
-}
-
-document.getElementById('controlEditForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const id = document.getElementById('ceId').value;
-  const data = {
-    semana_gestacion: document.getElementById('ceSemGesta').value,
-    motivo: document.getElementById('ceMotivo').value,
-    diagnostico: document.getElementById('ceDiagnostico').value.trim().toUpperCase(),
-    tipo_consulta: document.getElementById('ceTipo').value,
-    referido: document.getElementById('ceReferido').value.trim().toUpperCase(),
-    observacion: document.getElementById('ceObservacion').value.trim().toUpperCase(),
-    fecha_ultima_actualizacion: new Date().toISOString()
-  };
-  const { error } = await supabase.from('control_semanal').update(data).eq('id', id);
-  if (error) { showToast('Error: ' + error.message, 'error'); return; }
-  showToast('Control actualizado');
-  closeControlEditModal();
-  await loadControlSemanal();
-});
-
-async function exportarExcelSemanal() {
-  const semana = document.getElementById('semanaEpiSelect').value;
-  const anio = document.getElementById('anioEpiSelect').value;
-  if (!semana) { showToast('Seleccione una semana', 'error'); return; }
-
-  const { data } = await supabase.from('control_semanal').select('*, gestantes(*)').eq('semana_epidemiologica', parseInt(semana)).eq('anio', parseInt(anio));
-  const rows = (data || []).map((c, i) => {
-    const g = c.gestantes || {};
-    return {
-      'Nº': i + 1,
-      'CP': g.consultorio,
-      'Fecha': c.fecha_control ? c.fecha_control.split('T')[0] : '',
-      'Nombre y Apellido': `${g.nombres || ''} ${g.apellidos || ''}`,
-      'Edad': g.edad,
-      'Cédula': g.cedula,
-      'Dirección': g.direccion,
-      'Teléfono': g.telefono,
-      'F.U.R': g.fur,
-      'Sem. Gesta.': c.semana_gestacion || g.semana_gestacion,
-      'N° Gesta': g.num_g,
-      'Riesgo': g.aro ? 'NO' : 'NO',
-      'Motivo': c.motivo,
-      'Diagnóstico': c.diagnostico,
-      'Tipo': c.tipo_consulta,
-      'Referido': c.referido,
-      'Observación': c.observacion
-    };
-  });
-  const ws = XLSX.utils.json_to_sheet(rows);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, `SE_${semana}`);
-  XLSX.writeFile(wb, `Control_Semanal_SE${semana}_${anio}.xlsx`);
-}
-
-// ==================== DASHBOARD ====================
-function renderDashboard() {
-  const activas = gestantesData.filter(g => g.estado === 'gestante');
-  const puerperas = gestantesData.filter(g => g.estado === 'puerpera' || g.estado === 'lactante');
-  const menores = activas.filter(g => g.edad && g.edad < 18);
-
-  document.getElementById('dashTotal').textContent = activas.length;
-  document.getElementById('dashPuerperas').textContent = puerperas.length;
-  document.getElementById('dashMenores').textContent = menores.length;
-  document.getElementById('dashSemanaEpi').textContent = getCurrentSemanaEpidemiologica();
-
-  // Gráfico trimestres
-  const t1 = activas.filter(g => g.trimestre === 1).length;
-  const t2 = activas.filter(g => g.trimestre === 2).length;
-  const t3 = activas.filter(g => g.trimestre === 3).length;
-  renderChart('chartTrimestres', 'doughnut', ['1er Trimestre', '2do Trimestre', '3er Trimestre'], [t1, t2, t3], ['#10b981', '#3b82f6', '#f59e0b']);
-
-  // Gráfico consultorios
-  const consCounts = {};
-  CONSULTORIOS.forEach(c => consCounts[c] = 0);
-  activas.forEach(g => { if (g.consultorio) consCounts[g.consultorio] = (consCounts[g.consultorio] || 0) + 1; });
-  renderChart('chartConsultorios', 'bar', Object.keys(consCounts).map(c => c.split(' ')[0]), Object.values(consCounts), '#3b82f6');
-
-  // Gráfico ARO
-  const aro1 = activas.filter(g => g.aro === 'I').length;
-  const aro2 = activas.filter(g => g.aro === 'II').length;
-  const aro3 = activas.filter(g => g.aro === 'III').length;
-  const aro0 = activas.length - aro1 - aro2 - aro3;
-  renderChart('chartARO', 'bar', ['Sin ARO', 'ARO I', 'ARO II', 'ARO III'], [aro0, aro1, aro2, aro3], ['#9ca3af', '#10b981', '#f59e0b', '#ef4444']);
-
-  // Recientes
-  const recientes = [...gestantesData].sort((a, b) => new Date(b.fecha_registro) - new Date(a.fecha_registro)).slice(0, 5);
-  document.getElementById('recentRecords').innerHTML = recientes.map(g => `
-    <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-      <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-xs"><i class="fas fa-female"></i></div>
-      <div class="flex-1 min-w-0">
-        <p class="text-sm font-medium text-gray-800 truncate">${g.nombres} ${g.apellidos}</p>
-        <p class="text-xs text-gray-500">${g.consultorio} • ${g.semana_gestacion || ''}</p>
-      </div>
-    </div>
-  `).join('');
-}
-
-function renderChart(id, type, labels, data, colors) {
-  const ctx = document.getElementById(id);
-  if (!ctx) return;
-  if (charts[id]) charts[id].destroy();
-  charts[id] = new Chart(ctx, {
-    type: type,
-    data: {
-      labels: labels,
-      datasets: [{
-        data: data,
-        backgroundColor: colors,
-        borderWidth: 0
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } },
-      scales: type === 'bar' ? { y: { beginAtZero: true, ticks: { stepSize: 1 } } } : {}
-    }
-  });
-}
-
-// ==================== USUARIOS ====================
-async function loadUsers() {
-  if (currentProfile.role !== 'superadmin') return;
-  const { data, error } = await supabase.from('profiles').select('*').order('created_at', { ascending: false });
-  if (error) return;
-  usersData = data || [];
-  renderUsers();
-}
-
-function renderUsers() {
-  const tbody = document.getElementById('usersTable');
-  tbody.innerHTML = usersData.map(u => `
-    <tr>
-      <td class="px-4 py-3">${u.email}</td>
-      <td class="px-4 py-3">${u.nombre || ''}</td>
-      <td class="px-4 py-3"><span class="px-2 py-1 rounded text-xs font-medium ${u.role === 'superadmin' ? 'bg-red-100 text-red-700' : u.role === 'admin' ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700'}">${getRoleName(u.role)}</span></td>
-      <td class="px-4 py-3">${u.consultorio || 'Todos'}</td>
-      <td class="px-4 py-3"><span class="px-2 py-1 rounded text-xs ${u.activo ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}">${u.activo ? 'Activo' : 'Inactivo'}</span></td>
-      <td class="px-4 py-3 text-center">
-        ${u.role !== 'superadmin' ? `<button onclick="toggleUser('${u.id}', ${!u.activo})" class="text-blue-600 hover:text-blue-800 mx-1" title="${u.activo ? 'Desactivar' : 'Activar'}"><i class="fas ${u.activo ? 'fa-user-slash' : 'fa-user-check'}"></i></button>
-        <button onclick="deleteUser('${u.id}')" class="text-red-600 hover:text-red-800 mx-1" title="Eliminar"><i class="fas fa-trash"></i></button>` : '<span class="text-gray-400 text-xs">Protegido</span>'}
-      </td>
-    </tr>
-  `).join('');
-}
-
-function openUserModal() { document.getElementById('userModal').classList.remove('hidden'); }
-function closeUserModal() { document.getElementById('userModal').classList.add('hidden'); }
-
-document.getElementById('userForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const email = document.getElementById('uEmail').value.trim();
-  const password = document.getElementById('uPassword').value;
-  const nombre = document.getElementById('uNombre').value.trim();
-  const rol = document.getElementById('uRol').value;
-  const consultorio = document.getElementById('uConsultorio').value;
-
-  // Crear usuario en Auth
-  const { data: authData, error: authError } = await supabase.auth.signUp({
-    email, password,
-    options: { data: { nombre } }
-  });
-  if (authError) { showToast('Error creando usuario: ' + authError.message, 'error'); return; }
-
-  // Crear perfil
-  const { error: profError } = await supabase.from('profiles').insert([{
-    id: authData.user.id,
-    email,
-    nombre,
-    role: rol,
-    consultorio: consultorio || null,
-    activo: true
-  }]);
-  if (profError) { showToast('Error creando perfil: ' + profError.message, 'error'); return; }
-
-  showToast('Usuario creado exitosamente');
-  closeUserModal();
-  await loadUsers();
-});
-
-async function toggleUser(id, activo) {
-  const { error } = await supabase.from('profiles').update({ activo }).eq('id', id);
-  if (error) { showToast('Error: ' + error.message, 'error'); return; }
-  showToast(activo ? 'Usuario activado' : 'Usuario desactivado');
-  await loadUsers();
-}
-
-async function deleteUser(id) {
-  if (!confirm('¿Eliminar permanentemente este usuario?')) return;
-  // Eliminar de Auth (requiere Edge Function o hacerlo desde el panel de Supabase)
-  // Por ahora solo eliminamos el perfil y desactivamos
-  const { error } = await supabase.from('profiles').delete().eq('id', id);
-  if (error) { showToast('Error: ' + error.message, 'error'); return; }
-  showToast('Usuario eliminado');
-  await loadUsers();
-}
-
-// ==================== CALENDARIOS ====================
-async function loadCalendarios() {
-  const { data, error } = await supabase.from('calendarios_epidemiologicos').select('*').order('anio', { ascending: false });
-  if (error) return;
-  calendariosData = data || [];
-  // Si no hay 2026, usar el generado localmente
-  if (!calendariosData.find(c => c.anio === 2026)) {
-    calendariosData = [...calendariosData, ...generarCalendario2026().map(s => ({ ...s, anio: 2026 }))];
-  }
-  renderCalendarios();
-}
-
-function renderCalendarios() {
-  const container = document.getElementById('calendariosList');
-  const anios = [...new Set(calendariosData.map(c => c.anio))];
-  container.innerHTML = anios.map(anio => {
-    const semanas = calendariosData.filter(c => c.anio === anio);
-    return `
-      <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-        <div class="flex items-center justify-between mb-2">
-          <h4 class="font-bold text-gray-800">Año ${anio}</h4>
-          <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">${semanas.length} semanas</span>
-        </div>
-        <p class="text-xs text-gray-500">Inicio: ${semanas[0]?.fecha_inicio} • Fin: ${semanas[semanas.length-1]?.fecha_fin}</p>
-      </div>
-    `;
-  }).join('');
-}
-
-function openCalendarioModal() { document.getElementById('calendarioModal').classList.remove('hidden'); }
-function closeCalendarioModal() { document.getElementById('calendarioModal').classList.add('hidden'); }
-
-document.getElementById('calendarioForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const anio = parseInt(document.getElementById('cAnio').value);
-  const fechaInicio = new Date(document.getElementById('cFechaInicio').value + 'T00:00:00');
-
-  const semanas = [];
-  for (let i = 1; i <= 52; i++) {
-    const ini = new Date(fechaInicio);
-    ini.setDate(fechaInicio.getDate() + (i - 1) * 7);
-    const fin = new Date(ini);
-    fin.setDate(ini.getDate() + 6);
-    semanas.push({
-      anio,
-      semana: i,
-      fecha_inicio: ini.toISOString().split('T')[0],
-      fecha_fin: fin.toISOString().split('T')[0]
-    });
-  }
-
-  const { error } = await supabase.from('calendarios_epidemiologicos').insert(semanas);
-  if (error) { showToast('Error: ' + error.message, 'error'); return; }
-  showToast(`Calendario ${anio} creado con 52 semanas`);
-  closeCalendarioModal();
-  await loadCalendarios();
-});
-
-// ==================== BACKUP / RESTORE ====================
-async function backupData() {
-  const key = document.getElementById('backupKey').value;
-  if (!key || key.length < 8) { showToast('La clave debe tener mínimo 8 caracteres', 'error'); return; }
-
-  const [{ data: gestantes }, { data: control }, { data: users }] = await Promise.all([
-    supabase.from('gestantes').select('*'),
-    supabase.from('control_semanal').select('*'),
-    supabase.from('profiles').select('*')
-  ]);
-
-  const payload = JSON.stringify({ gestantes: gestantes || [], control_semanal: control || [], profiles: users || [], fecha: new Date().toISOString() });
-  const encrypted = CryptoJS.AES.encrypt(payload, key).toString();
-  const blob = new Blob([encrypted], { type: 'application/octet-stream' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `backup_epi_${new Date().toISOString().split('T')[0]}.epi`;
-  a.click();
-  URL.revokeObjectURL(url);
-  showToast('Backup descargado');
-}
-
-async function restoreData() {
-  const file = document.getElementById('restoreFile').files[0];
-  const key = document.getElementById('restoreKey').value;
-  if (!file || !key) { showToast('Seleccione archivo e ingrese clave', 'error'); return; }
-
-  const text = await file.text();
-  try {
-    const decrypted = CryptoJS.AES.decrypt(text, key).toString(CryptoJS.enc.Utf8);
-    if (!decrypted) throw new Error('Clave incorrecta');
-    const data = JSON.parse(decrypted);
-    if (!confirm(`¿Restaurar ${data.gestantes?.length || 0} gestantes, ${data.control_semanal?.length || 0} controles? Esto reemplazará los datos actuales.`)) return;
-
-    // Truncar e insertar
-    await supabase.from('gestantes').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-    await supabase.from('control_semanal').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-
-    if (data.gestantes && data.gestantes.length > 0) {
-      const { error } = await supabase.from('gestantes').insert(data.gestantes);
-      if (error) console.error('Error gestantes:', error);
-    }
-    if (data.control_semanal && data.control_semanal.length > 0) {
-      const { error } = await supabase.from('control_semanal').insert(data.control_semanal);
-      if (error) console.error('Error control:', error);
-    }
-    showToast('Datos restaurados');
-    await loadGestantes();
-  } catch (err) {
-    showToast('Error: ' + err.message, 'error');
-  }
-}
-
-// ==================== EXCEL IMPORT/EXPORT ====================
-async function exportarExcel() {
-  const key = document.getElementById('excelKey').value;
-  if (!key) { showToast('Ingrese clave para encriptar', 'error'); return; }
-
-  const { data } = await supabase.from('gestantes').select('*');
-  const rows = (data || []).map(g => ({
-    CEDULA: g.cedula, NOMBRES: g.nombres, APELLIDOS: g.apellidos,
-    CONSULTORIO: g.consultorio, EDAD: g.edad, TELEFONO: g.telefono,
-    DIRECCION: g.direccion, FUR: g.fur, SEM_GESTACION: g.semana_gestacion,
-    FPP: g.fpp, ARO: g.aro, ESTADO: g.estado
-  }));
-  const ws = XLSX.utils.json_to_sheet(rows);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'Gestantes');
-  const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-  const wordArray = CryptoJS.lib.WordArray.create(excelBuffer);
-  const encrypted = CryptoJS.AES.encrypt(wordArray, key).toString();
-  const blob = new Blob([encrypted], { type: 'application/octet-stream' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `gestantes_encrypted.xlsx`;
-  a.click();
-  URL.revokeObjectURL(url);
-  showToast('Excel encriptado exportado');
-}
-
-async function importarExcel() {
-  const file = document.getElementById('excelImport').files[0];
-  if (!file) { showToast('Seleccione un archivo Excel', 'error'); return; }
-  const reader = new FileReader();
-  reader.onload = async (e) => {
-    const data = new Uint8Array(e.target.result);
-    const workbook = XLSX.read(data, { type: 'array' });
-    const sheet = workbook.Sheets[workbook.SheetNames[0]];
-    const rows = XLSX.utils.sheet_to_json(sheet);
-    if (rows.length === 0) { showToast('El archivo está vacío', 'error'); return; }
-
-    const inserts = rows.map(r => ({
-      cedula: String(r.CEDULA || r.cedula || ''),
-      nombres: String(r.NOMBRES || r.nombres || '').toUpperCase(),
-      apellidos: String(r.APELLIDOS || r.apellidos || '').toUpperCase(),
-      consultorio: String(r.CONSULTORIO || r.consultorio || ''),
-      edad: parseInt(r.EDAD || r.edad) || null,
-      telefono: String(r.TELEFONO || r.telefono || ''),
-      direccion: String(r.DIRECCION || r.direccion || '').toUpperCase(),
-      fur: r.FUR || r.fur || null,
-      semana_gestacion: String(r.SEM_GESTACION || r.sem_gestacion || ''),
-      fpp: r.FPP || r.fpp || null,
-      aro: r.ARO || r.aro || null,
-      estado: r.ESTADO || r.estado || 'gestante',
-      fecha_registro: new Date().toISOString(),
-      created_by: currentUser.id
+    resultDiv.innerHTML = `<div class="bg-green-50 text-green-700 p-3 rounded"><strong>¡Login exitoso!</strong><br>Rol: ${profile.role}<br>Redirigiendo...</div>`;
+
+    // Guardar sesión y redirigir al sistema principal
+    localStorage.setItem('epi_session', JSON.stringify({
+      user: data.user,
+      profile: profile,
+      timestamp: Date.now()
     }));
 
-    const { error } = await supabase.from('gestantes').insert(inserts);
-    if (error) { showToast('Error: ' + error.message, 'error'); return; }
-    showToast(`${inserts.length} registros importados`);
-    await loadGestantes();
-  };
-  reader.readAsArrayBuffer(file);
-}
+    setTimeout(() => {
+      window.location.href = 'SISTEMA_EPI_RUTA_MATERNA.html';
+    }, 1500);
 
-// ==================== UTILIDADES ====================
-function showToast(msg, type = 'success') {
-  const toast = document.getElementById('toast');
-  const icon = document.getElementById('toastIcon');
-  const text = document.getElementById('toastMessage');
-  text.textContent = msg;
-  icon.className = type === 'error' ? 'fas fa-exclamation-circle text-red-400' : 'fas fa-check-circle text-green-400';
-  toast.classList.remove('translate-y-20', 'opacity-0');
-  setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 3000);
-}
-
-// ==================== INICIO ====================
-window.addEventListener('DOMContentLoaded', async () => {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (session) {
-    const { data: profile } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
-    if (profile && profile.activo) {
-      currentUser = session.user;
-      currentProfile = profile;
-      initApp();
-    }
+  } catch (err) {
+    resultDiv.innerHTML = `<div class="bg-red-50 text-red-700 p-3 rounded">Error inesperado: ${err.message}</div>`;
   }
 });
+
+// ==================== BYPASS LOGIN ====================
+async function bypassLogin() {
+  const resultDiv = document.getElementById('bypassResult');
+  resultDiv.classList.remove('hidden');
+
+  const email = document.getElementById('bypassEmail').value.trim();
+  if (!email) {
+    resultDiv.innerHTML = '<div class="bg-red-50 text-red-700 p-3 rounded">Ingresa el email del super admin</div>';
+    return;
+  }
+
+  if (!initSupabase()) {
+    resultDiv.innerHTML = '<div class="bg-red-50 text-red-700 p-3 rounded">Primero guarda la configuración de Supabase</div>';
+    return;
+  }
+
+  resultDiv.innerHTML = '<div class="text-orange-600"><i class="fas fa-spinner fa-spin mr-2"></i>Buscando perfil...</div>';
+
+  try {
+    // Buscar perfil por email
+    const { data: profiles, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('email', email);
+
+    if (error) {
+      resultDiv.innerHTML = `<div class="bg-red-50 text-red-700 p-3 rounded">Error: ${error.message}</div>`;
+      return;
+    }
+
+    if (!profiles || profiles.length === 0) {
+      resultDiv.innerHTML = '<div class="bg-red-50 text-red-700 p-3 rounded">No se encontró ningún perfil con ese email. Crea el usuario primero en Supabase Dashboard → Authentication → Users.</div>';
+      return;
+    }
+
+    const profile = profiles[0];
+
+    // Crear un objeto de sesión simulada para bypass
+    const bypassSession = {
+      user: { id: profile.id, email: profile.email },
+      profile: profile,
+      bypass: true,
+      timestamp: Date.now()
+    };
+
+    localStorage.setItem('epi_session', JSON.stringify(bypassSession));
+
+    resultDiv.innerHTML = `<div class="bg-green-50 text-green-700 p-3 rounded"><strong>¡Bypass exitoso!</strong><br>Usuario: ${profile.email}<br>Rol: ${profile.role}<br>Redirigiendo al sistema...</div>`;
+
+    setTimeout(() => {
+      window.location.href = 'SISTEMA_EPI_RUTA_MATERNA.html';
+    }, 1500);
+
+  } catch (err) {
+    resultDiv.innerHTML = `<div class="bg-red-50 text-red-700 p-3 rounded">Error: ${err.message}</div>`;
+  }
+}
+
+// Auto-inicializar si hay config guardada
+if (supabaseUrl && supabaseKey) {
+  initSupabase();
+}
 </script>
 </body>
 </html>
