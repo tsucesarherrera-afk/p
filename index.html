@@ -3,9 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EPI - Ruta Materna | Diagnóstico de Login</title>
+<title>EPI - Ruta Materna | Diagnóstico de Login v2</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
@@ -32,8 +31,14 @@
     <p class="text-blue-200 text-sm">Camaguán, Guárico, Venezuela</p>
   </div>
 
+  <!-- CARGANDO LIBRERÍA -->
+  <div id="loadingLib" class="glass rounded-2xl shadow-2xl p-6 mb-6 text-center">
+    <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-2"></div>
+    <p class="text-gray-600">Cargando librería Supabase...</p>
+  </div>
+
   <!-- CONFIGURACIÓN SUPABASE -->
-  <div class="glass rounded-2xl shadow-2xl p-6 mb-6">
+  <div id="configSection" class="glass rounded-2xl shadow-2xl p-6 mb-6 hidden">
     <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
       <i class="fas fa-cog text-blue-600"></i> 1. Configuración de Supabase
     </h2>
@@ -54,7 +59,7 @@
   </div>
 
   <!-- DIAGNÓSTICO -->
-  <div class="glass rounded-2xl shadow-2xl p-6 mb-6">
+  <div id="diagSection" class="glass rounded-2xl shadow-2xl p-6 mb-6 hidden">
     <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
       <i class="fas fa-stethoscope text-green-600"></i> 2. Diagnóstico del Sistema
     </h2>
@@ -67,7 +72,7 @@
   </div>
 
   <!-- LOGIN NORMAL -->
-  <div class="glass rounded-2xl shadow-2xl p-6 mb-6">
+  <div id="loginSection" class="glass rounded-2xl shadow-2xl p-6 mb-6 hidden">
     <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
       <i class="fas fa-sign-in-alt text-blue-600"></i> 3. Login Normal
     </h2>
@@ -88,24 +93,17 @@
   </div>
 
   <!-- SOLUCIÓN DE EMERGENCIA -->
-  <div class="glass rounded-2xl shadow-2xl p-6 mb-6 border-2 border-orange-400">
+  <div id="bypassSection" class="glass rounded-2xl shadow-2xl p-6 mb-6 hidden border-2 border-orange-400">
     <h2 class="text-xl font-bold text-orange-700 mb-4 flex items-center gap-2">
       <i class="fas fa-exclamation-triangle"></i> 4. Solución de Emergencia (Bypass)
     </h2>
     <p class="text-sm text-gray-600 mb-4">
-      Si el login normal no funciona (por ejemplo, el usuario no está confirmado o hay problemas con el trigger), 
-      usa esta opción para ingresar directamente como Super Admin. 
+      Si el login normal no funciona, usa esta opción para ingresar directamente como Super Admin.
       <strong class="text-red-600">Solo para recuperación de emergencia.</strong>
     </p>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Email del Super Admin</label>
-        <input type="email" id="bypassEmail" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" placeholder="superadmin@ejemplo.com">
-      </div>
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Service Role Key (opcional)</label>
-        <input type="text" id="serviceKey" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none text-xs" placeholder="eyJhbGciOiJIUzI1NiIs... (solo si tienes)">
-      </div>
+    <div class="mb-4">
+      <label class="block text-sm font-medium text-gray-700 mb-1">Email del Super Admin</label>
+      <input type="email" id="bypassEmail" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" placeholder="superadmin@ejemplo.com">
     </div>
     <button onclick="bypassLogin()" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2.5 rounded-lg transition">
       <i class="fas fa-key mr-2"></i>Ingresar como Super Admin (Bypass)
@@ -121,36 +119,75 @@
     <div class="space-y-3 text-sm text-gray-700">
       <div class="flex items-start gap-3">
         <span class="w-6 h-6 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">1</span>
-        <p><strong>Verifica que las credenciales estén correctas</strong> en los campos de arriba (URL y Anon Key de tu proyecto Supabase).</p>
+        <p><strong>Verifica credenciales:</strong> URL y Anon Key de tu proyecto Supabase (Project Settings → API).</p>
       </div>
       <div class="flex items-start gap-3">
         <span class="w-6 h-6 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">2</span>
-        <p><strong>El usuario debe estar confirmado:</strong> En Supabase Dashboard → Authentication → Users, verifica que tu usuario tenga un check verde (confirmed). Si no, haz click en los 3 puntos → "Confirm email".</p>
+        <p><strong>Confirma el email:</strong> En Supabase Dashboard → Authentication → Users, busca tu usuario y haz click en "Confirm email".</p>
       </div>
       <div class="flex items-start gap-3">
         <span class="w-6 h-6 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">3</span>
-        <p><strong>Verifica que el trigger exista:</strong> En SQL Editor ejecuta: <code class="bg-gray-100 px-1 rounded">SELECT * FROM pg_trigger WHERE tgname = 'on_auth_user_created';</code></p>
+        <p><strong>Verifica el trigger:</strong> En SQL Editor ejecuta: <code class="bg-gray-100 px-1 rounded">SELECT * FROM pg_trigger WHERE tgname = 'on_auth_user_created';</code></p>
       </div>
       <div class="flex items-start gap-3">
         <span class="w-6 h-6 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">4</span>
-        <p><strong>Verifica que el perfil existe:</strong> Ejecuta: <code class="bg-gray-100 px-1 rounded">SELECT * FROM public.profiles;</code> Debe aparecer tu email con role='superadmin'.</p>
-      </div>
-      <div class="flex items-start gap-3">
-        <span class="w-6 h-6 bg-orange-100 text-orange-700 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">!</span>
-        <p><strong>Si todo falla:</strong> Usa la "Solución de Emergencia" arriba para ingresar directamente y luego crea un nuevo usuario desde el panel de Supabase.</p>
+        <p><strong>Verifica el perfil:</strong> Ejecuta: <code class="bg-gray-100 px-1 rounded">SELECT * FROM public.profiles;</code></p>
       </div>
     </div>
   </div>
 </div>
 
+<!-- CARGAR SUPABASE DE FORMA ROBUSTA -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
 <script>
-// ==================== CONFIGURACIÓN ====================
-let supabase = null;
-let supabaseUrl = localStorage.getItem('https://kwvltqnxirdnxoshgcge.supabase.co') || '';
-let supabaseKey = localStorage.getItem('sb_publishable_Ua7O9tt7sz2G-I2MOWXA1Q_jsJEoPfA') || '';
+// ==================== ESPERAR A QUE LA LIBRERÍA ESTÉ LISTA ====================
+let supabaseClient = null;
+let supabaseUrl = localStorage.getItem('sb_url') || '';
+let supabaseKey = localStorage.getItem('sb_key') || '';
 
-document.getElementById('supabaseUrl').value = supabaseUrl;
-document.getElementById('supabaseKey').value = supabaseKey;
+function esperarSupabase(callback, intentos = 0) {
+  if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
+    callback(true);
+  } else if (intentos < 50) {
+    setTimeout(() => esperarSupabase(callback, intentos + 1), 100);
+  } else {
+    callback(false);
+  }
+}
+
+// Inicializar cuando la página cargue
+window.addEventListener('load', () => {
+  esperarSupabase((ok) => {
+    document.getElementById('loadingLib').classList.add('hidden');
+    if (ok) {
+      document.getElementById('configSection').classList.remove('hidden');
+      document.getElementById('diagSection').classList.remove('hidden');
+      document.getElementById('loginSection').classList.remove('hidden');
+      document.getElementById('bypassSection').classList.remove('hidden');
+      document.getElementById('supabaseUrl').value = supabaseUrl;
+      document.getElementById('supabaseKey').value = supabaseKey;
+      if (supabaseUrl && supabaseKey) {
+        initSupabase();
+      }
+    } else {
+      document.getElementById('configSection').classList.remove('hidden');
+      document.getElementById('configSection').innerHTML += '<div class="mt-4 p-3 bg-red-50 text-red-700 rounded">Error: No se pudo cargar la librería de Supabase. Verifica tu conexión a internet.</div>';
+    }
+  });
+});
+
+function initSupabase() {
+  if (!supabaseUrl || !supabaseKey) return false;
+  try {
+    if (typeof window.supabase === 'undefined' || !window.supabase.createClient) {
+      return false;
+    }
+    supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
 
 function guardarConfig() {
   supabaseUrl = document.getElementById('supabaseUrl').value.trim();
@@ -159,19 +196,6 @@ function guardarConfig() {
   localStorage.setItem('sb_key', supabaseKey);
   document.getElementById('configStatus').innerHTML = '<span class="text-green-600"><i class="fas fa-check-circle"></i> Configuración guardada</span>';
   initSupabase();
-}
-
-function initSupabase() {
-  if (supabaseUrl && supabaseKey) {
-    try {
-      supabase = supabase.createClient(supabaseUrl, supabaseKey);
-      return true;
-    } catch (e) {
-      log('ERROR inicializando Supabase: ' + e.message, 'error');
-      return false;
-    }
-  }
-  return false;
 }
 
 // ==================== DIAGNÓSTICO ====================
@@ -197,19 +221,26 @@ async function ejecutarDiagnostico() {
   }
   log('✓ Credenciales configuradas', 'success');
 
-  // 2. Inicializar
+  // 2. Verificar librería
+  if (typeof window.supabase === 'undefined') {
+    log('ERROR: La librería de Supabase no está cargada', 'error');
+    return;
+  }
+  log('✓ Librería Supabase disponible', 'success');
+
+  // 3. Inicializar
   if (!initSupabase()) {
-    log('ERROR: No se pudo inicializar Supabase', 'error');
+    log('ERROR: No se pudo inicializar el cliente Supabase', 'error');
     return;
   }
   log('✓ Cliente Supabase inicializado', 'success');
 
-  // 3. Verificar conexión
+  // 4. Verificar conexión a base de datos
   try {
-    const { data, error } = await supabase.from('profiles').select('count').limit(1);
+    const { data, error } = await supabaseClient.from('profiles').select('count').limit(1);
     if (error) {
       log('✗ No se puede conectar a la tabla profiles: ' + error.message, 'error');
-      log('  Posible causa: El SQL no fue ejecutado o RLS bloquea el acceso', 'warn');
+      log('  Posible causa: El SQL no fue ejecutado o RLS bloquea', 'warn');
     } else {
       log('✓ Conexión a base de datos OK', 'success');
     }
@@ -217,18 +248,22 @@ async function ejecutarDiagnostico() {
     log('✗ Error de conexión: ' + e.message, 'error');
   }
 
-  // 4. Verificar sesión actual
-  const { data: { session } } = await supabase.auth.getSession();
-  if (session) {
-    log('✓ Hay sesión activa: ' + session.user.email, 'success');
-    log('  User ID: ' + session.user.id, 'info');
-  } else {
-    log('✗ No hay sesión activa', 'warn');
+  // 5. Verificar sesión actual
+  try {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (session) {
+      log('✓ Hay sesión activa: ' + session.user.email, 'success');
+      log('  User ID: ' + session.user.id, 'info');
+    } else {
+      log('✗ No hay sesión activa', 'warn');
+    }
+  } catch (e) {
+    log('✗ Error verificando sesión: ' + e.message, 'error');
   }
 
-  // 5. Verificar tabla profiles
+  // 6. Verificar tabla profiles
   try {
-    const { data: profiles, error } = await supabase.from('profiles').select('*');
+    const { data: profiles, error } = await supabaseClient.from('profiles').select('*');
     if (error) {
       log('✗ Error consultando profiles: ' + error.message, 'error');
     } else {
@@ -241,9 +276,9 @@ async function ejecutarDiagnostico() {
     log('✗ Error: ' + e.message, 'error');
   }
 
-  // 6. Verificar tabla gestantes
+  // 7. Verificar tabla gestantes
   try {
-    const { data, error } = await supabase.from('gestantes').select('count').limit(1);
+    const { data, error } = await supabaseClient.from('gestantes').select('count').limit(1);
     if (error) {
       log('✗ Tabla gestantes no accesible: ' + error.message, 'error');
     } else {
@@ -253,9 +288,9 @@ async function ejecutarDiagnostico() {
     log('✗ Error gestantes: ' + e.message, 'error');
   }
 
-  // 7. Verificar calendarios
+  // 8. Verificar calendarios
   try {
-    const { data, error } = await supabase.from('calendarios_epidemiologicos').select('count').limit(1);
+    const { data, error } = await supabaseClient.from('calendarios_epidemiologicos').select('count').limit(1);
     if (error) {
       log('✗ Tabla calendarios no accesible: ' + error.message, 'error');
     } else {
@@ -263,16 +298,6 @@ async function ejecutarDiagnostico() {
     }
   } catch (e) {
     log('✗ Error calendarios: ' + e.message, 'error');
-  }
-
-  // 8. Verificar trigger
-  try {
-    const { data, error } = await supabase.rpc('check_trigger_exists');
-    // Si no existe la función RPC, intentamos otra forma
-    log('ℹ Para verificar triggers, ejecuta en SQL Editor:', 'info');
-    log('   SELECT * FROM pg_trigger WHERE tgname = \'on_auth_user_created\';', 'info');
-  } catch (e) {
-    log('ℹ Verificar trigger manualmente en SQL Editor', 'info');
   }
 
   log('=== DIAGNÓSTICO COMPLETADO ===', 'info');
@@ -295,7 +320,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
   resultDiv.innerHTML = '<div class="text-blue-600"><i class="fas fa-spinner fa-spin mr-2"></i>Verificando credenciales...</div>';
 
   try {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
 
     if (error) {
       let msg = error.message;
@@ -309,25 +334,24 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     }
 
     // Verificar perfil
-    const { data: profile, error: pError } = await supabase
+    const { data: profile, error: pError } = await supabaseClient
       .from('profiles')
       .select('*')
       .eq('id', data.user.id)
       .single();
 
     if (pError || !profile) {
-      resultDiv.innerHTML = '<div class="bg-orange-50 text-orange-700 p-3 rounded">Usuario autenticado pero NO tiene perfil en el sistema. El trigger no funcionó. Usa la "Solución de Emergencia" abajo.</div>';
+      resultDiv.innerHTML = '<div class="bg-orange-50 text-orange-700 p-3 rounded">Usuario autenticado pero NO tiene perfil. El trigger no funcionó. Usa la "Solución de Emergencia" abajo.</div>';
       return;
     }
 
     if (!profile.activo) {
-      resultDiv.innerHTML = '<div class="bg-red-50 text-red-700 p-3 rounded">Usuario desactivado. Contacte al administrador.</div>';
+      resultDiv.innerHTML = '<div class="bg-red-50 text-red-700 p-3 rounded">Usuario desactivado.</div>';
       return;
     }
 
     resultDiv.innerHTML = `<div class="bg-green-50 text-green-700 p-3 rounded"><strong>¡Login exitoso!</strong><br>Rol: ${profile.role}<br>Redirigiendo...</div>`;
 
-    // Guardar sesión y redirigir al sistema principal
     localStorage.setItem('epi_session', JSON.stringify({
       user: data.user,
       profile: profile,
@@ -362,8 +386,7 @@ async function bypassLogin() {
   resultDiv.innerHTML = '<div class="text-orange-600"><i class="fas fa-spinner fa-spin mr-2"></i>Buscando perfil...</div>';
 
   try {
-    // Buscar perfil por email
-    const { data: profiles, error } = await supabase
+    const { data: profiles, error } = await supabaseClient
       .from('profiles')
       .select('*')
       .eq('email', email);
@@ -374,13 +397,12 @@ async function bypassLogin() {
     }
 
     if (!profiles || profiles.length === 0) {
-      resultDiv.innerHTML = '<div class="bg-red-50 text-red-700 p-3 rounded">No se encontró ningún perfil con ese email. Crea el usuario primero en Supabase Dashboard → Authentication → Users.</div>';
+      resultDiv.innerHTML = '<div class="bg-red-50 text-red-700 p-3 rounded">No se encontró perfil. Crea el usuario en Supabase Dashboard → Authentication → Users.</div>';
       return;
     }
 
     const profile = profiles[0];
 
-    // Crear un objeto de sesión simulada para bypass
     const bypassSession = {
       user: { id: profile.id, email: profile.email },
       profile: profile,
@@ -390,7 +412,7 @@ async function bypassLogin() {
 
     localStorage.setItem('epi_session', JSON.stringify(bypassSession));
 
-    resultDiv.innerHTML = `<div class="bg-green-50 text-green-700 p-3 rounded"><strong>¡Bypass exitoso!</strong><br>Usuario: ${profile.email}<br>Rol: ${profile.role}<br>Redirigiendo al sistema...</div>`;
+    resultDiv.innerHTML = `<div class="bg-green-50 text-green-700 p-3 rounded"><strong>¡Bypass exitoso!</strong><br>Usuario: ${profile.email}<br>Rol: ${profile.role}<br>Redirigiendo...</div>`;
 
     setTimeout(() => {
       window.location.href = 'SISTEMA_EPI_RUTA_MATERNA.html';
@@ -399,11 +421,6 @@ async function bypassLogin() {
   } catch (err) {
     resultDiv.innerHTML = `<div class="bg-red-50 text-red-700 p-3 rounded">Error: ${err.message}</div>`;
   }
-}
-
-// Auto-inicializar si hay config guardada
-if (supabaseUrl && supabaseKey) {
-  initSupabase();
 }
 </script>
 </body>
