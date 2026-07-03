@@ -68,6 +68,7 @@
     <div id="loginError" class="hidden mt-4 p-3 bg-red-50 text-red-700 text-sm rounded-lg border border-red-200"></div>
     <div class="mt-4 text-center text-xs text-gray-400">
       <p>¿Primera vez? Contacte al Super Administrador</p>
+      <p class="mt-1 text-gray-300">v2.0 - Supabase Edition</p>
     </div>
   </div>
 </div>
@@ -461,17 +462,25 @@
           </h3>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <p class="text-sm text-gray-500 mb-3">Exportar datos de gestantes a Excel encriptado.</p>
+              <p class="text-sm text-gray-500 mb-3">Exportar datos de gestantes a Excel normal o encriptado.</p>
               <div class="mb-3">
-                <input type="password" id="excelKey" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Clave para encriptar Excel">
+                <input type="password" id="excelKey" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Clave para encriptar (opcional)">
               </div>
-              <button onclick="exportarExcel()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition">
-                <i class="fas fa-file-export mr-2"></i>Exportar Excel
-              </button>
+              <div class="flex gap-2">
+                <button onclick="exportarExcel()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition">
+                  <i class="fas fa-file-export mr-2"></i>Exportar Excel
+                </button>
+                <button onclick="exportarExcelEncriptado()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition">
+                  <i class="fas fa-lock mr-2"></i>Encriptado
+                </button>
+              </div>
             </div>
             <div>
-              <p class="text-sm text-gray-500 mb-3">Importar gestantes desde Excel.</p>
-              <input type="file" id="excelImport" accept=".xlsx,.xls" class="w-full px-4 py-2 border border-gray-300 rounded-lg mb-3">
+              <p class="text-sm text-gray-500 mb-3">Importar gestantes desde Excel (normal o encriptado).</p>
+              <input type="file" id="excelImport" accept=".xlsx,.xls,.epi" class="w-full px-4 py-2 border border-gray-300 rounded-lg mb-3">
+              <div class="mb-3">
+                <input type="password" id="excelImportKey" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Clave si el archivo está encriptado">
+              </div>
               <button onclick="importarExcel()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition">
                 <i class="fas fa-file-import mr-2"></i>Importar Excel
               </button>
@@ -515,7 +524,7 @@
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Edad</label>
-            <input type="number" id="gEdad" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" min="10" max="80">
+            <input type="number" id="gEdad" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" min="10" max="80" readonly>
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
@@ -697,7 +706,7 @@
             </div>
           </div>
         </div>
-        <div class="border-t border-gray-100 pt-4">
+        <div id="accionesEspeciales" class="border-t border-gray-100 pt-4 hidden">
           <h4 class="font-semibold text-gray-700 mb-3">Acciones Especiales</h4>
           <div class="flex flex-wrap gap-3">
             <button type="button" onclick="marcarPuerpera()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm transition">
@@ -866,7 +875,7 @@
 
 <script>
 // ==================== CONFIGURACIÓN SUPABASE ====================
-// REEMPLACE ESTOS VALORES CON LOS DE SU PROYECTO SUPABASE
+// ⚠️ REEMPLACE ESTOS VALORES CON LOS DE SU PROYECTO SUPABASE
 const SUPABASE_URL = 'https://tu-proyecto.supabase.co';
 const SUPABASE_ANON_KEY = 'tu-anon-key';
 
@@ -895,17 +904,17 @@ const CONSULTORIOS = [
   'LA ROMPIA (CAMAGUAN)'
 ];
 
-// ==================== CALENDARIO EPIDEMIOLÓGICO 2026 GUÁRICO ====================
-// Basado en la imagen: Semana 1 = 04-10 enero 2026 (domingo a sábado)
-function generarCalendario2026() {
+// ==================== CALENDARIO EPIDEMIOLÓGICO ====================
+function generarCalendarioLocal(anio, fechaInicioSem1) {
   const semanas = [];
-  const inicio = new Date(2026, 0, 4); // 4 de enero 2026 (domingo)
+  const inicio = new Date(fechaInicioSem1 + 'T00:00:00');
   for (let i = 1; i <= 52; i++) {
     const ini = new Date(inicio);
     ini.setDate(inicio.getDate() + (i - 1) * 7);
     const fin = new Date(ini);
     fin.setDate(ini.getDate() + 6);
     semanas.push({
+      anio: anio,
       semana: i,
       fecha_inicio: ini.toISOString().split('T')[0],
       fecha_fin: fin.toISOString().split('T')[0]
@@ -927,9 +936,15 @@ function getSemanaEpidemiologica(fecha, calendario) {
   return null;
 }
 
-function getCurrentSemanaEpidemiologica() {
+async function getCurrentSemanaEpidemiologica() {
   const hoy = new Date();
-  const cal2026 = generarCalendario2026();
+  const anioActual = hoy.getFullYear();
+  const cal = calendariosData.filter(c => c.anio === anioActual);
+  if (cal.length > 0) {
+    return getSemanaEpidemiologica(hoy, cal) || '-';
+  }
+  // Fallback a local 2026
+  const cal2026 = generarCalendarioLocal(2026, '2026-01-04');
   return getSemanaEpidemiologica(hoy, cal2026) || '-';
 }
 
@@ -943,13 +958,14 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
 
   btn.innerHTML = '<div class="spinner"></div>';
   btn.disabled = true;
+  errorDiv.classList.add('hidden');
 
   try {
     const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
     if (error) throw error;
 
-    // Verificar perfil
-    const { data: profile, error: pError } = await supabase
+    // CORRECCIÓN: usar supabaseClient en lugar de supabase
+    const { data: profile, error: pError } = await supabaseClient
       .from('profiles')
       .select('*')
       .eq('id', data.user.id)
@@ -980,6 +996,11 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
 async function logout() {
   await supabaseClient.auth.signOut();
   localStorage.removeItem('epi_session');
+  currentUser = null;
+  currentProfile = null;
+  gestantesData = [];
+  controlData = [];
+  usersData = [];
   location.reload();
 }
 
@@ -1006,9 +1027,9 @@ async function initApp() {
   // Fecha actual
   const opciones = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
   document.getElementById('currentDate').textContent = new Date().toLocaleDateString('es-VE', opciones);
-  document.getElementById('currentEpiWeek').textContent = 'SE ' + getCurrentSemanaEpidemiologica();
+  document.getElementById('currentEpiWeek').textContent = 'SE ' + await getCurrentSemanaEpidemiologica();
 
-  // Cargar calendarios
+  // Cargar calendarios primero (necesarios para semana epi)
   await loadCalendarios();
 
   // Cargar datos
@@ -1017,7 +1038,7 @@ async function initApp() {
 
   // Inicializar selects
   initConsultoriosSelects();
-  initSemanasSelect();
+  await initSemanasSelect();
 
   showSection('dashboard');
 }
@@ -1034,6 +1055,10 @@ function initConsultoriosSelects() {
     if (!el) return;
     if (id === 'filterConsultorio') {
       el.innerHTML = '<option value="">Todos los consultorios</option>';
+    } else if (id === 'gConsultorio') {
+      el.innerHTML = '<option value="">Seleccione...</option>';
+    } else if (id === 'uConsultorio') {
+      el.innerHTML = '<option value="">Ninguno (Todos)</option>';
     }
     CONSULTORIOS.forEach(c => {
       const opt = document.createElement('option');
@@ -1042,18 +1067,62 @@ function initConsultoriosSelects() {
       el.appendChild(opt);
     });
   });
+
+  // Preseleccionar consultorio para médicos
+  if (currentProfile.role === 'medico' && currentProfile.consultorio) {
+    const gConsultorio = document.getElementById('gConsultorio');
+    if (gConsultorio) {
+      gConsultorio.value = currentProfile.consultorio;
+      gConsultorio.disabled = true;
+    }
+  }
 }
 
-function initSemanasSelect() {
+async function initSemanasSelect() {
   const sel = document.getElementById('semanaEpiSelect');
+  const anioSel = document.getElementById('anioEpiSelect');
   sel.innerHTML = '<option value="">Seleccione semana</option>';
-  for (let i = 1; i <= 52; i++) {
-    const opt = document.createElement('option');
-    opt.value = i;
-    const cal = generarCalendario2026().find(s => s.semana === i);
-    opt.textContent = `SE ${i} (${cal.fecha_inicio} al ${cal.fecha_fin})`;
-    sel.appendChild(opt);
+
+  // Obtener años disponibles
+  const anios = [...new Set(calendariosData.map(c => c.anio))].sort((a, b) => b - a);
+  anioSel.innerHTML = '';
+  if (anios.length === 0) {
+    anioSel.innerHTML = '<option value="2026">2026</option>';
+  } else {
+    anios.forEach(a => {
+      const opt = document.createElement('option');
+      opt.value = a;
+      opt.textContent = a;
+      anioSel.appendChild(opt);
+    });
   }
+
+  const anioActivo = parseInt(anioSel.value) || 2026;
+  const semanas = calendariosData.filter(c => c.anio === anioActivo).sort((a, b) => a.semana - b.semana);
+
+  if (semanas.length === 0) {
+    // Fallback local 2026
+    const cal2026 = generarCalendarioLocal(2026, '2026-01-04');
+    cal2026.forEach(s => {
+      const opt = document.createElement('option');
+      opt.value = s.semana;
+      opt.textContent = `SE ${s.semana} (${s.fecha_inicio} al ${s.fecha_fin})`;
+      sel.appendChild(opt);
+    });
+  } else {
+    semanas.forEach(s => {
+      const opt = document.createElement('option');
+      opt.value = s.semana;
+      opt.textContent = `SE ${s.semana} (${s.fecha_inicio} al ${s.fecha_fin})`;
+      sel.appendChild(opt);
+    });
+  }
+}
+
+// CORRECCIÓN: Función faltante para cambiar año
+async function loadSemanasDisponibles() {
+  await initSemanasSelect();
+  loadControlSemanal();
 }
 
 // ==================== NAVEGACIÓN ====================
@@ -1099,15 +1168,19 @@ function toggleSidebar() {
 
 // ==================== GESTANTES CRUD ====================
 async function loadGestantes() {
-  let query = supabaseClient.from('gestantes').select('*').order('fecha_registro', { ascending: false });
-  if (currentProfile.role === 'medico' && currentProfile.consultorio) {
-    query = query.eq('consultorio', currentProfile.consultorio);
+  try {
+    let query = supabaseClient.from('gestantes').select('*').order('fecha_registro', { ascending: false });
+    if (currentProfile.role === 'medico' && currentProfile.consultorio) {
+      query = query.eq('consultorio', currentProfile.consultorio);
+    }
+    const { data, error } = await query;
+    if (error) { showToast('Error cargando gestantes: ' + error.message, 'error'); return; }
+    gestantesData = data || [];
+    renderGestantes();
+    renderDashboard();
+  } catch (err) {
+    showToast('Error crítico: ' + err.message, 'error');
   }
-  const { data, error } = await query;
-  if (error) { showToast('Error cargando gestantes: ' + error.message, 'error'); return; }
-  gestantesData = data || [];
-  renderGestantes();
-  renderDashboard();
 }
 
 function renderGestantes() {
@@ -1168,6 +1241,16 @@ function openGestanteModal() {
   document.getElementById('gestanteForm').reset();
   document.getElementById('gestanteId').value = '';
   document.getElementById('gestanteModalTitle').textContent = 'Nueva Embarazada';
+  document.getElementById('accionesEspeciales').classList.add('hidden');
+
+  // Preseleccionar consultorio para médicos
+  if (currentProfile.role === 'medico' && currentProfile.consultorio) {
+    document.getElementById('gConsultorio').value = currentProfile.consultorio;
+  } else {
+    document.getElementById('gConsultorio').value = '';
+    document.getElementById('gConsultorio').disabled = false;
+  }
+
   document.getElementById('gestanteModal').classList.remove('hidden');
   calcularSemanasFPP();
 }
@@ -1212,6 +1295,17 @@ function editGestante(id) {
   document.getElementById('gReferido').value = g.referido || '';
   document.getElementById('gObservacion').value = g.observacion || '';
   document.getElementById('gestanteModalTitle').textContent = 'Editar Embarazada';
+
+  // Mostrar acciones especiales solo en edición
+  document.getElementById('accionesEspeciales').classList.remove('hidden');
+
+  // Habilitar consultorio si es admin/superadmin
+  if (currentProfile.role === 'medico') {
+    document.getElementById('gConsultorio').disabled = true;
+  } else {
+    document.getElementById('gConsultorio').disabled = false;
+  }
+
   document.getElementById('gestanteModal').classList.remove('hidden');
 }
 
@@ -1224,6 +1318,22 @@ async function deleteGestante(id) {
 }
 
 // Cálculos automáticos
+function calcularEdad() {
+  const fechaNac = document.getElementById('gFechaNac').value;
+  if (!fechaNac) return;
+  const nac = new Date(fechaNac + 'T00:00:00');
+  const hoy = new Date();
+  let edad = hoy.getFullYear() - nac.getFullYear();
+  const m = hoy.getMonth() - nac.getMonth();
+  if (m < 0 || (m === 0 && hoy.getDate() < nac.getDate())) {
+    edad--;
+  }
+  if (edad >= 10 && edad <= 80) {
+    document.getElementById('gEdad').value = edad;
+  }
+}
+
+document.getElementById('gFechaNac').addEventListener('change', calcularEdad);
 document.getElementById('gFur').addEventListener('change', calcularSemanasFPP);
 document.getElementById('gFur').addEventListener('input', calcularSemanasFPP);
 
@@ -1243,6 +1353,9 @@ function calcularSemanasFPP() {
     const fpp = new Date(furDate);
     fpp.setDate(fpp.getDate() + 280);
     document.getElementById('gFpp').value = fpp.toISOString().split('T')[0];
+  } else if (semanas < 0) {
+    showToast('La F.U.R no puede ser futura', 'error');
+    document.getElementById('gFur').value = '';
   }
 }
 
@@ -1251,11 +1364,10 @@ document.getElementById('gestanteForm').addEventListener('submit', async (e) => 
   const id = document.getElementById('gestanteId').value;
   const fur = document.getElementById('gFur').value;
   const semGesta = document.getElementById('gSemGesta').value;
-  let trimestre = 0;
-  const semNum = parseInt(semGesta);
-  if (semNum <= 13) trimestre = 1;
-  else if (semNum <= 27) trimestre = 2;
-  else if (semNum > 27) trimestre = 3;
+
+  // Calcular semana epidemiológica actual
+  const semanaEpi = await getCurrentSemanaEpidemiologica();
+  const semanaEpiNum = parseInt(semanaEpi) || null;
 
   const data = {
     cedula: document.getElementById('gCedula').value.trim(),
@@ -1289,11 +1401,15 @@ document.getElementById('gestanteForm').addEventListener('submit', async (e) => 
     tipo_consulta: document.getElementById('gTipoConsulta').value,
     referido: document.getElementById('gReferido').value.trim().toUpperCase(),
     observacion: document.getElementById('gObservacion').value.trim().toUpperCase(),
-    trimestre: trimestre,
-    fecha_registro: id ? undefined : new Date().toISOString(),
+    semana_epidemiologica: semanaEpiNum,
     fecha_ultima_actualizacion: new Date().toISOString(),
     created_by: currentUser.id
   };
+
+  // Solo enviar fecha_registro en INSERT, no en UPDATE
+  if (!id) {
+    data.fecha_registro = new Date().toISOString();
+  }
 
   if (id) {
     const { error } = await supabaseClient.from('gestantes').update(data).eq('id', id);
@@ -1328,7 +1444,6 @@ async function marcarAborto() {
   const id = document.getElementById('gestanteId').value;
   if (!id) { showToast('Guarde el registro primero', 'error'); return; }
   if (!confirm('¿Archivar este registro? Se guardarán nombre, apellido y cédula para futuras consultas.')) return;
-  const g = gestantesData.find(x => x.id === id);
   const { error } = await supabaseClient.from('gestantes').update({
     estado: 'archivado',
     motivo_archivo: 'ABORTO',
@@ -1447,8 +1562,8 @@ async function loadControlSemanal() {
   }
   empty.classList.add('hidden');
 
-  // Cargar controles de esa semana
-  const { data, error } = await supabase
+  // CORRECCIÓN: usar supabaseClient en lugar de supabase
+  const { data, error } = await supabaseClient
     .from('control_semanal')
     .select('*, gestantes(*)')
     .eq('semana_epidemiologica', parseInt(semana))
@@ -1468,6 +1583,8 @@ function renderControlTable() {
   tbody.innerHTML = controlData.map((c, i) => {
     const g = c.gestantes || {};
     const canEdit = currentProfile.role !== 'medico' || currentProfile.consultorio === g.consultorio;
+    // CORRECCIÓN: Riesgo ahora muestra SI si tiene ARO
+    const riesgo = g.aro ? 'SI' : 'NO';
     return `<tr class="hover:bg-gray-50">
       <td class="px-4 py-3">${i + 1}</td>
       <td class="px-4 py-3 text-xs">${g.consultorio || ''}</td>
@@ -1480,7 +1597,7 @@ function renderControlTable() {
       <td class="px-4 py-3">${g.fur || ''}</td>
       <td class="px-4 py-3 font-medium">${c.semana_gestacion || g.semana_gestacion || ''}</td>
       <td class="px-4 py-3">${g.num_g || 0}</td>
-      <td class="px-4 py-3">${g.aro ? 'NO' : 'NO'}</td>
+      <td class="px-4 py-3">${riesgo}</td>
       <td class="px-4 py-3">${c.motivo || ''}</td>
       <td class="px-4 py-3">${c.diagnostico || ''}</td>
       <td class="px-4 py-3">${c.tipo_consulta || ''}</td>
@@ -1507,7 +1624,8 @@ async function generarReporteSemanal() {
   if (error) { showToast('Error: ' + error.message, 'error'); return; }
 
   // Verificar cuáles ya tienen control esta semana
-  const { data: existentes } = await supabase
+  // CORRECCIÓN: usar supabaseClient
+  const { data: existentes } = await supabaseClient
     .from('control_semanal')
     .select('gestante_id')
     .eq('semana_epidemiologica', parseInt(semana))
@@ -1581,6 +1699,8 @@ async function exportarExcelSemanal() {
   const { data } = await supabaseClient.from('control_semanal').select('*, gestantes(*)').eq('semana_epidemiologica', parseInt(semana)).eq('anio', parseInt(anio));
   const rows = (data || []).map((c, i) => {
     const g = c.gestantes || {};
+    // CORRECCIÓN: Riesgo ahora muestra SI si tiene ARO
+    const riesgo = g.aro ? 'SI' : 'NO';
     return {
       'Nº': i + 1,
       'CP': g.consultorio,
@@ -1593,7 +1713,7 @@ async function exportarExcelSemanal() {
       'F.U.R': g.fur,
       'Sem. Gesta.': c.semana_gestacion || g.semana_gestacion,
       'N° Gesta': g.num_g,
-      'Riesgo': g.aro ? 'NO' : 'NO',
+      'Riesgo': riesgo,
       'Motivo': c.motivo,
       'Diagnóstico': c.diagnostico,
       'Tipo': c.tipo_consulta,
@@ -1616,7 +1736,9 @@ function renderDashboard() {
   document.getElementById('dashTotal').textContent = activas.length;
   document.getElementById('dashPuerperas').textContent = puerperas.length;
   document.getElementById('dashMenores').textContent = menores.length;
-  document.getElementById('dashSemanaEpi').textContent = getCurrentSemanaEpidemiologica();
+  getCurrentSemanaEpidemiologica().then(se => {
+    document.getElementById('dashSemanaEpi').textContent = se;
+  });
 
   // Gráfico trimestres
   const t1 = activas.filter(g => g.trimestre === 1).length;
@@ -1637,8 +1759,11 @@ function renderDashboard() {
   const aro0 = activas.length - aro1 - aro2 - aro3;
   renderChart('chartARO', 'bar', ['Sin ARO', 'ARO I', 'ARO II', 'ARO III'], [aro0, aro1, aro2, aro3], ['#9ca3af', '#10b981', '#f59e0b', '#ef4444']);
 
-  // Recientes
-  const recientes = [...gestantesData].sort((a, b) => new Date(b.fecha_registro) - new Date(a.fecha_registro)).slice(0, 5);
+  // Recientes (solo activos, no archivados)
+  const recientes = [...gestantesData]
+    .filter(g => g.estado !== 'archivado')
+    .sort((a, b) => new Date(b.fecha_registro) - new Date(a.fecha_registro))
+    .slice(0, 5);
   document.getElementById('recentRecords').innerHTML = recientes.map(g => `
     <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
       <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-xs"><i class="fas fa-female"></i></div>
@@ -1711,22 +1836,23 @@ document.getElementById('userForm').addEventListener('submit', async (e) => {
   const consultorio = document.getElementById('uConsultorio').value;
 
   // Crear usuario en Auth
+  // NOTA: En Supabase, debes desactivar "Confirm email" en Auth > Settings para que funcione inmediatamente
   const { data: authData, error: authError } = await supabaseClient.auth.signUp({
     email, password,
-    options: { data: { nombre } }
+    options: { data: { nombre, role: rol, consultorio: consultorio || null } }
   });
   if (authError) { showToast('Error creando usuario: ' + authError.message, 'error'); return; }
 
-  // Crear perfil
-  const { error: profError } = await supabaseClient.from('profiles').insert([{
-    id: authData.user.id,
-    email,
-    nombre,
-    role: rol,
-    consultorio: consultorio || null,
-    activo: true
-  }]);
-  if (profError) { showToast('Error creando perfil: ' + profError.message, 'error'); return; }
+  // El trigger handle_new_user creará el perfil automáticamente
+  // Pero actualizamos el rol y consultorio por si acaso
+  if (authData.user) {
+    const { error: upError } = await supabaseClient.from('profiles').update({
+      role: rol,
+      consultorio: consultorio || null,
+      nombre: nombre
+    }).eq('id', authData.user.id);
+    if (upError) console.warn('Error actualizando perfil:', upError);
+  }
 
   showToast('Usuario creado exitosamente');
   closeUserModal();
@@ -1742,8 +1868,7 @@ async function toggleUser(id, activo) {
 
 async function deleteUser(id) {
   if (!confirm('¿Eliminar permanentemente este usuario?')) return;
-  // Eliminar de Auth (requiere Edge Function o hacerlo desde el panel de Supabase)
-  // Por ahora solo eliminamos el perfil y desactivamos
+  // Eliminar perfil (el auth user queda en Supabase, solo superadmin puede eliminarlo desde panel)
   const { error } = await supabaseClient.from('profiles').delete().eq('id', id);
   if (error) { showToast('Error: ' + error.message, 'error'); return; }
   showToast('Usuario eliminado');
@@ -1753,20 +1878,21 @@ async function deleteUser(id) {
 // ==================== CALENDARIOS ====================
 async function loadCalendarios() {
   const { data, error } = await supabaseClient.from('calendarios_epidemiologicos').select('*').order('anio', { ascending: false });
-  if (error) return;
+  if (error) { console.warn('Error cargando calendarios:', error); return; }
   calendariosData = data || [];
   // Si no hay 2026, usar el generado localmente
   if (!calendariosData.find(c => c.anio === 2026)) {
-    calendariosData = [...calendariosData, ...generarCalendario2026().map(s => ({ ...s, anio: 2026 }))];
+    const cal2026 = generarCalendarioLocal(2026, '2026-01-04');
+    calendariosData = [...calendariosData, ...cal2026];
   }
   renderCalendarios();
 }
 
 function renderCalendarios() {
   const container = document.getElementById('calendariosList');
-  const anios = [...new Set(calendariosData.map(c => c.anio))];
+  const anios = [...new Set(calendariosData.map(c => c.anio))].sort((a, b) => b - a);
   container.innerHTML = anios.map(anio => {
-    const semanas = calendariosData.filter(c => c.anio === anio);
+    const semanas = calendariosData.filter(c => c.anio === anio).sort((a, b) => a.semana - b.semana);
     return `
       <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
         <div class="flex items-center justify-between mb-2">
@@ -1797,8 +1923,7 @@ document.getElementById('calendarioForm').addEventListener('submit', async (e) =
       anio,
       semana: i,
       fecha_inicio: ini.toISOString().split('T')[0],
-      fecha_fin: fin.toISOString().split('T')[0],
-      mes: ini.getMonth() + 1
+      fecha_fin: fin.toISOString().split('T')[0]
     });
   }
 
@@ -1807,6 +1932,7 @@ document.getElementById('calendarioForm').addEventListener('submit', async (e) =
   showToast(`Calendario ${anio} creado con 52 semanas`);
   closeCalendarioModal();
   await loadCalendarios();
+  await initSemanasSelect();
 });
 
 // ==================== BACKUP / RESTORE ====================
@@ -1844,9 +1970,10 @@ async function restoreData() {
     const data = JSON.parse(decrypted);
     if (!confirm(`¿Restaurar ${data.gestantes?.length || 0} gestantes, ${data.control_semanal?.length || 0} controles? Esto reemplazará los datos actuales.`)) return;
 
-    // Truncar e insertar
-    await supabaseClient.from('gestantes').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    // CORRECCIÓN: Orden correcto - primero control_semanal (hijos), luego gestantes (padres)
+    // En realidad, como control_semanal referencia gestantes, debemos eliminar primero control_semanal
     await supabaseClient.from('control_semanal').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    await supabaseClient.from('gestantes').delete().neq('id', '00000000-0000-0000-0000-000000000000');
 
     if (data.gestantes && data.gestantes.length > 0) {
       const { error } = await supabaseClient.from('gestantes').insert(data.gestantes);
@@ -1865,6 +1992,21 @@ async function restoreData() {
 
 // ==================== EXCEL IMPORT/EXPORT ====================
 async function exportarExcel() {
+  const { data } = await supabaseClient.from('gestantes').select('*');
+  const rows = (data || []).map(g => ({
+    CEDULA: g.cedula, NOMBRES: g.nombres, APELLIDOS: g.apellidos,
+    CONSULTORIO: g.consultorio, EDAD: g.edad, TELEFONO: g.telefono,
+    DIRECCION: g.direccion, FUR: g.fur, SEM_GESTACION: g.semana_gestacion,
+    FPP: g.fpp, ARO: g.aro, ESTADO: g.estado
+  }));
+  const ws = XLSX.utils.json_to_sheet(rows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Gestantes');
+  XLSX.writeFile(wb, `gestantes_${new Date().toISOString().split('T')[0]}.xlsx`);
+  showToast('Excel exportado');
+}
+
+async function exportarExcelEncriptado() {
   const key = document.getElementById('excelKey').value;
   if (!key) { showToast('Ingrese clave para encriptar', 'error'); return; }
 
@@ -1885,7 +2027,7 @@ async function exportarExcel() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `gestantes_encrypted.xlsx`;
+  a.download = `gestantes_encrypted_${new Date().toISOString().split('T')[0]}.epi`;
   a.click();
   URL.revokeObjectURL(url);
   showToast('Excel encriptado exportado');
@@ -1893,10 +2035,33 @@ async function exportarExcel() {
 
 async function importarExcel() {
   const file = document.getElementById('excelImport').files[0];
-  if (!file) { showToast('Seleccione un archivo Excel', 'error'); return; }
-  const reader = new FileReader();
-  reader.onload = async (e) => {
-    const data = new Uint8Array(e.target.result);
+  const key = document.getElementById('excelImportKey').value;
+  if (!file) { showToast('Seleccione un archivo', 'error'); return; }
+
+  let data;
+  try {
+    const fileText = await file.text();
+    // Intentar desencriptar si hay clave
+    if (key && file.name.endsWith('.epi')) {
+      const decrypted = CryptoJS.AES.decrypt(fileText, key).toString(CryptoJS.enc.Utf8);
+      if (!decrypted) throw new Error('Clave incorrecta o archivo no encriptado');
+      // El contenido desencriptado es un WordArray que representa un XLSX
+      // Necesitamos convertirlo de vuelta
+      const bytes = [];
+      for (let i = 0; i < decrypted.length; i += 2) {
+        bytes.push(parseInt(decrypted.substr(i, 2), 16));
+      }
+      data = new Uint8Array(bytes);
+    } else {
+      // Leer como ArrayBuffer para Excel normal
+      data = await file.arrayBuffer();
+    }
+  } catch (err) {
+    showToast('Error leyendo archivo: ' + err.message, 'error');
+    return;
+  }
+
+  try {
     const workbook = XLSX.read(data, { type: 'array' });
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
     const rows = XLSX.utils.sheet_to_json(sheet);
@@ -1916,6 +2081,7 @@ async function importarExcel() {
       aro: r.ARO || r.aro || null,
       estado: r.ESTADO || r.estado || 'gestante',
       fecha_registro: new Date().toISOString(),
+      fecha_ultima_actualizacion: new Date().toISOString(),
       created_by: currentUser.id
     }));
 
@@ -1923,8 +2089,9 @@ async function importarExcel() {
     if (error) { showToast('Error: ' + error.message, 'error'); return; }
     showToast(`${inserts.length} registros importados`);
     await loadGestantes();
-  };
-  reader.readAsArrayBuffer(file);
+  } catch (err) {
+    showToast('Error importando: ' + err.message, 'error');
+  }
 }
 
 // ==================== UTILIDADES ====================
@@ -1941,15 +2108,19 @@ function showToast(msg, type = 'success') {
 // ==================== INICIO ====================
 window.addEventListener('DOMContentLoaded', async () => {
   // Primero intentar sesión normal de Supabase
-  const { data: { session } } = await supabaseClient.auth.getSession();
-  if (session) {
-    const { data: profile } = await supabaseClient.from('profiles').select('*').eq('id', session.user.id).single();
-    if (profile && profile.activo) {
-      currentUser = session.user;
-      currentProfile = profile;
-      initApp();
-      return;
+  try {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (session) {
+      const { data: profile, error } = await supabaseClient.from('profiles').select('*').eq('id', session.user.id).single();
+      if (profile && profile.activo && !error) {
+        currentUser = session.user;
+        currentProfile = profile;
+        initApp();
+        return;
+      }
     }
+  } catch (e) {
+    console.warn('Error verificando sesión:', e);
   }
 
   // Si no hay sesión normal, verificar bypass session (emergencia)
