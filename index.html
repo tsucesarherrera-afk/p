@@ -9,6 +9,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
@@ -36,6 +37,8 @@
   ::-webkit-scrollbar-track { background: #f1f1f1; }
   ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
   ::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+  .shake { animation: shake 0.5s; }
+  @keyframes shake { 0%, 100% { transform: translateX(0); } 10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); } 20%, 40%, 60%, 80% { transform: translateX(5px); } }
 </style>
 <base target="_blank">
 </head>
@@ -48,34 +51,69 @@
       <div class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 text-white text-2xl">
         <i class="fas fa-hospital"></i>
       </div>
-      <h1 class="text-2xl font-bold text-gray-800">EPI - Ruta Materna</h1>
-      <p class="text-sm text-gray-500 mt-1">Consultorio Popular Tipo II Puerto Miranda</p>
+      <h1 class="text-2xl font-bold text-gray-800"> ASIC ANTONIO JOSÉ ANTONIO DE SUCRE </h1>
+      <p class="text-sm text-gray-500 mt-1">EPI - Ruta Materna</p>
       <p class="text-xs text-gray-400">Camaguán, Guárico, Venezuela</p>
     </div>
+
+    <!-- Alerta de intentos fallidos -->
+    <div id="loginAttemptsAlert" class="hidden mb-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+      <div class="flex items-center gap-2 text-orange-700 text-sm">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span id="loginAttemptsText">Demasiados intentos fallidos. Espere 30 segundos.</span>
+      </div>
+      <div class="mt-2 w-full bg-orange-200 rounded-full h-1.5">
+        <div id="loginCooldownBar" class="bg-orange-500 h-1.5 rounded-full transition-all duration-1000" style="width: 100%"></div>
+      </div>
+    </div>
+
     <form id="loginForm" class="space-y-4">
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Correo electrónico</label>
-        <input type="email" id="loginEmail" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="usuario@ejemplo.com" required>
+        <input type="email" id="loginEmail" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="usuario@ejemplo.com" required autocomplete="username">
       </div>
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
-        <input type="password" id="loginPassword" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="••••••••" required>
+        <div class="relative">
+          <input type="password" id="loginPassword" class="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="••••••••" required autocomplete="current-password">
+          <button type="button" onclick="togglePasswordVisibility()" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+            <i id="eyeIcon" class="fas fa-eye"></i>
+          </button>
+        </div>
       </div>
-      <button type="submit" id="loginBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition flex items-center justify-center gap-2">
+
+      <!-- Cloudflare Turnstile CAPTCHA -->
+      <div class="flex justify-center">
+        <div id="cf-turnstile" class="cf-turnstile" data-sitekey="0x4AAAAAAA5example" data-callback="onTurnstileSuccess" data-theme="light" data-size="normal"></div>
+      </div>
+      <input type="hidden" id="turnstileToken" value="">
+
+      <button type="submit" id="loginBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
         <span>Ingresar al Sistema</span>
       </button>
     </form>
+
     <div id="loginError" class="hidden mt-4 p-3 bg-red-50 text-red-700 text-sm rounded-lg border border-red-200"></div>
+
+    <!-- Info de seguridad 
+    <div class="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-100">
+      <div class="flex items-start gap-2">
+        <i class="fas fa-shield-alt text-blue-500 mt-0.5 text-xs"></i>
+        <div class="text-xs text-blue-700 space-y-1">
+          <p><strong>Seguridad activa:</strong> Verificación humana + Rate limiting + Sesiones encriptadas</p>
+          <p id="sessionInfo" class="text-blue-500">Sesión: <span id="sessionIdDisplay">---</span></p>
+        </div>
+      </div>
+    </div> -->
+
     <div class="mt-4 text-center text-xs text-gray-400">
       <p>¿Primera vez? Contacte al Super Administrador</p>
-      <p class="mt-1 text-gray-300">v2.0 - Supabase Edition</p>
+      <!--<p class="mt-1 text-gray-300">v2.2 - Seguridad Reforzada</p> -->
     </div>
   </div>
 </div>
-
 <!-- APP -->
 <div id="appScreen" class="hidden min-h-screen flex">
-  <!-- Sidebar -->
   <aside id="sidebar" class="sidebar w-64 bg-white border-r border-gray-200 flex-shrink-0 fixed h-full z-30 overflow-y-auto">
     <div class="p-6 border-b border-gray-100">
       <div class="flex items-center gap-3">
@@ -124,15 +162,17 @@
           <p id="userRole" class="text-xs text-gray-400 truncate">Rol</p>
         </div>
       </div>
+      <div class="flex items-center justify-between mb-2">
+        <p class="text-xs text-gray-400"><i class="fas fa-clock mr-1"></i><span id="sessionTimer">--:--</span></p>
+        <p class="text-xs text-gray-400"><i class="fas fa-fingerprint mr-1"></i><span id="sessionIdShort">---</span></p>
+      </div>
       <button onclick="logout()" class="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition">
         <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
       </button>
     </div>
   </aside>
 
-  <!-- Main Content -->
   <main class="flex-1 ml-64">
-    <!-- Top Bar -->
     <header class="bg-white border-b border-gray-200 px-8 py-4 flex items-center justify-between sticky top-0 z-20">
       <div>
         <h1 id="pageTitle" class="text-xl font-bold text-gray-800">Dashboard</h1>
@@ -142,6 +182,10 @@
         <div class="text-right">
           <p id="currentDate" class="text-sm font-medium text-gray-700"></p>
           <p id="currentEpiWeek" class="text-xs text-blue-600 font-medium"></p>
+        </div>
+        <div class="flex items-center gap-2 px-3 py-1 bg-green-50 rounded-full border border-green-200">
+          <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+          <span class="text-xs text-green-700 font-medium">Seguro</span>
         </div>
         <button onclick="toggleSidebar()" class="lg:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-lg">
           <i class="fas fa-bars"></i>
@@ -155,9 +199,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 card-hover">
             <div class="flex items-center justify-between mb-4">
-              <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600">
-                <i class="fas fa-female text-xl"></i>
-              </div>
+              <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600"><i class="fas fa-female text-xl"></i></div>
               <span class="text-xs font-medium text-gray-400">Total</span>
             </div>
             <h3 id="dashTotal" class="text-2xl font-bold text-gray-800">0</h3>
@@ -165,9 +207,7 @@
           </div>
           <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 card-hover">
             <div class="flex items-center justify-between mb-4">
-              <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center text-purple-600">
-                <i class="fas fa-baby text-xl"></i>
-              </div>
+              <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center text-purple-600"><i class="fas fa-baby text-xl"></i></div>
               <span class="text-xs font-medium text-gray-400">Total</span>
             </div>
             <h3 id="dashPuerperas" class="text-2xl font-bold text-gray-800">0</h3>
@@ -175,9 +215,7 @@
           </div>
           <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 card-hover">
             <div class="flex items-center justify-between mb-4">
-              <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center text-green-600">
-                <i class="fas fa-child text-xl"></i>
-              </div>
+              <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center text-green-600"><i class="fas fa-child text-xl"></i></div>
               <span class="text-xs font-medium text-gray-400">< 18 años</span>
             </div>
             <h3 id="dashMenores" class="text-2xl font-bold text-gray-800">0</h3>
@@ -185,16 +223,13 @@
           </div>
           <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 card-hover">
             <div class="flex items-center justify-between mb-4">
-              <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center text-orange-600">
-                <i class="fas fa-calendar-check text-xl"></i>
-              </div>
+              <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center text-orange-600"><i class="fas fa-calendar-check text-xl"></i></div>
               <span class="text-xs font-medium text-gray-400">Semana</span>
             </div>
             <h3 id="dashSemanaEpi" class="text-2xl font-bold text-gray-800">-</h3>
             <p class="text-sm text-gray-500 mt-1">Epidemiológica Actual</p>
           </div>
         </div>
-
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
             <h3 class="font-bold text-gray-800 mb-4">Distribución por Trimestre</h3>
@@ -205,7 +240,6 @@
             <canvas id="chartConsultorios" height="200"></canvas>
           </div>
         </div>
-
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 lg:col-span-2">
             <h3 class="font-bold text-gray-800 mb-4">Gestantes por Riesgo (ARO)</h3>
@@ -213,9 +247,7 @@
           </div>
           <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
             <h3 class="font-bold text-gray-800 mb-4">Registros Recientes</h3>
-            <div id="recentRecords" class="space-y-3 max-h-64 overflow-y-auto">
-              <p class="text-sm text-gray-400 text-center py-4">Cargando...</p>
-            </div>
+            <div id="recentRecords" class="space-y-3 max-h-64 overflow-y-auto"><p class="text-sm text-gray-400 text-center py-4">Cargando...</p></div>
           </div>
         </div>
       </section>
@@ -228,108 +260,71 @@
               <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
               <input type="text" id="searchGestante" oninput="filterGestantes()" placeholder="Buscar por cédula, nombre..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none w-72">
             </div>
-            <select id="filterConsultorio" onchange="filterGestantes()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-              <option value="">Todos los consultorios</option>
-            </select>
+            <select id="filterConsultorio" onchange="filterGestantes()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"><option value="">Todos los consultorios</option></select>
             <select id="filterEstado" onchange="filterGestantes()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-              <option value="">Todos los estados</option>
-              <option value="gestante">Gestante</option>
-              <option value="puerpera">Puérpera</option>
-              <option value="lactante">Lactante</option>
+              <option value="">Todos los estados</option><option value="gestante">Gestante</option><option value="puerpera">Puérpera</option><option value="lactante">Lactante</option>
             </select>
           </div>
-          <button onclick="openGestanteModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition">
-            <i class="fas fa-plus"></i> Nueva Embarazada
-          </button>
+          <button onclick="openGestanteModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition"><i class="fas fa-plus"></i> Nueva Embarazada</button>
         </div>
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           <div class="table-container">
             <table class="w-full text-sm">
               <thead class="bg-gray-50 text-gray-600 font-medium">
-                <tr>
-                  <th class="px-4 py-3 text-left">Cédula</th>
-                  <th class="px-4 py-3 text-left">Nombre y Apellido</th>
-                  <th class="px-4 py-3 text-left">Edad</th>
-                  <th class="px-4 py-3 text-left">Consultorio</th>
-                  <th class="px-4 py-3 text-left">Sem. Gesta.</th>
-                  <th class="px-4 py-3 text-left">FPP</th>
-                  <th class="px-4 py-3 text-left">Estado</th>
-                  <th class="px-4 py-3 text-left">ARO</th>
-                  <th class="px-4 py-3 text-center">Acciones</th>
-                </tr>
+                <tr><th class="px-4 py-3 text-left">Cédula</th><th class="px-4 py-3 text-left">Nombre y Apellido</th><th class="px-4 py-3 text-left">Edad</th><th class="px-4 py-3 text-left">Consultorio</th><th class="px-4 py-3 text-left">Sem. Gesta.</th><th class="px-4 py-3 text-left">FPP</th><th class="px-4 py-3 text-left">Estado</th><th class="px-4 py-3 text-left">ARO</th><th class="px-4 py-3 text-center">Acciones</th></tr>
               </thead>
-              <tbody id="gestantesTable" class="divide-y divide-gray-100">
-              </tbody>
+              <tbody id="gestantesTable" class="divide-y divide-gray-100"></tbody>
             </table>
           </div>
-          <div id="gestantesEmpty" class="hidden p-8 text-center text-gray-400">
-            <i class="fas fa-inbox text-4xl mb-2"></i>
-            <p>No hay registros</p>
-          </div>
+          <div id="gestantesEmpty" class="hidden p-8 text-center text-gray-400"><i class="fas fa-inbox text-4xl mb-2"></i><p>No hay registros</p></div>
         </div>
       </section>
 
       <!-- CONTROL SEMANAL -->
       <section id="controlSemanal" class="section hidden fade-in">
         <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mb-6">
+          <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2"><i class="fas fa-id-card text-blue-600"></i> Búsqueda por Cédula</h3>
+          <div class="flex flex-wrap items-end gap-4">
+            <div class="flex-1 min-w-[250px]">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Número de Cédula</label>
+              <div class="relative">
+                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                <input type="text" id="buscarCedulaControl" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ingrese la cédula de la embarazada...">
+              </div>
+            </div>
+            <button onclick="buscarCedulaControl()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg flex items-center gap-2 transition"><i class="fas fa-search"></i> Buscar</button>
+          </div>
+          <div id="resultadoBusquedaCedula" class="mt-4 hidden"></div>
+        </div>
+
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mb-6">
           <div class="flex flex-wrap items-end gap-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Semana Epidemiológica</label>
-              <select id="semanaEpiSelect" onchange="loadControlSemanal()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-                <option value="">Seleccione semana</option>
-              </select>
+              <select id="semanaEpiSelect" onchange="loadControlSemanal()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"><option value="">Seleccione semana</option></select>
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Año</label>
-              <select id="anioEpiSelect" onchange="loadSemanasDisponibles()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-                <option value="2026">2026</option>
-              </select>
+              <select id="anioEpiSelect" onchange="loadSemanasDisponibles()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"><option value="2026">2026</option></select>
             </div>
-            <button onclick="generarReporteSemanal()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition">
-              <i class="fas fa-file-medical"></i> Generar Reporte
-            </button>
-            <button onclick="exportarExcelSemanal()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition">
-              <i class="fas fa-file-excel"></i> Exportar Excel
-            </button>
+            <button onclick="generarReporteSemanal()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition"><i class="fas fa-file-medical"></i> Generar Reporte Completo</button>
+            <button onclick="exportarExcelSemanal()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition"><i class="fas fa-file-excel"></i> Exportar Excel</button>
           </div>
         </div>
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           <div class="table-container">
             <table class="w-full text-sm">
               <thead class="bg-gray-50 text-gray-600 font-medium">
-                <tr>
-                  <th class="px-4 py-3 text-left">Nº</th>
-                  <th class="px-4 py-3 text-left">CP</th>
-                  <th class="px-4 py-3 text-left">Fecha</th>
-                  <th class="px-4 py-3 text-left">Nombre y Apellido</th>
-                  <th class="px-4 py-3 text-left">Edad</th>
-                  <th class="px-4 py-3 text-left">Cédula</th>
-                  <th class="px-4 py-3 text-left">Dirección</th>
-                  <th class="px-4 py-3 text-left">Teléfono</th>
-                  <th class="px-4 py-3 text-left">F.U.R</th>
-                  <th class="px-4 py-3 text-left">Sem. Gesta.</th>
-                  <th class="px-4 py-3 text-left">N° Gesta</th>
-                  <th class="px-4 py-3 text-left">Riesgo</th>
-                  <th class="px-4 py-3 text-left">Motivo</th>
-                  <th class="px-4 py-3 text-left">Diagnóstico</th>
-                  <th class="px-4 py-3 text-left">Tipo</th>
-                  <th class="px-4 py-3 text-left">Referido</th>
-                  <th class="px-4 py-3 text-left">Observación</th>
-                  <th class="px-4 py-3 text-center">Acciones</th>
-                </tr>
+                <tr><th class="px-4 py-3 text-left">Nº</th><th class="px-4 py-3 text-left">CP</th><th class="px-4 py-3 text-left">Fecha</th><th class="px-4 py-3 text-left">Nombre y Apellido</th><th class="px-4 py-3 text-left">Edad</th><th class="px-4 py-3 text-left">Cédula</th><th class="px-4 py-3 text-left">Dirección</th><th class="px-4 py-3 text-left">Teléfono</th><th class="px-4 py-3 text-left">F.U.R</th><th class="px-4 py-3 text-left">Sem. Gesta.</th><th class="px-4 py-3 text-left">N° Gesta</th><th class="px-4 py-3 text-left">Riesgo</th><th class="px-4 py-3 text-left">Motivo</th><th class="px-4 py-3 text-left">Diagnóstico</th><th class="px-4 py-3 text-left">Tipo</th><th class="px-4 py-3 text-left">Referido</th><th class="px-4 py-3 text-left">Observación</th><th class="px-4 py-3 text-center">Acciones</th></tr>
               </thead>
-              <tbody id="controlTable" class="divide-y divide-gray-100">
-              </tbody>
+              <tbody id="controlTable" class="divide-y divide-gray-100"></tbody>
             </table>
           </div>
-          <div id="controlEmpty" class="hidden p-8 text-center text-gray-400">
-            <i class="fas fa-calendar-week text-4xl mb-2"></i>
-            <p>Seleccione una semana epidemiológica</p>
-          </div>
+          <div id="controlEmpty" class="hidden p-8 text-center text-gray-400"><i class="fas fa-calendar-week text-4xl mb-2"></i><p>Seleccione una semana epidemiológica</p></div>
         </div>
       </section>
 
-      <!-- PUÉRPERAS / LACTANTES -->
+      <!-- PUÉRPERAS -->
       <section id="puerperas" class="section hidden fade-in">
         <div class="flex items-center justify-between mb-6">
           <div class="relative">
@@ -341,19 +336,9 @@
           <div class="table-container">
             <table class="w-full text-sm">
               <thead class="bg-gray-50 text-gray-600 font-medium">
-                <tr>
-                  <th class="px-4 py-3 text-left">Cédula</th>
-                  <th class="px-4 py-3 text-left">Nombre</th>
-                  <th class="px-4 py-3 text-left">Consultorio</th>
-                  <th class="px-4 py-3 text-left">Fecha Parto</th>
-                  <th class="px-4 py-3 text-left">Días Postparto</th>
-                  <th class="px-4 py-3 text-left">Estado</th>
-                  <th class="px-4 py-3 text-left">ARO</th>
-                  <th class="px-4 py-3 text-center">Acciones</th>
-                </tr>
+                <tr><th class="px-4 py-3 text-left">Cédula</th><th class="px-4 py-3 text-left">Nombre</th><th class="px-4 py-3 text-left">Consultorio</th><th class="px-4 py-3 text-left">Fecha Parto</th><th class="px-4 py-3 text-left">Días Postparto</th><th class="px-4 py-3 text-left">Estado</th><th class="px-4 py-3 text-left">ARO</th><th class="px-4 py-3 text-center">Acciones</th></tr>
               </thead>
-              <tbody id="puerperasTable" class="divide-y divide-gray-100">
-              </tbody>
+              <tbody id="puerperasTable" class="divide-y divide-gray-100"></tbody>
             </table>
           </div>
         </div>
@@ -366,17 +351,9 @@
           <div class="table-container">
             <table class="w-full text-sm">
               <thead class="bg-gray-50 text-gray-600 font-medium">
-                <tr>
-                  <th class="px-4 py-3 text-left">Cédula</th>
-                  <th class="px-4 py-3 text-left">Apellidos</th>
-                  <th class="px-4 py-3 text-left">Nombres</th>
-                  <th class="px-4 py-3 text-left">Motivo Archivo</th>
-                  <th class="px-4 py-3 text-left">Fecha Archivo</th>
-                  <th class="px-4 py-3 text-center">Acciones</th>
-                </tr>
+                <tr><th class="px-4 py-3 text-left">Cédula</th><th class="px-4 py-3 text-left">Apellidos</th><th class="px-4 py-3 text-left">Nombres</th><th class="px-4 py-3 text-left">Motivo Archivo</th><th class="px-4 py-3 text-left">Fecha Archivo</th><th class="px-4 py-3 text-center">Acciones</th></tr>
               </thead>
-              <tbody id="archivadosTable" class="divide-y divide-gray-100">
-              </tbody>
+              <tbody id="archivadosTable" class="divide-y divide-gray-100"></tbody>
             </table>
           </div>
         </div>
@@ -386,24 +363,14 @@
       <section id="usuarios" class="section hidden fade-in">
         <div class="flex items-center justify-between mb-6">
           <h3 class="font-bold text-gray-800">Gestión de Usuarios</h3>
-          <button onclick="openUserModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition">
-            <i class="fas fa-user-plus"></i> Nuevo Usuario
-          </button>
+          <button onclick="openUserModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition"><i class="fas fa-user-plus"></i> Nuevo Usuario</button>
         </div>
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           <table class="w-full text-sm">
             <thead class="bg-gray-50 text-gray-600 font-medium">
-              <tr>
-                <th class="px-4 py-3 text-left">Correo</th>
-                <th class="px-4 py-3 text-left">Nombre</th>
-                <th class="px-4 py-3 text-left">Rol</th>
-                <th class="px-4 py-3 text-left">Consultorio</th>
-                <th class="px-4 py-3 text-left">Estado</th>
-                <th class="px-4 py-3 text-center">Acciones</th>
-              </tr>
+              <tr><th class="px-4 py-3 text-left">Correo</th><th class="px-4 py-3 text-left">Nombre</th><th class="px-4 py-3 text-left">Rol</th><th class="px-4 py-3 text-left">Consultorio</th><th class="px-4 py-3 text-left">Estado</th><th class="px-4 py-3 text-center">Acciones</th></tr>
             </thead>
-            <tbody id="usersTable" class="divide-y divide-gray-100">
-            </tbody>
+            <tbody id="usersTable" class="divide-y divide-gray-100"></tbody>
           </table>
         </div>
       </section>
@@ -412,36 +379,27 @@
       <section id="calendarios" class="section hidden fade-in">
         <div class="flex items-center justify-between mb-6">
           <h3 class="font-bold text-gray-800">Calendarios Epidemiológicos</h3>
-          <button onclick="openCalendarioModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition">
-            <i class="fas fa-calendar-plus"></i> Agregar Año
-          </button>
+          <button onclick="openCalendarioModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition"><i class="fas fa-calendar-plus"></i> Agregar Año</button>
         </div>
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-          <div id="calendariosList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          </div>
+          <div id="calendariosList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
         </div>
       </section>
 
-      <!-- BACKUP / RESTORE -->
+      <!-- BACKUP -->
       <section id="backup" class="section hidden fade-in">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-            <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
-              <i class="fas fa-download text-blue-600"></i> Backup Encriptado
-            </h3>
+            <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2"><i class="fas fa-download text-blue-600"></i> Backup Encriptado</h3>
             <p class="text-sm text-gray-500 mb-4">Exporta todos los datos del sistema en un archivo JSON encriptado.</p>
             <div class="mb-4">
               <label class="block text-sm font-medium text-gray-700 mb-1">Clave de encriptación</label>
               <input type="password" id="backupKey" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Mínimo 8 caracteres">
             </div>
-            <button onclick="backupData()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg transition">
-              Descargar Backup (.epi)
-            </button>
+            <button onclick="backupData()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg transition">Descargar Backup (.epi)</button>
           </div>
           <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-            <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
-              <i class="fas fa-upload text-green-600"></i> Restore Encriptado
-            </h3>
+            <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2"><i class="fas fa-upload text-green-600"></i> Restore Encriptado</h3>
             <p class="text-sm text-gray-500 mb-4">Restaura los datos desde un archivo de backup encriptado.</p>
             <div class="mb-4">
               <label class="block text-sm font-medium text-gray-700 mb-1">Archivo .epi</label>
@@ -451,39 +409,25 @@
               <label class="block text-sm font-medium text-gray-700 mb-1">Clave de encriptación</label>
               <input type="password" id="restoreKey" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ingrese la clave">
             </div>
-            <button onclick="restoreData()" class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg transition">
-              Restaurar Datos
-            </button>
+            <button onclick="restoreData()" class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg transition">Restaurar Datos</button>
           </div>
         </div>
         <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mt-6">
-          <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <i class="fas fa-file-excel text-green-600"></i> Importar / Exportar Excel
-          </h3>
+          <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2"><i class="fas fa-file-excel text-green-600"></i> Importar / Exportar Excel</h3>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <p class="text-sm text-gray-500 mb-3">Exportar datos de gestantes a Excel normal o encriptado.</p>
-              <div class="mb-3">
-                <input type="password" id="excelKey" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Clave para encriptar (opcional)">
-              </div>
+              <div class="mb-3"><input type="password" id="excelKey" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Clave para encriptar (opcional)"></div>
               <div class="flex gap-2">
-                <button onclick="exportarExcel()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition">
-                  <i class="fas fa-file-export mr-2"></i>Exportar Excel
-                </button>
-                <button onclick="exportarExcelEncriptado()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition">
-                  <i class="fas fa-lock mr-2"></i>Encriptado
-                </button>
+                <button onclick="exportarExcel()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition"><i class="fas fa-file-export mr-2"></i>Exportar Excel</button>
+                <button onclick="exportarExcelEncriptado()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition"><i class="fas fa-lock mr-2"></i>Encriptado</button>
               </div>
             </div>
             <div>
               <p class="text-sm text-gray-500 mb-3">Importar gestantes desde Excel (normal o encriptado).</p>
               <input type="file" id="excelImport" accept=".xlsx,.xls,.epi" class="w-full px-4 py-2 border border-gray-300 rounded-lg mb-3">
-              <div class="mb-3">
-                <input type="password" id="excelImportKey" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Clave si el archivo está encriptado">
-              </div>
-              <button onclick="importarExcel()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition">
-                <i class="fas fa-file-import mr-2"></i>Importar Excel
-              </button>
+              <div class="mb-3"><input type="password" id="excelImportKey" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Clave si el archivo está encriptado"></div>
+              <button onclick="importarExcel()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition"><i class="fas fa-file-import mr-2"></i>Importar Excel</button>
             </div>
           </div>
         </div>
@@ -709,15 +653,9 @@
         <div id="accionesEspeciales" class="border-t border-gray-100 pt-4 hidden">
           <h4 class="font-semibold text-gray-700 mb-3">Acciones Especiales</h4>
           <div class="flex flex-wrap gap-3">
-            <button type="button" onclick="marcarPuerpera()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm transition">
-              <i class="fas fa-baby mr-2"></i>Marcar como Puérpera / Lactante
-            </button>
-            <button type="button" onclick="marcarAborto()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm transition">
-              <i class="fas fa-archive mr-2"></i>Archivar (Aborto / Cierre)
-            </button>
-            <button type="button" onclick="nuevoEmbarazo()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm transition">
-              <i class="fas fa-plus-circle mr-2"></i>Nuevo Embarazo (Reactivar)
-            </button>
+            <button type="button" onclick="marcarPuerpera()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm transition"><i class="fas fa-baby mr-2"></i>Marcar como Puérpera / Lactante</button>
+            <button type="button" onclick="marcarAborto()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm transition"><i class="fas fa-archive mr-2"></i>Archivar (Aborto / Cierre)</button>
+            <button type="button" onclick="nuevoEmbarazo()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm transition"><i class="fas fa-plus-circle mr-2"></i>Nuevo Embarazo (Reactivar)</button>
           </div>
         </div>
         <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
@@ -749,7 +687,8 @@
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Contraseña Temporal</label>
-          <input type="password" id="uPassword" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required minlength="6">
+          <input type="password" id="uPassword" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required minlength="8">
+          <p class="text-xs text-gray-400 mt-1">Mínimo 8 caracteres, incluya mayúsculas, minúsculas y números</p>
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Rol</label>
@@ -875,9 +814,9 @@
 
 <script>
 // ==================== CONFIGURACIÓN SUPABASE ====================
-// ⚠️ REEMPLACE ESTOS VALORES CON LOS DE SU PROYECTO SUPABASE
 const SUPABASE_URL = 'https://kwvltqnxirdnxoshgcge.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_Ua7O9tt7sz2G-I2MOWXA1Q_jsJEoPfA';
+const TURNSTILE_SITE_KEY = '0x4AAAAAAA5example'; // ⚠️ REEMPLACE con su Site Key de Cloudflare Turnstile
 
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -889,20 +828,88 @@ let controlData = [];
 let usersData = [];
 let calendariosData = [];
 let charts = {};
+let sessionTimer = null;
+let sessionStartTime = null;
+let turnstileToken = '';
 
 const CONSULTORIOS = [
-  'ÁNGELA NEGRA ORTIZ (CAMAGUAN)',
-  'MURO CARRIZALERO (CAMAGUAN)',
-  'UVERITO',
-  'ROMULO GALLEGO (CAMAGUAN)',
-  'JOSE GREGORIO (CAMAGUAN)',
-  'LAS MARIAS (CAMAGUAN)',
-  'LA NEGRA',
-  'PUERTO MIRANDA',
-  'CAMPITO (CAMAGUAN)',
-  'SOMBRERITO',
-  'LA ROMPIA (CAMAGUAN)'
+  'ÁNGELA NEGRA ORTIZ (CAMAGUAN)','MURO CARRIZALERO (CAMAGUAN)','UVERITO',
+  'ROMULO GALLEGO (CAMAGUAN)','JOSE GREGORIO (CAMAGUAN)','LAS MARIAS (CAMAGUAN)',
+  'LA NEGRA','PUERTO MIRANDA','CAMPITO (CAMAGUAN)','SOMBRERITO','LA ROMPIA (CAMAGUAN)'
 ];
+
+// ==================== SEGURIDAD: RATE LIMITING ====================
+const SECURITY = {
+  maxAttempts: 5,
+  lockoutDuration: 30000, // 30 segundos
+  sessionTimeout: 30 * 60 * 1000, // 30 minutos
+  warningTime: 5 * 60 * 1000, // 5 minutos antes de expirar
+  attempts: 0,
+  lockedUntil: 0,
+  sessionId: null
+};
+
+function generateSessionId() {
+  const array = new Uint8Array(16);
+  crypto.getRandomValues(array);
+  return Array.from(array, b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function isLocked() {
+  return Date.now() < SECURITY.lockedUntil;
+}
+
+function recordFailedAttempt() {
+  SECURITY.attempts++;
+  if (SECURITY.attempts >= SECURITY.maxAttempts) {
+    SECURITY.lockedUntil = Date.now() + SECURITY.lockoutDuration;
+    showLoginLockout();
+  }
+}
+
+function resetAttempts() {
+  SECURITY.attempts = 0;
+  SECURITY.lockedUntil = 0;
+  document.getElementById('loginAttemptsAlert').classList.add('hidden');
+}
+
+function showLoginLockout() {
+  const alert = document.getElementById('loginAttemptsAlert');
+  const bar = document.getElementById('loginCooldownBar');
+  const text = document.getElementById('loginAttemptsText');
+  alert.classList.remove('hidden');
+
+  let remaining = SECURITY.lockoutDuration;
+  const interval = setInterval(() => {
+    remaining -= 1000;
+    const pct = (remaining / SECURITY.lockoutDuration) * 100;
+    bar.style.width = pct + '%';
+    text.textContent = `Demasiados intentos fallidos. Espere ${Math.ceil(remaining/1000)} segundos.`;
+    if (remaining <= 0) {
+      clearInterval(interval);
+      resetAttempts();
+    }
+  }, 1000);
+}
+
+// ==================== CLOUDFLARE TURNSTILE CALLBACK ====================
+function onTurnstileSuccess(token) {
+  turnstileToken = token;
+  document.getElementById('turnstileToken').value = token;
+}
+
+// ==================== VISIBILIDAD DE CONTRASEÑA ====================
+function togglePasswordVisibility() {
+  const input = document.getElementById('loginPassword');
+  const icon = document.getElementById('eyeIcon');
+  if (input.type === 'password') {
+    input.type = 'text';
+    icon.className = 'fas fa-eye-slash';
+  } else {
+    input.type = 'password';
+    icon.className = 'fas fa-eye';
+  }
+}
 
 // ==================== CALENDARIO EPIDEMIOLÓGICO ====================
 function generarCalendarioLocal(anio, fechaInicioSem1) {
@@ -913,12 +920,7 @@ function generarCalendarioLocal(anio, fechaInicioSem1) {
     ini.setDate(inicio.getDate() + (i - 1) * 7);
     const fin = new Date(ini);
     fin.setDate(ini.getDate() + 6);
-    semanas.push({
-      anio: anio,
-      semana: i,
-      fecha_inicio: ini.toISOString().split('T')[0],
-      fecha_fin: fin.toISOString().split('T')[0]
-    });
+    semanas.push({ anio: anio, semana: i, fecha_inicio: ini.toISOString().split('T')[0], fecha_fin: fin.toISOString().split('T')[0] });
   }
   return semanas;
 }
@@ -940,17 +942,28 @@ async function getCurrentSemanaEpidemiologica() {
   const hoy = new Date();
   const anioActual = hoy.getFullYear();
   const cal = calendariosData.filter(c => c.anio === anioActual);
-  if (cal.length > 0) {
-    return getSemanaEpidemiologica(hoy, cal) || '-';
-  }
-  // Fallback a local 2026
+  if (cal.length > 0) return getSemanaEpidemiologica(hoy, cal) || '-';
   const cal2026 = generarCalendarioLocal(2026, '2026-01-04');
   return getSemanaEpidemiologica(hoy, cal2026) || '-';
 }
 
-// ==================== AUTH ====================
+// ==================== AUTH CON CAPTCHA ====================
 document.getElementById('loginForm').addEventListener('submit', async (e) => {
   e.preventDefault();
+
+  if (isLocked()) {
+    showToast('Espere el tiempo de bloqueo antes de intentar de nuevo', 'error');
+    return;
+  }
+
+  // Validar CAPTCHA
+  if (!turnstileToken) {
+    showToast('Por favor complete la verificación de seguridad (CAPTCHA)', 'error');
+    document.getElementById('loginScreen').classList.add('shake');
+    setTimeout(() => document.getElementById('loginScreen').classList.remove('shake'), 500);
+    return;
+  }
+
   const email = document.getElementById('loginEmail').value.trim();
   const password = document.getElementById('loginPassword').value;
   const btn = document.getElementById('loginBtn');
@@ -964,12 +977,8 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
     if (error) throw error;
 
-    // CORRECCIÓN: usar supabaseClient en lugar de supabase
     const { data: profile, error: pError } = await supabaseClient
-      .from('profiles')
-      .select('*')
-      .eq('id', data.user.id)
-      .single();
+      .from('profiles').select('*').eq('id', data.user.id).single();
 
     if (pError || !profile) {
       await supabaseClient.auth.signOut();
@@ -981,12 +990,24 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
       throw new Error('Usuario desactivado. Contacte al administrador');
     }
 
+    // Éxito: resetear intentos y generar sesión segura
+    resetAttempts();
+    SECURITY.sessionId = generateSessionId();
+    sessionStartTime = Date.now();
+
     currentUser = data.user;
     currentProfile = profile;
     initApp();
   } catch (err) {
+    recordFailedAttempt();
     errorDiv.textContent = err.message;
     errorDiv.classList.remove('hidden');
+    // Resetear CAPTCHA
+    if (window.turnstile) {
+      window.turnstile.reset();
+    }
+    turnstileToken = '';
+    document.getElementById('turnstileToken').value = '';
   } finally {
     btn.innerHTML = '<span>Ingresar al Sistema</span>';
     btn.disabled = false;
@@ -1001,8 +1022,46 @@ async function logout() {
   gestantesData = [];
   controlData = [];
   usersData = [];
+  if (sessionTimer) clearInterval(sessionTimer);
   location.reload();
 }
+
+// ==================== SESIÓN: TIMER Y AUTO-LOGOUT ====================
+function startSessionTimer() {
+  if (sessionTimer) clearInterval(sessionTimer);
+  sessionTimer = setInterval(() => {
+    const elapsed = Date.now() - sessionStartTime;
+    const remaining = SECURITY.sessionTimeout - elapsed;
+
+    if (remaining <= 0) {
+      showToast('Sesión expirada por inactividad', 'error');
+      logout();
+      return;
+    }
+
+    // Mostrar tiempo restante
+    const mins = Math.floor(remaining / 60000);
+    const secs = Math.floor((remaining % 60000) / 1000);
+    document.getElementById('sessionTimer').textContent = 
+      `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+
+    // Advertencia cuando quedan 5 minutos
+    if (remaining <= SECURITY.warningTime && remaining > SECURITY.warningTime - 1000) {
+      showToast('Su sesión expira en 5 minutos. Guarde su trabajo.', 'error');
+    }
+  }, 1000);
+}
+
+function resetSessionTimer() {
+  sessionStartTime = Date.now();
+}
+
+// Detectar actividad del usuario para resetear timer
+['click', 'keypress', 'scroll', 'mousemove'].forEach(event => {
+  document.addEventListener(event, () => {
+    if (currentUser) resetSessionTimer();
+  });
+});
 
 // ==================== INICIALIZACIÓN ====================
 async function initApp() {
@@ -1011,34 +1070,25 @@ async function initApp() {
 
   document.getElementById('userName').textContent = currentProfile.nombre || currentUser.email;
   document.getElementById('userRole').textContent = getRoleName(currentProfile.role);
+  document.getElementById('sessionIdShort').textContent = SECURITY.sessionId ? SECURITY.sessionId.substring(0,6) : '---';
 
-  // Mostrar menús según rol
   if (currentProfile.role === 'superadmin') {
     document.getElementById('menuUsuarios').classList.remove('hidden');
     document.getElementById('menuCalendarios').classList.remove('hidden');
-  } else if (currentProfile.role === 'admin') {
-    document.getElementById('menuUsuarios').classList.add('hidden');
-    document.getElementById('menuCalendarios').classList.add('hidden');
-  } else {
-    document.getElementById('menuUsuarios').classList.add('hidden');
-    document.getElementById('menuCalendarios').classList.add('hidden');
   }
 
-  // Fecha actual
   const opciones = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
   document.getElementById('currentDate').textContent = new Date().toLocaleDateString('es-VE', opciones);
   document.getElementById('currentEpiWeek').textContent = 'SE ' + await getCurrentSemanaEpidemiologica();
 
-  // Cargar calendarios primero (necesarios para semana epi)
   await loadCalendarios();
-
-  // Cargar datos
   await loadGestantes();
   await loadUsers();
-
-  // Inicializar selects
   initConsultoriosSelects();
   await initSemanasSelect();
+
+  // Iniciar timer de sesión
+  startSessionTimer();
 
   showSection('dashboard');
 }
@@ -1053,28 +1103,14 @@ function initConsultoriosSelects() {
   selects.forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
-    if (id === 'filterConsultorio') {
-      el.innerHTML = '<option value="">Todos los consultorios</option>';
-    } else if (id === 'gConsultorio') {
-      el.innerHTML = '<option value="">Seleccione...</option>';
-    } else if (id === 'uConsultorio') {
-      el.innerHTML = '<option value="">Ninguno (Todos)</option>';
-    }
-    CONSULTORIOS.forEach(c => {
-      const opt = document.createElement('option');
-      opt.value = c;
-      opt.textContent = c;
-      el.appendChild(opt);
-    });
+    if (id === 'filterConsultorio') el.innerHTML = '<option value="">Todos los consultorios</option>';
+    else if (id === 'gConsultorio') el.innerHTML = '<option value="">Seleccione...</option>';
+    else if (id === 'uConsultorio') el.innerHTML = '<option value="">Ninguno (Todos)</option>';
+    CONSULTORIOS.forEach(c => { const opt = document.createElement('option'); opt.value = c; opt.textContent = c; el.appendChild(opt); });
   });
-
-  // Preseleccionar consultorio para médicos
   if (currentProfile.role === 'medico' && currentProfile.consultorio) {
     const gConsultorio = document.getElementById('gConsultorio');
-    if (gConsultorio) {
-      gConsultorio.value = currentProfile.consultorio;
-      gConsultorio.disabled = true;
-    }
+    if (gConsultorio) { gConsultorio.value = currentProfile.consultorio; gConsultorio.disabled = true; }
   }
 }
 
@@ -1082,44 +1118,21 @@ async function initSemanasSelect() {
   const sel = document.getElementById('semanaEpiSelect');
   const anioSel = document.getElementById('anioEpiSelect');
   sel.innerHTML = '<option value="">Seleccione semana</option>';
-
-  // Obtener años disponibles
   const anios = [...new Set(calendariosData.map(c => c.anio))].sort((a, b) => b - a);
   anioSel.innerHTML = '';
-  if (anios.length === 0) {
-    anioSel.innerHTML = '<option value="2026">2026</option>';
-  } else {
-    anios.forEach(a => {
-      const opt = document.createElement('option');
-      opt.value = a;
-      opt.textContent = a;
-      anioSel.appendChild(opt);
-    });
-  }
+  if (anios.length === 0) anioSel.innerHTML = '<option value="2026">2026</option>';
+  else anios.forEach(a => { const opt = document.createElement('option'); opt.value = a; opt.textContent = a; anioSel.appendChild(opt); });
 
   const anioActivo = parseInt(anioSel.value) || 2026;
   const semanas = calendariosData.filter(c => c.anio === anioActivo).sort((a, b) => a.semana - b.semana);
-
   if (semanas.length === 0) {
-    // Fallback local 2026
     const cal2026 = generarCalendarioLocal(2026, '2026-01-04');
-    cal2026.forEach(s => {
-      const opt = document.createElement('option');
-      opt.value = s.semana;
-      opt.textContent = `SE ${s.semana} (${s.fecha_inicio} al ${s.fecha_fin})`;
-      sel.appendChild(opt);
-    });
+    cal2026.forEach(s => { const opt = document.createElement('option'); opt.value = s.semana; opt.textContent = `SE ${s.semana} (${s.fecha_inicio} al ${s.fecha_fin})`; sel.appendChild(opt); });
   } else {
-    semanas.forEach(s => {
-      const opt = document.createElement('option');
-      opt.value = s.semana;
-      opt.textContent = `SE ${s.semana} (${s.fecha_inicio} al ${s.fecha_fin})`;
-      sel.appendChild(opt);
-    });
+    semanas.forEach(s => { const opt = document.createElement('option'); opt.value = s.semana; opt.textContent = `SE ${s.semana} (${s.fecha_inicio} al ${s.fecha_fin})`; sel.appendChild(opt); });
   }
 }
 
-// CORRECCIÓN: Función faltante para cambiar año
 async function loadSemanasDisponibles() {
   await initSemanasSelect();
   loadControlSemanal();
@@ -1129,25 +1142,15 @@ async function loadSemanasDisponibles() {
 function showSection(section) {
   document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
   document.getElementById(section).classList.remove('hidden');
-  document.querySelectorAll('.nav-btn').forEach(b => {
-    b.classList.remove('bg-blue-50', 'text-blue-600');
-    b.classList.add('text-gray-600');
-  });
+  document.querySelectorAll('.nav-btn').forEach(b => { b.classList.remove('bg-blue-50', 'text-blue-600'); b.classList.add('text-gray-600'); });
   const active = document.querySelector(`[data-section="${section}"]`);
-  if (active) {
-    active.classList.add('bg-blue-50', 'text-blue-600');
-    active.classList.remove('text-gray-600');
-  }
+  if (active) { active.classList.add('bg-blue-50', 'text-blue-600'); active.classList.remove('text-gray-600'); }
 
   const titles = {
-    dashboard: ['Dashboard', 'Resumen general del sistema'],
-    gestantes: ['Gestantes', 'Registro y control de embarazadas'],
-    controlSemanal: ['Control Semanal', 'Reporte semanal por semana epidemiológica'],
-    puerperas: ['Puérperas / Lactantes', 'Mujeres en periodo postparto'],
-    archivados: ['Archivados', 'Registros de abortos y cierres'],
-    usuarios: ['Usuarios', 'Gestión de usuarios del sistema'],
-    calendarios: ['Calendarios', 'Calendarios epidemiológicos'],
-    backup: ['Backup / Restore', 'Respaldo y restauración de datos']
+    dashboard: ['Dashboard','Resumen general del sistema'], gestantes: ['Gestantes','Registro y control de embarazadas'],
+    controlSemanal: ['Control Semanal','Reporte semanal por semana epidemiológica'], puerperas: ['Puérperas / Lactantes','Mujeres en periodo postparto'],
+    archivados: ['Archivados','Registros de abortos y cierres'], usuarios: ['Usuarios','Gestión de usuarios del sistema'],
+    calendarios: ['Calendarios','Calendarios epidemiológicos'], backup: ['Backup / Restore','Respaldo y restauración de datos']
   };
   document.getElementById('pageTitle').textContent = titles[section][0];
   document.getElementById('pageSubtitle').textContent = titles[section][1];
@@ -1162,25 +1165,132 @@ function showSection(section) {
 }
 
 function toggleSidebar() {
-  const sb = document.getElementById('sidebar');
-  sb.classList.toggle('-translate-x-full');
+  document.getElementById('sidebar').classList.toggle('-translate-x-full');
+}
+
+// ==================== CONTROL SEMANAL: BÚSQUEDA POR CÉDULA ====================
+async function buscarCedulaControl() {
+  const cedulaInput = document.getElementById('buscarCedulaControl');
+  const resultadoDiv = document.getElementById('resultadoBusquedaCedula');
+  const cedula = cedulaInput.value.trim();
+
+  if (!cedula) { showToast('Ingrese un número de cédula', 'error'); return; }
+
+  resultadoDiv.innerHTML = '<div class="flex items-center gap-2 text-blue-600"><div class="spinner"></div> Buscando...</div>';
+  resultadoDiv.classList.remove('hidden');
+
+  try {
+    let query = supabaseClient.from('gestantes').select('*').eq('cedula', cedula).neq('estado', 'archivado');
+    if (currentProfile.role === 'medico' && currentProfile.consultorio) {
+      query = query.eq('consultorio', currentProfile.consultorio);
+    }
+    const { data: gestante, error } = await query.single();
+    if (error && error.code !== 'PGRST116') throw error;
+
+    const semana = document.getElementById('semanaEpiSelect').value;
+    const anio = document.getElementById('anioEpiSelect').value;
+
+    if (!semana) {
+      resultadoDiv.innerHTML = `<div class="p-4 bg-yellow-50 border border-yellow-200 rounded-lg"><p class="text-yellow-800 text-sm"><i class="fas fa-exclamation-triangle mr-2"></i>Seleccione una semana epidemiológica primero.</p></div>`;
+      return;
+    }
+
+    if (gestante) {
+      resultadoDiv.innerHTML = `
+        <div class="p-4 bg-green-50 border border-green-200 rounded-lg">
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-green-600"><i class="fas fa-check"></i></div>
+            <div class="flex-1">
+              <p class="font-medium text-green-800">Gestante encontrada: ${gestante.nombres} ${gestante.apellidos}</p>
+              <p class="text-sm text-green-600">Consultorio: ${gestante.consultorio} • Semana: ${gestante.semana_gestacion || 'N/A'}</p>
+              <div class="mt-3 flex gap-2">
+                <button onclick="agregarControlExistente('${gestante.id}', '${cedula}')" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm transition"><i class="fas fa-plus mr-1"></i> Agregar como CONTROL</button>
+                <button onclick="limpiarBusquedaCedula()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm transition">Cancelar</button>
+              </div>
+            </div>
+          </div>
+        </div>`;
+    } else {
+      resultadoDiv.innerHTML = `
+        <div class="p-4 bg-orange-50 border border-orange-200 rounded-lg">
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center text-orange-600"><i class="fas fa-user-plus"></i></div>
+            <div class="flex-1">
+              <p class="font-medium text-orange-800">No se encontró gestante con cédula: ${cedula}</p>
+              <p class="text-sm text-orange-600">Esta embarazada no está registrada en el sistema.</p>
+              <div class="mt-3 flex gap-2">
+                <button onclick="abrirCaptacionNueva('${cedula}')" class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg text-sm transition"><i class="fas fa-plus-circle mr-1"></i> Registrar como CAPTACIÓN</button>
+                <button onclick="limpiarBusquedaCedula()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm transition">Cancelar</button>
+              </div>
+            </div>
+          </div>
+        </div>`;
+    }
+  } catch (err) {
+    resultadoDiv.innerHTML = `<div class="p-4 bg-red-50 border border-red-200 rounded-lg"><p class="text-red-800 text-sm"><i class="fas fa-exclamation-circle mr-2"></i>Error: ${err.message}</p></div>`;
+  }
+}
+
+function limpiarBusquedaCedula() {
+  document.getElementById('buscarCedulaControl').value = '';
+  document.getElementById('resultadoBusquedaCedula').classList.add('hidden');
+  document.getElementById('resultadoBusquedaCedula').innerHTML = '';
+}
+
+async function agregarControlExistente(gestanteId, cedula) {
+  const semana = document.getElementById('semanaEpiSelect').value;
+  const anio = document.getElementById('anioEpiSelect').value;
+  if (!semana || !anio) { showToast('Seleccione semana y año epidemiológicos', 'error'); return; }
+
+  const { data: existente } = await supabaseClient.from('control_semanal').select('id').eq('gestante_id', gestanteId).eq('semana_epidemiologica', parseInt(semana)).eq('anio', parseInt(anio));
+  if (existente && existente.length > 0) { showToast('Esta gestante ya está registrada en esta semana epidemiológica', 'error'); return; }
+
+  const { data: gestante } = await supabaseClient.from('gestantes').select('*').eq('id', gestanteId).single();
+  const insertData = {
+    gestante_id: gestanteId, semana_epidemiologica: parseInt(semana), anio: parseInt(anio),
+    fecha_control: new Date().toISOString(), semana_gestacion: gestante.semana_gestacion || '',
+    motivo: 'CONTROL', diagnostico: gestante.diagnostico || `EMBARAZO SIMPLE DE ${gestante.semana_gestacion || ''} x FUR`,
+    tipo_consulta: 'Consulta', referido: gestante.referido || '', observacion: gestante.observacion || '', created_by: currentUser.id
+  };
+  const { error } = await supabaseClient.from('control_semanal').insert([insertData]);
+  if (error) { showToast('Error: ' + error.message, 'error'); return; }
+  showToast('Control registrado exitosamente');
+  limpiarBusquedaCedula();
+  await loadControlSemanal();
+}
+
+function abrirCaptacionNueva(cedula) {
+  document.getElementById('gestanteForm').reset();
+  document.getElementById('gestanteId').value = '';
+  document.getElementById('gestanteModalTitle').textContent = 'Nueva Embarazada - CAPTACIÓN';
+  document.getElementById('accionesEspeciales').classList.add('hidden');
+  document.getElementById('gCedula').value = cedula;
+  document.getElementById('gMotivo').value = 'CAPTACION';
+  if (currentProfile.role === 'medico' && currentProfile.consultorio) {
+    document.getElementById('gConsultorio').value = currentProfile.consultorio;
+  } else {
+    document.getElementById('gConsultorio').value = '';
+    document.getElementById('gConsultorio').disabled = false;
+  }
+  document.getElementById('resultadoBusquedaCedula').classList.add('hidden');
+  document.getElementById('gestanteModal').classList.remove('hidden');
+  window._captacionDesdeControl = true;
+  window._cedulaCaptacion = cedula;
+  window._semanaCaptacion = document.getElementById('semanaEpiSelect').value;
+  window._anioCaptacion = document.getElementById('anioEpiSelect').value;
 }
 
 // ==================== GESTANTES CRUD ====================
 async function loadGestantes() {
   try {
     let query = supabaseClient.from('gestantes').select('*').order('fecha_registro', { ascending: false });
-    if (currentProfile.role === 'medico' && currentProfile.consultorio) {
-      query = query.eq('consultorio', currentProfile.consultorio);
-    }
+    if (currentProfile.role === 'medico' && currentProfile.consultorio) query = query.eq('consultorio', currentProfile.consultorio);
     const { data, error } = await query;
     if (error) { showToast('Error cargando gestantes: ' + error.message, 'error'); return; }
     gestantesData = data || [];
     renderGestantes();
     renderDashboard();
-  } catch (err) {
-    showToast('Error crítico: ' + err.message, 'error');
-  }
+  } catch (err) { showToast('Error crítico: ' + err.message, 'error'); }
 }
 
 function renderGestantes() {
@@ -1191,47 +1301,22 @@ function renderGestantes() {
   const fEstado = document.getElementById('filterEstado').value;
 
   let filtered = gestantesData.filter(g => {
-    const matchSearch = !search || 
-      (g.cedula && g.cedula.toLowerCase().includes(search)) ||
-      (g.nombres && g.nombres.toLowerCase().includes(search)) ||
-      (g.apellidos && g.apellidos.toLowerCase().includes(search));
+    const matchSearch = !search || (g.cedula && g.cedula.toLowerCase().includes(search)) || (g.nombres && g.nombres.toLowerCase().includes(search)) || (g.apellidos && g.apellidos.toLowerCase().includes(search));
     const matchCons = !fConsultorio || g.consultorio === fConsultorio;
     const matchEst = !fEstado || g.estado === fEstado;
     return matchSearch && matchCons && matchEst && g.estado !== 'archivado';
   });
 
-  if (filtered.length === 0) {
-    tbody.innerHTML = '';
-    empty.classList.remove('hidden');
-    return;
-  }
+  if (filtered.length === 0) { tbody.innerHTML = ''; empty.classList.remove('hidden'); return; }
   empty.classList.add('hidden');
 
   tbody.innerHTML = filtered.map(g => {
     const trimClass = g.trimestre === 1 ? 'trimester-1' : g.trimestre === 2 ? 'trimester-2' : g.trimestre === 3 ? 'trimester-3' : g.estado === 'puerpera' ? 'puerpera' : g.estado === 'lactante' ? 'lactante' : '';
     const aroClass = g.aro === 'I' ? 'aro-1' : g.aro === 'II' ? 'aro-2' : g.aro === 'III' ? 'aro-3' : '';
     const aroText = g.aro ? `ARO ${g.aro}` : '-';
-    const estadoBadge = g.estado === 'gestante' ? '<span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium">Gestante</span>' :
-      g.estado === 'puerpera' ? '<span class="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs font-medium">Puérpera</span>' :
-      g.estado === 'lactante' ? '<span class="px-2 py-1 bg-pink-100 text-pink-700 rounded text-xs font-medium">Lactante</span>' : '-';
-
-    const canEdit = currentProfile.role === 'superadmin' || currentProfile.role === 'admin' || 
-      (currentProfile.role === 'medico' && currentProfile.consultorio === g.consultorio);
-
-    return `<tr class="hover:bg-gray-50 ${trimClass}">
-      <td class="px-4 py-3">${g.cedula || ''}</td>
-      <td class="px-4 py-3 font-medium">${g.nombres || ''} ${g.apellidos || ''}</td>
-      <td class="px-4 py-3">${g.edad || ''}</td>
-      <td class="px-4 py-3 text-xs">${g.consultorio || ''}</td>
-      <td class="px-4 py-3 font-medium">${g.semana_gestacion || ''}</td>
-      <td class="px-4 py-3">${g.fpp || ''}</td>
-      <td class="px-4 py-3">${estadoBadge}</td>
-      <td class="px-4 py-3"><span class="px-2 py-1 rounded text-xs font-medium ${aroClass}">${aroText}</span></td>
-      <td class="px-4 py-3 text-center">
-        <button onclick="editGestante('${g.id}')" class="text-blue-600 hover:text-blue-800 mx-1 ${canEdit ? '' : 'opacity-50 cursor-not-allowed'}" title="Editar" ${canEdit ? '' : 'disabled'}><i class="fas fa-edit"></i></button>
-        ${currentProfile.role === 'superadmin' ? `<button onclick="deleteGestante('${g.id}')" class="text-red-600 hover:text-red-800 mx-1" title="Eliminar"><i class="fas fa-trash"></i></button>` : ''}
-      </td>
-    </tr>`;
+    const estadoBadge = g.estado === 'gestante' ? '<span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium">Gestante</span>' : g.estado === 'puerpera' ? '<span class="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs font-medium">Puérpera</span>' : g.estado === 'lactante' ? '<span class="px-2 py-1 bg-pink-100 text-pink-700 rounded text-xs font-medium">Lactante</span>' : '-';
+    const canEdit = currentProfile.role === 'superadmin' || currentProfile.role === 'admin' || (currentProfile.role === 'medico' && currentProfile.consultorio === g.consultorio);
+    return `<tr class="hover:bg-gray-50 ${trimClass}"><td class="px-4 py-3">${g.cedula || ''}</td><td class="px-4 py-3 font-medium">${g.nombres || ''} ${g.apellidos || ''}</td><td class="px-4 py-3">${g.edad || ''}</td><td class="px-4 py-3 text-xs">${g.consultorio || ''}</td><td class="px-4 py-3 font-medium">${g.semana_gestacion || ''}</td><td class="px-4 py-3">${g.fpp || ''}</td><td class="px-4 py-3">${estadoBadge}</td><td class="px-4 py-3"><span class="px-2 py-1 rounded text-xs font-medium ${aroClass}">${aroText}</span></td><td class="px-4 py-3 text-center"><button onclick="editGestante('${g.id}')" class="text-blue-600 hover:text-blue-800 mx-1 ${canEdit ? '' : 'opacity-50 cursor-not-allowed'}" title="Editar" ${canEdit ? '' : 'disabled'}><i class="fas fa-edit"></i></button>${currentProfile.role === 'superadmin' ? `<button onclick="deleteGestante('${g.id}')" class="text-red-600 hover:text-red-800 mx-1" title="Eliminar"><i class="fas fa-trash"></i></button>` : ''}</td></tr>`;
   }).join('');
 }
 
@@ -1242,21 +1327,23 @@ function openGestanteModal() {
   document.getElementById('gestanteId').value = '';
   document.getElementById('gestanteModalTitle').textContent = 'Nueva Embarazada';
   document.getElementById('accionesEspeciales').classList.add('hidden');
-
-  // Preseleccionar consultorio para médicos
+  window._captacionDesdeControl = false;
   if (currentProfile.role === 'medico' && currentProfile.consultorio) {
     document.getElementById('gConsultorio').value = currentProfile.consultorio;
   } else {
     document.getElementById('gConsultorio').value = '';
     document.getElementById('gConsultorio').disabled = false;
   }
-
   document.getElementById('gestanteModal').classList.remove('hidden');
   calcularSemanasFPP();
 }
 
 function closeGestanteModal() {
   document.getElementById('gestanteModal').classList.add('hidden');
+  window._captacionDesdeControl = false;
+  window._cedulaCaptacion = null;
+  window._semanaCaptacion = null;
+  window._anioCaptacion = null;
 }
 
 function editGestante(id) {
@@ -1295,17 +1382,8 @@ function editGestante(id) {
   document.getElementById('gReferido').value = g.referido || '';
   document.getElementById('gObservacion').value = g.observacion || '';
   document.getElementById('gestanteModalTitle').textContent = 'Editar Embarazada';
-
-  // Mostrar acciones especiales solo en edición
   document.getElementById('accionesEspeciales').classList.remove('hidden');
-
-  // Habilitar consultorio si es admin/superadmin
-  if (currentProfile.role === 'medico') {
-    document.getElementById('gConsultorio').disabled = true;
-  } else {
-    document.getElementById('gConsultorio').disabled = false;
-  }
-
+  document.getElementById('gConsultorio').disabled = currentProfile.role === 'medico';
   document.getElementById('gestanteModal').classList.remove('hidden');
 }
 
@@ -1325,12 +1403,8 @@ function calcularEdad() {
   const hoy = new Date();
   let edad = hoy.getFullYear() - nac.getFullYear();
   const m = hoy.getMonth() - nac.getMonth();
-  if (m < 0 || (m === 0 && hoy.getDate() < nac.getDate())) {
-    edad--;
-  }
-  if (edad >= 10 && edad <= 80) {
-    document.getElementById('gEdad').value = edad;
-  }
+  if (m < 0 || (m === 0 && hoy.getDate() < nac.getDate())) edad--;
+  if (edad >= 10 && edad <= 80) document.getElementById('gEdad').value = edad;
 }
 
 document.getElementById('gFechaNac').addEventListener('change', calcularEdad);
@@ -1346,10 +1420,8 @@ function calcularSemanasFPP() {
   const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
   const semanas = Math.floor(diffDays / 7);
   const dias = diffDays % 7;
-
   if (semanas >= 0 && semanas <= 42) {
     document.getElementById('gSemGesta').value = `${semanas} SEMANAS Y ${dias} DIAS`;
-    // FPP = FUR + 280 días
     const fpp = new Date(furDate);
     fpp.setDate(fpp.getDate() + 280);
     document.getElementById('gFpp').value = fpp.toISOString().split('T')[0];
@@ -1364,8 +1436,6 @@ document.getElementById('gestanteForm').addEventListener('submit', async (e) => 
   const id = document.getElementById('gestanteId').value;
   const fur = document.getElementById('gFur').value;
   const semGesta = document.getElementById('gSemGesta').value;
-
-  // Calcular semana epidemiológica actual
   const semanaEpi = await getCurrentSemanaEpidemiologica();
   const semanaEpiNum = parseInt(semanaEpi) || null;
 
@@ -1405,23 +1475,41 @@ document.getElementById('gestanteForm').addEventListener('submit', async (e) => 
     fecha_ultima_actualizacion: new Date().toISOString(),
     created_by: currentUser.id
   };
+  if (!id) data.fecha_registro = new Date().toISOString();
 
-  // Solo enviar fecha_registro en INSERT, no en UPDATE
-  if (!id) {
-    data.fecha_registro = new Date().toISOString();
-  }
-
+  let gestanteId = id;
   if (id) {
     const { error } = await supabaseClient.from('gestantes').update(data).eq('id', id);
     if (error) { showToast('Error: ' + error.message, 'error'); return; }
     showToast('Registro actualizado');
   } else {
-    const { error } = await supabaseClient.from('gestantes').insert([data]);
+    const { data: insertData, error } = await supabaseClient.from('gestantes').insert([data]).select();
     if (error) { showToast('Error: ' + error.message, 'error'); return; }
     showToast('Gestante registrada');
+    if (insertData && insertData.length > 0) gestanteId = insertData[0].id;
   }
+
   closeGestanteModal();
   await loadGestantes();
+
+  if (window._captacionDesdeControl && gestanteId && window._semanaCaptacion && window._anioCaptacion) {
+    const controlData = {
+      gestante_id: gestanteId, semana_epidemiologica: parseInt(window._semanaCaptacion), anio: parseInt(window._anioCaptacion),
+      fecha_control: new Date().toISOString(), semana_gestacion: semGesta,
+      motivo: 'CAPTACION', diagnostico: document.getElementById('gDiagnostico').value.trim().toUpperCase() || `EMBARAZO SIMPLE DE ${semGesta || ''} x FUR`,
+      tipo_consulta: document.getElementById('gTipoConsulta').value,
+      referido: document.getElementById('gReferido').value.trim().toUpperCase(),
+      observacion: document.getElementById('gObservacion').value.trim().toUpperCase(),
+      created_by: currentUser.id
+    };
+    const { error: ctrlError } = await supabaseClient.from('control_semanal').insert([controlData]);
+    if (ctrlError) showToast('Gestante guardada pero error en control: ' + ctrlError.message, 'error');
+    else showToast('Gestante registrada y agregada al Control Semanal como CAPTACIÓN');
+    window._captacionDesdeControl = false;
+    window._semanaCaptacion = null;
+    window._anioCaptacion = null;
+    if (document.getElementById('controlSemanal').classList.contains('hidden') === false) await loadControlSemanal();
+  }
 });
 
 // ==================== ACCIONES ESPECIALES ====================
@@ -1429,11 +1517,7 @@ async function marcarPuerpera() {
   const id = document.getElementById('gestanteId').value;
   if (!id) { showToast('Guarde el registro primero', 'error'); return; }
   if (!confirm('¿Marcar como Puérpera / Lactante? Se calculará desde la fecha de hoy.')) return;
-  const { error } = await supabaseClient.from('gestantes').update({
-    estado: 'puerpera',
-    fecha_parto: new Date().toISOString(),
-    fecha_ultima_actualizacion: new Date().toISOString()
-  }).eq('id', id);
+  const { error } = await supabaseClient.from('gestantes').update({ estado: 'puerpera', fecha_parto: new Date().toISOString(), fecha_ultima_actualizacion: new Date().toISOString() }).eq('id', id);
   if (error) { showToast('Error: ' + error.message, 'error'); return; }
   showToast('Marcada como Puérpera');
   closeGestanteModal();
@@ -1444,12 +1528,7 @@ async function marcarAborto() {
   const id = document.getElementById('gestanteId').value;
   if (!id) { showToast('Guarde el registro primero', 'error'); return; }
   if (!confirm('¿Archivar este registro? Se guardarán nombre, apellido y cédula para futuras consultas.')) return;
-  const { error } = await supabaseClient.from('gestantes').update({
-    estado: 'archivado',
-    motivo_archivo: 'ABORTO',
-    fecha_archivo: new Date().toISOString(),
-    fecha_ultima_actualizacion: new Date().toISOString()
-  }).eq('id', id);
+  const { error } = await supabaseClient.from('gestantes').update({ estado: 'archivado', motivo_archivo: 'ABORTO', fecha_archivo: new Date().toISOString(), fecha_ultima_actualizacion: new Date().toISOString() }).eq('id', id);
   if (error) { showToast('Error: ' + error.message, 'error'); return; }
   showToast('Registro archivado');
   closeGestanteModal();
@@ -1460,19 +1539,7 @@ async function nuevoEmbarazo() {
   const id = document.getElementById('gestanteId').value;
   if (!id) { showToast('Guarde el registro primero', 'error'); return; }
   if (!confirm('¿Reactivar para nuevo embarazo? Se limpiarán datos obstétricos y se conservarán datos personales.')) return;
-  const { error } = await supabaseClient.from('gestantes').update({
-    estado: 'gestante',
-    fur: null,
-    semana_gestacion: null,
-    fpp: null,
-    num_p: 0, num_c: 0, num_a: 0, num_g: 0,
-    trimestre: 0,
-    fecha_parto: null,
-    motivo_archivo: null,
-    fecha_archivo: null,
-    fecha_registro: new Date().toISOString(),
-    fecha_ultima_actualizacion: new Date().toISOString()
-  }).eq('id', id);
+  const { error } = await supabaseClient.from('gestantes').update({ estado: 'gestante', fur: null, semana_gestacion: null, fpp: null, num_p: 0, num_c: 0, num_a: 0, num_g: 0, trimestre: 0, fecha_parto: null, motivo_archivo: null, fecha_archivo: null, fecha_registro: new Date().toISOString(), fecha_ultima_actualizacion: new Date().toISOString() }).eq('id', id);
   if (error) { showToast('Error: ' + error.message, 'error'); return; }
   showToast('Reactivada para nuevo embarazo');
   closeGestanteModal();
@@ -1484,7 +1551,6 @@ function renderPuerperas() {
   const tbody = document.getElementById('puerperasTable');
   const search = document.getElementById('searchPuerpera').value.toLowerCase();
   const ahora = new Date();
-
   let filtered = gestantesData.filter(g => {
     const esPuerpera = g.estado === 'puerpera' || g.estado === 'lactante';
     if (!esPuerpera) return false;
@@ -1492,23 +1558,11 @@ function renderPuerperas() {
     const matchSearch = !search || (g.nombres + ' ' + g.apellidos).toLowerCase().includes(search) || (g.cedula || '').toLowerCase().includes(search);
     return matchSearch && diasPost <= 365;
   });
-
   tbody.innerHTML = filtered.map(g => {
     const diasPost = g.fecha_parto ? Math.floor((ahora - new Date(g.fecha_parto)) / (1000 * 60 * 60 * 24)) : 0;
     const estado = diasPost <= 42 ? 'Puérpera' : 'Lactante';
     const aroClass = g.aro === 'I' ? 'aro-1' : g.aro === 'II' ? 'aro-2' : g.aro === 'III' ? 'aro-3' : '';
-    return `<tr>
-      <td class="px-4 py-3">${g.cedula || ''}</td>
-      <td class="px-4 py-3 font-medium">${g.nombres || ''} ${g.apellidos || ''}</td>
-      <td class="px-4 py-3 text-xs">${g.consultorio || ''}</td>
-      <td class="px-4 py-3">${g.fecha_parto ? g.fecha_parto.split('T')[0] : ''}</td>
-      <td class="px-4 py-3">${diasPost} días</td>
-      <td class="px-4 py-3"><span class="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs">${estado}</span></td>
-      <td class="px-4 py-3"><span class="px-2 py-1 rounded text-xs font-medium ${aroClass}">${g.aro ? 'ARO ' + g.aro : '-'}</span></td>
-      <td class="px-4 py-3 text-center">
-        <button onclick="editGestante('${g.id}')" class="text-blue-600 hover:text-blue-800"><i class="fas fa-edit"></i></button>
-      </td>
-    </tr>`;
+    return `<tr><td class="px-4 py-3">${g.cedula || ''}</td><td class="px-4 py-3 font-medium">${g.nombres || ''} ${g.apellidos || ''}</td><td class="px-4 py-3 text-xs">${g.consultorio || ''}</td><td class="px-4 py-3">${g.fecha_parto ? g.fecha_parto.split('T')[0] : ''}</td><td class="px-4 py-3">${diasPost} días</td><td class="px-4 py-3"><span class="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs">${estado}</span></td><td class="px-4 py-3"><span class="px-2 py-1 rounded text-xs font-medium ${aroClass}">${g.aro ? 'ARO ' + g.aro : '-'}</span></td><td class="px-4 py-3 text-center"><button onclick="editGestante('${g.id}')" class="text-blue-600 hover:text-blue-800"><i class="fas fa-edit"></i></button></td></tr>`;
   }).join('');
 }
 
@@ -1518,30 +1572,12 @@ function filterPuerperas() { renderPuerperas(); }
 function renderArchivados() {
   const tbody = document.getElementById('archivadosTable');
   const archivados = gestantesData.filter(g => g.estado === 'archivado');
-  tbody.innerHTML = archivados.map(g => `
-    <tr>
-      <td class="px-4 py-3">${g.cedula || ''}</td>
-      <td class="px-4 py-3">${g.apellidos || ''}</td>
-      <td class="px-4 py-3">${g.nombres || ''}</td>
-      <td class="px-4 py-3">${g.motivo_archivo || 'ABORTO'}</td>
-      <td class="px-4 py-3">${g.fecha_archivo ? g.fecha_archivo.split('T')[0] : ''}</td>
-      <td class="px-4 py-3 text-center">
-        <button onclick="reactivarArchivado('${g.id}')" class="text-green-600 hover:text-green-800" title="Nuevo Embarazo"><i class="fas fa-plus-circle"></i></button>
-      </td>
-    </tr>
-  `).join('');
+  tbody.innerHTML = archivados.map(g => `<tr><td class="px-4 py-3">${g.cedula || ''}</td><td class="px-4 py-3">${g.apellidos || ''}</td><td class="px-4 py-3">${g.nombres || ''}</td><td class="px-4 py-3">${g.motivo_archivo || 'ABORTO'}</td><td class="px-4 py-3">${g.fecha_archivo ? g.fecha_archivo.split('T')[0] : ''}</td><td class="px-4 py-3 text-center"><button onclick="reactivarArchivado('${g.id}')" class="text-green-600 hover:text-green-800" title="Nuevo Embarazo"><i class="fas fa-plus-circle"></i></button></td></tr>`).join('');
 }
 
 async function reactivarArchivado(id) {
   if (!confirm('¿Reactivar este registro para nuevo embarazo?')) return;
-  const { error } = await supabaseClient.from('gestantes').update({
-    estado: 'gestante',
-    fur: null, semana_gestacion: null, fpp: null,
-    num_p: 0, num_c: 0, num_a: 0, num_g: 0, trimestre: 0,
-    fecha_parto: null, motivo_archivo: null, fecha_archivo: null,
-    fecha_registro: new Date().toISOString(),
-    fecha_ultima_actualizacion: new Date().toISOString()
-  }).eq('id', id);
+  const { error } = await supabaseClient.from('gestantes').update({ estado: 'gestante', fur: null, semana_gestacion: null, fpp: null, num_p: 0, num_c: 0, num_a: 0, num_g: 0, trimestre: 0, fecha_parto: null, motivo_archivo: null, fecha_archivo: null, fecha_registro: new Date().toISOString(), fecha_ultima_actualizacion: new Date().toISOString() }).eq('id', id);
   if (error) { showToast('Error: ' + error.message, 'error'); return; }
   showToast('Reactivada para nuevo embarazo');
   await loadGestantes();
@@ -1554,21 +1590,9 @@ async function loadControlSemanal() {
   const anio = document.getElementById('anioEpiSelect').value;
   const tbody = document.getElementById('controlTable');
   const empty = document.getElementById('controlEmpty');
-
-  if (!semana) {
-    tbody.innerHTML = '';
-    empty.classList.remove('hidden');
-    return;
-  }
+  if (!semana) { tbody.innerHTML = ''; empty.classList.remove('hidden'); return; }
   empty.classList.add('hidden');
-
-  // CORRECCIÓN: usar supabaseClient en lugar de supabase
-  const { data, error } = await supabaseClient
-    .from('control_semanal')
-    .select('*, gestantes(*)')
-    .eq('semana_epidemiologica', parseInt(semana))
-    .eq('anio', parseInt(anio));
-
+  const { data, error } = await supabaseClient.from('control_semanal').select('*, gestantes(*)').eq('semana_epidemiologica', parseInt(semana)).eq('anio', parseInt(anio));
   if (error) { showToast('Error: ' + error.message, 'error'); return; }
   controlData = data || [];
   renderControlTable();
@@ -1576,37 +1600,13 @@ async function loadControlSemanal() {
 
 function renderControlTable() {
   const tbody = document.getElementById('controlTable');
-  if (controlData.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="18" class="px-4 py-8 text-center text-gray-400">No hay registros para esta semana</td></tr>';
-    return;
-  }
+  if (controlData.length === 0) { tbody.innerHTML = '<tr><td colspan="18" class="px-4 py-8 text-center text-gray-400">No hay registros para esta semana</td></tr>'; return; }
   tbody.innerHTML = controlData.map((c, i) => {
     const g = c.gestantes || {};
     const canEdit = currentProfile.role !== 'medico' || currentProfile.consultorio === g.consultorio;
-    // CORRECCIÓN: Riesgo ahora muestra SI si tiene ARO
     const riesgo = g.aro ? 'SI' : 'NO';
-    return `<tr class="hover:bg-gray-50">
-      <td class="px-4 py-3">${i + 1}</td>
-      <td class="px-4 py-3 text-xs">${g.consultorio || ''}</td>
-      <td class="px-4 py-3">${c.fecha_control ? c.fecha_control.split('T')[0] : ''}</td>
-      <td class="px-4 py-3 font-medium">${g.nombres || ''} ${g.apellidos || ''}</td>
-      <td class="px-4 py-3">${g.edad || ''}</td>
-      <td class="px-4 py-3">${g.cedula || ''}</td>
-      <td class="px-4 py-3 text-xs">${g.direccion || ''}</td>
-      <td class="px-4 py-3">${g.telefono || ''}</td>
-      <td class="px-4 py-3">${g.fur || ''}</td>
-      <td class="px-4 py-3 font-medium">${c.semana_gestacion || g.semana_gestacion || ''}</td>
-      <td class="px-4 py-3">${g.num_g || 0}</td>
-      <td class="px-4 py-3">${riesgo}</td>
-      <td class="px-4 py-3">${c.motivo || ''}</td>
-      <td class="px-4 py-3">${c.diagnostico || ''}</td>
-      <td class="px-4 py-3">${c.tipo_consulta || ''}</td>
-      <td class="px-4 py-3">${c.referido || ''}</td>
-      <td class="px-4 py-3">${c.observacion || ''}</td>
-      <td class="px-4 py-3 text-center">
-        <button onclick="editControl('${c.id}')" class="text-blue-600 hover:text-blue-800 mx-1 ${canEdit ? '' : 'opacity-50 cursor-not-allowed'}" ${canEdit ? '' : 'disabled'}><i class="fas fa-edit"></i></button>
-      </td>
-    </tr>`;
+    const motivoBadge = c.motivo === 'CAPTACION' ? '<span class="px-2 py-1 bg-orange-100 text-orange-700 rounded text-xs font-medium">CAPTACIÓN</span>' : '<span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium">CONTROL</span>';
+    return `<tr class="hover:bg-gray-50"><td class="px-4 py-3">${i + 1}</td><td class="px-4 py-3 text-xs">${g.consultorio || ''}</td><td class="px-4 py-3">${c.fecha_control ? c.fecha_control.split('T')[0] : ''}</td><td class="px-4 py-3 font-medium">${g.nombres || ''} ${g.apellidos || ''}</td><td class="px-4 py-3">${g.edad || ''}</td><td class="px-4 py-3">${g.cedula || ''}</td><td class="px-4 py-3 text-xs">${g.direccion || ''}</td><td class="px-4 py-3">${g.telefono || ''}</td><td class="px-4 py-3">${g.fur || ''}</td><td class="px-4 py-3 font-medium">${c.semana_gestacion || g.semana_gestacion || ''}</td><td class="px-4 py-3">${g.num_g || 0}</td><td class="px-4 py-3">${riesgo}</td><td class="px-4 py-3">${motivoBadge}</td><td class="px-4 py-3">${c.diagnostico || ''}</td><td class="px-4 py-3">${c.tipo_consulta || ''}</td><td class="px-4 py-3">${c.referido || ''}</td><td class="px-4 py-3">${c.observacion || ''}</td><td class="px-4 py-3 text-center"><button onclick="editControl('${c.id}')" class="text-blue-600 hover:text-blue-800 mx-1 ${canEdit ? '' : 'opacity-50 cursor-not-allowed'}" ${canEdit ? '' : 'disabled'}><i class="fas fa-edit"></i></button></td></tr>`;
   }).join('');
 }
 
@@ -1614,41 +1614,15 @@ async function generarReporteSemanal() {
   const semana = document.getElementById('semanaEpiSelect').value;
   const anio = document.getElementById('anioEpiSelect').value;
   if (!semana) { showToast('Seleccione una semana epidemiológica', 'error'); return; }
-
-  // Obtener gestantes activas del consultorio del usuario (o todos si es admin/super)
   let query = supabaseClient.from('gestantes').select('*').in('estado', ['gestante', 'puerpera', 'lactante']);
-  if (currentProfile.role === 'medico' && currentProfile.consultorio) {
-    query = query.eq('consultorio', currentProfile.consultorio);
-  }
+  if (currentProfile.role === 'medico' && currentProfile.consultorio) query = query.eq('consultorio', currentProfile.consultorio);
   const { data: gestantes, error } = await query;
   if (error) { showToast('Error: ' + error.message, 'error'); return; }
-
-  // Verificar cuáles ya tienen control esta semana
-  // CORRECCIÓN: usar supabaseClient
-  const { data: existentes } = await supabaseClient
-    .from('control_semanal')
-    .select('gestante_id')
-    .eq('semana_epidemiologica', parseInt(semana))
-    .eq('anio', parseInt(anio));
+  const { data: existentes } = await supabaseClient.from('control_semanal').select('gestante_id').eq('semana_epidemiologica', parseInt(semana)).eq('anio', parseInt(anio));
   const existentesIds = new Set((existentes || []).map(e => e.gestante_id));
-
   const nuevos = gestantes.filter(g => !existentesIds.has(g.id));
   if (nuevos.length === 0) { showToast('Todas las gestantes ya están en el reporte'); return; }
-
-  const inserts = nuevos.map(g => ({
-    gestante_id: g.id,
-    semana_epidemiologica: parseInt(semana),
-    anio: parseInt(anio),
-    fecha_control: new Date().toISOString(),
-    semana_gestacion: g.semana_gestacion,
-    motivo: 'CONTROL',
-    diagnostico: g.diagnostico || `EMBARAZO SIMPLE DE ${g.semana_gestacion || ''} x FUR`,
-    tipo_consulta: 'Consulta',
-    referido: '',
-    observacion: g.observacion || '',
-    created_by: currentUser.id
-  }));
-
+  const inserts = nuevos.map(g => ({ gestante_id: g.id, semana_epidemiologica: parseInt(semana), anio: parseInt(anio), fecha_control: new Date().toISOString(), semana_gestacion: g.semana_gestacion, motivo: 'CONTROL', diagnostico: g.diagnostico || `EMBARAZO SIMPLE DE ${g.semana_gestacion || ''} x FUR`, tipo_consulta: 'Consulta', referido: '', observacion: g.observacion || '', created_by: currentUser.id }));
   const { error: iError } = await supabaseClient.from('control_semanal').insert(inserts);
   if (iError) { showToast('Error: ' + iError.message, 'error'); return; }
   showToast(`${inserts.length} gestantes agregadas al reporte`);
@@ -1668,22 +1642,12 @@ function editControl(id) {
   document.getElementById('controlEditModal').classList.remove('hidden');
 }
 
-function closeControlEditModal() {
-  document.getElementById('controlEditModal').classList.add('hidden');
-}
+function closeControlEditModal() { document.getElementById('controlEditModal').classList.add('hidden'); }
 
 document.getElementById('controlEditForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const id = document.getElementById('ceId').value;
-  const data = {
-    semana_gestacion: document.getElementById('ceSemGesta').value,
-    motivo: document.getElementById('ceMotivo').value,
-    diagnostico: document.getElementById('ceDiagnostico').value.trim().toUpperCase(),
-    tipo_consulta: document.getElementById('ceTipo').value,
-    referido: document.getElementById('ceReferido').value.trim().toUpperCase(),
-    observacion: document.getElementById('ceObservacion').value.trim().toUpperCase(),
-    fecha_ultima_actualizacion: new Date().toISOString()
-  };
+  const data = { semana_gestacion: document.getElementById('ceSemGesta').value, motivo: document.getElementById('ceMotivo').value, diagnostico: document.getElementById('ceDiagnostico').value.trim().toUpperCase(), tipo_consulta: document.getElementById('ceTipo').value, referido: document.getElementById('ceReferido').value.trim().toUpperCase(), observacion: document.getElementById('ceObservacion').value.trim().toUpperCase(), fecha_ultima_actualizacion: new Date().toISOString() };
   const { error } = await supabaseClient.from('control_semanal').update(data).eq('id', id);
   if (error) { showToast('Error: ' + error.message, 'error'); return; }
   showToast('Control actualizado');
@@ -1695,31 +1659,10 @@ async function exportarExcelSemanal() {
   const semana = document.getElementById('semanaEpiSelect').value;
   const anio = document.getElementById('anioEpiSelect').value;
   if (!semana) { showToast('Seleccione una semana', 'error'); return; }
-
   const { data } = await supabaseClient.from('control_semanal').select('*, gestantes(*)').eq('semana_epidemiologica', parseInt(semana)).eq('anio', parseInt(anio));
   const rows = (data || []).map((c, i) => {
     const g = c.gestantes || {};
-    // CORRECCIÓN: Riesgo ahora muestra SI si tiene ARO
-    const riesgo = g.aro ? 'SI' : 'NO';
-    return {
-      'Nº': i + 1,
-      'CP': g.consultorio,
-      'Fecha': c.fecha_control ? c.fecha_control.split('T')[0] : '',
-      'Nombre y Apellido': `${g.nombres || ''} ${g.apellidos || ''}`,
-      'Edad': g.edad,
-      'Cédula': g.cedula,
-      'Dirección': g.direccion,
-      'Teléfono': g.telefono,
-      'F.U.R': g.fur,
-      'Sem. Gesta.': c.semana_gestacion || g.semana_gestacion,
-      'N° Gesta': g.num_g,
-      'Riesgo': riesgo,
-      'Motivo': c.motivo,
-      'Diagnóstico': c.diagnostico,
-      'Tipo': c.tipo_consulta,
-      'Referido': c.referido,
-      'Observación': c.observacion
-    };
+    return { 'Nº': i + 1, 'CP': g.consultorio, 'Fecha': c.fecha_control ? c.fecha_control.split('T')[0] : '', 'Nombre y Apellido': `${g.nombres || ''} ${g.apellidos || ''}`, 'Edad': g.edad, 'Cédula': g.cedula, 'Dirección': g.direccion, 'Teléfono': g.telefono, 'F.U.R': g.fur, 'Sem. Gesta.': c.semana_gestacion || g.semana_gestacion, 'N° Gesta': g.num_g, 'Riesgo': g.aro ? 'SI' : 'NO', 'Motivo': c.motivo, 'Diagnóstico': c.diagnostico, 'Tipo': c.tipo_consulta, 'Referido': c.referido, 'Observación': c.observacion };
   });
   const ws = XLSX.utils.json_to_sheet(rows);
   const wb = XLSX.utils.book_new();
@@ -1732,70 +1675,32 @@ function renderDashboard() {
   const activas = gestantesData.filter(g => g.estado === 'gestante');
   const puerperas = gestantesData.filter(g => g.estado === 'puerpera' || g.estado === 'lactante');
   const menores = activas.filter(g => g.edad && g.edad < 18);
-
   document.getElementById('dashTotal').textContent = activas.length;
   document.getElementById('dashPuerperas').textContent = puerperas.length;
   document.getElementById('dashMenores').textContent = menores.length;
-  getCurrentSemanaEpidemiologica().then(se => {
-    document.getElementById('dashSemanaEpi').textContent = se;
-  });
-
-  // Gráfico trimestres
+  getCurrentSemanaEpidemiologica().then(se => { document.getElementById('dashSemanaEpi').textContent = se; });
   const t1 = activas.filter(g => g.trimestre === 1).length;
   const t2 = activas.filter(g => g.trimestre === 2).length;
   const t3 = activas.filter(g => g.trimestre === 3).length;
   renderChart('chartTrimestres', 'doughnut', ['1er Trimestre', '2do Trimestre', '3er Trimestre'], [t1, t2, t3], ['#10b981', '#3b82f6', '#f59e0b']);
-
-  // Gráfico consultorios
   const consCounts = {};
   CONSULTORIOS.forEach(c => consCounts[c] = 0);
   activas.forEach(g => { if (g.consultorio) consCounts[g.consultorio] = (consCounts[g.consultorio] || 0) + 1; });
   renderChart('chartConsultorios', 'bar', Object.keys(consCounts).map(c => c.split(' ')[0]), Object.values(consCounts), '#3b82f6');
-
-  // Gráfico ARO
   const aro1 = activas.filter(g => g.aro === 'I').length;
   const aro2 = activas.filter(g => g.aro === 'II').length;
   const aro3 = activas.filter(g => g.aro === 'III').length;
   const aro0 = activas.length - aro1 - aro2 - aro3;
   renderChart('chartARO', 'bar', ['Sin ARO', 'ARO I', 'ARO II', 'ARO III'], [aro0, aro1, aro2, aro3], ['#9ca3af', '#10b981', '#f59e0b', '#ef4444']);
-
-  // Recientes (solo activos, no archivados)
-  const recientes = [...gestantesData]
-    .filter(g => g.estado !== 'archivado')
-    .sort((a, b) => new Date(b.fecha_registro) - new Date(a.fecha_registro))
-    .slice(0, 5);
-  document.getElementById('recentRecords').innerHTML = recientes.map(g => `
-    <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-      <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-xs"><i class="fas fa-female"></i></div>
-      <div class="flex-1 min-w-0">
-        <p class="text-sm font-medium text-gray-800 truncate">${g.nombres} ${g.apellidos}</p>
-        <p class="text-xs text-gray-500">${g.consultorio} • ${g.semana_gestacion || ''}</p>
-      </div>
-    </div>
-  `).join('');
+  const recientes = [...gestantesData].filter(g => g.estado !== 'archivado').sort((a, b) => new Date(b.fecha_registro) - new Date(a.fecha_registro)).slice(0, 5);
+  document.getElementById('recentRecords').innerHTML = recientes.map(g => `<div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"><div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-xs"><i class="fas fa-female"></i></div><div class="flex-1 min-w-0"><p class="text-sm font-medium text-gray-800 truncate">${g.nombres} ${g.apellidos}</p><p class="text-xs text-gray-500">${g.consultorio} • ${g.semana_gestacion || ''}</p></div></div>`).join('');
 }
 
 function renderChart(id, type, labels, data, colors) {
   const ctx = document.getElementById(id);
   if (!ctx) return;
   if (charts[id]) charts[id].destroy();
-  charts[id] = new Chart(ctx, {
-    type: type,
-    data: {
-      labels: labels,
-      datasets: [{
-        data: data,
-        backgroundColor: colors,
-        borderWidth: 0
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } },
-      scales: type === 'bar' ? { y: { beginAtZero: true, ticks: { stepSize: 1 } } } : {}
-    }
-  });
+  charts[id] = new Chart(ctx, { type: type, data: { labels: labels, datasets: [{ data: data, backgroundColor: colors, borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } }, scales: type === 'bar' ? { y: { beginAtZero: true, ticks: { stepSize: 1 } } } : {} } });
 }
 
 // ==================== USUARIOS ====================
@@ -1809,19 +1714,7 @@ async function loadUsers() {
 
 function renderUsers() {
   const tbody = document.getElementById('usersTable');
-  tbody.innerHTML = usersData.map(u => `
-    <tr>
-      <td class="px-4 py-3">${u.email}</td>
-      <td class="px-4 py-3">${u.nombre || ''}</td>
-      <td class="px-4 py-3"><span class="px-2 py-1 rounded text-xs font-medium ${u.role === 'superadmin' ? 'bg-red-100 text-red-700' : u.role === 'admin' ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700'}">${getRoleName(u.role)}</span></td>
-      <td class="px-4 py-3">${u.consultorio || 'Todos'}</td>
-      <td class="px-4 py-3"><span class="px-2 py-1 rounded text-xs ${u.activo ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}">${u.activo ? 'Activo' : 'Inactivo'}</span></td>
-      <td class="px-4 py-3 text-center">
-        ${u.role !== 'superadmin' ? `<button onclick="toggleUser('${u.id}', ${!u.activo})" class="text-blue-600 hover:text-blue-800 mx-1" title="${u.activo ? 'Desactivar' : 'Activar'}"><i class="fas ${u.activo ? 'fa-user-slash' : 'fa-user-check'}"></i></button>
-        <button onclick="deleteUser('${u.id}')" class="text-red-600 hover:text-red-800 mx-1" title="Eliminar"><i class="fas fa-trash"></i></button>` : '<span class="text-gray-400 text-xs">Protegido</span>'}
-      </td>
-    </tr>
-  `).join('');
+  tbody.innerHTML = usersData.map(u => `<tr><td class="px-4 py-3">${u.email}</td><td class="px-4 py-3">${u.nombre || ''}</td><td class="px-4 py-3"><span class="px-2 py-1 rounded text-xs font-medium ${u.role === 'superadmin' ? 'bg-red-100 text-red-700' : u.role === 'admin' ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700'}">${getRoleName(u.role)}</span></td><td class="px-4 py-3">${u.consultorio || 'Todos'}</td><td class="px-4 py-3"><span class="px-2 py-1 rounded text-xs ${u.activo ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}">${u.activo ? 'Activo' : 'Inactivo'}</span></td><td class="px-4 py-3 text-center">${u.role !== 'superadmin' ? `<button onclick="toggleUser('${u.id}', ${!u.activo})" class="text-blue-600 hover:text-blue-800 mx-1" title="${u.activo ? 'Desactivar' : 'Activar'}"><i class="fas ${u.activo ? 'fa-user-slash' : 'fa-user-check'}"></i></button><button onclick="deleteUser('${u.id}')" class="text-red-600 hover:text-red-800 mx-1" title="Eliminar"><i class="fas fa-trash"></i></button>` : '<span class="text-gray-400 text-xs">Protegido</span>'}</td></tr>`).join('');
 }
 
 function openUserModal() { document.getElementById('userModal').classList.remove('hidden'); }
@@ -1835,25 +1728,18 @@ document.getElementById('userForm').addEventListener('submit', async (e) => {
   const rol = document.getElementById('uRol').value;
   const consultorio = document.getElementById('uConsultorio').value;
 
-  // Crear usuario en Auth
-  // NOTA: En Supabase, debes desactivar "Confirm email" en Auth > Settings para que funcione inmediatamente
-  const { data: authData, error: authError } = await supabaseClient.auth.signUp({
-    email, password,
-    options: { data: { nombre, role: rol, consultorio: consultorio || null } }
-  });
-  if (authError) { showToast('Error creando usuario: ' + authError.message, 'error'); return; }
+  // Validar fortaleza de contraseña
+  if (password.length < 8) { showToast('La contraseña debe tener mínimo 8 caracteres', 'error'); return; }
+  if (!/[A-Z]/.test(password)) { showToast('La contraseña debe incluir al menos una mayúscula', 'error'); return; }
+  if (!/[a-z]/.test(password)) { showToast('La contraseña debe incluir al menos una minúscula', 'error'); return; }
+  if (!/[0-9]/.test(password)) { showToast('La contraseña debe incluir al menos un número', 'error'); return; }
 
-  // El trigger handle_new_user creará el perfil automáticamente
-  // Pero actualizamos el rol y consultorio por si acaso
+  const { data: authData, error: authError } = await supabaseClient.auth.signUp({ email, password, options: { data: { nombre, role: rol, consultorio: consultorio || null } } });
+  if (authError) { showToast('Error creando usuario: ' + authError.message, 'error'); return; }
   if (authData.user) {
-    const { error: upError } = await supabaseClient.from('profiles').update({
-      role: rol,
-      consultorio: consultorio || null,
-      nombre: nombre
-    }).eq('id', authData.user.id);
+    const { error: upError } = await supabaseClient.from('profiles').update({ role: rol, consultorio: consultorio || null, nombre: nombre }).eq('id', authData.user.id);
     if (upError) console.warn('Error actualizando perfil:', upError);
   }
-
   showToast('Usuario creado exitosamente');
   closeUserModal();
   await loadUsers();
@@ -1868,7 +1754,6 @@ async function toggleUser(id, activo) {
 
 async function deleteUser(id) {
   if (!confirm('¿Eliminar permanentemente este usuario?')) return;
-  // Eliminar perfil (el auth user queda en Supabase, solo superadmin puede eliminarlo desde panel)
   const { error } = await supabaseClient.from('profiles').delete().eq('id', id);
   if (error) { showToast('Error: ' + error.message, 'error'); return; }
   showToast('Usuario eliminado');
@@ -1880,7 +1765,6 @@ async function loadCalendarios() {
   const { data, error } = await supabaseClient.from('calendarios_epidemiologicos').select('*').order('anio', { ascending: false });
   if (error) { console.warn('Error cargando calendarios:', error); return; }
   calendariosData = data || [];
-  // Si no hay 2026, usar el generado localmente
   if (!calendariosData.find(c => c.anio === 2026)) {
     const cal2026 = generarCalendarioLocal(2026, '2026-01-04');
     calendariosData = [...calendariosData, ...cal2026];
@@ -1891,18 +1775,7 @@ async function loadCalendarios() {
 function renderCalendarios() {
   const container = document.getElementById('calendariosList');
   const anios = [...new Set(calendariosData.map(c => c.anio))].sort((a, b) => b - a);
-  container.innerHTML = anios.map(anio => {
-    const semanas = calendariosData.filter(c => c.anio === anio).sort((a, b) => a.semana - b.semana);
-    return `
-      <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-        <div class="flex items-center justify-between mb-2">
-          <h4 class="font-bold text-gray-800">Año ${anio}</h4>
-          <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">${semanas.length} semanas</span>
-        </div>
-        <p class="text-xs text-gray-500">Inicio: ${semanas[0]?.fecha_inicio} • Fin: ${semanas[semanas.length-1]?.fecha_fin}</p>
-      </div>
-    `;
-  }).join('');
+  container.innerHTML = anios.map(anio => { const semanas = calendariosData.filter(c => c.anio === anio).sort((a, b) => a.semana - b.semana); return `<div class="bg-gray-50 rounded-lg p-4 border border-gray-200"><div class="flex items-center justify-between mb-2"><h4 class="font-bold text-gray-800">Año ${anio}</h4><span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">${semanas.length} semanas</span></div><p class="text-xs text-gray-500">Inicio: ${semanas[0]?.fecha_inicio} • Fin: ${semanas[semanas.length-1]?.fecha_fin}</p></div>`; }).join('');
 }
 
 function openCalendarioModal() { document.getElementById('calendarioModal').classList.remove('hidden'); }
@@ -1912,21 +1785,14 @@ document.getElementById('calendarioForm').addEventListener('submit', async (e) =
   e.preventDefault();
   const anio = parseInt(document.getElementById('cAnio').value);
   const fechaInicio = new Date(document.getElementById('cFechaInicio').value + 'T00:00:00');
-
   const semanas = [];
   for (let i = 1; i <= 52; i++) {
     const ini = new Date(fechaInicio);
     ini.setDate(fechaInicio.getDate() + (i - 1) * 7);
     const fin = new Date(ini);
     fin.setDate(ini.getDate() + 6);
-    semanas.push({
-      anio,
-      semana: i,
-      fecha_inicio: ini.toISOString().split('T')[0],
-      fecha_fin: fin.toISOString().split('T')[0]
-    });
+    semanas.push({ anio, semana: i, fecha_inicio: ini.toISOString().split('T')[0], fecha_fin: fin.toISOString().split('T')[0] });
   }
-
   const { error } = await supabaseClient.from('calendarios_epidemiologicos').insert(semanas);
   if (error) { showToast('Error: ' + error.message, 'error'); return; }
   showToast(`Calendario ${anio} creado con 52 semanas`);
@@ -1939,13 +1805,11 @@ document.getElementById('calendarioForm').addEventListener('submit', async (e) =
 async function backupData() {
   const key = document.getElementById('backupKey').value;
   if (!key || key.length < 8) { showToast('La clave debe tener mínimo 8 caracteres', 'error'); return; }
-
   const [{ data: gestantes }, { data: control }, { data: users }] = await Promise.all([
     supabaseClient.from('gestantes').select('*'),
     supabaseClient.from('control_semanal').select('*'),
     supabaseClient.from('profiles').select('*')
   ]);
-
   const payload = JSON.stringify({ gestantes: gestantes || [], control_semanal: control || [], profiles: users || [], fecha: new Date().toISOString() });
   const encrypted = CryptoJS.AES.encrypt(payload, key).toString();
   const blob = new Blob([encrypted], { type: 'application/octet-stream' });
@@ -1962,43 +1826,25 @@ async function restoreData() {
   const file = document.getElementById('restoreFile').files[0];
   const key = document.getElementById('restoreKey').value;
   if (!file || !key) { showToast('Seleccione archivo e ingrese clave', 'error'); return; }
-
   const text = await file.text();
   try {
     const decrypted = CryptoJS.AES.decrypt(text, key).toString(CryptoJS.enc.Utf8);
     if (!decrypted) throw new Error('Clave incorrecta');
     const data = JSON.parse(decrypted);
     if (!confirm(`¿Restaurar ${data.gestantes?.length || 0} gestantes, ${data.control_semanal?.length || 0} controles? Esto reemplazará los datos actuales.`)) return;
-
-    // CORRECCIÓN: Orden correcto - primero control_semanal (hijos), luego gestantes (padres)
-    // En realidad, como control_semanal referencia gestantes, debemos eliminar primero control_semanal
     await supabaseClient.from('control_semanal').delete().neq('id', '00000000-0000-0000-0000-000000000000');
     await supabaseClient.from('gestantes').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-
-    if (data.gestantes && data.gestantes.length > 0) {
-      const { error } = await supabaseClient.from('gestantes').insert(data.gestantes);
-      if (error) console.error('Error gestantes:', error);
-    }
-    if (data.control_semanal && data.control_semanal.length > 0) {
-      const { error } = await supabaseClient.from('control_semanal').insert(data.control_semanal);
-      if (error) console.error('Error control:', error);
-    }
+    if (data.gestantes && data.gestantes.length > 0) { const { error } = await supabaseClient.from('gestantes').insert(data.gestantes); if (error) console.error('Error gestantes:', error); }
+    if (data.control_semanal && data.control_semanal.length > 0) { const { error } = await supabaseClient.from('control_semanal').insert(data.control_semanal); if (error) console.error('Error control:', error); }
     showToast('Datos restaurados');
     await loadGestantes();
-  } catch (err) {
-    showToast('Error: ' + err.message, 'error');
-  }
+  } catch (err) { showToast('Error: ' + err.message, 'error'); }
 }
 
 // ==================== EXCEL IMPORT/EXPORT ====================
 async function exportarExcel() {
   const { data } = await supabaseClient.from('gestantes').select('*');
-  const rows = (data || []).map(g => ({
-    CEDULA: g.cedula, NOMBRES: g.nombres, APELLIDOS: g.apellidos,
-    CONSULTORIO: g.consultorio, EDAD: g.edad, TELEFONO: g.telefono,
-    DIRECCION: g.direccion, FUR: g.fur, SEM_GESTACION: g.semana_gestacion,
-    FPP: g.fpp, ARO: g.aro, ESTADO: g.estado
-  }));
+  const rows = (data || []).map(g => ({ CEDULA: g.cedula, NOMBRES: g.nombres, APELLIDOS: g.apellidos, CONSULTORIO: g.consultorio, EDAD: g.edad, TELEFONO: g.telefono, DIRECCION: g.direccion, FUR: g.fur, SEM_GESTACION: g.semana_gestacion, FPP: g.fpp, ARO: g.aro, ESTADO: g.estado }));
   const ws = XLSX.utils.json_to_sheet(rows);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Gestantes');
@@ -2009,14 +1855,8 @@ async function exportarExcel() {
 async function exportarExcelEncriptado() {
   const key = document.getElementById('excelKey').value;
   if (!key) { showToast('Ingrese clave para encriptar', 'error'); return; }
-
   const { data } = await supabaseClient.from('gestantes').select('*');
-  const rows = (data || []).map(g => ({
-    CEDULA: g.cedula, NOMBRES: g.nombres, APELLIDOS: g.apellidos,
-    CONSULTORIO: g.consultorio, EDAD: g.edad, TELEFONO: g.telefono,
-    DIRECCION: g.direccion, FUR: g.fur, SEM_GESTACION: g.semana_gestacion,
-    FPP: g.fpp, ARO: g.aro, ESTADO: g.estado
-  }));
+  const rows = (data || []).map(g => ({ CEDULA: g.cedula, NOMBRES: g.nombres, APELLIDOS: g.apellidos, CONSULTORIO: g.consultorio, EDAD: g.edad, TELEFONO: g.telefono, DIRECCION: g.direccion, FUR: g.fur, SEM_GESTACION: g.semana_gestacion, FPP: g.fpp, ARO: g.aro, ESTADO: g.estado }));
   const ws = XLSX.utils.json_to_sheet(rows);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Gestantes');
@@ -2037,61 +1877,28 @@ async function importarExcel() {
   const file = document.getElementById('excelImport').files[0];
   const key = document.getElementById('excelImportKey').value;
   if (!file) { showToast('Seleccione un archivo', 'error'); return; }
-
   let data;
   try {
     const fileText = await file.text();
-    // Intentar desencriptar si hay clave
     if (key && file.name.endsWith('.epi')) {
       const decrypted = CryptoJS.AES.decrypt(fileText, key).toString(CryptoJS.enc.Utf8);
       if (!decrypted) throw new Error('Clave incorrecta o archivo no encriptado');
-      // El contenido desencriptado es un WordArray que representa un XLSX
-      // Necesitamos convertirlo de vuelta
       const bytes = [];
-      for (let i = 0; i < decrypted.length; i += 2) {
-        bytes.push(parseInt(decrypted.substr(i, 2), 16));
-      }
+      for (let i = 0; i < decrypted.length; i += 2) bytes.push(parseInt(decrypted.substr(i, 2), 16));
       data = new Uint8Array(bytes);
-    } else {
-      // Leer como ArrayBuffer para Excel normal
-      data = await file.arrayBuffer();
-    }
-  } catch (err) {
-    showToast('Error leyendo archivo: ' + err.message, 'error');
-    return;
-  }
-
+    } else { data = await file.arrayBuffer(); }
+  } catch (err) { showToast('Error leyendo archivo: ' + err.message, 'error'); return; }
   try {
     const workbook = XLSX.read(data, { type: 'array' });
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
     const rows = XLSX.utils.sheet_to_json(sheet);
     if (rows.length === 0) { showToast('El archivo está vacío', 'error'); return; }
-
-    const inserts = rows.map(r => ({
-      cedula: String(r.CEDULA || r.cedula || ''),
-      nombres: String(r.NOMBRES || r.nombres || '').toUpperCase(),
-      apellidos: String(r.APELLIDOS || r.apellidos || '').toUpperCase(),
-      consultorio: String(r.CONSULTORIO || r.consultorio || ''),
-      edad: parseInt(r.EDAD || r.edad) || null,
-      telefono: String(r.TELEFONO || r.telefono || ''),
-      direccion: String(r.DIRECCION || r.direccion || '').toUpperCase(),
-      fur: r.FUR || r.fur || null,
-      semana_gestacion: String(r.SEM_GESTACION || r.sem_gestacion || ''),
-      fpp: r.FPP || r.fpp || null,
-      aro: r.ARO || r.aro || null,
-      estado: r.ESTADO || r.estado || 'gestante',
-      fecha_registro: new Date().toISOString(),
-      fecha_ultima_actualizacion: new Date().toISOString(),
-      created_by: currentUser.id
-    }));
-
+    const inserts = rows.map(r => ({ cedula: String(r.CEDULA || r.cedula || ''), nombres: String(r.NOMBRES || r.nombres || '').toUpperCase(), apellidos: String(r.APELLIDOS || r.apellidos || '').toUpperCase(), consultorio: String(r.CONSULTORIO || r.consultorio || ''), edad: parseInt(r.EDAD || r.edad) || null, telefono: String(r.TELEFONO || r.telefono || ''), direccion: String(r.DIRECCION || r.direccion || '').toUpperCase(), fur: r.FUR || r.fur || null, semana_gestacion: String(r.SEM_GESTACION || r.sem_gestacion || ''), fpp: r.FPP || r.fpp || null, aro: r.ARO || r.aro || null, estado: r.ESTADO || r.estado || 'gestante', fecha_registro: new Date().toISOString(), fecha_ultima_actualizacion: new Date().toISOString(), created_by: currentUser.id }));
     const { error } = await supabaseClient.from('gestantes').insert(inserts);
     if (error) { showToast('Error: ' + error.message, 'error'); return; }
     showToast(`${inserts.length} registros importados`);
     await loadGestantes();
-  } catch (err) {
-    showToast('Error importando: ' + err.message, 'error');
-  }
+  } catch (err) { showToast('Error importando: ' + err.message, 'error'); }
 }
 
 // ==================== UTILIDADES ====================
@@ -2107,7 +1914,10 @@ function showToast(msg, type = 'success') {
 
 // ==================== INICIO ====================
 window.addEventListener('DOMContentLoaded', async () => {
-  // Primero intentar sesión normal de Supabase
+  // Mostrar ID de sesión en login
+  const tempSessionId = generateSessionId();
+  document.getElementById('sessionIdDisplay').textContent = tempSessionId.substring(0, 12) + '...';
+
   try {
     const { data: { session } } = await supabaseClient.auth.getSession();
     if (session) {
@@ -2115,31 +1925,27 @@ window.addEventListener('DOMContentLoaded', async () => {
       if (profile && profile.activo && !error) {
         currentUser = session.user;
         currentProfile = profile;
+        SECURITY.sessionId = generateSessionId();
+        sessionStartTime = Date.now();
         initApp();
         return;
       }
     }
-  } catch (e) {
-    console.warn('Error verificando sesión:', e);
-  }
+  } catch (e) { console.warn('Error verificando sesión:', e); }
 
-  // Si no hay sesión normal, verificar bypass session (emergencia)
   const bypassSession = localStorage.getItem('epi_session');
   if (bypassSession) {
     try {
       const bs = JSON.parse(bypassSession);
-      // Verificar que no haya expirado (24 horas)
       if (bs.timestamp && (Date.now() - bs.timestamp) < 24 * 60 * 60 * 1000) {
         currentUser = bs.user;
         currentProfile = bs.profile;
+        SECURITY.sessionId = generateSessionId();
+        sessionStartTime = Date.now();
         initApp();
         return;
-      } else {
-        localStorage.removeItem('epi_session');
-      }
-    } catch (e) {
-      localStorage.removeItem('epi_session');
-    }
+      } else { localStorage.removeItem('epi_session'); }
+    } catch (e) { localStorage.removeItem('epi_session'); }
   }
 });
 </script>
