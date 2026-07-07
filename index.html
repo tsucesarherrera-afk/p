@@ -1073,13 +1073,65 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
     if (error) throw error;
 
-    const { data: profile, error: pError } = await supabaseClient
-      .from('profiles').select('*').eq('id', data.user.id).single();
+    let profile = null;
+let pError = null;
 
-    if (pError || !profile) {
-      await supabaseClient.auth.signOut();
-      throw new Error('Usuario no tiene perfil asignado en el sistema');
+try {
+  const result = await supabaseClient
+    .from('profiles')
+    .select('*')
+    .eq('id', data.user.id)
+    .single();
+  
+  profile = result.data;
+  pError = result.error;
+} catch (err) {
+  console.error('Error al obtener perfil:', err);
+  pError = err;
+}
+
+// Si hay error 500 o no existe perfil, intentar crearlo
+if (pError || !profile) {
+  console.log('Perfil no encontrado o error del servidor. Intentando crear perfil...');
+  
+  try {
+    const { data: newProfile, error: createError } = await supabaseClient
+      .from('profiles')
+      .insert([{
+        id: data.user.id,
+        email: data.user.email,
+        nombre: data.user.user_metadata?.nombre || data.user.email,
+        role: data.user.user_metadata?.role || 'superadmin',
+        consultorio: data.user.user_metadata?.consultorio || null,
+        activo: true
+      }])
+      .select()
+      .single();
+    
+    if (createError) {
+      console.error('Error creando perfil:', createError);
+      // Si falla por RLS, mostrar error específico
+      if (createError.code === '42501' || createError.message.includes('row-level security')) {
+        throw new Error('Error de permisos (RLS). Contacte al administrador del sistema.');
+      }
+      throw new Error('No se pudo crear el perfil: ' + createError.message);
     }
+    
+    profile = newProfile;
+    console.log('✅ Perfil creado exitosamente:', profile);
+    
+  } catch (createErr) {
+    console.error('Error en creación de perfil:', createErr);
+    await supabaseClient.auth.signOut();
+    throw new Error(createErr.message || 'Error al inicializar perfil de usuario');
+  }
+}
+
+// Verificar que el usuario está activo
+if (!profile.activo) {
+  await supabaseClient.auth.signOut();
+  throw new Error('Usuario desactivado. Contacte al administrador');
+}
 
     if (!profile.activo) {
       await supabaseClient.auth.signOut();
