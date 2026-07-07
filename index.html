@@ -1812,8 +1812,10 @@ function renderUsers() {
 function openUserModal() { document.getElementById('userModal').classList.remove('hidden'); }
 function closeUserModal() { document.getElementById('userModal').classList.add('hidden'); }
 
+// ==================== CREAR USUARIO (SUPER ADMIN) ====================
 document.getElementById('userForm').addEventListener('submit', async (e) => {
   e.preventDefault();
+  
   const email = document.getElementById('uEmail').value.trim();
   const password = document.getElementById('uPassword').value;
   const nombre = document.getElementById('uNombre').value.trim();
@@ -1826,15 +1828,44 @@ document.getElementById('userForm').addEventListener('submit', async (e) => {
   if (!/[a-z]/.test(password)) { showToast('La contraseña debe incluir al menos una minúscula', 'error'); return; }
   if (!/[0-9]/.test(password)) { showToast('La contraseña debe incluir al menos un número', 'error'); return; }
 
-  const { data: authData, error: authError } = await supabaseClient.auth.signUp({ email, password, options: { data: { nombre, role: rol, consultorio: consultorio || null } } });
-  if (authError) { showToast('Error creando usuario: ' + authError.message, 'error'); return; }
-  if (authData.user) {
-    const { error: upError } = await supabaseClient.from('profiles').update({ role: rol, consultorio: consultorio || null, nombre: nombre }).eq('id', authData.user.id);
-    if (upError) console.warn('Error actualizando perfil:', upError);
+  const btn = e.target.querySelector('button[type="submit"]');
+  const originalText = btn.innerHTML;
+  btn.innerHTML = '<div class="spinner"></div> Creando...';
+  btn.disabled = true;
+
+  try {
+    // Llamar a la Edge Function para crear usuario
+    const { data, error } = await supabaseClient.functions.invoke('create-user', {
+      body: {
+        email,
+        password,
+        nombre,
+        role: rol,
+        consultorio: consultorio || null,
+        created_by: currentUser.id
+      }
+    });
+
+    if (error) {
+      throw new Error(error.message || 'Error al crear usuario');
+    }
+
+    if (data.error) {
+      throw new Error(data.error);
+    }
+
+    showToast('Usuario creado exitosamente. Puede iniciar sesión inmediatamente.');
+    closeUserModal();
+    document.getElementById('userForm').reset();
+    await loadUsers();
+    
+  } catch (err) {
+    showToast('Error: ' + err.message, 'error');
+    console.error('Error creando usuario:', err);
+  } finally {
+    btn.innerHTML = originalText;
+    btn.disabled = false;
   }
-  showToast('Usuario creado exitosamente');
-  closeUserModal();
-  await loadUsers();
 });
 
 async function toggleUser(id, activo) {
