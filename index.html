@@ -40,9 +40,6 @@
   @keyframes shake { 0%, 100% { transform: translateX(0); } 10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); } 20%, 40%, 60%, 80% { transform: translateX(5px); } }
 </style>
 <base target="_blank">
-<base target="_blank">
-<base target="_blank">
-<base target="_blank">
 </head>
 <body class="text-gray-800">
 
@@ -113,23 +110,9 @@
 
     <div id="loginError" class="hidden mt-4 p-3 bg-red-50 text-red-700 text-sm rounded-lg border border-red-200"></div>
 
-    <!-- Info de seguridad 
-    <div class="mt-4 p-3 bg-emerald-50 rounded-lg border border-emerald-100">
-      <div class="flex items-start gap-2">
-        <i class="fas fa-shield-alt text-emerald-500 mt-0.5 text-xs"></i>
-        <div class="text-xs text-emerald-700 space-y-1">
-          <p><strong>Seguridad activa:</strong> CAPTCHA matemático + Rate limiting + Sesiones encriptadas + Auto-logout</p>
-          <p id="sessionInfo" class="text-emerald-500">Sesión: <span id="sessionIdDisplay">---</span></p>
-        </div>
-      </div>
-    </div> -->
-
-   <!-- <div class="mt-4 text-center text-xs text-gray-400">
-      <p>¿Primera vez? Contacte al Super Administrador</p>
-      <p class="mt-1 text-emerald-200">v2.2 - Seguridad Reforzada</p>
-    </div>
   </div>
-</div>-->
+</div>
+
 <!-- APP -->
 <div id="appScreen" class="hidden min-h-screen flex">
   <aside id="sidebar" class="sidebar w-64 bg-white border-r border-gray-200 flex-shrink-0 fixed h-full z-30 overflow-y-auto">
@@ -141,7 +124,7 @@
 </div>
         </div>
         <div>
-          <h2 class="font-bold text-gray-800 text-sm leading-tight">EPI 13 - Ruta Materna</h2>
+          <h2 class="font-bold text-gray-800 text-sm leading-tight">EPI Ruta Materna</h2>
           <p class="text-xs text-gray-400">Puerto Miranda</p>
         </div>
       </div>
@@ -1057,6 +1040,9 @@ async function getCurrentSemanaEpidemiologica() {
 document.getElementById('loginForm').addEventListener('submit', async (e) => {
   e.preventDefault();
 
+  const btn = document.getElementById('loginBtn');
+  const errorDiv = document.getElementById('loginError');
+
   if (isLocked()) {
     showToast('Espere el tiempo de bloqueo antes de intentar de nuevo', 'error');
     return;
@@ -1073,15 +1059,11 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
       document.getElementById('loginScreen').classList.remove('shake');
       generateCaptcha(); // Generar nueva pregunta
     }, 500);
-    btn.innerHTML = '<span>Ingresar al Sistema</span>';
-    btn.disabled = false;
     return;
   }
 
   const email = document.getElementById('loginEmail').value.trim();
   const password = document.getElementById('loginPassword').value;
-  const btn = document.getElementById('loginBtn');
-  const errorDiv = document.getElementById('loginError');
 
   btn.innerHTML = '<div class="spinner"></div>';
   btn.disabled = true;
@@ -2162,11 +2144,7 @@ async function sendPasswordResetEmail() {
 // ==================== INICIO ====================
 
 window.addEventListener('DOMContentLoaded', async () => {
-  // Mostrar ID de sesión en login
-  const tempSessionId = generateSessionId();
-  document.getElementById('sessionIdDisplay').textContent = tempSessionId.substring(0, 12) + '...';
-
-  // Generar primer CAPTCHA
+  // Generar primer CAPTCHA siempre
   generateCaptcha();
 
   try {
