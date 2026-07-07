@@ -3,13 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EPI - Ruta Materna | Consultorio Popular Puerto Miranda</title>
+<title>ASIC ANTONIO JOSÉ DE SUCRE | EPI 15 - Ruta Materna</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
-<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
@@ -29,7 +28,7 @@
   .aro-1 { background: #d1fae5; color: #065f46; }
   .aro-2 { background: #fef3c7; color: #92400e; }
   .aro-3 { background: #fee2e2; color: #991b1b; }
-  .spinner { border: 3px solid #f3f3f3; border-top: 3px solid #3b82f6; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
+  .spinner { border: 3px solid #f3f3f3; border-top: 3px solid #E91E63; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
   @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
   .modal-overlay { background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
   .table-container { overflow-x: auto; }
@@ -41,18 +40,20 @@
   @keyframes shake { 0%, 100% { transform: translateX(0); } 10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); } 20%, 40%, 60%, 80% { transform: translateX(5px); } }
 </style>
 <base target="_blank">
+<base target="_blank">
+<base target="_blank">
 </head>
 <body class="text-gray-800">
 
 <!-- LOGIN -->
-<div id="loginScreen" class="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-blue-600 to-indigo-800">
+<div id="loginScreen" class="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-pink-500 to-rose-700">
   <div class="glass rounded-2xl shadow-2xl p-8 w-full max-w-md mx-4">
     <div class="text-center mb-6">
-      <div class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 text-white text-2xl">
-        <i class="fas fa-hospital"></i>
+      <div class="w-16 h-16 bg-pink-600 rounded-full flex items-center justify-center mx-auto mb-4 text-white text-2xl">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" class="w-12 h-12"><circle cx="50" cy="50" r="45" fill="#E91E63"/><path d="M50 20 C38 20 30 28 30 38 C30 44 33 49 38 52 C33 55 28 62 28 72 L28 78 C28 80 30 82 32 82 L68 82 C70 82 72 80 72 78 L72 72 C72 62 67 55 62 52 C67 49 70 44 70 38 C70 28 62 20 50 20 Z M50 24 C58 24 64 30 64 38 C64 42 62 46 59 48 C57 50 55 50 53 50 L53 58 C58 60 62 64 64 70 L36 70 C38 64 42 60 47 58 L47 50 C45 50 43 50 41 48 C38 46 36 42 36 38 C36 30 42 24 50 24 Z" fill="white"/></svg>
       </div>
-      <h1 class="text-2xl font-bold text-gray-800"> ASIC ANTONIO JOSÉ ANTONIO DE SUCRE </h1>
-      <p class="text-sm text-gray-500 mt-1">EPI - Ruta Materna</p>
+      <h1 class="text-2xl font-bold text-gray-800">EPI - Ruta Materna</h1>
+      <p class="text-sm text-gray-500 mt-1">Consultorio Popular Tipo II Puerto Miranda</p>
       <p class="text-xs text-gray-400">Camaguán, Guárico, Venezuela</p>
     </div>
 
@@ -70,25 +71,39 @@
     <form id="loginForm" class="space-y-4">
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Correo electrónico</label>
-        <input type="email" id="loginEmail" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="usuario@ejemplo.com" required autocomplete="username">
+        <input type="email" id="loginEmail" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none" placeholder="usuario@ejemplo.com" required autocomplete="username">
       </div>
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
         <div class="relative">
-          <input type="password" id="loginPassword" class="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="••••••••" required autocomplete="current-password">
+          <input type="password" id="loginPassword" class="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none" placeholder="••••••••" required autocomplete="current-password">
           <button type="button" onclick="togglePasswordVisibility()" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
             <i id="eyeIcon" class="fas fa-eye"></i>
           </button>
         </div>
       </div>
 
-      <!-- Cloudflare Turnstile CAPTCHA -->
-      <div class="flex justify-center">
-        <div id="cf-turnstile" class="cf-turnstile" data-sitekey="0x4AAAAAAA5example" data-callback="onTurnstileSuccess" data-theme="light" data-size="normal"></div>
+      <!-- CAPTCHA Matemático Simple -->
+      <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+        <div class="flex items-center gap-2 mb-2">
+          <i class="fas fa-shield-alt text-pink-500"></i>
+          <span class="text-sm font-medium text-gray-700">Verificación de seguridad</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="bg-white border border-gray-300 rounded-lg px-4 py-2 text-lg font-bold text-gray-800 select-none" id="captchaQuestion">
+            <!-- Se genera dinámicamente -->
+          </div>
+          <span class="text-gray-500">=</span>
+          <input type="number" id="captchaAnswer" class="w-20 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none text-center font-bold" placeholder="?" required>
+          <button type="button" onclick="generateCaptcha()" class="text-gray-400 hover:text-pink-600 transition" title="Cambiar pregunta">
+            <i class="fas fa-sync-alt"></i>
+          </button>
+        </div>
+        <p class="text-xs text-gray-400 mt-2">Resuelva la operación para continuar</p>
+        <input type="hidden" id="captchaExpected" value="">
       </div>
-      <input type="hidden" id="turnstileToken" value="">
 
-      <button type="submit" id="loginBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+      <button type="submit" id="loginBtn" class="w-full bg-pink-600 hover:bg-pink-700 text-white font-semibold py-2.5 rounded-lg transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
         <span>Ingresar al Sistema</span>
       </button>
     </form>
@@ -96,19 +111,19 @@
     <div id="loginError" class="hidden mt-4 p-3 bg-red-50 text-red-700 text-sm rounded-lg border border-red-200"></div>
 
     <!-- Info de seguridad 
-    <div class="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-100">
+    <div class="mt-4 p-3 bg-pink-50 rounded-lg border border-pink-100">
       <div class="flex items-start gap-2">
-        <i class="fas fa-shield-alt text-blue-500 mt-0.5 text-xs"></i>
-        <div class="text-xs text-blue-700 space-y-1">
-          <p><strong>Seguridad activa:</strong> Verificación humana + Rate limiting + Sesiones encriptadas</p>
-          <p id="sessionInfo" class="text-blue-500">Sesión: <span id="sessionIdDisplay">---</span></p>
+        <i class="fas fa-shield-alt text-pink-500 mt-0.5 text-xs"></i>
+        <div class="text-xs text-pink-700 space-y-1">
+          <p><strong>Seguridad activa:</strong> CAPTCHA matemático + Rate limiting + Sesiones encriptadas + Auto-logout</p>
+          <p id="sessionInfo" class="text-pink-500">Sesión: <span id="sessionIdDisplay">---</span></p>
         </div>
       </div>
     </div> -->
 
     <div class="mt-4 text-center text-xs text-gray-400">
       <p>¿Primera vez? Contacte al Super Administrador</p>
-      <!--<p class="mt-1 text-gray-300">v2.2 - Seguridad Reforzada</p> -->
+      <p class="mt-1 text-pink-200">v2.2 - Seguridad Reforzada</p>
     </div>
   </div>
 </div>
@@ -117,8 +132,8 @@
   <aside id="sidebar" class="sidebar w-64 bg-white border-r border-gray-200 flex-shrink-0 fixed h-full z-30 overflow-y-auto">
     <div class="p-6 border-b border-gray-100">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white">
-          <i class="fas fa-hospital"></i>
+        <div class="w-10 h-10 bg-pink-600 rounded-lg flex items-center justify-center text-white">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" class="w-12 h-12"><circle cx="50" cy="50" r="45" fill="#E91E63"/><path d="M50 20 C38 20 30 28 30 38 C30 44 33 49 38 52 C33 55 28 62 28 72 L28 78 C28 80 30 82 32 82 L68 82 C70 82 72 80 72 78 L72 72 C72 62 67 55 62 52 C67 49 70 44 70 38 C70 28 62 20 50 20 Z M50 24 C58 24 64 30 64 38 C64 42 62 46 59 48 C57 50 55 50 53 50 L53 58 C58 60 62 64 64 70 L36 70 C38 64 42 60 47 58 L47 50 C45 50 43 50 41 48 C38 46 36 42 36 38 C36 30 42 24 50 24 Z" fill="white"/></svg>
         </div>
         <div>
           <h2 class="font-bold text-gray-800 text-sm leading-tight">EPI Ruta Materna</h2>
@@ -127,28 +142,28 @@
       </div>
     </div>
     <nav class="p-4 space-y-1">
-      <button onclick="showSection('dashboard')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 transition" data-section="dashboard">
+      <button onclick="showSection('dashboard')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-pink-50 hover:text-pink-600 transition" data-section="dashboard">
         <i class="fas fa-chart-pie w-5"></i> Dashboard
       </button>
-      <button onclick="showSection('gestantes')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 transition" data-section="gestantes">
+      <button onclick="showSection('gestantes')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-pink-50 hover:text-pink-600 transition" data-section="gestantes">
         <i class="fas fa-female w-5"></i> Gestantes
       </button>
-      <button onclick="showSection('controlSemanal')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 transition" data-section="controlSemanal">
+      <button onclick="showSection('controlSemanal')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-pink-50 hover:text-pink-600 transition" data-section="controlSemanal">
         <i class="fas fa-calendar-week w-5"></i> Control Semanal
       </button>
-      <button onclick="showSection('puerperas')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 transition" data-section="puerperas">
+      <button onclick="showSection('puerperas')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-pink-50 hover:text-pink-600 transition" data-section="puerperas">
         <i class="fas fa-baby w-5"></i> Puérperas / Lactantes
       </button>
-      <button onclick="showSection('archivados')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 transition" data-section="archivados">
+      <button onclick="showSection('archivados')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-pink-50 hover:text-pink-600 transition" data-section="archivados">
         <i class="fas fa-archive w-5"></i> Archivados / Abortos
       </button>
-      <button id="menuUsuarios" onclick="showSection('usuarios')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 transition hidden" data-section="usuarios">
+      <button id="menuUsuarios" onclick="showSection('usuarios')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-pink-50 hover:text-pink-600 transition hidden" data-section="usuarios">
         <i class="fas fa-users-cog w-5"></i> Usuarios
       </button>
-      <button id="menuCalendarios" onclick="showSection('calendarios')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 transition hidden" data-section="calendarios">
+      <button id="menuCalendarios" onclick="showSection('calendarios')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-pink-50 hover:text-pink-600 transition hidden" data-section="calendarios">
         <i class="fas fa-calendar-alt w-5"></i> Calendarios Epi.
       </button>
-      <button onclick="showSection('backup')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 transition" data-section="backup">
+      <button onclick="showSection('backup')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-pink-50 hover:text-pink-600 transition" data-section="backup">
         <i class="fas fa-database w-5"></i> Backup / Restore
       </button>
     </nav>
@@ -166,6 +181,9 @@
         <p class="text-xs text-gray-400"><i class="fas fa-clock mr-1"></i><span id="sessionTimer">--:--</span></p>
         <p class="text-xs text-gray-400"><i class="fas fa-fingerprint mr-1"></i><span id="sessionIdShort">---</span></p>
       </div>
+      <button onclick="openPasswordModal()" class="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm text-pink-600 hover:bg-pink-50 rounded-lg transition mb-2">
+        <i class="fas fa-key"></i> Cambiar Contraseña
+      </button>
       <button onclick="logout()" class="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition">
         <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
       </button>
@@ -181,7 +199,7 @@
       <div class="flex items-center gap-4">
         <div class="text-right">
           <p id="currentDate" class="text-sm font-medium text-gray-700"></p>
-          <p id="currentEpiWeek" class="text-xs text-blue-600 font-medium"></p>
+          <p id="currentEpiWeek" class="text-xs text-pink-600 font-medium"></p>
         </div>
         <div class="flex items-center gap-2 px-3 py-1 bg-green-50 rounded-full border border-green-200">
           <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
@@ -199,7 +217,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 card-hover">
             <div class="flex items-center justify-between mb-4">
-              <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600"><i class="fas fa-female text-xl"></i></div>
+              <div class="w-12 h-12 bg-pink-100 rounded-lg flex items-center justify-center text-pink-600"><i class="fas fa-female text-xl"></i></div>
               <span class="text-xs font-medium text-gray-400">Total</span>
             </div>
             <h3 id="dashTotal" class="text-2xl font-bold text-gray-800">0</h3>
@@ -258,14 +276,14 @@
           <div class="flex items-center gap-3">
             <div class="relative">
               <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-              <input type="text" id="searchGestante" oninput="filterGestantes()" placeholder="Buscar por cédula, nombre..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none w-72">
+              <input type="text" id="searchGestante" oninput="filterGestantes()" placeholder="Buscar por cédula, nombre..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none w-72">
             </div>
-            <select id="filterConsultorio" onchange="filterGestantes()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"><option value="">Todos los consultorios</option></select>
-            <select id="filterEstado" onchange="filterGestantes()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+            <select id="filterConsultorio" onchange="filterGestantes()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none"><option value="">Todos los consultorios</option></select>
+            <select id="filterEstado" onchange="filterGestantes()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none">
               <option value="">Todos los estados</option><option value="gestante">Gestante</option><option value="puerpera">Puérpera</option><option value="lactante">Lactante</option>
             </select>
           </div>
-          <button onclick="openGestanteModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition"><i class="fas fa-plus"></i> Nueva Embarazada</button>
+          <button onclick="openGestanteModal()" class="bg-pink-600 hover:bg-pink-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition"><i class="fas fa-plus"></i> Nueva Embarazada</button>
         </div>
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           <div class="table-container">
@@ -283,16 +301,16 @@
       <!-- CONTROL SEMANAL -->
       <section id="controlSemanal" class="section hidden fade-in">
         <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mb-6">
-          <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2"><i class="fas fa-id-card text-blue-600"></i> Búsqueda por Cédula</h3>
+          <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2"><i class="fas fa-id-card text-pink-600"></i> Búsqueda por Cédula</h3>
           <div class="flex flex-wrap items-end gap-4">
             <div class="flex-1 min-w-[250px]">
               <label class="block text-sm font-medium text-gray-700 mb-1">Número de Cédula</label>
               <div class="relative">
                 <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                <input type="text" id="buscarCedulaControl" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ingrese la cédula de la embarazada...">
+                <input type="text" id="buscarCedulaControl" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none" placeholder="Ingrese la cédula de la embarazada...">
               </div>
             </div>
-            <button onclick="buscarCedulaControl()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg flex items-center gap-2 transition"><i class="fas fa-search"></i> Buscar</button>
+            <button onclick="buscarCedulaControl()" class="bg-pink-600 hover:bg-pink-700 text-white px-6 py-2 rounded-lg flex items-center gap-2 transition"><i class="fas fa-search"></i> Buscar</button>
           </div>
           <div id="resultadoBusquedaCedula" class="mt-4 hidden"></div>
         </div>
@@ -301,11 +319,11 @@
           <div class="flex flex-wrap items-end gap-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Semana Epidemiológica</label>
-              <select id="semanaEpiSelect" onchange="loadControlSemanal()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"><option value="">Seleccione semana</option></select>
+              <select id="semanaEpiSelect" onchange="loadControlSemanal()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none"><option value="">Seleccione semana</option></select>
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Año</label>
-              <select id="anioEpiSelect" onchange="loadSemanasDisponibles()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"><option value="2026">2026</option></select>
+              <select id="anioEpiSelect" onchange="loadSemanasDisponibles()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none"><option value="2026">2026</option></select>
             </div>
             <button onclick="generarReporteSemanal()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition"><i class="fas fa-file-medical"></i> Generar Reporte Completo</button>
             <button onclick="exportarExcelSemanal()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition"><i class="fas fa-file-excel"></i> Exportar Excel</button>
@@ -329,7 +347,7 @@
         <div class="flex items-center justify-between mb-6">
           <div class="relative">
             <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-            <input type="text" id="searchPuerpera" oninput="filterPuerperas()" placeholder="Buscar..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none w-72">
+            <input type="text" id="searchPuerpera" oninput="filterPuerperas()" placeholder="Buscar..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none w-72">
           </div>
         </div>
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
@@ -363,7 +381,7 @@
       <section id="usuarios" class="section hidden fade-in">
         <div class="flex items-center justify-between mb-6">
           <h3 class="font-bold text-gray-800">Gestión de Usuarios</h3>
-          <button onclick="openUserModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition"><i class="fas fa-user-plus"></i> Nuevo Usuario</button>
+          <button onclick="openUserModal()" class="bg-pink-600 hover:bg-pink-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition"><i class="fas fa-user-plus"></i> Nuevo Usuario</button>
         </div>
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           <table class="w-full text-sm">
@@ -379,7 +397,7 @@
       <section id="calendarios" class="section hidden fade-in">
         <div class="flex items-center justify-between mb-6">
           <h3 class="font-bold text-gray-800">Calendarios Epidemiológicos</h3>
-          <button onclick="openCalendarioModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition"><i class="fas fa-calendar-plus"></i> Agregar Año</button>
+          <button onclick="openCalendarioModal()" class="bg-pink-600 hover:bg-pink-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition"><i class="fas fa-calendar-plus"></i> Agregar Año</button>
         </div>
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
           <div id="calendariosList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
@@ -390,24 +408,24 @@
       <section id="backup" class="section hidden fade-in">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-            <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2"><i class="fas fa-download text-blue-600"></i> Backup Encriptado</h3>
+            <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2"><i class="fas fa-download text-pink-600"></i> Backup Encriptado</h3>
             <p class="text-sm text-gray-500 mb-4">Exporta todos los datos del sistema en un archivo JSON encriptado.</p>
             <div class="mb-4">
               <label class="block text-sm font-medium text-gray-700 mb-1">Clave de encriptación</label>
-              <input type="password" id="backupKey" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Mínimo 8 caracteres">
+              <input type="password" id="backupKey" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none" placeholder="Mínimo 8 caracteres">
             </div>
-            <button onclick="backupData()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg transition">Descargar Backup (.epi)</button>
+            <button onclick="backupData()" class="w-full bg-pink-600 hover:bg-pink-700 text-white py-2 rounded-lg transition">Descargar Backup (.epi)</button>
           </div>
           <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
             <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2"><i class="fas fa-upload text-green-600"></i> Restore Encriptado</h3>
             <p class="text-sm text-gray-500 mb-4">Restaura los datos desde un archivo de backup encriptado.</p>
             <div class="mb-4">
               <label class="block text-sm font-medium text-gray-700 mb-1">Archivo .epi</label>
-              <input type="file" id="restoreFile" accept=".epi,.json" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+              <input type="file" id="restoreFile" accept=".epi,.json" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none">
             </div>
             <div class="mb-4">
               <label class="block text-sm font-medium text-gray-700 mb-1">Clave de encriptación</label>
-              <input type="password" id="restoreKey" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ingrese la clave">
+              <input type="password" id="restoreKey" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none" placeholder="Ingrese la clave">
             </div>
             <button onclick="restoreData()" class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg transition">Restaurar Datos</button>
           </div>
@@ -417,7 +435,7 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <p class="text-sm text-gray-500 mb-3">Exportar datos de gestantes a Excel normal o encriptado.</p>
-              <div class="mb-3"><input type="password" id="excelKey" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Clave para encriptar (opcional)"></div>
+              <div class="mb-3"><input type="password" id="excelKey" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none" placeholder="Clave para encriptar (opcional)"></div>
               <div class="flex gap-2">
                 <button onclick="exportarExcel()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition"><i class="fas fa-file-export mr-2"></i>Exportar Excel</button>
                 <button onclick="exportarExcelEncriptado()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition"><i class="fas fa-lock mr-2"></i>Encriptado</button>
@@ -426,8 +444,8 @@
             <div>
               <p class="text-sm text-gray-500 mb-3">Importar gestantes desde Excel (normal o encriptado).</p>
               <input type="file" id="excelImport" accept=".xlsx,.xls,.epi" class="w-full px-4 py-2 border border-gray-300 rounded-lg mb-3">
-              <div class="mb-3"><input type="password" id="excelImportKey" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Clave si el archivo está encriptado"></div>
-              <button onclick="importarExcel()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition"><i class="fas fa-file-import mr-2"></i>Importar Excel</button>
+              <div class="mb-3"><input type="password" id="excelImportKey" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none" placeholder="Clave si el archivo está encriptado"></div>
+              <button onclick="importarExcel()" class="bg-pink-600 hover:bg-pink-700 text-white px-4 py-2 rounded-lg transition"><i class="fas fa-file-import mr-2"></i>Importar Excel</button>
             </div>
           </div>
         </div>
@@ -450,35 +468,35 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Cédula de Identidad</label>
-            <input type="text" id="gCedula" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+            <input type="text" id="gCedula" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none" required>
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Nombres</label>
-            <input type="text" id="gNombres" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+            <input type="text" id="gNombres" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none" required>
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Apellidos</label>
-            <input type="text" id="gApellidos" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+            <input type="text" id="gApellidos" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none" required>
           </div>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Fecha de Nacimiento</label>
-            <input type="date" id="gFechaNac" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+            <input type="date" id="gFechaNac" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none">
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Edad</label>
-            <input type="number" id="gEdad" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" min="10" max="80" readonly>
+            <input type="number" id="gEdad" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none" min="10" max="80" readonly>
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
-            <input type="text" id="gTelefono" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+            <input type="text" id="gTelefono" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none">
           </div>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Consultorio</label>
-            <select id="gConsultorio" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+            <select id="gConsultorio" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none" required>
               <option value="">Seleccione...</option>
               <option>ÁNGELA NEGRA ORTIZ (CAMAGUAN)</option>
               <option>MURO CARRIZALERO (CAMAGUAN)</option>
@@ -495,11 +513,11 @@
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Dirección</label>
-            <input type="text" id="gDireccion" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+            <input type="text" id="gDireccion" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none">
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Carnet de la Patria</label>
-            <select id="gCarnet" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+            <select id="gCarnet" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none">
               <option value="">Seleccione...</option>
               <option value="SI">SI</option>
               <option value="NO">NO</option>
@@ -511,25 +529,25 @@
           <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">F.U.R</label>
-              <input type="date" id="gFur" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+              <input type="date" id="gFur" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none">
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">N° P (Partos)</label>
-              <input type="number" id="gNP" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" min="0">
+              <input type="number" id="gNP" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none" min="0">
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">N° C (Cesáreas)</label>
-              <input type="number" id="gNC" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" min="0">
+              <input type="number" id="gNC" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none" min="0">
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">N° A (Abortos)</label>
-              <input type="number" id="gNA" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" min="0">
+              <input type="number" id="gNA" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none" min="0">
             </div>
           </div>
           <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">N° G (Gestas)</label>
-              <input type="number" id="gNG" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" min="0">
+              <input type="number" id="gNG" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none" min="0">
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Sem. Gestación (calculada)</label>
@@ -541,7 +559,7 @@
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">ARO</label>
-              <select id="gAro" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+              <select id="gAro" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none">
                 <option value="">Ninguno</option>
                 <option value="I">ARO I</option>
                 <option value="II">ARO II</option>
@@ -555,14 +573,14 @@
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Control Prenatal</label>
-              <select id="gControlPre" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+              <select id="gControlPre" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none">
                 <option value="SI">SI</option>
                 <option value="NO">NO</option>
               </select>
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">¿Dónde?</label>
-              <select id="gDonde" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+              <select id="gDonde" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none">
                 <option value="PUBLICO">PÚBLICO</option>
                 <option value="PRIVADO">PRIVADO</option>
                 <option value="AMBOS">AMBOS</option>
@@ -570,7 +588,7 @@
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Enfermedad Asociada</label>
-              <select id="gEnfermedad" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+              <select id="gEnfermedad" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none">
                 <option value="NO">NO</option>
                 <option value="SI">SI</option>
               </select>
@@ -579,18 +597,18 @@
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">¿Cuál Enfermedad?</label>
-              <input type="text" id="gCualEnf" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+              <input type="text" id="gCualEnf" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none">
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Micronutrientes</label>
-              <select id="gMicro" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+              <select id="gMicro" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none">
                 <option value="NO">NO</option>
                 <option value="SI">SI</option>
               </select>
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Conoce ASIC</label>
-              <select id="gAsic" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+              <select id="gAsic" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none">
                 <option value="SI">SI</option>
                 <option value="NO">NO</option>
               </select>
@@ -599,18 +617,18 @@
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Parto Humanizado</label>
-              <select id="gPartoHum" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+              <select id="gPartoHum" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none">
                 <option value="NO">NO</option>
                 <option value="SI">SI</option>
               </select>
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Etnia/Grupo Social</label>
-              <input type="text" id="gEtnia" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+              <input type="text" id="gEtnia" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none">
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Antecedentes Importantes</label>
-              <input type="text" id="gAntecedentes" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+              <input type="text" id="gAntecedentes" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none">
             </div>
           </div>
         </div>
@@ -619,18 +637,18 @@
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Motivo de Consulta</label>
-              <select id="gMotivo" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+              <select id="gMotivo" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none">
                 <option value="CAPTACION">CAPTACIÓN</option>
                 <option value="CONTROL">CONTROL</option>
               </select>
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Diagnóstico</label>
-              <input type="text" id="gDiagnostico" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+              <input type="text" id="gDiagnostico" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none">
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Consulta</label>
-              <select id="gTipoConsulta" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+              <select id="gTipoConsulta" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none">
                 <option value="Emergencia">Emergencia</option>
                 <option value="Consulta">Consulta</option>
                 <option value="II NIVEL">II NIVEL</option>
@@ -642,11 +660,11 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Referido</label>
-              <input type="text" id="gReferido" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+              <input type="text" id="gReferido" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none">
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Observación</label>
-              <input type="text" id="gObservacion" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+              <input type="text" id="gObservacion" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none">
             </div>
           </div>
         </div>
@@ -660,7 +678,7 @@
         </div>
         <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
           <button type="button" onclick="closeGestanteModal()" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition">Cancelar</button>
-          <button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">Guardar</button>
+          <button type="submit" class="px-6 py-2 bg-pink-600 hover:bg-pink-700 text-white rounded-lg transition">Guardar</button>
         </div>
       </form>
     </div>
@@ -679,27 +697,27 @@
       <form id="userForm" class="p-6 space-y-4">
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Correo Electrónico</label>
-          <input type="email" id="uEmail" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+          <input type="email" id="uEmail" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none" required>
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Nombre Completo</label>
-          <input type="text" id="uNombre" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+          <input type="text" id="uNombre" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none" required>
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Contraseña Temporal</label>
-          <input type="password" id="uPassword" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required minlength="8">
+          <input type="password" id="uPassword" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none" required minlength="8">
           <p class="text-xs text-gray-400 mt-1">Mínimo 8 caracteres, incluya mayúsculas, minúsculas y números</p>
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Rol</label>
-          <select id="uRol" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+          <select id="uRol" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none" required>
             <option value="medico">Médico / Usuario</option>
             <option value="admin">Administrador</option>
           </select>
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Consultorio Asignado</label>
-          <select id="uConsultorio" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+          <select id="uConsultorio" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none">
             <option value="">Ninguno (Todos)</option>
             <option>ÁNGELA NEGRA ORTIZ (CAMAGUAN)</option>
             <option>MURO CARRIZALERO (CAMAGUAN)</option>
@@ -716,7 +734,7 @@
         </div>
         <div class="flex justify-end gap-3 pt-4">
           <button type="button" onclick="closeUserModal()" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Cancelar</button>
-          <button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">Crear Usuario</button>
+          <button type="submit" class="px-6 py-2 bg-pink-600 hover:bg-pink-700 text-white rounded-lg">Crear Usuario</button>
         </div>
       </form>
     </div>
@@ -735,18 +753,85 @@
       <form id="calendarioForm" class="p-6 space-y-4">
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Año</label>
-          <input type="number" id="cAnio" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required min="2024" max="2100">
+          <input type="number" id="cAnio" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none" required min="2024" max="2100">
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Fecha Inicio Semana 1 (Domingo)</label>
-          <input type="date" id="cFechaInicio" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+          <input type="date" id="cFechaInicio" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none" required>
         </div>
         <p class="text-xs text-gray-500">El sistema generará automáticamente 52 semanas (domingo a sábado).</p>
         <div class="flex justify-end gap-3 pt-4">
           <button type="button" onclick="closeCalendarioModal()" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Cancelar</button>
-          <button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">Generar Calendario</button>
+          <button type="submit" class="px-6 py-2 bg-pink-600 hover:bg-pink-700 text-white rounded-lg">Generar Calendario</button>
         </div>
       </form>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CAMBIAR CONTRASEÑA -->
+<div id="passwordModal" class="fixed inset-0 z-50 hidden">
+  <div class="modal-overlay absolute inset-0" onclick="closePasswordModal()"></div>
+  <div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md pointer-events-auto">
+      <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+        <h2 class="text-xl font-bold text-gray-800">Cambiar Contraseña</h2>
+        <button onclick="closePasswordModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+      </div>
+      <form id="passwordForm" class="p-6 space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Contraseña Actual</label>
+          <input type="password" id="currentPassword" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none" required minlength="8">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Nueva Contraseña</label>
+          <input type="password" id="newPassword" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none" required minlength="8">
+          <p class="text-xs text-gray-400 mt-1">Mínimo 8 caracteres, mayúsculas, minúsculas y números</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Confirmar Nueva Contraseña</label>
+          <input type="password" id="confirmNewPassword" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none" required minlength="8">
+        </div>
+        <div id="passwordError" class="hidden p-3 bg-red-50 text-red-700 text-sm rounded-lg border border-red-200"></div>
+        <div class="flex justify-end gap-3 pt-4">
+          <button type="button" onclick="closePasswordModal()" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Cancelar</button>
+          <button type="submit" id="passwordBtn" class="px-6 py-2 bg-pink-600 hover:bg-pink-700 text-white rounded-lg">Actualizar Contraseña</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL RESETEAR CONTRASEÑA (SUPER ADMIN) -->
+<div id="resetPasswordModal" class="fixed inset-0 z-50 hidden">
+  <div class="modal-overlay absolute inset-0" onclick="closeResetPasswordModal()"></div>
+  <div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md pointer-events-auto">
+      <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+        <h2 class="text-xl font-bold text-gray-800">Resetear Contraseña de Usuario</h2>
+        <button onclick="closeResetPasswordModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="p-6 space-y-4">
+        <p class="text-sm text-gray-600">Usuario: <strong id="resetUserEmail" class="text-gray-800"></strong></p>
+        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+          <p class="text-sm text-yellow-800"><i class="fas fa-exclamation-triangle mr-2"></i>Como Super Admin puede cambiar la contraseña directamente o enviar un email de recuperación.</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Nueva Contraseña</label>
+          <div class="flex gap-2">
+            <input type="text" id="tempPassword" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none bg-gray-50" placeholder="Genere o escriba una contraseña">
+            <button type="button" onclick="generateTempPassword()" class="px-3 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-gray-700" title="Generar aleatoria"><i class="fas fa-random"></i></button>
+          </div>
+          <p class="text-xs text-gray-400 mt-1">Mínimo 8 caracteres. Genere una contraseña segura y compártala al usuario.</p>
+        </div>
+        <div id="resetPasswordError" class="hidden p-3 bg-red-50 text-red-700 text-sm rounded-lg border border-red-200"></div>
+        <div id="resetPasswordSuccess" class="hidden p-3 bg-green-50 text-green-700 text-sm rounded-lg border border-green-200"></div>
+        <div class="flex justify-end gap-3 pt-4">
+          <button type="button" onclick="closeResetPasswordModal()" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Cancelar</button>
+          <button type="button" onclick="applyPasswordReset()" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg"><i class="fas fa-check mr-2"></i>Aplicar Nueva Contraseña</button>
+          <button type="button" onclick="sendPasswordResetEmail()" class="px-4 py-2 bg-pink-600 hover:bg-pink-700 text-white rounded-lg"><i class="fas fa-envelope mr-2"></i>Email de Recuperación</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -764,22 +849,22 @@
         <input type="hidden" id="ceId">
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Semana de Gestación</label>
-          <input type="text" id="ceSemGesta" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+          <input type="text" id="ceSemGesta" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none">
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Motivo de Consulta</label>
-          <select id="ceMotivo" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+          <select id="ceMotivo" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none">
             <option value="CAPTACION">CAPTACIÓN</option>
             <option value="CONTROL">CONTROL</option>
           </select>
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Diagnóstico</label>
-          <input type="text" id="ceDiagnostico" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+          <input type="text" id="ceDiagnostico" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none">
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Consulta</label>
-          <select id="ceTipo" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+          <select id="ceTipo" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none">
             <option value="Emergencia">Emergencia</option>
             <option value="Consulta">Consulta</option>
             <option value="II NIVEL">II NIVEL</option>
@@ -789,15 +874,15 @@
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Referido</label>
-          <input type="text" id="ceReferido" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+          <input type="text" id="ceReferido" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none">
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Observación</label>
-          <input type="text" id="ceObservacion" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+          <input type="text" id="ceObservacion" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none">
         </div>
         <div class="flex justify-end gap-3 pt-4">
           <button type="button" onclick="closeControlEditModal()" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Cancelar</button>
-          <button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">Guardar Cambios</button>
+          <button type="submit" class="px-6 py-2 bg-pink-600 hover:bg-pink-700 text-white rounded-lg">Guardar Cambios</button>
         </div>
       </form>
     </div>
@@ -816,7 +901,7 @@
 // ==================== CONFIGURACIÓN SUPABASE ====================
 const SUPABASE_URL = 'https://kwvltqnxirdnxoshgcge.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_Ua7O9tt7sz2G-I2MOWXA1Q_jsJEoPfA';
-const TURNSTILE_SITE_KEY = '0x4AAAAAAA5example'; // ⚠️ REEMPLACE con su Site Key de Cloudflare Turnstile
+// CAPTCHA matemático: no requiere clave externa
 
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -830,7 +915,7 @@ let calendariosData = [];
 let charts = {};
 let sessionTimer = null;
 let sessionStartTime = null;
-let turnstileToken = '';
+let captchaExpectedValue = 0;
 
 const CONSULTORIOS = [
   'ÁNGELA NEGRA ORTIZ (CAMAGUAN)','MURO CARRIZALERO (CAMAGUAN)','UVERITO',
@@ -892,10 +977,26 @@ function showLoginLockout() {
   }, 1000);
 }
 
-// ==================== CLOUDFLARE TURNSTILE CALLBACK ====================
-function onTurnstileSuccess(token) {
-  turnstileToken = token;
-  document.getElementById('turnstileToken').value = token;
+// ==================== CAPTCHA MATEMÁTICO ====================
+function generateCaptcha() {
+  const operations = ['+', '-'];
+  const op = operations[Math.floor(Math.random() * operations.length)];
+  let num1, num2;
+
+  if (op === '+') {
+    num1 = Math.floor(Math.random() * 20) + 1;  // 1-20
+    num2 = Math.floor(Math.random() * 20) + 1;  // 1-20
+    captchaExpectedValue = num1 + num2;
+  } else {
+    num1 = Math.floor(Math.random() * 20) + 5;  // 5-25
+    num2 = Math.floor(Math.random() * num1);   // siempre menor que num1 (resultado positivo)
+    captchaExpectedValue = num1 - num2;
+  }
+
+  document.getElementById('captchaQuestion').textContent = `${num1} ${op} ${num2}`;
+  document.getElementById('captchaExpected').value = captchaExpectedValue;
+  document.getElementById('captchaAnswer').value = '';
+  document.getElementById('captchaAnswer').classList.remove('border-red-500', 'bg-red-50');
 }
 
 // ==================== VISIBILIDAD DE CONTRASEÑA ====================
@@ -956,11 +1057,19 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     return;
   }
 
-  // Validar CAPTCHA
-  if (!turnstileToken) {
-    showToast('Por favor complete la verificación de seguridad (CAPTCHA)', 'error');
+  // Validar CAPTCHA matemático
+  const userAnswer = parseInt(document.getElementById('captchaAnswer').value);
+  const expectedAnswer = parseInt(document.getElementById('captchaExpected').value);
+  if (isNaN(userAnswer) || userAnswer !== expectedAnswer) {
+    showToast('Respuesta de verificación incorrecta. Intente de nuevo.', 'error');
+    document.getElementById('captchaAnswer').classList.add('border-red-500', 'bg-red-50');
     document.getElementById('loginScreen').classList.add('shake');
-    setTimeout(() => document.getElementById('loginScreen').classList.remove('shake'), 500);
+    setTimeout(() => {
+      document.getElementById('loginScreen').classList.remove('shake');
+      generateCaptcha(); // Generar nueva pregunta
+    }, 500);
+    btn.innerHTML = '<span>Ingresar al Sistema</span>';
+    btn.disabled = false;
     return;
   }
 
@@ -1003,11 +1112,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     errorDiv.textContent = err.message;
     errorDiv.classList.remove('hidden');
     // Resetear CAPTCHA
-    if (window.turnstile) {
-      window.turnstile.reset();
-    }
-    turnstileToken = '';
-    document.getElementById('turnstileToken').value = '';
+    generateCaptcha();
   } finally {
     btn.innerHTML = '<span>Ingresar al Sistema</span>';
     btn.disabled = false;
@@ -1142,9 +1247,9 @@ async function loadSemanasDisponibles() {
 function showSection(section) {
   document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
   document.getElementById(section).classList.remove('hidden');
-  document.querySelectorAll('.nav-btn').forEach(b => { b.classList.remove('bg-blue-50', 'text-blue-600'); b.classList.add('text-gray-600'); });
+  document.querySelectorAll('.nav-btn').forEach(b => { b.classList.remove('bg-pink-50', 'text-pink-600'); b.classList.add('text-gray-600'); });
   const active = document.querySelector(`[data-section="${section}"]`);
-  if (active) { active.classList.add('bg-blue-50', 'text-blue-600'); active.classList.remove('text-gray-600'); }
+  if (active) { active.classList.add('bg-pink-50', 'text-pink-600'); active.classList.remove('text-gray-600'); }
 
   const titles = {
     dashboard: ['Dashboard','Resumen general del sistema'], gestantes: ['Gestantes','Registro y control de embarazadas'],
@@ -1176,7 +1281,7 @@ async function buscarCedulaControl() {
 
   if (!cedula) { showToast('Ingrese un número de cédula', 'error'); return; }
 
-  resultadoDiv.innerHTML = '<div class="flex items-center gap-2 text-blue-600"><div class="spinner"></div> Buscando...</div>';
+  resultadoDiv.innerHTML = '<div class="flex items-center gap-2 text-pink-600"><div class="spinner"></div> Buscando...</div>';
   resultadoDiv.classList.remove('hidden');
 
   try {
@@ -1314,9 +1419,9 @@ function renderGestantes() {
     const trimClass = g.trimestre === 1 ? 'trimester-1' : g.trimestre === 2 ? 'trimester-2' : g.trimestre === 3 ? 'trimester-3' : g.estado === 'puerpera' ? 'puerpera' : g.estado === 'lactante' ? 'lactante' : '';
     const aroClass = g.aro === 'I' ? 'aro-1' : g.aro === 'II' ? 'aro-2' : g.aro === 'III' ? 'aro-3' : '';
     const aroText = g.aro ? `ARO ${g.aro}` : '-';
-    const estadoBadge = g.estado === 'gestante' ? '<span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium">Gestante</span>' : g.estado === 'puerpera' ? '<span class="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs font-medium">Puérpera</span>' : g.estado === 'lactante' ? '<span class="px-2 py-1 bg-pink-100 text-pink-700 rounded text-xs font-medium">Lactante</span>' : '-';
+    const estadoBadge = g.estado === 'gestante' ? '<span class="px-2 py-1 bg-pink-100 text-pink-700 rounded text-xs font-medium">Gestante</span>' : g.estado === 'puerpera' ? '<span class="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs font-medium">Puérpera</span>' : g.estado === 'lactante' ? '<span class="px-2 py-1 bg-pink-100 text-pink-700 rounded text-xs font-medium">Lactante</span>' : '-';
     const canEdit = currentProfile.role === 'superadmin' || currentProfile.role === 'admin' || (currentProfile.role === 'medico' && currentProfile.consultorio === g.consultorio);
-    return `<tr class="hover:bg-gray-50 ${trimClass}"><td class="px-4 py-3">${g.cedula || ''}</td><td class="px-4 py-3 font-medium">${g.nombres || ''} ${g.apellidos || ''}</td><td class="px-4 py-3">${g.edad || ''}</td><td class="px-4 py-3 text-xs">${g.consultorio || ''}</td><td class="px-4 py-3 font-medium">${g.semana_gestacion || ''}</td><td class="px-4 py-3">${g.fpp || ''}</td><td class="px-4 py-3">${estadoBadge}</td><td class="px-4 py-3"><span class="px-2 py-1 rounded text-xs font-medium ${aroClass}">${aroText}</span></td><td class="px-4 py-3 text-center"><button onclick="editGestante('${g.id}')" class="text-blue-600 hover:text-blue-800 mx-1 ${canEdit ? '' : 'opacity-50 cursor-not-allowed'}" title="Editar" ${canEdit ? '' : 'disabled'}><i class="fas fa-edit"></i></button>${currentProfile.role === 'superadmin' ? `<button onclick="deleteGestante('${g.id}')" class="text-red-600 hover:text-red-800 mx-1" title="Eliminar"><i class="fas fa-trash"></i></button>` : ''}</td></tr>`;
+    return `<tr class="hover:bg-gray-50 ${trimClass}"><td class="px-4 py-3">${g.cedula || ''}</td><td class="px-4 py-3 font-medium">${g.nombres || ''} ${g.apellidos || ''}</td><td class="px-4 py-3">${g.edad || ''}</td><td class="px-4 py-3 text-xs">${g.consultorio || ''}</td><td class="px-4 py-3 font-medium">${g.semana_gestacion || ''}</td><td class="px-4 py-3">${g.fpp || ''}</td><td class="px-4 py-3">${estadoBadge}</td><td class="px-4 py-3"><span class="px-2 py-1 rounded text-xs font-medium ${aroClass}">${aroText}</span></td><td class="px-4 py-3 text-center"><button onclick="editGestante('${g.id}')" class="text-pink-600 hover:text-pink-800 mx-1 ${canEdit ? '' : 'opacity-50 cursor-not-allowed'}" title="Editar" ${canEdit ? '' : 'disabled'}><i class="fas fa-edit"></i></button>${currentProfile.role === 'superadmin' ? `<button onclick="deleteGestante('${g.id}')" class="text-red-600 hover:text-red-800 mx-1" title="Eliminar"><i class="fas fa-trash"></i></button>` : ''}</td></tr>`;
   }).join('');
 }
 
@@ -1562,7 +1667,7 @@ function renderPuerperas() {
     const diasPost = g.fecha_parto ? Math.floor((ahora - new Date(g.fecha_parto)) / (1000 * 60 * 60 * 24)) : 0;
     const estado = diasPost <= 42 ? 'Puérpera' : 'Lactante';
     const aroClass = g.aro === 'I' ? 'aro-1' : g.aro === 'II' ? 'aro-2' : g.aro === 'III' ? 'aro-3' : '';
-    return `<tr><td class="px-4 py-3">${g.cedula || ''}</td><td class="px-4 py-3 font-medium">${g.nombres || ''} ${g.apellidos || ''}</td><td class="px-4 py-3 text-xs">${g.consultorio || ''}</td><td class="px-4 py-3">${g.fecha_parto ? g.fecha_parto.split('T')[0] : ''}</td><td class="px-4 py-3">${diasPost} días</td><td class="px-4 py-3"><span class="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs">${estado}</span></td><td class="px-4 py-3"><span class="px-2 py-1 rounded text-xs font-medium ${aroClass}">${g.aro ? 'ARO ' + g.aro : '-'}</span></td><td class="px-4 py-3 text-center"><button onclick="editGestante('${g.id}')" class="text-blue-600 hover:text-blue-800"><i class="fas fa-edit"></i></button></td></tr>`;
+    return `<tr><td class="px-4 py-3">${g.cedula || ''}</td><td class="px-4 py-3 font-medium">${g.nombres || ''} ${g.apellidos || ''}</td><td class="px-4 py-3 text-xs">${g.consultorio || ''}</td><td class="px-4 py-3">${g.fecha_parto ? g.fecha_parto.split('T')[0] : ''}</td><td class="px-4 py-3">${diasPost} días</td><td class="px-4 py-3"><span class="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs">${estado}</span></td><td class="px-4 py-3"><span class="px-2 py-1 rounded text-xs font-medium ${aroClass}">${g.aro ? 'ARO ' + g.aro : '-'}</span></td><td class="px-4 py-3 text-center"><button onclick="editGestante('${g.id}')" class="text-pink-600 hover:text-pink-800"><i class="fas fa-edit"></i></button></td></tr>`;
   }).join('');
 }
 
@@ -1605,8 +1710,8 @@ function renderControlTable() {
     const g = c.gestantes || {};
     const canEdit = currentProfile.role !== 'medico' || currentProfile.consultorio === g.consultorio;
     const riesgo = g.aro ? 'SI' : 'NO';
-    const motivoBadge = c.motivo === 'CAPTACION' ? '<span class="px-2 py-1 bg-orange-100 text-orange-700 rounded text-xs font-medium">CAPTACIÓN</span>' : '<span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium">CONTROL</span>';
-    return `<tr class="hover:bg-gray-50"><td class="px-4 py-3">${i + 1}</td><td class="px-4 py-3 text-xs">${g.consultorio || ''}</td><td class="px-4 py-3">${c.fecha_control ? c.fecha_control.split('T')[0] : ''}</td><td class="px-4 py-3 font-medium">${g.nombres || ''} ${g.apellidos || ''}</td><td class="px-4 py-3">${g.edad || ''}</td><td class="px-4 py-3">${g.cedula || ''}</td><td class="px-4 py-3 text-xs">${g.direccion || ''}</td><td class="px-4 py-3">${g.telefono || ''}</td><td class="px-4 py-3">${g.fur || ''}</td><td class="px-4 py-3 font-medium">${c.semana_gestacion || g.semana_gestacion || ''}</td><td class="px-4 py-3">${g.num_g || 0}</td><td class="px-4 py-3">${riesgo}</td><td class="px-4 py-3">${motivoBadge}</td><td class="px-4 py-3">${c.diagnostico || ''}</td><td class="px-4 py-3">${c.tipo_consulta || ''}</td><td class="px-4 py-3">${c.referido || ''}</td><td class="px-4 py-3">${c.observacion || ''}</td><td class="px-4 py-3 text-center"><button onclick="editControl('${c.id}')" class="text-blue-600 hover:text-blue-800 mx-1 ${canEdit ? '' : 'opacity-50 cursor-not-allowed'}" ${canEdit ? '' : 'disabled'}><i class="fas fa-edit"></i></button></td></tr>`;
+    const motivoBadge = c.motivo === 'CAPTACION' ? '<span class="px-2 py-1 bg-orange-100 text-orange-700 rounded text-xs font-medium">CAPTACIÓN</span>' : '<span class="px-2 py-1 bg-pink-100 text-pink-700 rounded text-xs font-medium">CONTROL</span>';
+    return `<tr class="hover:bg-gray-50"><td class="px-4 py-3">${i + 1}</td><td class="px-4 py-3 text-xs">${g.consultorio || ''}</td><td class="px-4 py-3">${c.fecha_control ? c.fecha_control.split('T')[0] : ''}</td><td class="px-4 py-3 font-medium">${g.nombres || ''} ${g.apellidos || ''}</td><td class="px-4 py-3">${g.edad || ''}</td><td class="px-4 py-3">${g.cedula || ''}</td><td class="px-4 py-3 text-xs">${g.direccion || ''}</td><td class="px-4 py-3">${g.telefono || ''}</td><td class="px-4 py-3">${g.fur || ''}</td><td class="px-4 py-3 font-medium">${c.semana_gestacion || g.semana_gestacion || ''}</td><td class="px-4 py-3">${g.num_g || 0}</td><td class="px-4 py-3">${riesgo}</td><td class="px-4 py-3">${motivoBadge}</td><td class="px-4 py-3">${c.diagnostico || ''}</td><td class="px-4 py-3">${c.tipo_consulta || ''}</td><td class="px-4 py-3">${c.referido || ''}</td><td class="px-4 py-3">${c.observacion || ''}</td><td class="px-4 py-3 text-center"><button onclick="editControl('${c.id}')" class="text-pink-600 hover:text-pink-800 mx-1 ${canEdit ? '' : 'opacity-50 cursor-not-allowed'}" ${canEdit ? '' : 'disabled'}><i class="fas fa-edit"></i></button></td></tr>`;
   }).join('');
 }
 
@@ -1693,7 +1798,7 @@ function renderDashboard() {
   const aro0 = activas.length - aro1 - aro2 - aro3;
   renderChart('chartARO', 'bar', ['Sin ARO', 'ARO I', 'ARO II', 'ARO III'], [aro0, aro1, aro2, aro3], ['#9ca3af', '#10b981', '#f59e0b', '#ef4444']);
   const recientes = [...gestantesData].filter(g => g.estado !== 'archivado').sort((a, b) => new Date(b.fecha_registro) - new Date(a.fecha_registro)).slice(0, 5);
-  document.getElementById('recentRecords').innerHTML = recientes.map(g => `<div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"><div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-xs"><i class="fas fa-female"></i></div><div class="flex-1 min-w-0"><p class="text-sm font-medium text-gray-800 truncate">${g.nombres} ${g.apellidos}</p><p class="text-xs text-gray-500">${g.consultorio} • ${g.semana_gestacion || ''}</p></div></div>`).join('');
+  document.getElementById('recentRecords').innerHTML = recientes.map(g => `<div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"><div class="w-8 h-8 rounded-full bg-pink-100 flex items-center justify-center text-pink-600 text-xs"><i class="fas fa-female"></i></div><div class="flex-1 min-w-0"><p class="text-sm font-medium text-gray-800 truncate">${g.nombres} ${g.apellidos}</p><p class="text-xs text-gray-500">${g.consultorio} • ${g.semana_gestacion || ''}</p></div></div>`).join('');
 }
 
 function renderChart(id, type, labels, data, colors) {
@@ -1714,7 +1819,7 @@ async function loadUsers() {
 
 function renderUsers() {
   const tbody = document.getElementById('usersTable');
-  tbody.innerHTML = usersData.map(u => `<tr><td class="px-4 py-3">${u.email}</td><td class="px-4 py-3">${u.nombre || ''}</td><td class="px-4 py-3"><span class="px-2 py-1 rounded text-xs font-medium ${u.role === 'superadmin' ? 'bg-red-100 text-red-700' : u.role === 'admin' ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700'}">${getRoleName(u.role)}</span></td><td class="px-4 py-3">${u.consultorio || 'Todos'}</td><td class="px-4 py-3"><span class="px-2 py-1 rounded text-xs ${u.activo ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}">${u.activo ? 'Activo' : 'Inactivo'}</span></td><td class="px-4 py-3 text-center">${u.role !== 'superadmin' ? `<button onclick="toggleUser('${u.id}', ${!u.activo})" class="text-blue-600 hover:text-blue-800 mx-1" title="${u.activo ? 'Desactivar' : 'Activar'}"><i class="fas ${u.activo ? 'fa-user-slash' : 'fa-user-check'}"></i></button><button onclick="deleteUser('${u.id}')" class="text-red-600 hover:text-red-800 mx-1" title="Eliminar"><i class="fas fa-trash"></i></button>` : '<span class="text-gray-400 text-xs">Protegido</span>'}</td></tr>`).join('');
+  tbody.innerHTML = usersData.map(u => `<tr><td class="px-4 py-3">${u.email}</td><td class="px-4 py-3">${u.nombre || ''}</td><td class="px-4 py-3"><span class="px-2 py-1 rounded text-xs font-medium ${u.role === 'superadmin' ? 'bg-red-100 text-red-700' : u.role === 'admin' ? 'bg-orange-100 text-orange-700' : 'bg-pink-100 text-pink-700'}">${getRoleName(u.role)}</span></td><td class="px-4 py-3">${u.consultorio || 'Todos'}</td><td class="px-4 py-3"><span class="px-2 py-1 rounded text-xs ${u.activo ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}">${u.activo ? 'Activo' : 'Inactivo'}</span></td><td class="px-4 py-3 text-center">${u.role !== 'superadmin' ? `<button onclick="toggleUser('${u.id}', ${!u.activo})" class="text-pink-600 hover:text-pink-800 mx-1" title="${u.activo ? 'Desactivar' : 'Activar'}"><i class="fas ${u.activo ? 'fa-user-slash' : 'fa-user-check'}"></i></button><button onclick="openResetPasswordModal('${u.id}', '${u.email}')" class="text-orange-600 hover:text-orange-800 mx-1" title="Resetear Contraseña"><i class="fas fa-key"></i></button><button onclick="deleteUser('${u.id}')" class="text-red-600 hover:text-red-800 mx-1" title="Eliminar"><i class="fas fa-trash"></i></button>` : '<span class="text-gray-400 text-xs">Protegido</span>'}</td></tr>`).join('');
 }
 
 function openUserModal() { document.getElementById('userModal').classList.remove('hidden'); }
@@ -1775,7 +1880,7 @@ async function loadCalendarios() {
 function renderCalendarios() {
   const container = document.getElementById('calendariosList');
   const anios = [...new Set(calendariosData.map(c => c.anio))].sort((a, b) => b - a);
-  container.innerHTML = anios.map(anio => { const semanas = calendariosData.filter(c => c.anio === anio).sort((a, b) => a.semana - b.semana); return `<div class="bg-gray-50 rounded-lg p-4 border border-gray-200"><div class="flex items-center justify-between mb-2"><h4 class="font-bold text-gray-800">Año ${anio}</h4><span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">${semanas.length} semanas</span></div><p class="text-xs text-gray-500">Inicio: ${semanas[0]?.fecha_inicio} • Fin: ${semanas[semanas.length-1]?.fecha_fin}</p></div>`; }).join('');
+  container.innerHTML = anios.map(anio => { const semanas = calendariosData.filter(c => c.anio === anio).sort((a, b) => a.semana - b.semana); return `<div class="bg-gray-50 rounded-lg p-4 border border-gray-200"><div class="flex items-center justify-between mb-2"><h4 class="font-bold text-gray-800">Año ${anio}</h4><span class="text-xs bg-pink-100 text-pink-700 px-2 py-1 rounded">${semanas.length} semanas</span></div><p class="text-xs text-gray-500">Inicio: ${semanas[0]?.fecha_inicio} • Fin: ${semanas[semanas.length-1]?.fecha_fin}</p></div>`; }).join('');
 }
 
 function openCalendarioModal() { document.getElementById('calendarioModal').classList.remove('hidden'); }
@@ -1912,11 +2017,152 @@ function showToast(msg, type = 'success') {
   setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 3000);
 }
 
+// ==================== CAMBIO DE CONTRASEÑA PROPIO ====================
+function openPasswordModal() {
+  document.getElementById('passwordForm').reset();
+  document.getElementById('passwordError').classList.add('hidden');
+  document.getElementById('passwordModal').classList.remove('hidden');
+}
+
+function closePasswordModal() {
+  document.getElementById('passwordModal').classList.add('hidden');
+}
+
+document.getElementById('passwordForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const currentPass = document.getElementById('currentPassword').value;
+  const newPass = document.getElementById('newPassword').value;
+  const confirmPass = document.getElementById('confirmNewPassword').value;
+  const errorDiv = document.getElementById('passwordError');
+  const btn = document.getElementById('passwordBtn');
+
+  errorDiv.classList.add('hidden');
+
+  if (newPass.length < 8) { errorDiv.textContent = 'La nueva contraseña debe tener mínimo 8 caracteres'; errorDiv.classList.remove('hidden'); return; }
+  if (!/[A-Z]/.test(newPass)) { errorDiv.textContent = 'Debe incluir al menos una mayúscula'; errorDiv.classList.remove('hidden'); return; }
+  if (!/[a-z]/.test(newPass)) { errorDiv.textContent = 'Debe incluir al menos una minúscula'; errorDiv.classList.remove('hidden'); return; }
+  if (!/[0-9]/.test(newPass)) { errorDiv.textContent = 'Debe incluir al menos un número'; errorDiv.classList.remove('hidden'); return; }
+  if (newPass !== confirmPass) { errorDiv.textContent = 'Las contraseñas no coinciden'; errorDiv.classList.remove('hidden'); return; }
+
+  btn.innerHTML = '<div class="spinner"></div>';
+  btn.disabled = true;
+
+  try {
+    const { error: authError } = await supabaseClient.auth.signInWithPassword({
+      email: currentUser.email,
+      password: currentPass
+    });
+    if (authError) { throw new Error('La contraseña actual es incorrecta'); }
+
+    const { error: updateError } = await supabaseClient.auth.updateUser({ password: newPass });
+    if (updateError) throw updateError;
+
+    showToast('Contraseña actualizada exitosamente');
+    closePasswordModal();
+  } catch (err) {
+    errorDiv.textContent = err.message;
+    errorDiv.classList.remove('hidden');
+  } finally {
+    btn.innerHTML = 'Actualizar Contraseña';
+    btn.disabled = false;
+  }
+});
+
+// ==================== RESETEAR CONTRASEÑA (SUPER ADMIN) ====================
+let resetUserId = null;
+let resetUserEmail = null;
+
+function openResetPasswordModal(userId, email) {
+  resetUserId = userId;
+  resetUserEmail = email;
+  document.getElementById('resetUserEmail').textContent = email;
+  document.getElementById('tempPassword').value = '';
+  document.getElementById('resetPasswordError').classList.add('hidden');
+  document.getElementById('resetPasswordSuccess').classList.add('hidden');
+  document.getElementById('resetPasswordModal').classList.remove('hidden');
+}
+
+function closeResetPasswordModal() {
+  document.getElementById('resetPasswordModal').classList.add('hidden');
+  resetUserId = null;
+  resetUserEmail = null;
+}
+
+function generateTempPassword() {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&*';
+  let pass = '';
+  pass += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[Math.floor(Math.random() * 26)];
+  pass += 'abcdefghijklmnopqrstuvwxyz'[Math.floor(Math.random() * 26)];
+  pass += '0123456789'[Math.floor(Math.random() * 10)];
+  for (let i = 0; i < 9; i++) { pass += chars[Math.floor(Math.random() * chars.length)]; }
+  pass = pass.split('').sort(() => Math.random() - 0.5).join('');
+  document.getElementById('tempPassword').value = pass;
+  document.getElementById('tempPassword').select();
+  showToast('Contraseña temporal generada. Cópiela y compártala de forma segura.');
+}
+
+async function applyPasswordReset() {
+  const errorDiv = document.getElementById('resetPasswordError');
+  const successDiv = document.getElementById('resetPasswordSuccess');
+  const newPassword = document.getElementById('tempPassword').value;
+
+  errorDiv.classList.add('hidden');
+  successDiv.classList.add('hidden');
+
+  if (!resetUserId || !newPassword) { errorDiv.textContent = 'Ingrese una contraseña'; errorDiv.classList.remove('hidden'); return; }
+  if (newPassword.length < 8) { errorDiv.textContent = 'Mínimo 8 caracteres'; errorDiv.classList.remove('hidden'); return; }
+
+  try {
+    // Obtener token de sesión actual
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (!session) throw new Error('Sesión no válida');
+
+    // Llamar a la Edge Function
+    const { data, error } = await supabaseClient.functions.invoke('reset-password', {
+      body: { user_id: resetUserId, new_password: newPassword }
+    });
+
+    if (error) throw error;
+
+    successDiv.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Contraseña actualizada exitosamente para <strong>' + resetUserEmail + '</strong>. Comuníquele la nueva contraseña al usuario de forma segura.';
+    successDiv.classList.remove('hidden');
+    document.getElementById('tempPassword').value = '';
+  } catch (err) {
+    errorDiv.textContent = 'Error: ' + (err.message || 'No se pudo cambiar la contraseña. Verifique que la Edge Function esté desplegada.');
+    errorDiv.classList.remove('hidden');
+  }
+}
+
+async function sendPasswordResetEmail() {
+  const errorDiv = document.getElementById('resetPasswordError');
+  const successDiv = document.getElementById('resetPasswordSuccess');
+  errorDiv.classList.add('hidden');
+  successDiv.classList.add('hidden');
+
+  if (!resetUserEmail) return;
+
+  try {
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(resetUserEmail, {
+      redirectTo: window.location.origin + window.location.pathname
+    });
+    if (error) throw error;
+    successDiv.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Email de recuperación enviado a <strong>' + resetUserEmail + '</strong>.';
+    successDiv.classList.remove('hidden');
+  } catch (err) {
+    errorDiv.textContent = 'Error: ' + err.message;
+    errorDiv.classList.remove('hidden');
+  }
+}
+
 // ==================== INICIO ====================
+
 window.addEventListener('DOMContentLoaded', async () => {
   // Mostrar ID de sesión en login
   const tempSessionId = generateSessionId();
   document.getElementById('sessionIdDisplay').textContent = tempSessionId.substring(0, 12) + '...';
+
+  // Generar primer CAPTCHA
+  generateCaptcha();
 
   try {
     const { data: { session } } = await supabaseClient.auth.getSession();
