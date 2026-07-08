@@ -1886,28 +1886,24 @@ document.getElementById('userForm').addEventListener('submit', async (e) => {
   btn.disabled = true;
 
   try {
-    // USAR FETCH DIRECTO con la ANON_KEY para activar ctx.authMode === "secret"
-    const response = await fetch(`${SUPABASE_URL}/functions/v1/create-user`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-        'apikey': SUPABASE_ANON_KEY
-      },
-      body: JSON.stringify({
+    // functions.invoke envía automáticamente el token del usuario logueado
+    const { data, error } = await supabaseClient.functions.invoke('create-user', {
+      body: {
         email,
         password,
         nombre,
         role: rol,
         consultorio: consultorio || null,
         created_by: currentUser.id
-      })
+      }
     });
 
-    const data = await response.json();
+    if (error) {
+      throw new Error(error.message || 'Error al crear usuario');
+    }
 
-    if (!response.ok) {
-      throw new Error(data.error || `Error ${response.status}: No se pudo crear el usuario`);
+    if (data.error) {
+      throw new Error(data.error);
     }
 
     showToast('Usuario creado exitosamente. Puede iniciar sesión inmediatamente.');
@@ -1923,7 +1919,6 @@ document.getElementById('userForm').addEventListener('submit', async (e) => {
     btn.disabled = false;
   }
 });
-
 // ==================== CALENDARIOS ====================
 async function loadCalendarios() {
   const { data, error } = await supabaseClient.from('calendarios_epidemiologicos').select('*').order('anio', { ascending: false });
@@ -2172,27 +2167,28 @@ async function applyPasswordReset() {
   if (newPassword.length < 8) { errorDiv.textContent = 'Mínimo 8 caracteres'; errorDiv.classList.remove('hidden'); return; }
 
   try {
-    // Obtener token de sesión actual
-    const { data: { session } } = await supabaseClient.auth.getSession();
-    if (!session) throw new Error('Sesión no válida');
-
-    // Llamar a la Edge Function
     const { data, error } = await supabaseClient.functions.invoke('reset-password', {
-      body: { user_id: resetUserId, new_password: newPassword }
+      body: {
+        user_id: resetUserId,
+        new_password: newPassword
+      }
     });
 
-    if (error) throw error;
+    if (error) throw new Error(error.message);
 
-    successDiv.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Contraseña actualizada exitosamente para <strong>' + resetUserEmail + '</strong>. Comuníquele la nueva contraseña al usuario de forma segura.';
+    if (data.error) throw new Error(data.error);
+
+    successDiv.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Contraseña actualizada exitosamente para <strong>' + resetUserEmail + '</strong>.';
     successDiv.classList.remove('hidden');
     document.getElementById('tempPassword').value = '';
+
   } catch (err) {
-    errorDiv.textContent = 'Error: ' + (err.message || 'No se pudo cambiar la contraseña. Verifique que la Edge Function esté desplegada.');
+    errorDiv.textContent = 'Error: ' + err.message;
     errorDiv.classList.remove('hidden');
   }
 }
 
-async function sendPasswordResetEmail() {
+  async function sendPasswordResetEmail() {
   const errorDiv = document.getElementById('resetPasswordError');
   const successDiv = document.getElementById('resetPasswordSuccess');
   errorDiv.classList.add('hidden');
