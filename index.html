@@ -1620,6 +1620,21 @@ async function deleteGestante(id) {
   await loadGestantes();
 }
 
+
+// ==================== VALIDAR CÉDULA ÚNICA ====================
+async function validarCedulaUnica(cedula, excluirId) {
+  if (!cedula) return { valido: true };
+  const { data, error } = await supabaseClient
+    .from('gestantes')
+    .select('id, nombres, apellidos')
+    .eq('cedula', cedula)
+    .neq('estado', 'archivado');
+  if (error) return { valido: false, error: error.message };
+  const duplicado = data.find(g => g.id !== excluirId);
+  if (duplicado) return { valido: false, duplicado };
+  return { valido: true };
+}
+
 // Cálculos automáticos
 function calcularEdad() {
   const fechaNac = document.getElementById('gFechaNac').value;
@@ -1706,6 +1721,31 @@ function calcularSemanasFPP() {
 document.getElementById('gestanteForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const id = document.getElementById('gestanteId').value;
+  const cedulaInput = document.getElementById('gCedula').value.trim();
+
+  // Validar que la cedula no exista (solo para nuevos registros)
+  if (!id && cedulaInput) {
+    const { data: existente, error: cedulaError } = await supabaseClient
+      .from('gestantes')
+      .select('id, nombres, apellidos')
+      .eq('cedula', cedulaInput)
+      .neq('estado', 'archivado')
+      .maybeSingle();
+
+    if (cedulaError) {
+      showToast('Error verificando cédula: ' + cedulaError.message, 'error');
+      return;
+    }
+
+    if (existente) {
+      showToast('⚠️ La cédula ' + cedulaInput + ' ya está registrada a nombre de: ' + (existente.nombres || '') + ' ' + (existente.apellidos || ''), 'error');
+      document.getElementById('gCedula').classList.add('border-red-500', 'bg-red-50');
+      setTimeout(() => {
+        document.getElementById('gCedula').classList.remove('border-red-500', 'bg-red-50');
+      }, 3000);
+      return;
+    }
+  }
   const fur = document.getElementById('gFur').value;
   const semGesta = document.getElementById('gSemGesta').value;
   const semanaEpi = await getCurrentSemanaEpidemiologica();
