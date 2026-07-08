@@ -1886,17 +1886,34 @@ document.getElementById('userForm').addEventListener('submit', async (e) => {
   btn.disabled = true;
 
   try {
-    // Llamar a la Edge Function para crear usuario
-    const { data, error } = await supabaseClient.functions.invoke('create-user', {
-      body: {
-        email,
-        password,
-        nombre,
-        role: rol,
-        consultorio: consultorio || null,
-        created_by: currentUser.id
-      }
-    });
+    // Obtener la sesión actual para el token
+const { data: { session } } = await supabaseClient.auth.getSession();
+
+const response = await fetch(
+  `${SUPABASE_URL}/functions/v1/create-user`,
+  {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,  // Esto activa ctx.authMode === "secret"
+      'apikey': SUPABASE_ANON_KEY
+    },
+    body: JSON.stringify({
+      email,
+      password,
+      nombre,
+      role: rol,
+      consultorio: consultorio || null,
+      created_by: currentUser.id
+    })
+  }
+);
+
+const data = await response.json();
+
+if (!response.ok) {
+  throw new Error(data.error || 'Error al crear usuario');
+}
 
     if (error) {
       throw new Error(error.message || 'Error al crear usuario');
