@@ -1886,41 +1886,28 @@ document.getElementById('userForm').addEventListener('submit', async (e) => {
   btn.disabled = true;
 
   try {
-    // Obtener la sesión actual para el token
-const { data: { session } } = await supabaseClient.auth.getSession();
+    // USAR FETCH DIRECTO con la ANON_KEY para activar ctx.authMode === "secret"
+    const response = await fetch(`${SUPABASE_URL}/functions/v1/create-user`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'apikey': SUPABASE_ANON_KEY
+      },
+      body: JSON.stringify({
+        email,
+        password,
+        nombre,
+        role: rol,
+        consultorio: consultorio || null,
+        created_by: currentUser.id
+      })
+    });
 
-const response = await fetch(
-  `${SUPABASE_URL}/functions/v1/create-user`,
-  {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,  // Esto activa ctx.authMode === "secret"
-      'apikey': SUPABASE_ANON_KEY
-    },
-    body: JSON.stringify({
-      email,
-      password,
-      nombre,
-      role: rol,
-      consultorio: consultorio || null,
-      created_by: currentUser.id
-    })
-  }
-);
+    const data = await response.json();
 
-const data = await response.json();
-
-if (!response.ok) {
-  throw new Error(data.error || 'Error al crear usuario');
-}
-
-    if (error) {
-      throw new Error(error.message || 'Error al crear usuario');
-    }
-
-    if (data.error) {
-      throw new Error(data.error);
+    if (!response.ok) {
+      throw new Error(data.error || `Error ${response.status}: No se pudo crear el usuario`);
     }
 
     showToast('Usuario creado exitosamente. Puede iniciar sesión inmediatamente.');
@@ -1936,21 +1923,6 @@ if (!response.ok) {
     btn.disabled = false;
   }
 });
-
-async function toggleUser(id, activo) {
-  const { error } = await supabaseClient.from('profiles').update({ activo }).eq('id', id);
-  if (error) { showToast('Error: ' + error.message, 'error'); return; }
-  showToast(activo ? 'Usuario activado' : 'Usuario desactivado');
-  await loadUsers();
-}
-
-async function deleteUser(id) {
-  if (!confirm('¿Eliminar permanentemente este usuario?')) return;
-  const { error } = await supabaseClient.from('profiles').delete().eq('id', id);
-  if (error) { showToast('Error: ' + error.message, 'error'); return; }
-  showToast('Usuario eliminado');
-  await loadUsers();
-}
 
 // ==================== CALENDARIOS ====================
 async function loadCalendarios() {
