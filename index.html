@@ -130,53 +130,33 @@
       </div>
     </div>
     <nav class="p-4 space-y-1">
-      <button onclick="showSection('dashboard')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-emerald-50 hover:text-emerald-600 transition" data-section="dashboard">
-        <i class="fas fa-chart-pie w-5"></i> Dashboard
-      </button>
-      <button onclick="showSection('gestantes')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-emerald-50 hover:text-emerald-600 transition" data-section="gestantes">
-        <i class="fas fa-female w-5"></i> Gestantes
-      </button>
-      <button onclick="showSection('controlSemanal')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-emerald-50 hover:text-emerald-600 transition" data-section="controlSemanal">
-        <i class="fas fa-calendar-week w-5"></i> Control Semanal
-      </button>
-      <button onclick="showSection('puerperas')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-emerald-50 hover:text-emerald-600 transition" data-section="puerperas">
-        <i class="fas fa-baby w-5"></i> Puérperas / Lactantes
-      </button>
-      <button onclick="showSection('archivados')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-emerald-50 hover:text-emerald-600 transition" data-section="archivados">
-        <i class="fas fa-archive w-5"></i> Archivados / Abortos
-      </button>
-      <button id="menuUsuarios" onclick="showSection('usuarios')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-emerald-50 hover:text-emerald-600 transition hidden" data-section="usuarios">
-        <i class="fas fa-users-cog w-5"></i> Usuarios
-      </button>
-      <button id="menuCalendarios" onclick="showSection('calendarios')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-emerald-50 hover:text-emerald-600 transition hidden" data-section="calendarios">
-        <i class="fas fa-calendar-alt w-5"></i> Calendarios Epi.
-      </button>
-      <button onclick="showSection('backup')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-emerald-50 hover:text-emerald-600 transition" data-section="backup">
-        <i class="fas fa-database w-5"></i> Backup / Restore
-      </button>
-    </nav>
-    <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100 bg-white">
-      <div class="flex items-center gap-3 mb-3">
-        <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-gray-600 text-xs">
-          <i class="fas fa-user"></i>
-        </div>
-        <div class="flex-1 min-w-0">
-          <p id="userName" class="text-sm font-medium text-gray-800 truncate">Usuario</p>
-          <p id="userRole" class="text-xs text-gray-400 truncate">Rol</p>
-        </div>
-      </div>
-      <div class="flex items-center justify-between mb-2">
-        <p class="text-xs text-gray-400"><i class="fas fa-clock mr-1"></i><span id="sessionTimer">--:--</span></p>
-        <p class="text-xs text-gray-400"><i class="fas fa-fingerprint mr-1"></i><span id="sessionIdShort">---</span></p>
-      </div>
-      <button onclick="openPasswordModal()" class="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm text-emerald-600 hover:bg-emerald-50 rounded-lg transition mb-2">
-        <i class="fas fa-key"></i> Cambiar Contraseña
-      </button>
-      <button onclick="logout()" class="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition">
-        <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
-      </button>
-    </div>
-  </aside>
+  <button onclick="showSection('dashboard')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-emerald-50 hover:text-emerald-600 transition" data-section="dashboard">
+    <i class="fas fa-chart-pie w-5"></i> Dashboard
+  </button>
+  <button onclick="showSection('gestantes')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-emerald-50 hover:text-emerald-600 transition" data-section="gestantes">
+    <i class="fas fa-female w-5"></i> Gestantes
+  </button>
+  <button onclick="showSection('controlSemanal')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-emerald-50 hover:text-emerald-600 transition" data-section="controlSemanal">
+    <i class="fas fa-calendar-week w-5"></i> Control Semanal
+  </button>
+  <!-- Solo visible para admin y superadmin -->
+  <button id="menuPuerperas" onclick="showSection('puerperas')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-emerald-50 hover:text-emerald-600 transition hidden" data-section="puerperas">
+    <i class="fas fa-baby w-5"></i> Puérperas / Lactantes
+  </button>
+  <button id="menuArchivados" onclick="showSection('archivados')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-emerald-50 hover:text-emerald-600 transition hidden" data-section="archivados">
+    <i class="fas fa-archive w-5"></i> Archivados / Abortos
+  </button>
+  <button id="menuUsuarios" onclick="showSection('usuarios')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-emerald-50 hover:text-emerald-600 transition hidden" data-section="usuarios">
+    <i class="fas fa-users-cog w-5"></i> Usuarios
+  </button>
+  <button id="menuCalendarios" onclick="showSection('calendarios')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-emerald-50 hover:text-emerald-600 transition hidden" data-section="calendarios">
+    <i class="fas fa-calendar-alt w-5"></i> Calendarios Epi.
+  </button>
+  <!-- Solo visible para admin y superadmin -->
+  <button id="menuBackup" onclick="showSection('backup')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-emerald-50 hover:text-emerald-600 transition hidden" data-section="backup">
+    <i class="fas fa-database w-5"></i> Backup / Restore
+  </button>
+</nav>
 
   <main class="flex-1 ml-64">
     <header class="bg-white border-b border-gray-200 px-8 py-4 flex items-center justify-between sticky top-0 z-20">
@@ -915,8 +895,8 @@ const CONSULTORIOS = [
 const SECURITY = {
   maxAttempts: 5,
   lockoutDuration: 30000, // 30 segundos
-  sessionTimeout: 30 * 60 * 1000, // 30 minutos
-  warningTime: 5 * 60 * 1000, // 5 minutos antes de expirar
+  sessionTimeout: 10 * 60 * 1000, // 10 minutos
+  warningTime: 2 * 60 * 1000, // 2 minutos antes de expirar (en lugar de 5)
   attempts: 0,
   lockedUntil: 0,
   sessionId: null
@@ -1157,8 +1137,12 @@ if (!profile.activo) {
     btn.disabled = false;
   }
 });
-
+// ==================== CERRAR SESIÓN ====================
 async function logout() {
+  // Confirmar antes de salir
+  const confirmar = confirm('¿Desea cerrar la sesión?');
+  if (!confirmar) return; // Si dice "No", no hace nada
+
   await supabaseClient.auth.signOut();
   localStorage.removeItem('epi_session');
   currentUser = null;
@@ -1216,10 +1200,36 @@ async function initApp() {
   document.getElementById('userRole').textContent = getRoleName(currentProfile.role);
   document.getElementById('sessionIdShort').textContent = SECURITY.sessionId ? SECURITY.sessionId.substring(0,6) : '---';
 
+  // Mostrar/ocultar menús según rol
   if (currentProfile.role === 'superadmin') {
     document.getElementById('menuUsuarios').classList.remove('hidden');
     document.getElementById('menuCalendarios').classList.remove('hidden');
+    document.getElementById('menuPuerperas').classList.remove('hidden');
+    document.getElementById('menuArchivados').classList.remove('hidden');
+    document.getElementById('menuBackup').classList.remove('hidden');
+  } else if (currentProfile.role === 'admin') {
+    document.getElementById('menuPuerperas').classList.remove('hidden');
+    document.getElementById('menuArchivados').classList.remove('hidden');
+    document.getElementById('menuBackup').classList.remove('hidden');
+    // admin NO ve usuarios ni calendarios
   }
+  // médico: solo ve Dashboard, Gestantes, Control Semanal (por defecto)
+
+  const opciones = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  document.getElementById('currentDate').textContent = new Date().toLocaleDateString('es-VE', opciones);
+  document.getElementById('currentEpiWeek').textContent = 'SE ' + await getCurrentSemanaEpidemiologica();
+
+  await loadCalendarios();
+  await loadGestantes();
+  await loadUsers();
+  initConsultoriosSelects();
+  await initSemanasSelect();
+
+  // Iniciar timer de sesión
+  startSessionTimer();
+
+  showSection('dashboard');
+}
 
   const opciones = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
   document.getElementById('currentDate').textContent = new Date().toLocaleDateString('es-VE', opciones);
@@ -1284,12 +1294,15 @@ async function loadSemanasDisponibles() {
 
 // ==================== NAVEGACIÓN ====================
 function showSection(section) {
-  document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
-  document.getElementById(section).classList.remove('hidden');
-  document.querySelectorAll('.nav-btn').forEach(b => { b.classList.remove('bg-emerald-50', 'text-emerald-600'); b.classList.add('text-gray-600'); });
-  const active = document.querySelector(`[data-section="${section}"]`);
-  if (active) { active.classList.add('bg-emerald-50', 'text-emerald-600'); active.classList.remove('text-gray-600'); }
-
+  // Proteger secciones restringidas para médicos
+  if (currentProfile.role === 'medico') {
+    const seccionesProhibidas = ['puerperas', 'archivados', 'usuarios', 'calendarios', 'backup'];
+    if (seccionesProhibidas.includes(section)) {
+      showToast('Acceso denegado. No tiene permisos para esta sección.', 'error');
+      return;
+    }
+  }
+  
   const titles = {
     dashboard: ['Dashboard','Resumen general del sistema'], gestantes: ['Gestantes','Registro y control de embarazadas'],
     controlSemanal: ['Control Semanal','Reporte semanal por semana epidemiológica'], puerperas: ['Puérperas / Lactantes','Mujeres en periodo postparto'],
