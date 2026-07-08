@@ -291,19 +291,19 @@
 
       <!-- CONTROL SEMANAL -->
       <section id="controlSemanal" class="section hidden fade-in">
-        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mb-6">
-          <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2"><i class="fas fa-id-card text-emerald-600"></i> Búsqueda por Cédula</h3>
-          <div class="flex flex-wrap items-end gap-4">
-            <div class="flex-1 min-w-[250px]">
-              <label class="block text-sm font-medium text-gray-700 mb-1">Número de Cédula</label>
+        <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100 mb-6">
+          <h3 class="font-bold text-gray-800 mb-3 flex items-center gap-2 text-sm"><i class="fas fa-id-card text-emerald-600"></i> Búsqueda por Cédula</h3>
+          <div class="flex flex-wrap items-end gap-3">
+            <div class="w-full max-w-xs">
+              <label class="block text-xs font-medium text-gray-700 mb-1">Número de Cédula</label>
               <div class="relative">
-                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                <input type="text" id="buscarCedulaControl" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Ingrese la cédula de la embarazada...">
+                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                <input type="text" id="buscarCedulaControl" class="w-full pl-8 pr-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Ingrese cédula...">
               </div>
             </div>
-            <button onclick="buscarCedulaControl()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-lg flex items-center gap-2 transition"><i class="fas fa-search"></i> Buscar</button>
+            <button onclick="buscarCedulaControl()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-1.5 text-sm rounded-lg flex items-center gap-2 transition"><i class="fas fa-search text-xs"></i> Buscar</button>
           </div>
-          <div id="resultadoBusquedaCedula" class="mt-4 hidden"></div>
+          <div id="resultadoBusquedaCedula" class="mt-3 hidden"></div>
         </div>
 
         <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mb-6">
@@ -459,7 +459,12 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Cédula de Identidad</label>
+            <div class="flex items-center gap-2 mb-2">
+              <input type="checkbox" id="gSinCedula" onchange="toggleSinCedula()" class="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500">
+              <label for="gSinCedula" class="text-sm text-gray-600 cursor-pointer">No posee cédula</label>
+            </div>
             <input type="text" id="gCedula" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" required>
+            <p id="gCedulaHelp" class="text-xs text-gray-400 mt-1 hidden">Se generará un número único automáticamente</p>
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Nombres</label>
@@ -472,11 +477,19 @@
         </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Fecha de Registro</label>
+            <input type="date" id="gFechaRegistro" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" required>
+          </div>
+          <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Fecha de Nacimiento</label>
             <input type="date" id="gFechaNac" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none">
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Edad</label>
+            <div class="flex items-center gap-2 mb-2">
+              <input type="checkbox" id="gEdadManual" onchange="toggleEdadManual()" class="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500">
+              <label for="gEdadManual" class="text-sm text-gray-600 cursor-pointer">Ingresar edad manualmente</label>
+            </div>
             <input type="number" id="gEdad" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" min="10" max="80" readonly>
           </div>
           <div>
@@ -1434,6 +1447,7 @@ function abrirCaptacionNueva(cedula) {
   document.getElementById('gestanteId').value = '';
   document.getElementById('gestanteModalTitle').textContent = 'Nueva Embarazada - CAPTACIÓN';
   document.getElementById('accionesEspeciales').classList.add('hidden');
+  document.getElementById('gFechaRegistro').value = new Date().toISOString().split('T')[0];
   document.getElementById('gCedula').value = cedula;
   document.getElementById('gMotivo').value = 'CAPTACION';
   if (currentProfile.role === 'medico' && currentProfile.consultorio) {
@@ -1497,6 +1511,16 @@ function openGestanteModal() {
   document.getElementById('gestanteId').value = '';
   document.getElementById('gestanteModalTitle').textContent = 'Nueva Embarazada';
   document.getElementById('accionesEspeciales').classList.add('hidden');
+  // Set default fecha de registro to today
+  document.getElementById('gFechaRegistro').value = new Date().toISOString().split('T')[0];
+  // Reset custom fields
+  document.getElementById('gSinCedula').checked = false;
+  document.getElementById('gEdadManual').checked = false;
+  document.getElementById('gCedula').readOnly = false;
+  document.getElementById('gCedula').classList.remove('bg-gray-100');
+  document.getElementById('gCedulaHelp').classList.add('hidden');
+  document.getElementById('gEdad').readOnly = true;
+  document.getElementById('gEdad').classList.add('bg-gray-50');
   window._captacionDesdeControl = false;
   if (currentProfile.role === 'medico' && currentProfile.consultorio) {
     document.getElementById('gConsultorio').value = currentProfile.consultorio;
@@ -1514,13 +1538,34 @@ function closeGestanteModal() {
   window._cedulaCaptacion = null;
   window._semanaCaptacion = null;
   window._anioCaptacion = null;
+  // Reset custom fields
+  document.getElementById('gSinCedula').checked = false;
+  document.getElementById('gEdadManual').checked = false;
+  document.getElementById('gCedula').readOnly = false;
+  document.getElementById('gCedula').classList.remove('bg-gray-100');
+  document.getElementById('gCedulaHelp').classList.add('hidden');
+  document.getElementById('gEdad').readOnly = true;
+  document.getElementById('gEdad').classList.add('bg-gray-50');
 }
 
 function editGestante(id) {
   const g = gestantesData.find(x => x.id === id);
   if (!g) return;
   document.getElementById('gestanteId').value = g.id;
-  document.getElementById('gCedula').value = g.cedula || '';
+  // Handle cedula - check if it's a NO-POSEE generated one
+  const cedulaVal = g.cedula || '';
+  const esSinCedula = cedulaVal.startsWith('NO-POSEE-');
+  document.getElementById('gSinCedula').checked = esSinCedula;
+  document.getElementById('gCedula').value = cedulaVal;
+  if (esSinCedula) {
+    document.getElementById('gCedula').readOnly = true;
+    document.getElementById('gCedula').classList.add('bg-gray-100');
+    document.getElementById('gCedulaHelp').classList.remove('hidden');
+  } else {
+    document.getElementById('gCedula').readOnly = false;
+    document.getElementById('gCedula').classList.remove('bg-gray-100');
+    document.getElementById('gCedulaHelp').classList.add('hidden');
+  }
   document.getElementById('gNombres').value = g.nombres || '';
   document.getElementById('gApellidos').value = g.apellidos || '';
   document.getElementById('gFechaNac').value = g.fecha_nacimiento || '';
@@ -1577,6 +1622,49 @@ function calcularEdad() {
   if (edad >= 10 && edad <= 80) document.getElementById('gEdad').value = edad;
 }
 
+// Toggle edad manual
+function toggleEdadManual() {
+  const checkbox = document.getElementById('gEdadManual');
+  const edadInput = document.getElementById('gEdad');
+  const fechaNacInput = document.getElementById('gFechaNac');
+
+  if (checkbox.checked) {
+    edadInput.readOnly = false;
+    edadInput.classList.remove('bg-gray-50');
+    edadInput.placeholder = 'Ingrese edad';
+    fechaNacInput.required = false;
+  } else {
+    edadInput.readOnly = true;
+    edadInput.classList.add('bg-gray-50');
+    edadInput.placeholder = '';
+    fechaNacInput.required = true;
+    calcularEdad();
+  }
+}
+
+// Toggle sin cedula - genera numero unico
+async function toggleSinCedula() {
+  const checkbox = document.getElementById('gSinCedula');
+  const cedulaInput = document.getElementById('gCedula');
+  const helpText = document.getElementById('gCedulaHelp');
+
+  if (checkbox.checked) {
+    // Generar número único basado en timestamp
+    const timestamp = Date.now();
+    const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+    const numeroUnico = `NO-POSEE-${timestamp}-${random}`;
+    cedulaInput.value = numeroUnico;
+    cedulaInput.readOnly = true;
+    cedulaInput.classList.add('bg-gray-100');
+    helpText.classList.remove('hidden');
+  } else {
+    cedulaInput.value = '';
+    cedulaInput.readOnly = false;
+    cedulaInput.classList.remove('bg-gray-100');
+    helpText.classList.add('hidden');
+  }
+}
+
 document.getElementById('gFechaNac').addEventListener('change', calcularEdad);
 document.getElementById('gFur').addEventListener('change', calcularSemanasFPP);
 document.getElementById('gFur').addEventListener('input', calcularSemanasFPP);
@@ -1613,6 +1701,7 @@ document.getElementById('gestanteForm').addEventListener('submit', async (e) => 
     cedula: document.getElementById('gCedula').value.trim(),
     nombres: document.getElementById('gNombres').value.trim().toUpperCase(),
     apellidos: document.getElementById('gApellidos').value.trim().toUpperCase(),
+    fecha_registro: document.getElementById('gFechaRegistro').value || new Date().toISOString().split('T')[0],
     fecha_nacimiento: document.getElementById('gFechaNac').value || null,
     edad: parseInt(document.getElementById('gEdad').value) || null,
     telefono: document.getElementById('gTelefono').value.trim(),
