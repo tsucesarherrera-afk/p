@@ -308,18 +308,24 @@
         </div>
 
         <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mb-6">
-          <div class="flex flex-wrap items-end gap-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Semana Epidemiológica</label>
-              <select id="semanaEpiSelect" onchange="loadControlSemanal()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none"><option value="">Seleccione semana</option></select>
+          <div class="flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600">
+                <i class="fas fa-calendar-week"></i>
+              </div>
+              <div>
+                <p class="text-sm font-medium text-gray-700">Semana Epidemiológica Actual</p>
+                <p class="text-lg font-bold text-emerald-600" id="semanaEpiDisplay">SE <span id="semanaEpiValor">-</span></p>
+              </div>
             </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Año</label>
-              <select id="anioEpiSelect" onchange="loadSemanasDisponibles()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none"><option value="2026">2026</option></select>
+            <div class="flex items-center gap-3">
+              <p class="text-sm text-gray-500"><i class="fas fa-info-circle mr-1"></i> La semana se determina automáticamente por la fecha</p>
+              <button onclick="exportarExcelSemanal()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition"><i class="fas fa-file-excel"></i> Exportar Excel</button>
             </div>
-            <button onclick="generarReporteSemanal()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition"><i class="fas fa-file-medical"></i> Generar Reporte Completo</button>
-            <button onclick="exportarExcelSemanal()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition"><i class="fas fa-file-excel"></i> Exportar Excel</button>
           </div>
+          <!-- Campos ocultos para mantener compatibilidad -->
+          <input type="hidden" id="semanaEpiSelect" value="">
+          <input type="hidden" id="anioEpiSelect" value="2026">
         </div>
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           <div class="table-container">
@@ -1269,9 +1275,6 @@ async function initApp() {
   initConsultoriosSelects();
   await initSemanasSelect();
 
-  // Seleccionar automáticamente la semana epidemiológica actual
-  await seleccionarSemanaActual();
-
   // Iniciar timer de sesión
   startSessionTimer();
 
@@ -1324,43 +1327,6 @@ async function loadSemanasDisponibles() {
 }
 
 
-// ==================== SEMANA EPIDEMIOLÓGICA AUTOMÁTICA ====================
-async function seleccionarSemanaActual() {
-  const hoy = new Date();
-  const anioActual = hoy.getFullYear();
-  const semanaActual = await getCurrentSemanaEpidemiologica();
-
-  // Seleccionar el año actual
-  const anioSel = document.getElementById('anioEpiSelect');
-  if (anioSel) {
-    // Verificar si el año existe en las opciones
-    let anioExiste = false;
-    for (let i = 0; i < anioSel.options.length; i++) {
-      if (parseInt(anioSel.options[i].value) === anioActual) {
-        anioExiste = true;
-        break;
-      }
-    }
-    if (!anioExiste) {
-      const opt = document.createElement('option');
-      opt.value = anioActual;
-      opt.textContent = anioActual;
-      anioSel.appendChild(opt);
-    }
-    anioSel.value = anioActual;
-  }
-
-  // Recargar semanas disponibles para el año actual
-  await initSemanasSelect();
-
-  // Seleccionar la semana actual
-  const semSel = document.getElementById('semanaEpiSelect');
-  if (semSel && semanaActual && semanaActual !== '-') {
-    semSel.value = semanaActual;
-    await loadControlSemanal();
-  }
-}
-
 // ==================== NAVEGACIÓN ====================
 function showSection(section) {
   // Proteger secciones restringidas para médicos
@@ -1389,7 +1355,7 @@ function showSection(section) {
 
   if (section === 'dashboard') renderDashboard();
   if (section === 'gestantes') renderGestantes();
-  if (section === 'controlSemanal') loadControlSemanal();
+  if (section === 'controlSemanal') await loadControlSemanal();
   if (section === 'puerperas') renderPuerperas();
   if (section === 'archivados') renderArchivados();
   if (section === 'usuarios') renderUsers();
@@ -1419,11 +1385,11 @@ async function buscarCedulaControl() {
     const { data: gestante, error } = await query.single();
     if (error && error.code !== 'PGRST116') throw error;
 
-    const semana = document.getElementById('semanaEpiSelect').value;
-    const anio = document.getElementById('anioEpiSelect').value;
+    const semana = await getCurrentSemanaEpidemiologica();
+    const anio = new Date().getFullYear();
 
-    if (!semana) {
-      resultadoDiv.innerHTML = `<div class="p-4 bg-yellow-50 border border-yellow-200 rounded-lg"><p class="text-yellow-800 text-sm"><i class="fas fa-exclamation-triangle mr-2"></i>Seleccione una semana epidemiológica primero.</p></div>`;
+    if (!semana || semana === '-') {
+      resultadoDiv.innerHTML = `<div class="p-4 bg-yellow-50 border border-yellow-200 rounded-lg"><p class="text-yellow-800 text-sm"><i class="fas fa-exclamation-triangle mr-2"></i>No se pudo determinar la semana epidemiológica actual.</p></div>`;
       return;
     }
 
@@ -1483,9 +1449,9 @@ function limpiarBusquedaCedula() {
 }
 
 async function agregarControlExistente(gestanteId, cedula) {
-  const semana = document.getElementById('semanaEpiSelect').value;
-  const anio = document.getElementById('anioEpiSelect').value;
-  if (!semana || !anio) { showToast('Seleccione semana y año epidemiológicos', 'error'); return; }
+  const semana = await getCurrentSemanaEpidemiologica();
+  const anio = new Date().getFullYear();
+  if (!semana || semana === '-') { showToast('No se pudo determinar la semana epidemiológica actual', 'error'); return; }
 
   const { data: existente } = await supabaseClient.from('control_semanal').select('id').eq('gestante_id', gestanteId).eq('semana_epidemiologica', parseInt(semana)).eq('anio', parseInt(anio));
   if (existente && existente.length > 0) { showToast('Esta gestante ya está registrada en esta semana epidemiológica', 'error'); return; }
@@ -1537,8 +1503,8 @@ function abrirCaptacionNueva(cedula) {
   document.getElementById('gestanteModal').classList.remove('hidden');
   window._captacionDesdeControl = true;
   window._cedulaCaptacion = cedula;
-  window._semanaCaptacion = document.getElementById('semanaEpiSelect').value;
-  window._anioCaptacion = document.getElementById('anioEpiSelect').value;
+  window._semanaCaptacion = await getCurrentSemanaEpidemiologica();
+  window._anioCaptacion = new Date().getFullYear();
 }
 
 // ==================== GESTANTES CRUD ====================
@@ -1989,11 +1955,27 @@ async function reactivarArchivado(id) {
 
 // ==================== CONTROL SEMANAL ====================
 async function loadControlSemanal() {
-  const semana = document.getElementById('semanaEpiSelect').value;
-  const anio = document.getElementById('anioEpiSelect').value;
+  // Obtener semana epidemiológica automática según fecha actual
+  const semanaActual = await getCurrentSemanaEpidemiologica();
+  const anioActual = new Date().getFullYear();
+
+  // Actualizar campos ocultos y display
+  document.getElementById('semanaEpiSelect').value = semanaActual;
+  document.getElementById('anioEpiSelect').value = anioActual;
+  document.getElementById('semanaEpiValor').textContent = semanaActual;
+
+  const semana = semanaActual;
+  const anio = anioActual;
   const tbody = document.getElementById('controlTable');
   const empty = document.getElementById('controlEmpty');
-  if (!semana) { tbody.innerHTML = ''; empty.classList.remove('hidden'); return; }
+
+  if (!semana || semana === '-') { 
+    tbody.innerHTML = ''; 
+    empty.classList.remove('hidden'); 
+    empty.innerHTML = '<i class="fas fa-calendar-week text-4xl mb-2"></i><p>No se pudo determinar la semana epidemiológica actual</p>';
+    return; 
+  }
+
   empty.classList.add('hidden');
   const { data, error } = await supabaseClient.from('control_semanal').select('*, gestantes(*)').eq('semana_epidemiologica', parseInt(semana)).eq('anio', parseInt(anio));
   if (error) { showToast('Error: ' + error.message, 'error'); return; }
@@ -2009,36 +1991,12 @@ function renderControlTable() {
     const canEdit = currentProfile.role !== 'medico' || currentProfile.consultorio === g.consultorio;
     const riesgo = g.aro ? 'SI' : 'NO';
     const motivoBadge = c.motivo === 'CAPTACION' ? '<span class="px-2 py-1 bg-orange-100 text-orange-700 rounded text-xs font-medium">CAPTACIÓN</span>' : '<span class="px-2 py-1 bg-emerald-100 text-emerald-700 rounded text-xs font-medium">CONTROL</span>';
+    // La CAPTACION solo puede ser en la semana de registro original, no se puede cambiar
     return `<tr class="hover:bg-gray-50"><td class="px-4 py-3">${i + 1}</td><td class="px-4 py-3 text-xs">${g.consultorio || ''}</td><td class="px-4 py-3">${c.fecha_control ? c.fecha_control.split('T')[0] : ''}</td><td class="px-4 py-3 font-medium">${g.nombres || ''} ${g.apellidos || ''}</td><td class="px-4 py-3">${g.edad || ''}</td><td class="px-4 py-3">${g.cedula || ''}</td><td class="px-4 py-3 text-xs">${g.direccion || ''}</td><td class="px-4 py-3">${g.telefono || ''}</td><td class="px-4 py-3">${g.fur || ''}</td><td class="px-4 py-3 font-medium">${c.semana_gestacion || g.semana_gestacion || ''}</td><td class="px-4 py-3">${g.num_g || 0}</td><td class="px-4 py-3">${riesgo}</td><td class="px-4 py-3">${motivoBadge}</td><td class="px-4 py-3">${c.diagnostico || ''}</td><td class="px-4 py-3">${c.tipo_consulta || ''}</td><td class="px-4 py-3">${c.referido || ''}</td><td class="px-4 py-3">${c.observacion || ''}</td><td class="px-4 py-3 text-center"><button onclick="editControl('${c.id}')" class="text-emerald-600 hover:text-emerald-800 mx-1 ${canEdit ? '' : 'opacity-50 cursor-not-allowed'}" ${canEdit ? '' : 'disabled'}><i class="fas fa-edit"></i></button></td></tr>`;
   }).join('');
 }
 
-async function generarReporteSemanal() {
-  let semana = document.getElementById('semanaEpiSelect').value;
-  let anio = document.getElementById('anioEpiSelect').value;
-  if (!semana) {
-    // Si no hay semana seleccionada, usar la semana epidemiológica actual
-    const semanaActual = await getCurrentSemanaEpidemiologica();
-    if (semanaActual && semanaActual !== '-') {
-      semana = semanaActual;
-      document.getElementById('semanaEpiSelect').value = semana;
-    }
-  }
-  if (!semana) { showToast('No se pudo determinar la semana epidemiológica actual', 'error'); return; }
-  let query = supabaseClient.from('gestantes').select('*').in('estado', ['gestante', 'puerpera', 'lactante']);
-  if (currentProfile.role === 'medico' && currentProfile.consultorio) query = query.eq('consultorio', currentProfile.consultorio);
-  const { data: gestantes, error } = await query;
-  if (error) { showToast('Error: ' + error.message, 'error'); return; }
-  const { data: existentes } = await supabaseClient.from('control_semanal').select('gestante_id').eq('semana_epidemiologica', parseInt(semana)).eq('anio', parseInt(anio));
-  const existentesIds = new Set((existentes || []).map(e => e.gestante_id));
-  const nuevos = gestantes.filter(g => !existentesIds.has(g.id));
-  if (nuevos.length === 0) { showToast('Todas las gestantes ya están en el reporte'); return; }
-  const inserts = nuevos.map(g => ({ gestante_id: g.id, semana_epidemiologica: parseInt(semana), anio: parseInt(anio), fecha_control: new Date().toISOString(), semana_gestacion: g.semana_gestacion, motivo: 'CONTROL', diagnostico: g.diagnostico || `EMBARAZO SIMPLE DE ${g.semana_gestacion || ''} x FUR`, tipo_consulta: 'Consulta', referido: '', observacion: g.observacion || '', created_by: currentUser.id }));
-  const { error: iError } = await supabaseClient.from('control_semanal').insert(inserts);
-  if (iError) { showToast('Error: ' + iError.message, 'error'); return; }
-  showToast(`${inserts.length} gestantes agregadas al reporte`);
-  await loadControlSemanal();
-}
+
 
 function editControl(id) {
   const c = controlData.find(x => x.id === id);
@@ -2067,9 +2025,9 @@ document.getElementById('controlEditForm').addEventListener('submit', async (e) 
 });
 
 async function exportarExcelSemanal() {
-  const semana = document.getElementById('semanaEpiSelect').value;
-  const anio = document.getElementById('anioEpiSelect').value;
-  if (!semana) { showToast('Seleccione una semana', 'error'); return; }
+  const semana = await getCurrentSemanaEpidemiologica();
+  const anio = new Date().getFullYear();
+  if (!semana || semana === '-') { showToast('No se pudo determinar la semana epidemiológica actual', 'error'); return; }
   const { data } = await supabaseClient.from('control_semanal').select('*, gestantes(*)').eq('semana_epidemiologica', parseInt(semana)).eq('anio', parseInt(anio));
   const rows = (data || []).map((c, i) => {
     const g = c.gestantes || {};
