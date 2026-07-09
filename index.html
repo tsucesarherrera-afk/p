@@ -1322,7 +1322,8 @@ async function initApp() {
 
   const opciones = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
   document.getElementById('currentDate').textContent = new Date().toLocaleDateString('es-VE', opciones);
-  document.getElementById('currentEpiWeek').textContent = 'SE ' + await getCurrentSemanaEpidemiologica();
+  const semanaEpi = await getCurrentSemanaEpidemiologica();
+  document.getElementById('currentEpiWeek').textContent = 'SE ' + semanaEpi;
 
   await loadCalendarios();
   await loadGestantes();
@@ -1333,7 +1334,7 @@ async function initApp() {
   // Iniciar timer de sesión
   startSessionTimer();
 
-  showSection('dashboard');
+  await showSection('dashboard');
 }
 
 function getRoleName(role) {
@@ -1383,7 +1384,7 @@ async function loadSemanasDisponibles() {
 
 
 // ==================== NAVEGACIÓN ====================
-function showSection(section) {
+async function showSection(section) {
   // Proteger secciones restringidas para médicos
   if (currentProfile && currentProfile.role === 'medico') {
     const seccionesProhibidas = ['puerperas', 'archivados', 'usuarios', 'calendarios', 'backup'];
@@ -1540,7 +1541,7 @@ async function agregarControlExistente(gestanteId, cedula) {
   await loadControlSemanal();
 }
 
-function abrirCaptacionNueva(cedula) {
+async function abrirCaptacionNueva(cedula) {
   document.getElementById('gestanteForm').reset();
   document.getElementById('gestanteId').value = '';
   document.getElementById('gestanteModalTitle').textContent = 'Nueva Embarazada - CAPTACIÓN';
@@ -2491,7 +2492,7 @@ async function applyPasswordReset() {
 
 // ==================== INICIO ====================
 
-window.addEventListener('DOMContentLoaded', async () => {
+window.addEventListener('DOMContentLoaded', () => {
   // ===== CAPTCHA: SIEMPRE funciona, independiente de Supabase =====
   setTimeout(() => {
     generateCaptcha();
@@ -2504,6 +2505,11 @@ window.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
+  // Ejecutar inicialización de Supabase en función async separada
+  initSupabaseSession();
+});
+
+async function initSupabaseSession() {
   try {
     const { data: { session } } = await supabaseClient.auth.getSession();
     if (session) {
@@ -2533,7 +2539,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       } else { localStorage.removeItem('epi_session'); }
     } catch (e) { localStorage.removeItem('epi_session'); }
   }
-});
+}
 </script>
 
 <!-- MODAL CONFIRMAR CIERRE DE SESIÓN -->
