@@ -13,7 +13,7 @@ Archivos añadidos:
 
 Instrucciones rápidas para integrar los cambios en index.html:
 1) En <head> agrega (preferible en headers HTTP):
-   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://cdn.tailwindcss.com 'unsafe-inline'; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; connect-src 'self' https://kwvltqnxirdnxoshgcge.supabase.co; img-src 'self' data: https://raw.githubusercontent.com https://github.com; frame-ancestors 'none'; object-src 'none';">
+   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://cdn.tailwindcss.com 'unsafe-inline'; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; connect-src 'self' https://kwvltqnxirdnxoshgcge.supabase.co; img-src 'self' data: https://raw.githubusercontent.com https://github.com; frame-ancestors 'none'; object-src 'none'; form-action 'self';">
    (Recomiendo mover CSP al header del servidor y eliminar 'unsafe-inline' después de refactorizar a scripts externos.)
 
 2) Reemplaza la inicialización actual de Supabase (eliminando la SUPABASE_ANON_KEY embebida) por este include y llamar a initSupabase() desde un script module:
