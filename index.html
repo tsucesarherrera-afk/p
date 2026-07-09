@@ -42,6 +42,7 @@
 
 <base target="_blank">
 <base target="_blank">
+<base target="_blank">
 </head>
 <body class="text-gray-800">
 
@@ -251,7 +252,7 @@
             <canvas id="chartConsultorios" height="200"></canvas>
           </div>
         </div>
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 lg:col-span-2">
             <h3 class="font-bold text-gray-800 mb-4">Gestantes por Riesgo (ARO)</h3>
             <canvas id="chartARO" height="150"></canvas>
@@ -259,6 +260,106 @@
           <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
             <h3 class="font-bold text-gray-800 mb-4">Registros Recientes</h3>
             <div id="recentRecords" class="space-y-3 max-h-64 overflow-y-auto"><p class="text-sm text-gray-400 text-center py-4">Cargando...</p></div>
+          </div>
+        </div>
+
+        <!-- REGISTRO MES DE -->
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mb-8">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-bold text-gray-800 text-lg"><i class="fas fa-calendar-alt text-emerald-600 mr-2"></i>REGISTRO MES DE <span id="mesActualLabel" class="text-emerald-600"></span></h3>
+            <span class="text-xs bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full font-medium">Mes en curso</span>
+          </div>
+          <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <div class="bg-gray-50 rounded-lg p-3 text-center border border-gray-100">
+              <p class="text-xs text-gray-500 mb-1">GESTANTES</p>
+              <p id="mesGestantes" class="text-xl font-bold text-gray-800">0</p>
+            </div>
+            <div class="bg-emerald-50 rounded-lg p-3 text-center border border-emerald-100">
+              <p class="text-xs text-emerald-600 mb-1">PRIMER TRIMESTRE</p>
+              <p id="mesT1" class="text-xl font-bold text-emerald-700">0</p>
+            </div>
+            <div class="bg-blue-50 rounded-lg p-3 text-center border border-blue-100">
+              <p class="text-xs text-blue-600 mb-1">SEGUNDO TRIMESTRE</p>
+              <p id="mesT2" class="text-xl font-bold text-blue-700">0</p>
+            </div>
+            <div class="bg-amber-50 rounded-lg p-3 text-center border border-amber-100">
+              <p class="text-xs text-amber-600 mb-1">TERCER TRIMESTRE</p>
+              <p id="mesT3" class="text-xl font-bold text-amber-700">0</p>
+            </div>
+            <div class="bg-green-50 rounded-lg p-3 text-center border border-green-100">
+              <p class="text-xs text-green-600 mb-1">ARO I</p>
+              <p id="mesAro1" class="text-xl font-bold text-green-700">0</p>
+            </div>
+            <div class="bg-yellow-50 rounded-lg p-3 text-center border border-yellow-100">
+              <p class="text-xs text-yellow-600 mb-1">ARO II</p>
+              <p id="mesAro2" class="text-xl font-bold text-yellow-700">0</p>
+            </div>
+            <div class="bg-red-50 rounded-lg p-3 text-center border border-red-100">
+              <p class="text-xs text-red-600 mb-1">ARO III</p>
+              <p id="mesAro3" class="text-xl font-bold text-red-700">0</p>
+            </div>
+            <div class="bg-purple-50 rounded-lg p-3 text-center border border-purple-100">
+              <p class="text-xs text-purple-600 mb-1">PUERPERAS</p>
+              <p id="mesPuerperas" class="text-xl font-bold text-purple-700">0</p>
+            </div>
+            <div class="bg-pink-50 rounded-lg p-3 text-center border border-pink-100">
+              <p class="text-xs text-pink-600 mb-1">MENORES DE 18</p>
+              <p id="mesMenores" class="text-xl font-bold text-pink-700">0</p>
+            </div>
+            <div class="bg-indigo-50 rounded-lg p-3 text-center border border-indigo-100">
+              <p class="text-xs text-indigo-600 mb-1">MAYORES DE 18</p>
+              <p id="mesMayores" class="text-xl font-bold text-indigo-700">0</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- TOTAL ACUMULADO ANUAL -->
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-bold text-gray-800 text-lg"><i class="fas fa-chart-bar text-emerald-600 mr-2"></i>TOTAL ACUMULADO ANUAL <span id="anioActualLabel" class="text-emerald-600"></span></h3>
+            <span class="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-medium">Año en curso</span>
+          </div>
+          <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <div class="bg-gray-50 rounded-lg p-3 text-center border border-gray-100">
+              <p class="text-xs text-gray-500 mb-1">GESTANTES</p>
+              <p id="anioGestantes" class="text-xl font-bold text-gray-800">0</p>
+            </div>
+            <div class="bg-pink-50 rounded-lg p-3 text-center border border-pink-100">
+              <p class="text-xs text-pink-600 mb-1">MENORES DE 18</p>
+              <p id="anioMenores" class="text-xl font-bold text-pink-700">0</p>
+            </div>
+            <div class="bg-indigo-50 rounded-lg p-3 text-center border border-indigo-100">
+              <p class="text-xs text-indigo-600 mb-1">MAYORES DE 18</p>
+              <p id="anioMayores" class="text-xl font-bold text-indigo-700">0</p>
+            </div>
+            <div class="bg-emerald-50 rounded-lg p-3 text-center border border-emerald-100">
+              <p class="text-xs text-emerald-600 mb-1">PRIMER TRIMESTRE</p>
+              <p id="anioT1" class="text-xl font-bold text-emerald-700">0</p>
+            </div>
+            <div class="bg-blue-50 rounded-lg p-3 text-center border border-blue-100">
+              <p class="text-xs text-blue-600 mb-1">SEGUNDO TRIMESTRE</p>
+              <p id="anioT2" class="text-xl font-bold text-blue-700">0</p>
+            </div>
+            <div class="bg-amber-50 rounded-lg p-3 text-center border border-amber-100">
+              <p class="text-xs text-amber-600 mb-1">TERCER TRIMESTRE</p>
+              <p id="anioT3" class="text-xl font-bold text-amber-700">0</p>
+            </div>
+            <div class="bg-green-50 rounded-lg p-3 text-center border border-green-100">
+              <p class="text-xs text-green-600 mb-1">ARO I</p>
+              <p id="anioAro1" class="text-xl font-bold text-green-700">0</p>
+            </div>
+            <div class="bg-yellow-50 rounded-lg p-3 text-center border border-yellow-100">
+              <p class="text-xs text-yellow-600 mb-1">ARO II</p>
+              <p id="anioAro2" class="text-xl font-bold text-yellow-700">0</p>
+            </div>
+            <div class="bg-red-50 rounded-lg p-3 text-center border border-red-100">
+              <p class="text-xs text-red-600 mb-1">ARO III</p>
+              <p id="anioAro3" class="text-xl font-bold text-red-700">0</p>
+            </div>
+            <div class="bg-purple-50 rounded-lg p-3 text-center border border-purple-100">
+              <p class="text-xs text-purple-600 mb-1">PUERPERAS</p>
+              <p id="anioPuerperas" class="text-xl font-bold text-purple-700">0</p>
+            </div>
           </div>
         </div>
       </section>
@@ -499,8 +600,8 @@
             <input type="number" id="gEdad" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" min="10" max="80" readonly>
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
-            <input type="text" id="gTelefono" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono <span class="text-xs text-gray-400 font-normal">(0412)1234567</span></label>
+            <input type="text" id="gTelefono" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" maxlength="14" placeholder="(0412)1234567" oninput="formatTelefono(this)">
           </div>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -556,8 +657,8 @@
           </div>
           <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">N° G (Gestas)</label>
-              <input type="number" id="gNG" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" min="0">
+              <label class="block text-sm font-medium text-gray-700 mb-1">N° G (Gestas) <span class="text-xs text-gray-400 font-normal">(automático)</span></label>
+              <input type="number" id="gNG" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 focus:ring-2 focus:ring-emerald-500 outline-none" min="0" readonly title="Calculado automáticamente: P + C + A">
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Sem. Gestación <span class="text-xs text-gray-400 font-normal">(calculada o manual)</span></label>
@@ -599,16 +700,16 @@
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Enfermedad Asociada</label>
-              <select id="gEnfermedad" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none">
+              <select id="gEnfermedad" onchange="toggleCualEnfermedad()" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none">
                 <option value="NO">NO</option>
                 <option value="SI">SI</option>
               </select>
             </div>
           </div>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-            <div>
+            <div id="divCualEnf" class="opacity-50 pointer-events-none transition-opacity duration-200">
               <label class="block text-sm font-medium text-gray-700 mb-1">¿Cuál Enfermedad?</label>
-              <input type="text" id="gCualEnf" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none">
+              <input type="text" id="gCualEnf" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" disabled>
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Micronutrientes</label>
@@ -660,8 +761,8 @@
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Consulta</label>
               <select id="gTipoConsulta" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none">
+                <option value="Consulta" selected>Consulta</option>
                 <option value="Emergencia">Emergencia</option>
-                <option value="Consulta">Consulta</option>
                 <option value="II NIVEL">II NIVEL</option>
                 <option value="HOSP.">HOSP.</option>
                 <option value="A.R.O">A.R.O</option>
@@ -909,7 +1010,6 @@
 </div>
 
 <script>
-// ==================== CONFIGURACIÓN SUPABASE ====================
 const SUPABASE_URL = 'https://kwvltqnxirdnxoshgcge.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_Ua7O9tt7sz2G-I2MOWXA1Q_jsJEoPfA';
 // CAPTCHA matemático: no requiere clave externa
@@ -1613,11 +1713,17 @@ function openGestanteModal() {
   // Reset custom fields
   document.getElementById('gSinCedula').checked = false;
   document.getElementById('gEdadManual').checked = false;
+  document.getElementById('gFurIncierto').checked = false;
+  toggleFurIncierto();
   document.getElementById('gCedula').readOnly = false;
   document.getElementById('gCedula').classList.remove('bg-gray-100');
   document.getElementById('gCedulaHelp').classList.add('hidden');
   document.getElementById('gEdad').readOnly = true;
   document.getElementById('gEdad').classList.add('bg-gray-50');
+  document.getElementById('gNG').value = 0;
+  document.getElementById('gEnfermedad').value = 'NO';
+  toggleCualEnfermedad();
+  document.getElementById('gTipoConsulta').value = 'Consulta';
   window._captacionDesdeControl = false;
   if (currentProfile.role === 'medico' && currentProfile.consultorio) {
     document.getElementById('gConsultorio').value = currentProfile.consultorio;
@@ -1638,11 +1744,15 @@ function closeGestanteModal() {
   // Reset custom fields
   document.getElementById('gSinCedula').checked = false;
   document.getElementById('gEdadManual').checked = false;
+  document.getElementById('gFurIncierto').checked = false;
   document.getElementById('gCedula').readOnly = false;
   document.getElementById('gCedula').classList.remove('bg-gray-100');
   document.getElementById('gCedulaHelp').classList.add('hidden');
   document.getElementById('gEdad').readOnly = true;
   document.getElementById('gEdad').classList.add('bg-gray-50');
+  document.getElementById('gNG').value = 0;
+  document.getElementById('gEnfermedad').value = 'NO';
+  toggleCualEnfermedad();
 }
 
 function editGestante(id) {
@@ -1668,14 +1778,17 @@ function editGestante(id) {
   document.getElementById('gFechaNac').value = g.fecha_nacimiento || '';
   document.getElementById('gEdad').value = g.edad || '';
   document.getElementById('gTelefono').value = g.telefono || '';
+  formatTelefono(document.getElementById('gTelefono'));
   document.getElementById('gConsultorio').value = g.consultorio || '';
   document.getElementById('gDireccion').value = g.direccion || '';
   document.getElementById('gCarnet').value = g.carnet_patria || '';
   document.getElementById('gFur').value = g.fur || '';
+  document.getElementById('gFurIncierto').checked = !g.fur;
+  toggleFurIncierto();
   document.getElementById('gNP').value = g.num_p || 0;
   document.getElementById('gNC').value = g.num_c || 0;
   document.getElementById('gNA').value = g.num_a || 0;
-  document.getElementById('gNG').value = g.num_g || 0;
+  calcularNG(); // N° G se calcula automáticamente
   document.getElementById('gSemGesta').value = g.semana_gestacion || '';
   document.getElementById('gSemGesta').readOnly = false;
   document.getElementById('gSemGesta').classList.remove('bg-gray-50');
@@ -1684,6 +1797,7 @@ function editGestante(id) {
   document.getElementById('gControlPre').value = g.control_prenatal || 'SI';
   document.getElementById('gDonde').value = g.donde_publico_privado || 'PUBLICO';
   document.getElementById('gEnfermedad').value = g.enfermedad_asociada || 'NO';
+  toggleCualEnfermedad();
   document.getElementById('gCualEnf').value = g.cual_enfermedad || '';
   document.getElementById('gMicro').value = g.micronutrientes || 'NO';
   document.getElementById('gAsic').value = g.conoce_asic || 'SI';
@@ -1756,6 +1870,67 @@ function toggleEdadManual() {
   }
 }
 
+// Toggle F.U.R Incierto
+function toggleFurIncierto() {
+  const checkbox = document.getElementById('gFurIncierto');
+  const furInput = document.getElementById('gFur');
+  if (checkbox.checked) {
+    furInput.dataset.valorOriginal = furInput.value;
+    furInput.value = '';
+    furInput.disabled = true;
+    furInput.classList.add('bg-gray-100', 'cursor-not-allowed');
+    furInput.placeholder = 'F.U.R Incierto';
+    document.getElementById('gSemGesta').readOnly = false;
+    document.getElementById('gSemGesta').classList.remove('bg-gray-50');
+    document.getElementById('gFpp').value = '';
+    document.getElementById('gFpp').placeholder = 'Ingrese manualmente';
+  } else {
+    furInput.disabled = false;
+    furInput.classList.remove('bg-gray-100', 'cursor-not-allowed');
+    furInput.placeholder = '';
+    if (furInput.dataset.valorOriginal) {
+      furInput.value = furInput.dataset.valorOriginal;
+    }
+    calcularSemanasFPP();
+  }
+}
+
+// Toggle ¿Cuál Enfermedad?
+function toggleCualEnfermedad() {
+  const select = document.getElementById('gEnfermedad');
+  const div = document.getElementById('divCualEnf');
+  const input = document.getElementById('gCualEnf');
+  if (select.value === 'SI') {
+    div.classList.remove('opacity-50', 'pointer-events-none');
+    input.disabled = false;
+    input.focus();
+  } else {
+    div.classList.add('opacity-50', 'pointer-events-none');
+    input.disabled = true;
+    input.value = '';
+  }
+}
+
+// Calcular N° G automáticamente (P + C + A)
+function calcularNG() {
+  const p = parseInt(document.getElementById('gNP').value) || 0;
+  const c = parseInt(document.getElementById('gNC').value) || 0;
+  const a = parseInt(document.getElementById('gNA').value) || 0;
+  document.getElementById('gNG').value = p + c + a;
+}
+
+// Formato teléfono: (XXXX)XXXXXXX, máximo 10 números
+function formatTelefono(input) {
+  let val = input.value.replace(/\D/g, ''); // solo números
+  if (val.length > 10) val = val.substring(0, 10);
+  if (val.length >= 4) {
+    input.value = '(' + val.substring(0, 4) + ')' + val.substring(4);
+  } else {
+    input.value = val.length > 0 ? '(' + val : '';
+  }
+}
+
+
 // Toggle sin cedula - genera numero unico
 async function toggleSinCedula() {
   const checkbox = document.getElementById('gSinCedula');
@@ -1803,6 +1978,10 @@ async function toggleSinCedula() {
 document.getElementById('gFechaNac').addEventListener('change', calcularEdad);
 document.getElementById('gFur').addEventListener('change', calcularSemanasFPP);
 document.getElementById('gFur').addEventListener('input', calcularSemanasFPP);
+// Event listeners para cálculo automático de N° G
+document.getElementById('gNP').addEventListener('input', calcularNG);
+document.getElementById('gNC').addEventListener('input', calcularNG);
+document.getElementById('gNA').addEventListener('input', calcularNG);
 
 function calcularSemanasFPP() {
   const fur = document.getElementById('gFur').value;
@@ -1856,7 +2035,8 @@ document.getElementById('gestanteForm').addEventListener('submit', async (e) => 
       return;
     }
   }
-  const fur = document.getElementById('gFur').value;
+  const furIncierto = document.getElementById('gFurIncierto').checked;
+  const fur = furIncierto ? null : document.getElementById('gFur').value;
   const semGesta = document.getElementById('gSemGesta').value;
   const semanaEpi = await getCurrentSemanaEpidemiologica();
   const semanaEpiNum = parseInt(semanaEpi) || null;
@@ -2109,6 +2289,7 @@ function renderDashboard() {
   const activas = gestantesData.filter(g => g.estado === 'gestante');
   const puerperas = gestantesData.filter(g => g.estado === 'puerpera' || g.estado === 'lactante');
   const menores = activas.filter(g => g.edad && g.edad < 18);
+  const mayores = activas.filter(g => g.edad && g.edad >= 18);
   document.getElementById('dashTotal').textContent = activas.length;
   document.getElementById('dashPuerperas').textContent = puerperas.length;
   document.getElementById('dashMenores').textContent = menores.length;
@@ -2128,6 +2309,59 @@ function renderDashboard() {
   renderChart('chartARO', 'bar', ['Sin ARO', 'ARO I', 'ARO II', 'ARO III'], [aro0, aro1, aro2, aro3], ['#9ca3af', '#10b981', '#f59e0b', '#ef4444']);
   const recientes = [...gestantesData].filter(g => g.estado !== 'archivado').sort((a, b) => new Date(b.fecha_registro) - new Date(a.fecha_registro)).slice(0, 5);
   document.getElementById('recentRecords').innerHTML = recientes.map(g => `<div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"><div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 text-xs"><i class="fas fa-female"></i></div><div class="flex-1 min-w-0"><p class="text-sm font-medium text-gray-800 truncate">${g.nombres} ${g.apellidos}</p><p class="text-xs text-gray-500">${g.consultorio} • ${g.semana_gestacion || ''}</p></div></div>`).join('');
+
+  // ===== REGISTRO MES DE =====
+  const hoy = new Date();
+  const mesActual = hoy.getMonth();
+  const anioActual = hoy.getFullYear();
+  const meses = ['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];
+  document.getElementById('mesActualLabel').textContent = meses[mesActual];
+  document.getElementById('anioActualLabel').textContent = anioActual;
+
+  const gestantesMes = gestantesData.filter(g => {
+    if (!g.fecha_registro) return false;
+    const f = new Date(g.fecha_registro);
+    return f.getMonth() === mesActual && f.getFullYear() === anioActual && g.estado !== 'archivado';
+  });
+
+  const mesActivas = gestantesMes.filter(g => g.estado === 'gestante');
+  const mesPuerperas = gestantesMes.filter(g => g.estado === 'puerpera' || g.estado === 'lactante');
+  const mesMenores = mesActivas.filter(g => g.edad && g.edad < 18);
+  const mesMayores = mesActivas.filter(g => g.edad && g.edad >= 18);
+
+  document.getElementById('mesGestantes').textContent = mesActivas.length;
+  document.getElementById('mesT1').textContent = mesActivas.filter(g => g.trimestre === 1).length;
+  document.getElementById('mesT2').textContent = mesActivas.filter(g => g.trimestre === 2).length;
+  document.getElementById('mesT3').textContent = mesActivas.filter(g => g.trimestre === 3).length;
+  document.getElementById('mesAro1').textContent = mesActivas.filter(g => g.aro === 'I').length;
+  document.getElementById('mesAro2').textContent = mesActivas.filter(g => g.aro === 'II').length;
+  document.getElementById('mesAro3').textContent = mesActivas.filter(g => g.aro === 'III').length;
+  document.getElementById('mesPuerperas').textContent = mesPuerperas.length;
+  document.getElementById('mesMenores').textContent = mesMenores.length;
+  document.getElementById('mesMayores').textContent = mesMayores.length;
+
+  // ===== TOTAL ACUMULADO ANUAL =====
+  const gestantesAnio = gestantesData.filter(g => {
+    if (!g.fecha_registro) return false;
+    const f = new Date(g.fecha_registro);
+    return f.getFullYear() === anioActual && g.estado !== 'archivado';
+  });
+
+  const anioActivas = gestantesAnio.filter(g => g.estado === 'gestante');
+  const anioPuerperas = gestantesAnio.filter(g => g.estado === 'puerpera' || g.estado === 'lactante');
+  const anioMenores = anioActivas.filter(g => g.edad && g.edad < 18);
+  const anioMayores = anioActivas.filter(g => g.edad && g.edad >= 18);
+
+  document.getElementById('anioGestantes').textContent = anioActivas.length;
+  document.getElementById('anioMenores').textContent = anioMenores.length;
+  document.getElementById('anioMayores').textContent = anioMayores.length;
+  document.getElementById('anioT1').textContent = anioActivas.filter(g => g.trimestre === 1).length;
+  document.getElementById('anioT2').textContent = anioActivas.filter(g => g.trimestre === 2).length;
+  document.getElementById('anioT3').textContent = anioActivas.filter(g => g.trimestre === 3).length;
+  document.getElementById('anioAro1').textContent = anioActivas.filter(g => g.aro === 'I').length;
+  document.getElementById('anioAro2').textContent = anioActivas.filter(g => g.aro === 'II').length;
+  document.getElementById('anioAro3').textContent = anioActivas.filter(g => g.aro === 'III').length;
+  document.getElementById('anioPuerperas').textContent = anioPuerperas.length;
 }
 
 function renderChart(id, type, labels, data, colors) {
