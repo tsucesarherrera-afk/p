@@ -71,8 +71,8 @@
 
     <form id="loginForm" class="space-y-4">
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Usuario</label>
-        <input type="email" id="loginEmail" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none" placeholder="••••••••" required autocomplete="username">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Correo electrónico</label>
+        <input type="email" id="loginEmail" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none" placeholder="usuario@ejemplo.com" required autocomplete="username">
       </div>
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
@@ -914,9 +914,20 @@
 // ==================== CONFIGURACIÓN SUPABASE ====================
 const SUPABASE_URL = 'https://kwvltqnxirdnxoshgcge.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_Ua7O9tt7sz2G-I2MOWXA1Q_jsJEoPfA';
+// CAPTCHA matemático: no requiere clave externa
 
-  // CAPTCHA matemático: no requiere clave externa
-const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Inicializar Supabase solo si hay credenciales válidas
+let supabaseClient = null;
+try {
+  if (SUPABASE_URL && SUPABASE_ANON_KEY) {
+    supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  } else {
+    console.warn('[Supabase] URL o ANON_KEY no configurados. El sistema funcionará en modo demo.');
+  }
+} catch (e) {
+  console.error('[Supabase] Error inicializando cliente:', e);
+}
+
 // ==================== VARIABLES GLOBALES ====================
 let currentUser = null;
 let currentProfile = null;
@@ -928,6 +939,11 @@ let charts = {};
 let sessionTimer = null;
 let sessionStartTime = null;
 let captchaExpectedValue = 0;
+
+// Helper para verificar si Supabase está disponible
+function supabaseReady() {
+  return supabaseClient !== null && supabaseClient !== undefined;
+}
 
 const CONSULTORIOS = [
   'ÁNGELA NEGRA ORTIZ (CAMAGUAN)','MURO CARRIZALERO (CAMAGUAN)','UVERITO',
@@ -2476,10 +2492,17 @@ async function applyPasswordReset() {
 // ==================== INICIO ====================
 
 window.addEventListener('DOMContentLoaded', async () => {
-  // Generar primer CAPTCHA siempre - con pequeño delay para asegurar que DOM esté listo
+  // ===== CAPTCHA: SIEMPRE funciona, independiente de Supabase =====
   setTimeout(() => {
     generateCaptcha();
-  }, 100);
+    console.log('[CAPTCHA] Inicializado correctamente');
+  }, 50);
+
+  // ===== SUPABASE: Solo si está configurado =====
+  if (!supabaseClient) {
+    console.warn('[Sistema] Supabase no configurado. Modo demo activo.');
+    return;
+  }
 
   try {
     const { data: { session } } = await supabaseClient.auth.getSession();
