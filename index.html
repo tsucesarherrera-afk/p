@@ -41,6 +41,7 @@
 </style>
 
 <base target="_blank">
+<base target="_blank">
 </head>
 <body class="text-gray-800">
 
@@ -318,10 +319,7 @@
                 <p class="text-lg font-bold text-emerald-600" id="semanaEpiDisplay">SE <span id="semanaEpiValor">-</span></p>
               </div>
             </div>
-            <div class="flex items-center gap-3">
-              <p class="text-sm text-gray-500"><i class="fas fa-info-circle mr-1"></i> La semana se determina automáticamente por la fecha</p>
-              <button onclick="exportarExcelSemanal()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition"><i class="fas fa-file-excel"></i> Exportar Excel</button>
-            </div>
+            <button onclick="exportarExcelSemanal()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition"><i class="fas fa-file-excel"></i> Exportar Excel</button>
           </div>
           <!-- Campos ocultos para mantener compatibilidad -->
           <input type="hidden" id="semanaEpiSelect" value="">
@@ -2048,7 +2046,10 @@ function renderControlTable() {
     const riesgo = g.aro ? 'SI' : 'NO';
     const motivoBadge = c.motivo === 'CAPTACION' ? '<span class="px-2 py-1 bg-orange-100 text-orange-700 rounded text-xs font-medium">CAPTACIÓN</span>' : '<span class="px-2 py-1 bg-emerald-100 text-emerald-700 rounded text-xs font-medium">CONTROL</span>';
     // La CAPTACION solo puede ser en la semana de registro original, no se puede cambiar
-    return `<tr class="hover:bg-gray-50"><td class="px-4 py-3">${i + 1}</td><td class="px-4 py-3 text-xs">${g.consultorio || ''}</td><td class="px-4 py-3">${c.fecha_control ? c.fecha_control.split('T')[0] : ''}</td><td class="px-4 py-3 font-medium">${g.nombres || ''} ${g.apellidos || ''}</td><td class="px-4 py-3">${g.edad || ''}</td><td class="px-4 py-3">${g.cedula || ''}</td><td class="px-4 py-3 text-xs">${g.direccion || ''}</td><td class="px-4 py-3">${g.telefono || ''}</td><td class="px-4 py-3">${g.fur || ''}</td><td class="px-4 py-3 font-medium">${c.semana_gestacion || g.semana_gestacion || ''}</td><td class="px-4 py-3">${g.num_g || 0}</td><td class="px-4 py-3">${riesgo}</td><td class="px-4 py-3">${motivoBadge}</td><td class="px-4 py-3">${c.diagnostico || ''}</td><td class="px-4 py-3">${c.tipo_consulta || ''}</td><td class="px-4 py-3">${c.referido || ''}</td><td class="px-4 py-3">${c.observacion || ''}</td><td class="px-4 py-3 text-center"><button onclick="editControl('${c.id}')" class="text-emerald-600 hover:text-emerald-800 mx-1 ${canEdit ? '' : 'opacity-50 cursor-not-allowed'}" ${canEdit ? '' : 'disabled'}><i class="fas fa-edit"></i></button></td></tr>`;
+    return `<tr class="hover:bg-gray-50"><td class="px-4 py-3">${i + 1}</td><td class="px-4 py-3 text-xs">${g.consultorio || ''}</td><td class="px-4 py-3">${c.fecha_control ? c.fecha_control.split('T')[0] : ''}</td><td class="px-4 py-3 font-medium">${g.nombres || ''} ${g.apellidos || ''}</td><td class="px-4 py-3">${g.edad || ''}</td><td class="px-4 py-3">${g.cedula || ''}</td><td class="px-4 py-3 text-xs">${g.direccion || ''}</td><td class="px-4 py-3">${g.telefono || ''}</td><td class="px-4 py-3">${g.fur || ''}</td><td class="px-4 py-3 font-medium">${c.semana_gestacion || g.semana_gestacion || ''}</td><td class="px-4 py-3">${g.num_g || 0}</td><td class="px-4 py-3">${riesgo}</td><td class="px-4 py-3">${motivoBadge}</td><td class="px-4 py-3">${c.diagnostico || ''}</td><td class="px-4 py-3">${c.tipo_consulta || ''}</td><td class="px-4 py-3">${c.referido || ''}</td><td class="px-4 py-3">${c.observacion || ''}</td><td class="px-4 py-3 text-center">
+              <button onclick="editControl('${c.id}')" class="text-emerald-600 hover:text-emerald-800 mx-1 ${canEdit ? '' : 'opacity-50 cursor-not-allowed'}" ${canEdit ? '' : 'disabled'} title="Editar"><i class="fas fa-edit"></i></button>
+              ${canEdit ? `<button onclick="eliminarControl('${c.id}')" class="text-red-600 hover:text-red-800 mx-1" title="Eliminar"><i class="fas fa-trash"></i></button>` : ''}
+            </td></tr>`;
   }).join('');
 }
 
@@ -2068,6 +2069,14 @@ function editControl(id) {
 }
 
 function closeControlEditModal() { document.getElementById('controlEditModal').classList.add('hidden'); }
+
+async function eliminarControl(id) {
+  if (!confirm('¿Está seguro de eliminar este registro del Control Semanal? Esta acción no se puede deshacer.')) return;
+  const { error } = await supabaseClient.from('control_semanal').delete().eq('id', id);
+  if (error) { showToast('Error: ' + error.message, 'error'); return; }
+  showToast('Registro eliminado del Control Semanal');
+  await loadControlSemanal();
+}
 
 document.getElementById('controlEditForm').addEventListener('submit', async (e) => {
   e.preventDefault();
