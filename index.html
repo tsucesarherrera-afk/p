@@ -38,10 +38,10 @@
   ::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
   .shake { animation: shake 0.5s; }
   @keyframes shake { 0%, 100% { transform: translateX(0); } 10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); } 20%, 40%, 60%, 80% { transform: translateX(5px); } }
+  .skeleton { background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: skeleton 1.5s infinite; border-radius: 4px; }
+  @keyframes skeleton { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+  .loading-shimmer { height: 12px; margin-bottom: 8px; border-radius: 4px; }
 </style>
-
-<base target="_blank">
-<base target="_blank">
 <base target="_blank">
 </head>
 <body class="text-gray-800">
@@ -52,8 +52,8 @@
     <div class="text-center mb-6">
       <div class="w-16 h-16 bg-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4 text-white text-2xl">
         <div class="w-16 h-16 rounded-full overflow-hidden border-2 border-emerald-500 shadow-lg flex items-center justify-center bg-white">
-  <img src="https://github.com/tsucesarherrera-afk/p/blob/main/imagenes/pngtree-pregnant-woman-vector-art-png-image_15049016.png?raw=true" alt="Logo EPI" class="w-full h-full object-cover" style="filter: brightness(1.1) contrast(1.1);">
-</div>
+          <img src="https://github.com/tsucesarherrera-afk/p/blob/main/imagenes/pngtree-pregnant-woman-vector-art-png-image_15049016.png?raw=true" alt="Logo EPI" class="w-full h-full object-cover" style="filter: brightness(1.1) contrast(1.1);">
+        </div>
       </div>
       <h1 class="text-2xl font-bold text-gray-800">EPI 13- RUTA MATERNA</h1>
       <p class="text-sm text-gray-500 mt-1">ASIC ANTONIO JOSÉ DE SUCRE</p>
@@ -74,7 +74,7 @@
     <form id="loginForm" class="space-y-4">
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Usuario</label>
-        <input type="email" id="loginEmail" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none" placeholder="••••••••" required autocomplete="username">
+        <input type="email" id="loginEmail" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none" placeholder="correo@ejemplo.com" required autocomplete="username">
       </div>
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
@@ -93,7 +93,7 @@
           <span class="text-sm font-medium text-gray-700">Verificación de seguridad</span>
         </div>
         <div class="flex items-center justify-center gap-3">
-          <div class="bg-white border border-gray-300 rounded-lg px-4 py-2 text-lg font-bold text-gray-800 select-none" id="captchaQuestion">
+          <div class="bg-white border border-gray-300 rounded-lg px-4 py-2 text-lg font-bold text-gray-800 select-none min-w-[80px] text-center" id="captchaQuestion">
             <!-- Se genera dinámicamente -->
           </div>
           <span class="text-gray-500">=</span>
@@ -123,9 +123,9 @@
     <div class="p-6 border-b border-gray-100">
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 bg-emerald-600 rounded-lg flex items-center justify-center text-white">
-          <div class="w-16 h-16 rounded-full overflow-hidden border-2 border-emerald-500 shadow-lg flex items-center justify-center bg-white">
-  <img src="https://github.com/tsucesarherrera-afk/p/blob/main/imagenes/pngtree-pregnant-woman-vector-art-png-image_15049016.png?raw=true" alt="Logo EPI" class="w-full h-full object-cover" style="filter: brightness(1.1) contrast(1.1);">
-</div>
+          <div class="w-10 h-10 rounded-full overflow-hidden border border-emerald-500 shadow flex items-center justify-center bg-white">
+            <img src="https://github.com/tsucesarherrera-afk/p/blob/main/imagenes/pngtree-pregnant-woman-vector-art-png-image_15049016.png?raw=true" alt="Logo EPI" class="w-full h-full object-cover" style="filter: brightness(1.1) contrast(1.1);">
+          </div>
         </div>
         <div>
           <h2 class="font-bold text-gray-800 text-sm leading-tight">EPI 13 - Ruta Materna</h2>
@@ -143,7 +143,6 @@
       <button onclick="showSection('controlSemanal')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-emerald-50 hover:text-emerald-600 transition" data-section="controlSemanal">
         <i class="fas fa-calendar-week w-5"></i> Control Semanal
       </button>
-      <!-- Solo visible para admin y superadmin -->
       <button id="menuPuerperas" onclick="showSection('puerperas')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-emerald-50 hover:text-emerald-600 transition hidden" data-section="puerperas">
         <i class="fas fa-baby w-5"></i> Puérperas / Lactantes
       </button>
@@ -156,7 +155,6 @@
       <button id="menuCalendarios" onclick="showSection('calendarios')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-emerald-50 hover:text-emerald-600 transition hidden" data-section="calendarios">
         <i class="fas fa-calendar-alt w-5"></i> Calendarios Epi.
       </button>
-      <!-- Solo visible para admin y superadmin -->
       <button id="menuBackup" onclick="showSection('backup')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-emerald-50 hover:text-emerald-600 transition hidden" data-section="backup">
         <i class="fas fa-database w-5"></i> Backup / Restore
       </button>
@@ -208,157 +206,121 @@
     <div class="p-8">
       <!-- DASHBOARD -->
       <section id="dashboard" class="section fade-in">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 card-hover">
-            <div class="flex items-center justify-between mb-4">
-              <div class="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-600"><i class="fas fa-female text-xl"></i></div>
-              <span class="text-xs font-medium text-gray-400">Total</span>
-            </div>
-            <h3 id="dashTotal" class="text-2xl font-bold text-gray-800">0</h3>
-            <p class="text-sm text-gray-500 mt-1">Gestantes Activas</p>
-          </div>
-          <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 card-hover">
-            <div class="flex items-center justify-between mb-4">
-              <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center text-purple-600"><i class="fas fa-baby text-xl"></i></div>
-              <span class="text-xs font-medium text-gray-400">Total</span>
-            </div>
-            <h3 id="dashPuerperas" class="text-2xl font-bold text-gray-800">0</h3>
-            <p class="text-sm text-gray-500 mt-1">Puérperas / Lactantes</p>
-          </div>
-          <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 card-hover">
-            <div class="flex items-center justify-between mb-4">
-              <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center text-green-600"><i class="fas fa-child text-xl"></i></div>
-              <span class="text-xs font-medium text-gray-400">< 18 años</span>
-            </div>
-            <h3 id="dashMenores" class="text-2xl font-bold text-gray-800">0</h3>
-            <p class="text-sm text-gray-500 mt-1">Embarazos Juveniles</p>
-          </div>
-          <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 card-hover">
-            <div class="flex items-center justify-between mb-4">
-              <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center text-orange-600"><i class="fas fa-calendar-check text-xl"></i></div>
-              <span class="text-xs font-medium text-gray-400">Semana</span>
-            </div>
-            <h3 id="dashSemanaEpi" class="text-2xl font-bold text-gray-800">-</h3>
-            <p class="text-sm text-gray-500 mt-1">Epidemiológica Actual</p>
-          </div>
-        </div>
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <div id="dashboardSkeleton" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-            <h3 class="font-bold text-gray-800 mb-4">Distribución por Trimestre</h3>
-            <canvas id="chartTrimestres" height="200"></canvas>
+            <div class="skeleton loading-shimmer w-12 h-12 rounded-lg mb-4"></div>
+            <div class="skeleton loading-shimmer w-16 h-8 rounded mb-2"></div>
+            <div class="skeleton loading-shimmer w-32 h-4 rounded"></div>
           </div>
           <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-            <h3 class="font-bold text-gray-800 mb-4">Distribución por Consultorio</h3>
-            <canvas id="chartConsultorios" height="200"></canvas>
-          </div>
-        </div>
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 lg:col-span-2">
-            <h3 class="font-bold text-gray-800 mb-4">Gestantes por Riesgo (ARO)</h3>
-            <canvas id="chartARO" height="150"></canvas>
+            <div class="skeleton loading-shimmer w-12 h-12 rounded-lg mb-4"></div>
+            <div class="skeleton loading-shimmer w-16 h-8 rounded mb-2"></div>
+            <div class="skeleton loading-shimmer w-32 h-4 rounded"></div>
           </div>
           <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-            <h3 class="font-bold text-gray-800 mb-4">Registros Recientes</h3>
-            <div id="recentRecords" class="space-y-3 max-h-64 overflow-y-auto"><p class="text-sm text-gray-400 text-center py-4">Cargando...</p></div>
+            <div class="skeleton loading-shimmer w-12 h-12 rounded-lg mb-4"></div>
+            <div class="skeleton loading-shimmer w-16 h-8 rounded mb-2"></div>
+            <div class="skeleton loading-shimmer w-32 h-4 rounded"></div>
+          </div>
+          <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <div class="skeleton loading-shimmer w-12 h-12 rounded-lg mb-4"></div>
+            <div class="skeleton loading-shimmer w-16 h-8 rounded mb-2"></div>
+            <div class="skeleton loading-shimmer w-32 h-4 rounded"></div>
           </div>
         </div>
+        <div id="dashboardContent" class="hidden">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 card-hover">
+              <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-600"><i class="fas fa-female text-xl"></i></div>
+                <span class="text-xs font-medium text-gray-400">Total</span>
+              </div>
+              <h3 id="dashTotal" class="text-2xl font-bold text-gray-800">0</h3>
+              <p class="text-sm text-gray-500 mt-1">Gestantes Activas</p>
+            </div>
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 card-hover">
+              <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center text-purple-600"><i class="fas fa-baby text-xl"></i></div>
+                <span class="text-xs font-medium text-gray-400">Total</span>
+              </div>
+              <h3 id="dashPuerperas" class="text-2xl font-bold text-gray-800">0</h3>
+              <p class="text-sm text-gray-500 mt-1">Puérperas / Lactantes</p>
+            </div>
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 card-hover">
+              <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center text-green-600"><i class="fas fa-child text-xl"></i></div>
+                <span class="text-xs font-medium text-gray-400">< 18 años</span>
+              </div>
+              <h3 id="dashMenores" class="text-2xl font-bold text-gray-800">0</h3>
+              <p class="text-sm text-gray-500 mt-1">Embarazos Juveniles</p>
+            </div>
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 card-hover">
+              <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center text-orange-600"><i class="fas fa-calendar-check text-xl"></i></div>
+                <span class="text-xs font-medium text-gray-400">Semana</span>
+              </div>
+              <h3 id="dashSemanaEpi" class="text-2xl font-bold text-gray-800">-</h3>
+              <p class="text-sm text-gray-500 mt-1">Epidemiológica Actual</p>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+              <h3 class="font-bold text-gray-800 mb-4">Distribución por Trimestre</h3>
+              <canvas id="chartTrimestres" height="200"></canvas>
+            </div>
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+              <h3 class="font-bold text-gray-800 mb-4">Distribución por Consultorio</h3>
+              <canvas id="chartConsultorios" height="200"></canvas>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 lg:col-span-2">
+              <h3 class="font-bold text-gray-800 mb-4">Gestantes por Riesgo (ARO)</h3>
+              <canvas id="chartARO" height="150"></canvas>
+            </div>
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+              <h3 class="font-bold text-gray-800 mb-4">Registros Recientes</h3>
+              <div id="recentRecords" class="space-y-3 max-h-64 overflow-y-auto"><p class="text-sm text-gray-400 text-center py-4">Cargando...</p></div>
+            </div>
+          </div>
 
-        <!-- REGISTRO MES DE -->
-        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mb-8">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="font-bold text-gray-800 text-lg"><i class="fas fa-calendar-alt text-emerald-600 mr-2"></i>REGISTRO MES DE <span id="mesActualLabel" class="text-emerald-600"></span></h3>
-            <span class="text-xs bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full font-medium">Mes en curso</span>
-          </div>
-          <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            <div class="bg-gray-50 rounded-lg p-3 text-center border border-gray-100">
-              <p class="text-xs text-gray-500 mb-1">GESTANTES</p>
-              <p id="mesGestantes" class="text-xl font-bold text-gray-800">0</p>
+          <!-- REGISTRO MES DE -->
+          <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mb-8">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="font-bold text-gray-800 text-lg"><i class="fas fa-calendar-alt text-emerald-600 mr-2"></i>REGISTRO MES DE <span id="mesActualLabel" class="text-emerald-600"></span></h3>
+              <span class="text-xs bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full font-medium">Mes en curso</span>
             </div>
-            <div class="bg-emerald-50 rounded-lg p-3 text-center border border-emerald-100">
-              <p class="text-xs text-emerald-600 mb-1">PRIMER TRIMESTRE</p>
-              <p id="mesT1" class="text-xl font-bold text-emerald-700">0</p>
-            </div>
-            <div class="bg-blue-50 rounded-lg p-3 text-center border border-blue-100">
-              <p class="text-xs text-blue-600 mb-1">SEGUNDO TRIMESTRE</p>
-              <p id="mesT2" class="text-xl font-bold text-blue-700">0</p>
-            </div>
-            <div class="bg-amber-50 rounded-lg p-3 text-center border border-amber-100">
-              <p class="text-xs text-amber-600 mb-1">TERCER TRIMESTRE</p>
-              <p id="mesT3" class="text-xl font-bold text-amber-700">0</p>
-            </div>
-            <div class="bg-green-50 rounded-lg p-3 text-center border border-green-100">
-              <p class="text-xs text-green-600 mb-1">ARO I</p>
-              <p id="mesAro1" class="text-xl font-bold text-green-700">0</p>
-            </div>
-            <div class="bg-yellow-50 rounded-lg p-3 text-center border border-yellow-100">
-              <p class="text-xs text-yellow-600 mb-1">ARO II</p>
-              <p id="mesAro2" class="text-xl font-bold text-yellow-700">0</p>
-            </div>
-            <div class="bg-red-50 rounded-lg p-3 text-center border border-red-100">
-              <p class="text-xs text-red-600 mb-1">ARO III</p>
-              <p id="mesAro3" class="text-xl font-bold text-red-700">0</p>
-            </div>
-            <div class="bg-purple-50 rounded-lg p-3 text-center border border-purple-100">
-              <p class="text-xs text-purple-600 mb-1">PUERPERAS</p>
-              <p id="mesPuerperas" class="text-xl font-bold text-purple-700">0</p>
-            </div>
-            <div class="bg-pink-50 rounded-lg p-3 text-center border border-pink-100">
-              <p class="text-xs text-pink-600 mb-1">MENORES DE 18</p>
-              <p id="mesMenores" class="text-xl font-bold text-pink-700">0</p>
-            </div>
-            <div class="bg-indigo-50 rounded-lg p-3 text-center border border-indigo-100">
-              <p class="text-xs text-indigo-600 mb-1">MAYORES DE 18</p>
-              <p id="mesMayores" class="text-xl font-bold text-indigo-700">0</p>
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              <div class="bg-gray-50 rounded-lg p-3 text-center border border-gray-100"><p class="text-xs text-gray-500 mb-1">GESTANTES</p><p id="mesGestantes" class="text-xl font-bold text-gray-800">0</p></div>
+              <div class="bg-emerald-50 rounded-lg p-3 text-center border border-emerald-100"><p class="text-xs text-emerald-600 mb-1">PRIMER TRIMESTRE</p><p id="mesT1" class="text-xl font-bold text-emerald-700">0</p></div>
+              <div class="bg-blue-50 rounded-lg p-3 text-center border border-blue-100"><p class="text-xs text-blue-600 mb-1">SEGUNDO TRIMESTRE</p><p id="mesT2" class="text-xl font-bold text-blue-700">0</p></div>
+              <div class="bg-amber-50 rounded-lg p-3 text-center border border-amber-100"><p class="text-xs text-amber-600 mb-1">TERCER TRIMESTRE</p><p id="mesT3" class="text-xl font-bold text-amber-700">0</p></div>
+              <div class="bg-green-50 rounded-lg p-3 text-center border border-green-100"><p class="text-xs text-green-600 mb-1">ARO I</p><p id="mesAro1" class="text-xl font-bold text-green-700">0</p></div>
+              <div class="bg-yellow-50 rounded-lg p-3 text-center border border-yellow-100"><p class="text-xs text-yellow-600 mb-1">ARO II</p><p id="mesAro2" class="text-xl font-bold text-yellow-700">0</p></div>
+              <div class="bg-red-50 rounded-lg p-3 text-center border border-red-100"><p class="text-xs text-red-600 mb-1">ARO III</p><p id="mesAro3" class="text-xl font-bold text-red-700">0</p></div>
+              <div class="bg-purple-50 rounded-lg p-3 text-center border border-purple-100"><p class="text-xs text-purple-600 mb-1">PUERPERAS</p><p id="mesPuerperas" class="text-xl font-bold text-purple-700">0</p></div>
+              <div class="bg-pink-50 rounded-lg p-3 text-center border border-pink-100"><p class="text-xs text-pink-600 mb-1">MENORES DE 18</p><p id="mesMenores" class="text-xl font-bold text-pink-700">0</p></div>
+              <div class="bg-indigo-50 rounded-lg p-3 text-center border border-indigo-100"><p class="text-xs text-indigo-600 mb-1">MAYORES DE 18</p><p id="mesMayores" class="text-xl font-bold text-indigo-700">0</p></div>
             </div>
           </div>
-        </div>
 
-        <!-- TOTAL ACUMULADO ANUAL -->
-        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="font-bold text-gray-800 text-lg"><i class="fas fa-chart-bar text-emerald-600 mr-2"></i>TOTAL ACUMULADO ANUAL <span id="anioActualLabel" class="text-emerald-600"></span></h3>
-            <span class="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-medium">Año en curso</span>
-          </div>
-          <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            <div class="bg-gray-50 rounded-lg p-3 text-center border border-gray-100">
-              <p class="text-xs text-gray-500 mb-1">GESTANTES</p>
-              <p id="anioGestantes" class="text-xl font-bold text-gray-800">0</p>
+          <!-- TOTAL ACUMULADO ANUAL -->
+          <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="font-bold text-gray-800 text-lg"><i class="fas fa-chart-bar text-emerald-600 mr-2"></i>TOTAL ACUMULADO ANUAL <span id="anioActualLabel" class="text-emerald-600"></span></h3>
+              <span class="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-medium">Año en curso</span>
             </div>
-            <div class="bg-pink-50 rounded-lg p-3 text-center border border-pink-100">
-              <p class="text-xs text-pink-600 mb-1">MENORES DE 18</p>
-              <p id="anioMenores" class="text-xl font-bold text-pink-700">0</p>
-            </div>
-            <div class="bg-indigo-50 rounded-lg p-3 text-center border border-indigo-100">
-              <p class="text-xs text-indigo-600 mb-1">MAYORES DE 18</p>
-              <p id="anioMayores" class="text-xl font-bold text-indigo-700">0</p>
-            </div>
-            <div class="bg-emerald-50 rounded-lg p-3 text-center border border-emerald-100">
-              <p class="text-xs text-emerald-600 mb-1">PRIMER TRIMESTRE</p>
-              <p id="anioT1" class="text-xl font-bold text-emerald-700">0</p>
-            </div>
-            <div class="bg-blue-50 rounded-lg p-3 text-center border border-blue-100">
-              <p class="text-xs text-blue-600 mb-1">SEGUNDO TRIMESTRE</p>
-              <p id="anioT2" class="text-xl font-bold text-blue-700">0</p>
-            </div>
-            <div class="bg-amber-50 rounded-lg p-3 text-center border border-amber-100">
-              <p class="text-xs text-amber-600 mb-1">TERCER TRIMESTRE</p>
-              <p id="anioT3" class="text-xl font-bold text-amber-700">0</p>
-            </div>
-            <div class="bg-green-50 rounded-lg p-3 text-center border border-green-100">
-              <p class="text-xs text-green-600 mb-1">ARO I</p>
-              <p id="anioAro1" class="text-xl font-bold text-green-700">0</p>
-            </div>
-            <div class="bg-yellow-50 rounded-lg p-3 text-center border border-yellow-100">
-              <p class="text-xs text-yellow-600 mb-1">ARO II</p>
-              <p id="anioAro2" class="text-xl font-bold text-yellow-700">0</p>
-            </div>
-            <div class="bg-red-50 rounded-lg p-3 text-center border border-red-100">
-              <p class="text-xs text-red-600 mb-1">ARO III</p>
-              <p id="anioAro3" class="text-xl font-bold text-red-700">0</p>
-            </div>
-            <div class="bg-purple-50 rounded-lg p-3 text-center border border-purple-100">
-              <p class="text-xs text-purple-600 mb-1">PUERPERAS</p>
-              <p id="anioPuerperas" class="text-xl font-bold text-purple-700">0</p>
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              <div class="bg-gray-50 rounded-lg p-3 text-center border border-gray-100"><p class="text-xs text-gray-500 mb-1">GESTANTES</p><p id="anioGestantes" class="text-xl font-bold text-gray-800">0</p></div>
+              <div class="bg-pink-50 rounded-lg p-3 text-center border border-pink-100"><p class="text-xs text-pink-600 mb-1">MENORES DE 18</p><p id="anioMenores" class="text-xl font-bold text-pink-700">0</p></div>
+              <div class="bg-indigo-50 rounded-lg p-3 text-center border border-indigo-100"><p class="text-xs text-indigo-600 mb-1">MAYORES DE 18</p><p id="anioMayores" class="text-xl font-bold text-indigo-700">0</p></div>
+              <div class="bg-emerald-50 rounded-lg p-3 text-center border border-emerald-100"><p class="text-xs text-emerald-600 mb-1">PRIMER TRIMESTRE</p><p id="anioT1" class="text-xl font-bold text-emerald-700">0</p></div>
+              <div class="bg-blue-50 rounded-lg p-3 text-center border border-blue-100"><p class="text-xs text-blue-600 mb-1">SEGUNDO TRIMESTRE</p><p id="anioT2" class="text-xl font-bold text-blue-700">0</p></div>
+              <div class="bg-amber-50 rounded-lg p-3 text-center border border-amber-100"><p class="text-xs text-amber-600 mb-1">TERCER TRIMESTRE</p><p id="anioT3" class="text-xl font-bold text-amber-700">0</p></div>
+              <div class="bg-green-50 rounded-lg p-3 text-center border border-green-100"><p class="text-xs text-green-600 mb-1">ARO I</p><p id="anioAro1" class="text-xl font-bold text-green-700">0</p></div>
+              <div class="bg-yellow-50 rounded-lg p-3 text-center border border-yellow-100"><p class="text-xs text-yellow-600 mb-1">ARO II</p><p id="anioAro2" class="text-xl font-bold text-yellow-700">0</p></div>
+              <div class="bg-red-50 rounded-lg p-3 text-center border border-red-100"><p class="text-xs text-red-600 mb-1">ARO III</p><p id="anioAro3" class="text-xl font-bold text-red-700">0</p></div>
+              <div class="bg-purple-50 rounded-lg p-3 text-center border border-purple-100"><p class="text-xs text-purple-600 mb-1">PUERPERAS</p><p id="anioPuerperas" class="text-xl font-bold text-purple-700">0</p></div>
             </div>
           </div>
         </div>
@@ -366,218 +328,262 @@
 
       <!-- GESTANTES -->
       <section id="gestantes" class="section hidden fade-in">
-        <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
-          <div class="flex items-center gap-3">
-            <div class="relative">
-              <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-              <input type="text" id="searchGestante" oninput="filterGestantes()" placeholder="Buscar por cédula, nombre..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none w-72">
-            </div>
-            <select id="filterConsultorio" onchange="filterGestantes()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none"><option value="">Todos los consultorios</option></select>
-            <select id="filterEstado" onchange="filterGestantes()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none">
-              <option value="">Todos los estados</option><option value="gestante">Gestante</option><option value="puerpera">Puérpera</option><option value="lactante">Lactante</option>
-            </select>
-          </div>
-          <button onclick="openGestanteModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition"><i class="fas fa-plus"></i> Nueva Embarazada</button>
+        <div id="gestantesSkeleton" class="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
+          <div class="skeleton loading-shimmer w-full h-10 rounded-lg mb-4"></div>
+          <div class="skeleton loading-shimmer w-full h-64 rounded-lg"></div>
         </div>
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <div class="table-container">
-            <table class="w-full text-sm">
-              <thead class="bg-gray-50 text-gray-600 font-medium">
-                <tr><th class="px-4 py-3 text-left">Cédula</th><th class="px-4 py-3 text-left">Nombre y Apellido</th><th class="px-4 py-3 text-left">Edad</th><th class="px-4 py-3 text-left">Consultorio</th><th class="px-4 py-3 text-left">Sem. Gesta.</th><th class="px-4 py-3 text-left">FPP</th><th class="px-4 py-3 text-left">Estado</th><th class="px-4 py-3 text-left">ARO</th><th class="px-4 py-3 text-center">Acciones</th></tr>
-              </thead>
-              <tbody id="gestantesTable" class="divide-y divide-gray-100"></tbody>
-            </table>
+        <div id="gestantesContent" class="hidden">
+          <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+            <div class="flex items-center gap-3">
+              <div class="relative">
+                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                <input type="text" id="searchGestante" oninput="filterGestantes()" placeholder="Buscar por cédula, nombre..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none w-72">
+              </div>
+              <select id="filterConsultorio" onchange="filterGestantes()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none"><option value="">Todos los consultorios</option></select>
+              <select id="filterEstado" onchange="filterGestantes()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none">
+                <option value="">Todos los estados</option><option value="gestante">Gestante</option><option value="puerpera">Puérpera</option><option value="lactante">Lactante</option>
+              </select>
+            </div>
+            <button onclick="openGestanteModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition"><i class="fas fa-plus"></i> Nueva Embarazada</button>
           </div>
-          <div id="gestantesEmpty" class="hidden p-8 text-center text-gray-400"><i class="fas fa-inbox text-4xl mb-2"></i><p>No hay registros</p></div>
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="table-container">
+              <table class="w-full text-sm">
+                <thead class="bg-gray-50 text-gray-600 font-medium">
+                  <tr><th class="px-4 py-3 text-left">Cédula</th><th class="px-4 py-3 text-left">Nombre y Apellido</th><th class="px-4 py-3 text-left">Edad</th><th class="px-4 py-3 text-left">Consultorio</th><th class="px-4 py-3 text-left">Sem. Gesta.</th><th class="px-4 py-3 text-left">FPP</th><th class="px-4 py-3 text-left">Estado</th><th class="px-4 py-3 text-left">ARO</th><th class="px-4 py-3 text-center">Acciones</th></tr>
+                </thead>
+                <tbody id="gestantesTable" class="divide-y divide-gray-100"></tbody>
+              </table>
+            </div>
+            <div id="gestantesEmpty" class="hidden p-8 text-center text-gray-400"><i class="fas fa-inbox text-4xl mb-2"></i><p>No hay registros</p></div>
+            <div id="gestantesLoadMore" class="hidden p-4 text-center border-t border-gray-100">
+              <button onclick="loadMoreGestantes()" class="text-emerald-600 hover:text-emerald-800 text-sm font-medium"><i class="fas fa-chevron-down mr-1"></i> Cargar más registros</button>
+            </div>
+          </div>
         </div>
       </section>
 
       <!-- CONTROL SEMANAL -->
       <section id="controlSemanal" class="section hidden fade-in">
-        <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100 mb-6">
-          <h3 class="font-bold text-gray-800 mb-3 flex items-center gap-2 text-sm"><i class="fas fa-id-card text-emerald-600"></i> Búsqueda por Cédula</h3>
-          <div class="flex flex-wrap items-end gap-3">
-            <div class="w-full max-w-xs">
-              <label class="block text-xs font-medium text-gray-700 mb-1">Número de Cédula</label>
-              <div class="relative">
-                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
-                <input type="text" id="buscarCedulaControl" class="w-full pl-8 pr-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Ingrese cédula...">
-              </div>
-            </div>
-            <button onclick="buscarCedulaControl()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-1.5 text-sm rounded-lg flex items-center gap-2 transition"><i class="fas fa-search text-xs"></i> Buscar</button>
-          </div>
-          <div id="resultadoBusquedaCedula" class="mt-3 hidden"></div>
+        <div id="controlSkeleton" class="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
+          <div class="skeleton loading-shimmer w-full h-10 rounded-lg mb-4"></div>
+          <div class="skeleton loading-shimmer w-full h-64 rounded-lg"></div>
         </div>
+        <div id="controlContent" class="hidden">
+          <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100 mb-6">
+            <h3 class="font-bold text-gray-800 mb-3 flex items-center gap-2 text-sm"><i class="fas fa-id-card text-emerald-600"></i> Búsqueda por Cédula</h3>
+            <div class="flex flex-wrap items-end gap-3">
+              <div class="w-full max-w-xs">
+                <label class="block text-xs font-medium text-gray-700 mb-1">Número de Cédula</label>
+                <div class="relative">
+                  <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                  <input type="text" id="buscarCedulaControl" class="w-full pl-8 pr-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Ingrese cédula...">
+                </div>
+              </div>
+              <button onclick="buscarCedulaControl()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-1.5 text-sm rounded-lg flex items-center gap-2 transition"><i class="fas fa-search text-xs"></i> Buscar</button>
+            </div>
+            <div id="resultadoBusquedaCedula" class="mt-3 hidden"></div>
+          </div>
 
-        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mb-6">
-          <div class="flex flex-wrap items-center justify-between gap-4">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600">
-                <i class="fas fa-calendar-week"></i>
+          <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mb-6">
+            <div class="flex flex-wrap items-center justify-between gap-4">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600">
+                  <i class="fas fa-calendar-week"></i>
+                </div>
+                <div>
+                  <p class="text-sm font-medium text-gray-700">Semana Epidemiológica Actual</p>
+                  <p class="text-lg font-bold text-emerald-600" id="semanaEpiDisplay">SE <span id="semanaEpiValor">-</span></p>
+                </div>
               </div>
-              <div>
-                <p class="text-sm font-medium text-gray-700">Semana Epidemiológica Actual</p>
-                <p class="text-lg font-bold text-emerald-600" id="semanaEpiDisplay">SE <span id="semanaEpiValor">-</span></p>
-              </div>
+              <button onclick="exportarExcelSemanal()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition"><i class="fas fa-file-excel"></i> Exportar Excel</button>
             </div>
-            <button onclick="exportarExcelSemanal()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition"><i class="fas fa-file-excel"></i> Exportar Excel</button>
+            <input type="hidden" id="semanaEpiSelect" value="">
+            <input type="hidden" id="anioEpiSelect" value="2026">
           </div>
-          <!-- Campos ocultos para mantener compatibilidad -->
-          <input type="hidden" id="semanaEpiSelect" value="">
-          <input type="hidden" id="anioEpiSelect" value="2026">
-        </div>
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <div class="table-container">
-            <table class="w-full text-sm">
-              <thead class="bg-gray-50 text-gray-600 font-medium">
-                <tr>
-                  <th class="px-3 py-3 text-left" rowspan="2">Nº</th>
-                  <th class="px-3 py-3 text-left" rowspan="2">FECHA DE REGISTRO</th>
-                  <th class="px-3 py-3 text-left" rowspan="2">APELLIDO</th>
-                  <th class="px-3 py-3 text-left" rowspan="2">NOMBRE</th>
-                  <th class="px-3 py-3 text-left" rowspan="2">EDAD</th>
-                  <th class="px-3 py-3 text-left" rowspan="2">N° DE CEDULA</th>
-                  <th class="px-3 py-3 text-center" colspan="2">POSEE CARNET DE LA PATRIA</th>
-                  <th class="px-3 py-3 text-left" rowspan="2">ESTADO</th>
-                  <th class="px-3 py-3 text-left" rowspan="2">MUNICIPIO</th>
-                  <th class="px-3 py-3 text-left" rowspan="2">N° DE TELEFONO</th>
-                  <th class="px-3 py-3 text-left" rowspan="2">N° TELEFONO FAMILIAR</th>
-                  <th class="px-3 py-3 text-left" rowspan="2">FUR</th>
-                  <th class="px-3 py-3 text-center" colspan="3">ANTECEDENTE OBSTETRICO</th>
-                  <th class="px-3 py-3 text-left" rowspan="2">TIEMPO DE EMBARAZO</th>
-                  <th class="px-3 py-3 text-left" rowspan="2">FPP</th>
-                  <th class="px-3 py-3 text-center" rowspan="2">CONTROL PRENATAL</th>
-                  <th class="px-3 py-3 text-left" rowspan="2">¿DONDE?</th>
-                  <th class="px-3 py-3 text-center" rowspan="2">ENFERMEDAD ASOCIADA</th>
-                  <th class="px-3 py-3 text-left" rowspan="2">CUAL?</th>
-                  <th class="px-3 py-3 text-left" rowspan="2">ANTECEDENTES IMPORTANTES</th>
-                  <th class="px-3 py-3 text-center" rowspan="2">MICRONUTRIENTES</th>
-                  <th class="px-3 py-3 text-center" rowspan="2">CONOCE ASIC</th>
-                  <th class="px-3 py-3 text-center" rowspan="2">PARTO HUMANIZADO</th>
-                  <th class="px-3 py-3 text-center" colspan="2">ETNIA/GRUPO SOCIAL</th>
-                  <th class="px-3 py-3 text-center" rowspan="2">Acciones</th>
-                </tr>
-                <tr class="bg-gray-100 text-xs">
-                  <th class="px-2 py-2 text-center">SI</th>
-                  <th class="px-2 py-2 text-center">NO</th>
-                  <th class="px-2 py-2 text-center">N° P</th>
-                  <th class="px-2 py-2 text-center">N° C</th>
-                  <th class="px-2 py-2 text-center">N° A</th>
-                  <th class="px-2 py-2 text-center">SI</th>
-                  <th class="px-2 py-2 text-center">CUAL</th>
-                </tr>
-              </thead>
-              <tbody id="controlTable" class="divide-y divide-gray-100"></tbody>
-            </table>
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="table-container">
+              <table class="w-full text-sm">
+                <thead class="bg-gray-50 text-gray-600 font-medium">
+                  <tr>
+                    <th class="px-3 py-3 text-left" rowspan="2">Nº</th>
+                    <th class="px-3 py-3 text-left" rowspan="2">FECHA DE REGISTRO</th>
+                    <th class="px-3 py-3 text-left" rowspan="2">APELLIDO</th>
+                    <th class="px-3 py-3 text-left" rowspan="2">NOMBRE</th>
+                    <th class="px-3 py-3 text-left" rowspan="2">EDAD</th>
+                    <th class="px-3 py-3 text-left" rowspan="2">N° DE CEDULA</th>
+                    <th class="px-3 py-3 text-center" colspan="2">POSEE CARNET DE LA PATRIA</th>
+                    <th class="px-3 py-3 text-left" rowspan="2">ESTADO</th>
+                    <th class="px-3 py-3 text-left" rowspan="2">MUNICIPIO</th>
+                    <th class="px-3 py-3 text-left" rowspan="2">N° DE TELEFONO</th>
+                    <th class="px-3 py-3 text-left" rowspan="2">N° TELEFONO FAMILIAR</th>
+                    <th class="px-3 py-3 text-left" rowspan="2">FUR</th>
+                    <th class="px-3 py-3 text-center" colspan="3">ANTECEDENTE OBSTETRICO</th>
+                    <th class="px-3 py-3 text-left" rowspan="2">TIEMPO DE EMBARAZO</th>
+                    <th class="px-3 py-3 text-left" rowspan="2">FPP</th>
+                    <th class="px-3 py-3 text-center" rowspan="2">CONTROL PRENATAL</th>
+                    <th class="px-3 py-3 text-left" rowspan="2">¿DONDE?</th>
+                    <th class="px-3 py-3 text-center" rowspan="2">ENFERMEDAD ASOCIADA</th>
+                    <th class="px-3 py-3 text-left" rowspan="2">CUAL?</th>
+                    <th class="px-3 py-3 text-left" rowspan="2">ANTECEDENTES IMPORTANTES</th>
+                    <th class="px-3 py-3 text-center" rowspan="2">MICRONUTRIENTES</th>
+                    <th class="px-3 py-3 text-center" rowspan="2">CONOCE ASIC</th>
+                    <th class="px-3 py-3 text-center" rowspan="2">PARTO HUMANIZADO</th>
+                    <th class="px-3 py-3 text-center" colspan="2">ETNIA/GRUPO SOCIAL</th>
+                    <th class="px-3 py-3 text-center" rowspan="2">Acciones</th>
+                  </tr>
+                  <tr class="bg-gray-100 text-xs">
+                    <th class="px-2 py-2 text-center">SI</th>
+                    <th class="px-2 py-2 text-center">NO</th>
+                    <th class="px-2 py-2 text-center">N° P</th>
+                    <th class="px-2 py-2 text-center">N° C</th>
+                    <th class="px-2 py-2 text-center">N° A</th>
+                    <th class="px-2 py-2 text-center">SI</th>
+                    <th class="px-2 py-2 text-center">CUAL</th>
+                  </tr>
+                </thead>
+                <tbody id="controlTable" class="divide-y divide-gray-100"></tbody>
+              </table>
+            </div>
+            <div id="controlEmpty" class="hidden p-8 text-center text-gray-400"><i class="fas fa-calendar-week text-4xl mb-2"></i><p>Seleccione una semana epidemiológica</p></div>
           </div>
-          <div id="controlEmpty" class="hidden p-8 text-center text-gray-400"><i class="fas fa-calendar-week text-4xl mb-2"></i><p>Seleccione una semana epidemiológica</p></div>
         </div>
       </section>
 
       <!-- PUÉRPERAS -->
       <section id="puerperas" class="section hidden fade-in">
-        <div class="flex items-center justify-between mb-6">
-          <div class="relative">
-            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-            <input type="text" id="searchPuerpera" oninput="filterPuerperas()" placeholder="Buscar..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none w-72">
-          </div>
+        <div id="puerperasSkeleton" class="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
+          <div class="skeleton loading-shimmer w-full h-10 rounded-lg mb-4"></div>
+          <div class="skeleton loading-shimmer w-full h-64 rounded-lg"></div>
         </div>
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <div class="table-container">
-            <table class="w-full text-sm">
-              <thead class="bg-gray-50 text-gray-600 font-medium">
-                <tr><th class="px-4 py-3 text-left">Cédula</th><th class="px-4 py-3 text-left">Nombre</th><th class="px-4 py-3 text-left">Consultorio</th><th class="px-4 py-3 text-left">Fecha Parto</th><th class="px-4 py-3 text-left">Días Postparto</th><th class="px-4 py-3 text-left">Estado</th><th class="px-4 py-3 text-left">ARO</th><th class="px-4 py-3 text-center">Acciones</th></tr>
-              </thead>
-              <tbody id="puerperasTable" class="divide-y divide-gray-100"></tbody>
-            </table>
+        <div id="puerperasContent" class="hidden">
+          <div class="flex items-center justify-between mb-6">
+            <div class="relative">
+              <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+              <input type="text" id="searchPuerpera" oninput="filterPuerperas()" placeholder="Buscar..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none w-72">
+            </div>
+          </div>
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="table-container">
+              <table class="w-full text-sm">
+                <thead class="bg-gray-50 text-gray-600 font-medium">
+                  <tr><th class="px-4 py-3 text-left">Cédula</th><th class="px-4 py-3 text-left">Nombre</th><th class="px-4 py-3 text-left">Consultorio</th><th class="px-4 py-3 text-left">Fecha Parto</th><th class="px-4 py-3 text-left">Días Postparto</th><th class="px-4 py-3 text-left">Estado</th><th class="px-4 py-3 text-left">ARO</th><th class="px-4 py-3 text-center">Acciones</th></tr>
+                </thead>
+                <tbody id="puerperasTable" class="divide-y divide-gray-100"></tbody>
+              </table>
+            </div>
           </div>
         </div>
       </section>
 
       <!-- ARCHIVADOS -->
       <section id="archivados" class="section hidden fade-in">
-        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-          <h3 class="font-bold text-gray-800 mb-4">Registros Archivados (Abortos / Cierre)</h3>
-          <div class="table-container">
-            <table class="w-full text-sm">
-              <thead class="bg-gray-50 text-gray-600 font-medium">
-                <tr><th class="px-4 py-3 text-left">Cédula</th><th class="px-4 py-3 text-left">Apellidos</th><th class="px-4 py-3 text-left">Nombres</th><th class="px-4 py-3 text-left">Motivo Archivo</th><th class="px-4 py-3 text-left">Fecha Archivo</th><th class="px-4 py-3 text-center">Acciones</th></tr>
-              </thead>
-              <tbody id="archivadosTable" class="divide-y divide-gray-100"></tbody>
-            </table>
+        <div id="archivadosSkeleton" class="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
+          <div class="skeleton loading-shimmer w-full h-10 rounded-lg mb-4"></div>
+          <div class="skeleton loading-shimmer w-full h-64 rounded-lg"></div>
+        </div>
+        <div id="archivadosContent" class="hidden">
+          <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <h3 class="font-bold text-gray-800 mb-4">Registros Archivados (Abortos / Cierre)</h3>
+            <div class="table-container">
+              <table class="w-full text-sm">
+                <thead class="bg-gray-50 text-gray-600 font-medium">
+                  <tr><th class="px-4 py-3 text-left">Cédula</th><th class="px-4 py-3 text-left">Apellidos</th><th class="px-4 py-3 text-left">Nombres</th><th class="px-4 py-3 text-left">Motivo Archivo</th><th class="px-4 py-3 text-left">Fecha Archivo</th><th class="px-4 py-3 text-center">Acciones</th></tr>
+                </thead>
+                <tbody id="archivadosTable" class="divide-y divide-gray-100"></tbody>
+              </table>
+            </div>
           </div>
         </div>
       </section>
 
       <!-- USUARIOS -->
       <section id="usuarios" class="section hidden fade-in">
-        <div class="flex items-center justify-between mb-6">
-          <h3 class="font-bold text-gray-800">Gestión de Usuarios</h3>
-          <button onclick="openUserModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition"><i class="fas fa-user-plus"></i> Nuevo Usuario</button>
+        <div id="usuariosSkeleton" class="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
+          <div class="skeleton loading-shimmer w-full h-10 rounded-lg mb-4"></div>
+          <div class="skeleton loading-shimmer w-full h-64 rounded-lg"></div>
         </div>
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <table class="w-full text-sm">
-            <thead class="bg-gray-50 text-gray-600 font-medium">
-              <tr><th class="px-4 py-3 text-left">Correo</th><th class="px-4 py-3 text-left">Nombre</th><th class="px-4 py-3 text-left">Rol</th><th class="px-4 py-3 text-left">Consultorio</th><th class="px-4 py-3 text-left">Estado</th><th class="px-4 py-3 text-center">Acciones</th></tr>
-            </thead>
-            <tbody id="usersTable" class="divide-y divide-gray-100"></tbody>
-          </table>
+        <div id="usuariosContent" class="hidden">
+          <div class="flex items-center justify-between mb-6">
+            <h3 class="font-bold text-gray-800">Gestión de Usuarios</h3>
+            <button onclick="openUserModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition"><i class="fas fa-user-plus"></i> Nuevo Usuario</button>
+          </div>
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <table class="w-full text-sm">
+              <thead class="bg-gray-50 text-gray-600 font-medium">
+                <tr><th class="px-4 py-3 text-left">Correo</th><th class="px-4 py-3 text-left">Nombre</th><th class="px-4 py-3 text-left">Rol</th><th class="px-4 py-3 text-left">Consultorio</th><th class="px-4 py-3 text-left">Estado</th><th class="px-4 py-3 text-center">Acciones</th></tr>
+              </thead>
+              <tbody id="usersTable" class="divide-y divide-gray-100"></tbody>
+            </table>
+          </div>
         </div>
       </section>
 
       <!-- CALENDARIOS -->
       <section id="calendarios" class="section hidden fade-in">
-        <div class="flex items-center justify-between mb-6">
-          <h3 class="font-bold text-gray-800">Calendarios Epidemiológicos</h3>
-          <button onclick="openCalendarioModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition"><i class="fas fa-calendar-plus"></i> Agregar Año</button>
+        <div id="calendariosSkeleton" class="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
+          <div class="skeleton loading-shimmer w-full h-10 rounded-lg mb-4"></div>
+          <div class="skeleton loading-shimmer w-full h-64 rounded-lg"></div>
         </div>
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-          <div id="calendariosList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        <div id="calendariosContent" class="hidden">
+          <div class="flex items-center justify-between mb-6">
+            <h3 class="font-bold text-gray-800">Calendarios Epidemiológicos</h3>
+            <button onclick="openCalendarioModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition"><i class="fas fa-calendar-plus"></i> Agregar Año</button>
+          </div>
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <div id="calendariosList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+          </div>
         </div>
       </section>
 
       <!-- BACKUP -->
       <section id="backup" class="section hidden fade-in">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-            <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2"><i class="fas fa-download text-emerald-600"></i> Backup Encriptado</h3>
-            <p class="text-sm text-gray-500 mb-4">Exporta todos los datos del sistema en un archivo JSON encriptado.</p>
-            <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 mb-1">Clave de encriptación</label>
-              <input type="password" id="backupKey" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Mínimo 8 caracteres">
-            </div>
-            <button onclick="backupData()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded-lg transition">Descargar Backup (.epi)</button>
-          </div>
-          <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-            <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2"><i class="fas fa-upload text-green-600"></i> Restore Encriptado</h3>
-            <p class="text-sm text-gray-500 mb-4">Restaura los datos desde un archivo de backup encriptado.</p>
-            <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 mb-1">Archivo .epi</label>
-              <input type="file" id="restoreFile" accept=".epi,.json" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none">
-            </div>
-            <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 mb-1">Clave de encriptación</label>
-              <input type="password" id="restoreKey" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Ingrese la clave">
-            </div>
-            <button onclick="restoreData()" class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg transition">Restaurar Datos</button>
-          </div>
+        <div id="backupSkeleton" class="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
+          <div class="skeleton loading-shimmer w-full h-10 rounded-lg mb-4"></div>
+          <div class="skeleton loading-shimmer w-full h-64 rounded-lg"></div>
         </div>
-        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mt-6">
-          <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2"><i class="fas fa-file-excel text-green-600"></i> Importar / Exportar Excel</h3>
+        <div id="backupContent" class="hidden">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <p class="text-sm text-gray-500 mb-3">Exportar datos de gestantes a Excel normal o encriptado.</p>
-              <div class="mb-3"><input type="password" id="excelKey" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Clave para encriptar (opcional)"></div>
-              <div class="flex gap-2">
-                <button onclick="exportarExcel()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition"><i class="fas fa-file-export mr-2"></i>Exportar Excel</button>
-                <button onclick="exportarExcelEncriptado()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition"><i class="fas fa-lock mr-2"></i>Encriptado</button>
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+              <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2"><i class="fas fa-download text-emerald-600"></i> Backup Encriptado</h3>
+              <p class="text-sm text-gray-500 mb-4">Exporta todos los datos del sistema en un archivo JSON encriptado.</p>
+              <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Clave de encriptación</label>
+                <input type="password" id="backupKey" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Mínimo 8 caracteres">
               </div>
+              <button onclick="backupData()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded-lg transition">Descargar Backup (.epi)</button>
             </div>
-            <div>
-              <p class="text-sm text-gray-500 mb-3">Importar gestantes desde Excel (normal o encriptado).</p>
-              <input type="file" id="excelImport" accept=".xlsx,.xls,.epi" class="w-full px-4 py-2 border border-gray-300 rounded-lg mb-3">
-              <div class="mb-3"><input type="password" id="excelImportKey" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Clave si el archivo está encriptado"></div>
-              <button onclick="importarExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg transition"><i class="fas fa-file-import mr-2"></i>Importar Excel</button>
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+              <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2"><i class="fas fa-upload text-green-600"></i> Restore Encriptado</h3>
+              <p class="text-sm text-gray-500 mb-4">Restaura los datos desde un archivo de backup encriptado.</p>
+              <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Archivo .epi</label>
+                <input type="file" id="restoreFile" accept=".epi,.json" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none">
+              </div>
+              <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Clave de encriptación</label>
+                <input type="password" id="restoreKey" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Ingrese la clave">
+              </div>
+              <button onclick="restoreData()" class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg transition">Restaurar Datos</button>
+            </div>
+          </div>
+          <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mt-6">
+            <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2"><i class="fas fa-file-excel text-green-600"></i> Importar / Exportar Excel</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <p class="text-sm text-gray-500 mb-3">Exportar datos de gestantes a Excel normal o encriptado.</p>
+                <div class="mb-3"><input type="password" id="excelKey" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Clave para encriptar (opcional)"></div>
+                <div class="flex gap-2">
+                  <button onclick="exportarExcel()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition"><i class="fas fa-file-export mr-2"></i>Exportar Excel</button>
+                  <button onclick="exportarExcelEncriptado()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition"><i class="fas fa-lock mr-2"></i>Encriptado</button>
+                </div>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500 mb-3">Importar gestantes desde Excel (normal o encriptado).</p>
+                <input type="file" id="excelImport" accept=".xlsx,.xls,.epi" class="w-full px-4 py-2 border border-gray-300 rounded-lg mb-3">
+                <div class="mb-3"><input type="password" id="excelImportKey" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Clave si el archivo está encriptado"></div>
+                <button onclick="importarExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg transition"><i class="fas fa-file-import mr-2"></i>Importar Excel</button>
+              </div>
             </div>
           </div>
         </div>
@@ -1044,13 +1050,31 @@
   </div>
 </div>
 
+<!-- MODAL CONFIRMAR CIERRE DE SESIÓN -->
+<div id="logoutConfirmModal" class="fixed inset-0 z-[60] hidden">
+  <div class="modal-overlay absolute inset-0" onclick="closeLogoutModal()"></div>
+  <div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm pointer-events-auto transform transition-all">
+      <div class="p-6 text-center">
+        <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4 text-red-600 text-2xl">
+          <i class="fas fa-sign-out-alt"></i>
+        </div>
+        <h2 class="text-xl font-bold text-gray-800 mb-2">¿Cerrar Sesión?</h2>
+        <p class="text-sm text-gray-500 mb-6">¿Está seguro que desea salir del sistema? Los cambios no guardados se perderán.</p>
+        <div class="flex justify-center gap-3">
+          <button onclick="closeLogoutModal()" class="px-5 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg transition font-medium">Cancelar</button>
+          <button onclick="confirmLogout()" class="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg transition font-medium"><i class="fas fa-sign-out-alt mr-2"></i>Sí, Cerrar Sesión</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 // ==================== CONFIGURACIÓN SUPABASE ====================
 const SUPABASE_URL = 'https://kwvltqnxirdnxoshgcge.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_Ua7O9tt7sz2G-I2MOWXA1Q_jsJEoPfA';
-// CAPTCHA matemático: no requiere clave externa
 
-// Inicializar Supabase solo si hay credenciales válidas
 let supabaseClient = null;
 try {
   if (SUPABASE_URL && SUPABASE_ANON_KEY) {
@@ -1060,6 +1084,10 @@ try {
   }
 } catch (e) {
   console.error('[Supabase] Error inicializando cliente:', e);
+}
+
+function supabaseReady() {
+  return supabaseClient !== null && supabaseClient !== undefined;
 }
 
 // ==================== VARIABLES GLOBALES ====================
@@ -1073,11 +1101,11 @@ let charts = {};
 let sessionTimer = null;
 let sessionStartTime = null;
 let captchaExpectedValue = 0;
-
-// Helper para verificar si Supabase está disponible
-function supabaseReady() {
-  return supabaseClient !== null && supabaseClient !== undefined;
-}
+let mySessionId = null;
+let gestantesPage = 0;
+let gestantesPageSize = 50;
+let gestantesAllLoaded = false;
+let loadedSections = new Set();
 
 const CONSULTORIOS = [
   'ÁNGELA NEGRA ORTIZ (CAMAGUAN)','MURO CARRIZALERO (CAMAGUAN)','UVERITO',
@@ -1085,12 +1113,105 @@ const CONSULTORIOS = [
   'LA NEGRA','PUERTO MIRANDA','CAMPITO (CAMAGUAN)','SOMBRERITO','LA ROMPIA (CAMAGUAN)'
 ];
 
+// ==================== SEGURIDAD: SESIÓN ÚNICA + CIERRE AL REFRESCAR ====================
+const SESSION_KEY = 'epi_active_session';
+const TAB_SESSION_KEY = 'epi_tab_session';
+const SESSION_PREFIX = 'epi_session_';
+
+// BroadcastChannel para sincronizar entre pestañas (con fallback)
+let sessionChannel = null;
+if (typeof BroadcastChannel !== 'undefined') {
+  sessionChannel = new BroadcastChannel('epi_session_sync');
+  sessionChannel.onmessage = function(event) {
+    if (event.data.type === 'new_login' && event.data.sessionId !== mySessionId) {
+      // Otra pestaña inició sesión, cerrar esta
+      showToast('Sesión iniciada en otro dispositivo. Cerrando sesión...', 'error');
+      setTimeout(() => forceLogout(), 2000);
+    }
+  };
+}
+
+// Detectar si la página se refrescó usando Navigation API (moderno) o performance
+function isPageRefresh() {
+  if (window.performance && window.performance.getEntriesByType) {
+    const navEntries = window.performance.getEntriesByType('navigation');
+    if (navEntries.length > 0) {
+      return navEntries[0].type === 'reload';
+    }
+  }
+  // Fallback para navegadores antiguos
+  if (window.performance && window.performance.navigation) {
+    return window.performance.navigation.type === 1;
+  }
+  return false;
+}
+
+// Al cargar la página: verificar si es refresh y hay sesión activa
+function checkSessionOnLoad() {
+  const activeSession = localStorage.getItem(SESSION_KEY);
+  const tabSession = sessionStorage.getItem(TAB_SESSION_KEY);
+
+  if (activeSession && !tabSession) {
+    // Hay una sesión en localStorage pero no en sessionStorage
+    // Esto significa que se refrescó la página o se abrió nueva pestaña
+    // Cerrar la sesión por seguridad
+    console.log('[Seguridad] Detectado refresh o nueva pestaña. Cerrando sesión.');
+    localStorage.removeItem(SESSION_KEY);
+    localStorage.removeItem('epi_session');
+    return false;
+  }
+
+  return true;
+}
+
+function registerSession() {
+  mySessionId = generateSessionId();
+  const sessionData = {
+    id: mySessionId,
+    timestamp: Date.now(),
+    user: currentUser ? currentUser.email : null
+  };
+  localStorage.setItem(SESSION_KEY, JSON.stringify(sessionData));
+  sessionStorage.setItem(TAB_SESSION_KEY, mySessionId);
+
+  // Notificar a otras pestañas
+  if (sessionChannel) {
+    sessionChannel.postMessage({ type: 'new_login', sessionId: mySessionId });
+  } else {
+    // Fallback usando storage events
+    localStorage.setItem(SESSION_PREFIX + 'ping', Date.now().toString());
+  }
+}
+
+function clearSession() {
+  localStorage.removeItem(SESSION_KEY);
+  sessionStorage.removeItem(TAB_SESSION_KEY);
+  mySessionId = null;
+}
+
+function forceLogout() {
+  clearSession();
+  if (supabaseClient) supabaseClient.auth.signOut().catch(() => {});
+  location.reload();
+}
+
+// Escuchar cambios en localStorage (fallback para navegadores sin BroadcastChannel)
+window.addEventListener('storage', function(e) {
+  if (e.key === SESSION_KEY) {
+    const newSession = JSON.parse(e.newValue || '{}');
+    if (newSession.id && newSession.id !== mySessionId) {
+      showToast('Sesión iniciada en otro dispositivo. Cerrando sesión...', 'error');
+      setTimeout(() => forceLogout(), 2000);
+    }
+  }
+});
+
 // ==================== SEGURIDAD: RATE LIMITING ====================
 const SECURITY = {
   maxAttempts: 5,
-  lockoutDuration: 30000, // 30 segundos
-  sessionTimeout: 10 * 60 * 1000, // 10 minutos
-  warningTime: 2 * 60 * 1000, // 2 minutos antes de expirar
+  lockoutDuration: 30000,
+  sessionTimeout: 10 * 60 * 1000,
+  warningTime: 2 * 60 * 1000,
   attempts: 0,
   lockedUntil: 0,
   sessionId: null
@@ -1141,35 +1262,44 @@ function showLoginLockout() {
 
 // ==================== CAPTCHA MATEMÁTICO ====================
 function generateCaptcha() {
-  const operations = ['+', '-'];
-  const op = operations[Math.floor(Math.random() * operations.length)];
-  let num1, num2, resultado;
+  try {
+    const operations = ['+', '-'];
+    const op = operations[Math.floor(Math.random() * operations.length)];
+    let num1, num2, resultado;
 
-  if (op === '+') {
-    num1 = Math.floor(Math.random() * 9) + 1;  // 1-9 (resultados más pequeños, fáciles)
-    num2 = Math.floor(Math.random() * 9) + 1;  // 1-9
-    resultado = num1 + num2;
-  } else {
-    num1 = Math.floor(Math.random() * 9) + 5;  // 5-13
-    num2 = Math.floor(Math.random() * num1) + 1; // 1 a num1
-    resultado = num1 - num2;
+    if (op === '+') {
+      num1 = Math.floor(Math.random() * 9) + 1;
+      num2 = Math.floor(Math.random() * 9) + 1;
+      resultado = num1 + num2;
+    } else {
+      num1 = Math.floor(Math.random() * 9) + 5;
+      num2 = Math.floor(Math.random() * num1) + 1;
+      resultado = num1 - num2;
+    }
+
+    captchaExpectedValue = resultado;
+
+    const questionEl = document.getElementById('captchaQuestion');
+    const expectedEl = document.getElementById('captchaExpected');
+    const answerEl = document.getElementById('captchaAnswer');
+    const errorMsg = document.getElementById('captchaErrorMsg');
+
+    if (questionEl) {
+      questionEl.textContent = `${num1} ${op} ${num2}`;
+      questionEl.style.display = 'block';
+    }
+    if (expectedEl) expectedEl.value = resultado;
+    if (answerEl) {
+      answerEl.value = '';
+      answerEl.classList.remove('border-red-500', 'bg-red-50');
+      answerEl.focus();
+    }
+    if (errorMsg) errorMsg.classList.add('hidden');
+
+    console.log('[CAPTCHA] Generado:', num1, op, num2, '=', resultado);
+  } catch (e) {
+    console.error('[CAPTCHA] Error generando:', e);
   }
-
-  captchaExpectedValue = resultado;
-
-  const questionEl = document.getElementById('captchaQuestion');
-  const expectedEl = document.getElementById('captchaExpected');
-  const answerEl = document.getElementById('captchaAnswer');
-
-  if (questionEl) questionEl.textContent = `${num1} ${op} ${num2}`;
-  if (expectedEl) expectedEl.value = resultado;
-  if (answerEl) {
-    answerEl.value = '';
-    answerEl.classList.remove('border-red-500', 'bg-red-50');
-    answerEl.focus();
-  }
-
-  console.log('[CAPTCHA] Generado:', num1, op, num2, '=', resultado);
 }
 
 // ==================== VISIBILIDAD DE CONTRASEÑA ====================
@@ -1245,7 +1375,6 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
   const userAnswerRaw = answerEl.value.trim();
   const expectedAnswerRaw = expectedEl.value.trim();
 
-  // Validar que el CAPTCHA fue generado
   if (!expectedAnswerRaw || expectedAnswerRaw === '0') {
     showToast('Error: Verificación no inicializada. Recargue la página.', 'error');
     generateCaptcha();
@@ -1273,7 +1402,6 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     return;
   }
 
-  // CAPTCHA correcto
   answerEl.classList.remove('border-red-500', 'bg-red-50');
 
   const email = document.getElementById('loginEmail').value.trim();
@@ -1288,83 +1416,61 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     if (error) throw error;
 
     let profile = null;
-let pError = null;
+    let pError = null;
 
-try {
-  const result = await supabaseClient
-    .from('profiles')
-    .select('*')
-    .eq('id', data.user.id)
-    .single();
-  
-  profile = result.data;
-  pError = result.error;
-} catch (err) {
-  console.error('Error al obtener perfil:', err);
-  pError = err;
-}
-
-// Si hay error 500 o no existe perfil, intentar crearlo
-if (pError || !profile) {
-  console.log('Perfil no encontrado o error del servidor. Intentando crear perfil...');
-  
-  try {
-    const { data: newProfile, error: createError } = await supabaseClient
-      .from('profiles')
-      .insert([{
-        id: data.user.id,
-        email: data.user.email,
-        nombre: data.user.user_metadata?.nombre || data.user.email,
-        role: data.user.user_metadata?.role || 'superadmin',
-        consultorio: data.user.user_metadata?.consultorio || null,
-        activo: true
-      }])
-      .select()
-      .single();
-    
-    if (createError) {
-      console.error('Error creando perfil:', createError);
-      // Si falla por RLS, mostrar error específico
-      if (createError.code === '42501' || createError.message.includes('row-level security')) {
-        throw new Error('Error de permisos (RLS). Contacte al administrador del sistema.');
-      }
-      throw new Error('No se pudo crear el perfil: ' + createError.message);
+    try {
+      const result = await supabaseClient.from('profiles').select('*').eq('id', data.user.id).single();
+      profile = result.data;
+      pError = result.error;
+    } catch (err) {
+      console.error('Error al obtener perfil:', err);
+      pError = err;
     }
-    
-    profile = newProfile;
-    console.log('✅ Perfil creado exitosamente:', profile);
-    
-  } catch (createErr) {
-    console.error('Error en creación de perfil:', createErr);
-    await supabaseClient.auth.signOut();
-    throw new Error(createErr.message || 'Error al inicializar perfil de usuario');
-  }
-}
 
-// Verificar que el usuario está activo
-if (!profile.activo) {
-  await supabaseClient.auth.signOut();
-  throw new Error('Usuario desactivado. Contacte al administrador');
-}
+    if (pError || !profile) {
+      console.log('Perfil no encontrado. Intentando crear...');
+      try {
+        const { data: newProfile, error: createError } = await supabaseClient.from('profiles').insert([{
+          id: data.user.id,
+          email: data.user.email,
+          nombre: data.user.user_metadata?.nombre || data.user.email,
+          role: data.user.user_metadata?.role || 'superadmin',
+          consultorio: data.user.user_metadata?.consultorio || null,
+          activo: true
+        }]).select().single();
+        if (createError) {
+          if (createError.code === '42501' || createError.message.includes('row-level security')) {
+            throw new Error('Error de permisos (RLS). Contacte al administrador.');
+          }
+          throw new Error('No se pudo crear el perfil: ' + createError.message);
+        }
+        profile = newProfile;
+      } catch (createErr) {
+        await supabaseClient.auth.signOut();
+        throw new Error(createErr.message || 'Error al inicializar perfil');
+      }
+    }
 
     if (!profile.activo) {
       await supabaseClient.auth.signOut();
       throw new Error('Usuario desactivado. Contacte al administrador');
     }
 
-    // Éxito: resetear intentos y generar sesión segura
     resetAttempts();
     SECURITY.sessionId = generateSessionId();
     sessionStartTime = Date.now();
 
     currentUser = data.user;
     currentProfile = profile;
+
+    // Registrar sesión única
+    registerSession();
+
     initApp();
   } catch (err) {
     recordFailedAttempt();
     errorDiv.textContent = err.message;
     errorDiv.classList.remove('hidden');
-    // Resetear CAPTCHA
     generateCaptcha();
   } finally {
     btn.innerHTML = '<span>Ingresar al Sistema</span>';
@@ -1382,6 +1488,7 @@ function closeLogoutModal() {
 
 async function confirmLogout() {
   closeLogoutModal();
+  clearSession();
   await supabaseClient.auth.signOut();
   localStorage.removeItem('epi_session');
   currentUser = null;
@@ -1406,13 +1513,11 @@ function startSessionTimer() {
       return;
     }
 
-    // Mostrar tiempo restante
     const mins = Math.floor(remaining / 60000);
     const secs = Math.floor((remaining % 60000) / 1000);
     document.getElementById('sessionTimer').textContent = 
       `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
 
-    // Advertencia cuando quedan 5 minutos
     if (remaining <= SECURITY.warningTime && remaining > SECURITY.warningTime - 1000) {
       showToast('Su sesión expira en 5 minutos. Guarde su trabajo.', 'error');
     }
@@ -1423,14 +1528,13 @@ function resetSessionTimer() {
   sessionStartTime = Date.now();
 }
 
-// Detectar actividad del usuario para resetear timer
 ['click', 'keypress', 'scroll', 'mousemove'].forEach(event => {
   document.addEventListener(event, () => {
     if (currentUser) resetSessionTimer();
   });
 });
 
-// ==================== INICIALIZACIÓN ====================
+// ==================== INICIALIZACIÓN POR PARTES ====================
 async function initApp() {
   document.getElementById('loginScreen').classList.add('hidden');
   document.getElementById('appScreen').classList.remove('hidden');
@@ -1439,7 +1543,6 @@ async function initApp() {
   document.getElementById('userRole').textContent = getRoleName(currentProfile.role);
   document.getElementById('sessionIdShort').textContent = SECURITY.sessionId ? SECURITY.sessionId.substring(0,6) : '---';
 
-  // Mostrar/ocultar menús según rol
   if (currentProfile.role === 'superadmin') {
     document.getElementById('menuUsuarios').classList.remove('hidden');
     document.getElementById('menuCalendarios').classList.remove('hidden');
@@ -1450,24 +1553,24 @@ async function initApp() {
     document.getElementById('menuPuerperas').classList.remove('hidden');
     document.getElementById('menuArchivados').classList.remove('hidden');
     document.getElementById('menuBackup').classList.remove('hidden');
-    // admin NO ve usuarios ni calendarios
   }
-  // médico: solo ve Dashboard, Gestantes, Control Semanal (por defecto)
 
   const opciones = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
   document.getElementById('currentDate').textContent = new Date().toLocaleDateString('es-VE', opciones);
+
+  // Cargar calendarios primero (son pequeños y necesarios para SE)
+  await loadCalendarios();
+
   const semanaEpi = await getCurrentSemanaEpidemiologica();
   document.getElementById('currentEpiWeek').textContent = 'SE ' + semanaEpi;
 
-  await loadCalendarios();
-  await loadGestantes();
-  await loadUsers();
   initConsultoriosSelects();
   await initSemanasSelect();
 
-  // Iniciar timer de sesión
   startSessionTimer();
 
+  // Cargar dashboard primero (por partes)
+  await loadDashboardData();
   await showSection('dashboard');
 }
 
@@ -1495,13 +1598,15 @@ function initConsultoriosSelects() {
 async function initSemanasSelect() {
   const sel = document.getElementById('semanaEpiSelect');
   const anioSel = document.getElementById('anioEpiSelect');
+  if (!sel) return;
   sel.innerHTML = '<option value="">Seleccione semana</option>';
   const anios = [...new Set(calendariosData.map(c => c.anio))].sort((a, b) => b - a);
-  anioSel.innerHTML = '';
-  if (anios.length === 0) anioSel.innerHTML = '<option value="2026">2026</option>';
-  else anios.forEach(a => { const opt = document.createElement('option'); opt.value = a; opt.textContent = a; anioSel.appendChild(opt); });
-
-  const anioActivo = parseInt(anioSel.value) || 2026;
+  if (anioSel) {
+    anioSel.innerHTML = '';
+    if (anios.length === 0) anioSel.innerHTML = '<option value="2026">2026</option>';
+    else anios.forEach(a => { const opt = document.createElement('option'); opt.value = a; opt.textContent = a; anioSel.appendChild(opt); });
+  }
+  const anioActivo = parseInt(anioSel?.value) || 2026;
   const semanas = calendariosData.filter(c => c.anio === anioActivo).sort((a, b) => a.semana - b.semana);
   if (semanas.length === 0) {
     const cal2026 = generarCalendarioLocal(2026, '2026-01-04');
@@ -1511,15 +1616,8 @@ async function initSemanasSelect() {
   }
 }
 
-async function loadSemanasDisponibles() {
-  await initSemanasSelect();
-  loadControlSemanal();
-}
-
-
-// ==================== NAVEGACIÓN ====================
+// ==================== NAVEGACIÓN CON CARGA POR PARTES ====================
 async function showSection(section) {
-  // Proteger secciones restringidas para médicos
   if (currentProfile && currentProfile.role === 'medico') {
     const seccionesProhibidas = ['puerperas', 'archivados', 'usuarios', 'calendarios', 'backup'];
     if (seccionesProhibidas.includes(section)) {
@@ -1543,17 +1641,87 @@ async function showSection(section) {
   document.getElementById('pageTitle').textContent = titles[section][0];
   document.getElementById('pageSubtitle').textContent = titles[section][1];
 
-  if (section === 'dashboard') renderDashboard();
-  if (section === 'gestantes') renderGestantes();
-  if (section === 'controlSemanal') await loadControlSemanal();
-  if (section === 'puerperas') renderPuerperas();
-  if (section === 'archivados') renderArchivados();
-  if (section === 'usuarios') renderUsers();
-  if (section === 'calendarios') renderCalendarios();
+  // Mostrar skeleton y ocultar contenido
+  const skeleton = document.getElementById(section + 'Skeleton');
+  const content = document.getElementById(section + 'Content');
+  if (skeleton) skeleton.classList.remove('hidden');
+  if (content) content.classList.add('hidden');
+
+  // Cargar datos según sección (por partes)
+  try {
+    switch(section) {
+      case 'dashboard':
+        if (!loadedSections.has('dashboard')) {
+          await loadDashboardData();
+          loadedSections.add('dashboard');
+        }
+        renderDashboard();
+        break;
+      case 'gestantes':
+        if (!loadedSections.has('gestantes')) {
+          await loadGestantes(true);
+          loadedSections.add('gestantes');
+        } else {
+          renderGestantes();
+        }
+        break;
+      case 'controlSemanal':
+        if (!loadedSections.has('controlSemanal')) {
+          await loadControlSemanal();
+          loadedSections.add('controlSemanal');
+        }
+        break;
+      case 'puerperas':
+        if (!loadedSections.has('puerperas')) {
+          await loadGestantes(false); // Asegurar que tenemos datos
+          loadedSections.add('puerperas');
+        }
+        renderPuerperas();
+        break;
+      case 'archivados':
+        if (!loadedSections.has('archivados')) {
+          await loadGestantes(false);
+          loadedSections.add('archivados');
+        }
+        renderArchivados();
+        break;
+      case 'usuarios':
+        if (!loadedSections.has('usuarios')) {
+          await loadUsers();
+          loadedSections.add('usuarios');
+        }
+        break;
+      case 'calendarios':
+        if (!loadedSections.has('calendarios')) {
+          await loadCalendarios();
+          loadedSections.add('calendarios');
+        }
+        renderCalendarios();
+        break;
+      case 'backup':
+        // Backup no necesita carga de datos
+        break;
+    }
+  } catch (err) {
+    showToast('Error cargando sección: ' + err.message, 'error');
+  }
+
+  // Ocultar skeleton y mostrar contenido
+  if (skeleton) skeleton.classList.add('hidden');
+  if (content) content.classList.remove('hidden');
 }
 
 function toggleSidebar() {
   document.getElementById('sidebar').classList.toggle('-translate-x-full');
+}
+
+// ==================== CARGA POR PARTES: DASHBOARD ====================
+async function loadDashboardData() {
+  try {
+    await loadGestantes(false);
+  } catch (err) {
+    console.warn('Error precargando gestantes para dashboard:', err);
+  }
 }
 
 // ==================== CONTROL SEMANAL: BÚSQUEDA POR CÉDULA ====================
@@ -1592,7 +1760,6 @@ async function buscarCedulaControl() {
             <div class="flex-1">
               <p class="font-medium text-green-800">Gestante encontrada: ${gestante.nombres} ${gestante.apellidos}</p>
               <p class="text-sm text-green-600">Consultorio: ${gestante.consultorio} • Cédula: ${gestante.cedula || 'N/A'}</p>
-
               <div class="mt-3 bg-white rounded-lg border border-green-200 p-3">
                 <label class="block text-sm font-medium text-gray-700 mb-1">
                   <i class="fas fa-baby text-green-500 mr-1"></i> Semana de Gestación Actual
@@ -1603,7 +1770,6 @@ async function buscarCedulaControl() {
                   placeholder="Ej: 24 SEMANAS Y 3 DIAS">
                 <p class="text-xs text-gray-400 mt-1">Puede modificar la semana de gestación antes de agregar al reporte.</p>
               </div>
-
               <div class="mt-3 flex gap-2">
                 <button onclick="agregarControlExistente('${gestante.id}', '${cedula}')" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm transition"><i class="fas fa-plus mr-1"></i> Agregar como CONTROL</button>
                 <button onclick="limpiarBusquedaCedula()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm transition">Cancelar</button>
@@ -1647,12 +1813,9 @@ async function agregarControlExistente(gestanteId, cedula) {
   if (existente && existente.length > 0) { showToast('Esta gestante ya está registrada en esta semana epidemiológica', 'error'); return; }
 
   const { data: gestante } = await supabaseClient.from('gestantes').select('*').eq('id', gestanteId).single();
-
-  // Obtener la semana de gestación editada por el usuario
   const semGestaInput = document.getElementById('semGestaControlInput');
   const semGestaEditada = semGestaInput ? semGestaInput.value.trim() : (gestante.semana_gestacion || '');
 
-  // Actualizar la semana de gestación en la gestante si cambió
   if (semGestaEditada && semGestaEditada !== gestante.semana_gestacion) {
     const { error: updError } = await supabaseClient.from('gestantes').update({ 
       semana_gestacion: semGestaEditada,
@@ -1671,7 +1834,7 @@ async function agregarControlExistente(gestanteId, cedula) {
   if (error) { showToast('Error: ' + error.message, 'error'); return; }
   showToast('Control registrado exitosamente');
   limpiarBusquedaCedula();
-  await loadGestantes(); // Recargar para reflejar cambios en semana gestación
+  await loadGestantes(false);
   await loadControlSemanal();
 }
 
@@ -1697,22 +1860,45 @@ async function abrirCaptacionNueva(cedula) {
   window._anioCaptacion = new Date().getFullYear();
 }
 
-// ==================== GESTANTES CRUD ====================
-async function loadGestantes() {
+// ==================== GESTANTES CRUD CON PAGINACIÓN ====================
+async function loadGestantes(resetPagination = false) {
   try {
+    if (resetPagination) {
+      gestantesPage = 0;
+      gestantesAllLoaded = false;
+      gestantesData = [];
+    }
+
     let query = supabaseClient.from('gestantes').select('*').order('fecha_registro', { ascending: false });
     if (currentProfile.role === 'medico' && currentProfile.consultorio) query = query.eq('consultorio', currentProfile.consultorio);
+
+    // Paginación: cargar de 50 en 50
+    const from = gestantesPage * gestantesPageSize;
+    const to = from + gestantesPageSize - 1;
+    query = query.range(from, to);
+
     const { data, error } = await query;
     if (error) { showToast('Error cargando gestantes: ' + error.message, 'error'); return; }
-    gestantesData = data || [];
-    renderGestantes();
-    renderDashboard();
+
+    if (data && data.length < gestantesPageSize) gestantesAllLoaded = true;
+    if (resetPagination) gestantesData = data || [];
+    else gestantesData = [...gestantesData, ...(data || [])];
+
+    if (resetPagination) renderGestantes();
+    else renderGestantes();
   } catch (err) { showToast('Error crítico: ' + err.message, 'error'); }
+}
+
+function loadMoreGestantes() {
+  if (gestantesAllLoaded) return;
+  gestantesPage++;
+  loadGestantes(false);
 }
 
 function renderGestantes() {
   const tbody = document.getElementById('gestantesTable');
   const empty = document.getElementById('gestantesEmpty');
+  const loadMore = document.getElementById('gestantesLoadMore');
   const search = document.getElementById('searchGestante').value.toLowerCase();
   const fConsultorio = document.getElementById('filterConsultorio').value;
   const fEstado = document.getElementById('filterEstado').value;
@@ -1724,8 +1910,9 @@ function renderGestantes() {
     return matchSearch && matchCons && matchEst && g.estado !== 'archivado';
   });
 
-  if (filtered.length === 0) { tbody.innerHTML = ''; empty.classList.remove('hidden'); return; }
+  if (filtered.length === 0) { tbody.innerHTML = ''; empty.classList.remove('hidden'); if(loadMore) loadMore.classList.add('hidden'); return; }
   empty.classList.add('hidden');
+  if(loadMore) loadMore.classList.remove('hidden');
 
   tbody.innerHTML = filtered.map(g => {
     const trimClass = g.trimestre === 1 ? 'trimester-1' : g.trimestre === 2 ? 'trimester-2' : g.trimestre === 3 ? 'trimester-3' : g.estado === 'puerpera' ? 'puerpera' : g.estado === 'lactante' ? 'lactante' : '';
@@ -1735,6 +1922,12 @@ function renderGestantes() {
     const canEdit = currentProfile.role === 'superadmin' || currentProfile.role === 'admin' || (currentProfile.role === 'medico' && currentProfile.consultorio === g.consultorio);
     return `<tr class="hover:bg-gray-50 ${trimClass}"><td class="px-4 py-3">${g.cedula || ''}</td><td class="px-4 py-3 font-medium">${g.nombres || ''} ${g.apellidos || ''}</td><td class="px-4 py-3">${g.edad || ''}</td><td class="px-4 py-3 text-xs">${g.consultorio || ''}</td><td class="px-4 py-3 font-medium">${g.semana_gestacion || ''}</td><td class="px-4 py-3">${g.fpp || ''}</td><td class="px-4 py-3">${estadoBadge}</td><td class="px-4 py-3"><span class="px-2 py-1 rounded text-xs font-medium ${aroClass}">${aroText}</span></td><td class="px-4 py-3 text-center"><button onclick="editGestante('${g.id}')" class="text-emerald-600 hover:text-emerald-800 mx-1 ${canEdit ? '' : 'opacity-50 cursor-not-allowed'}" title="Editar" ${canEdit ? '' : 'disabled'}><i class="fas fa-edit"></i></button>${currentProfile.role === 'superadmin' ? `<button onclick="deleteGestante('${g.id}')" class="text-red-600 hover:text-red-800 mx-1" title="Eliminar"><i class="fas fa-trash"></i></button>` : ''}</td></tr>`;
   }).join('');
+
+  if (loadMore) {
+    loadMore.innerHTML = gestantesAllLoaded 
+      ? '<span class="text-gray-400 text-sm">Todos los registros cargados</span>'
+      : '<button onclick="loadMoreGestantes()" class="text-emerald-600 hover:text-emerald-800 text-sm font-medium"><i class="fas fa-chevron-down mr-1"></i> Cargar más registros</button>';
+  }
 }
 
 function filterGestantes() { renderGestantes(); }
@@ -1744,13 +1937,9 @@ function openGestanteModal() {
   document.getElementById('gestanteId').value = '';
   document.getElementById('gestanteModalTitle').textContent = 'Nueva Embarazada';
   document.getElementById('accionesEspeciales').classList.add('hidden');
-  // Set default fecha de registro to today
   document.getElementById('gFechaRegistro').value = new Date().toISOString().split('T')[0];
-  // Reset custom fields
   document.getElementById('gSinCedula').checked = false;
   document.getElementById('gEdadManual').checked = false;
-  document.getElementById('gFurIncierto').checked = false;
-  toggleFurIncierto();
   document.getElementById('gCedula').readOnly = false;
   document.getElementById('gCedula').classList.remove('bg-gray-100');
   document.getElementById('gCedulaHelp').classList.add('hidden');
@@ -1777,10 +1966,8 @@ function closeGestanteModal() {
   window._cedulaCaptacion = null;
   window._semanaCaptacion = null;
   window._anioCaptacion = null;
-  // Reset custom fields
   document.getElementById('gSinCedula').checked = false;
   document.getElementById('gEdadManual').checked = false;
-  document.getElementById('gFurIncierto').checked = false;
   document.getElementById('gCedula').readOnly = false;
   document.getElementById('gCedula').classList.remove('bg-gray-100');
   document.getElementById('gCedulaHelp').classList.add('hidden');
@@ -1795,7 +1982,6 @@ function editGestante(id) {
   const g = gestantesData.find(x => x.id === id);
   if (!g) return;
   document.getElementById('gestanteId').value = g.id;
-  // Handle cedula - check if it's a NO-POSEE generated one
   const cedulaVal = g.cedula || '';
   const esSinCedula = cedulaVal.startsWith('NO-POSEE-');
   document.getElementById('gSinCedula').checked = esSinCedula;
@@ -1819,12 +2005,10 @@ function editGestante(id) {
   document.getElementById('gDireccion').value = g.direccion || '';
   document.getElementById('gCarnet').value = g.carnet_patria || '';
   document.getElementById('gFur').value = g.fur || '';
-  document.getElementById('gFurIncierto').checked = !g.fur;
-  toggleFurIncierto();
   document.getElementById('gNP').value = g.num_p || 0;
   document.getElementById('gNC').value = g.num_c || 0;
   document.getElementById('gNA').value = g.num_a || 0;
-  calcularNG(); // N° G se calcula automáticamente
+  calcularNG();
   document.getElementById('gSemGesta').value = g.semana_gestacion || '';
   document.getElementById('gSemGesta').readOnly = false;
   document.getElementById('gSemGesta').classList.remove('bg-gray-50');
@@ -1856,25 +2040,10 @@ async function deleteGestante(id) {
   const { error } = await supabaseClient.from('gestantes').delete().eq('id', id);
   if (error) { showToast('Error: ' + error.message, 'error'); return; }
   showToast('Registro eliminado');
-  await loadGestantes();
+  await loadGestantes(true);
 }
 
-
-// ==================== VALIDAR CÉDULA ÚNICA ====================
-async function validarCedulaUnica(cedula, excluirId) {
-  if (!cedula) return { valido: true };
-  const { data, error } = await supabaseClient
-    .from('gestantes')
-    .select('id, nombres, apellidos')
-    .eq('cedula', cedula)
-    .neq('estado', 'archivado');
-  if (error) return { valido: false, error: error.message };
-  const duplicado = data.find(g => g.id !== excluirId);
-  if (duplicado) return { valido: false, duplicado };
-  return { valido: true };
-}
-
-// Cálculos automáticos
+// ==================== CÁLCULOS Y UTILIDADES ====================
 function calcularEdad() {
   const fechaNac = document.getElementById('gFechaNac').value;
   if (!fechaNac) return;
@@ -1886,12 +2055,10 @@ function calcularEdad() {
   if (edad >= 10 && edad <= 80) document.getElementById('gEdad').value = edad;
 }
 
-// Toggle edad manual
 function toggleEdadManual() {
   const checkbox = document.getElementById('gEdadManual');
   const edadInput = document.getElementById('gEdad');
   const fechaNacInput = document.getElementById('gFechaNac');
-
   if (checkbox.checked) {
     edadInput.readOnly = false;
     edadInput.classList.remove('bg-gray-50');
@@ -1906,32 +2073,6 @@ function toggleEdadManual() {
   }
 }
 
-// Toggle F.U.R Incierto
-function toggleFurIncierto() {
-  const checkbox = document.getElementById('gFurIncierto');
-  const furInput = document.getElementById('gFur');
-  if (checkbox.checked) {
-    furInput.dataset.valorOriginal = furInput.value;
-    furInput.value = '';
-    furInput.disabled = true;
-    furInput.classList.add('bg-gray-100', 'cursor-not-allowed');
-    furInput.placeholder = 'F.U.R Incierto';
-    document.getElementById('gSemGesta').readOnly = false;
-    document.getElementById('gSemGesta').classList.remove('bg-gray-50');
-    document.getElementById('gFpp').value = '';
-    document.getElementById('gFpp').placeholder = 'Ingrese manualmente';
-  } else {
-    furInput.disabled = false;
-    furInput.classList.remove('bg-gray-100', 'cursor-not-allowed');
-    furInput.placeholder = '';
-    if (furInput.dataset.valorOriginal) {
-      furInput.value = furInput.dataset.valorOriginal;
-    }
-    calcularSemanasFPP();
-  }
-}
-
-// Toggle ¿Cuál Enfermedad?
 function toggleCualEnfermedad() {
   const select = document.getElementById('gEnfermedad');
   const div = document.getElementById('divCualEnf');
@@ -1947,7 +2088,6 @@ function toggleCualEnfermedad() {
   }
 }
 
-// Calcular N° G automáticamente (P + C + A)
 function calcularNG() {
   const p = parseInt(document.getElementById('gNP').value) || 0;
   const c = parseInt(document.getElementById('gNC').value) || 0;
@@ -1955,9 +2095,8 @@ function calcularNG() {
   document.getElementById('gNG').value = p + c + a;
 }
 
-// Formato teléfono: (XXXX)XXXXXXX, máximo 10 números
 function formatTelefono(input) {
-  let val = input.value.replace(/\D/g, ''); // solo números
+  let val = input.value.replace(/\D/g, '');
   if (val.length > 10) val = val.substring(0, 10);
   if (val.length >= 4) {
     input.value = '(' + val.substring(0, 4) + ')' + val.substring(4);
@@ -1966,34 +2105,21 @@ function formatTelefono(input) {
   }
 }
 
-
-// Toggle sin cedula - genera numero unico
 async function toggleSinCedula() {
   const checkbox = document.getElementById('gSinCedula');
   const cedulaInput = document.getElementById('gCedula');
   const helpText = document.getElementById('gCedulaHelp');
 
   if (checkbox.checked) {
-    // Buscar el último número consecutivo NO-POSEE en la base de datos
     let siguienteNumero = 1;
     try {
-      const { data: existentes, error } = await supabaseClient
-        .from('gestantes')
-        .select('cedula')
-        .ilike('cedula', 'NO-POSEE-%')
-        .order('cedula', { ascending: false })
-        .limit(1);
-
+      const { data: existentes, error } = await supabaseClient.from('gestantes').select('cedula').ilike('cedula', 'NO-POSEE-%').order('cedula', { ascending: false }).limit(1);
       if (!error && existentes && existentes.length > 0) {
         const ultima = existentes[0].cedula;
         const match = ultima.match(/NO-POSEE-(\d+)/);
-        if (match) {
-          siguienteNumero = parseInt(match[1]) + 1;
-        }
+        if (match) siguienteNumero = parseInt(match[1]) + 1;
       }
-    } catch (e) {
-      console.warn('Error consultando último NO-POSEE:', e);
-    }
+    } catch (e) { console.warn('Error consultando último NO-POSEE:', e); }
 
     const numeroFormateado = siguienteNumero.toString().padStart(5, '0');
     const numeroUnico = `NO-POSEE-${numeroFormateado}`;
@@ -2007,17 +2133,8 @@ async function toggleSinCedula() {
     cedulaInput.readOnly = false;
     cedulaInput.classList.remove('bg-gray-100');
     helpText.classList.add('hidden');
-    helpText.textContent = 'Se generará un número único automáticamente';
   }
 }
-
-document.getElementById('gFechaNac').addEventListener('change', calcularEdad);
-document.getElementById('gFur').addEventListener('change', calcularSemanasFPP);
-document.getElementById('gFur').addEventListener('input', calcularSemanasFPP);
-// Event listeners para cálculo automático de N° G
-document.getElementById('gNP').addEventListener('input', calcularNG);
-document.getElementById('gNC').addEventListener('input', calcularNG);
-document.getElementById('gNA').addEventListener('input', calcularNG);
 
 function calcularSemanasFPP() {
   const fur = document.getElementById('gFur').value;
@@ -2029,7 +2146,6 @@ function calcularSemanasFPP() {
   const semanas = Math.floor(diffDays / 7);
   const dias = diffDays % 7;
   if (semanas >= 0 && semanas <= 42) {
-    // Solo calcular automáticamente si el campo está vacío (nuevo registro)
     const semGestaActual = document.getElementById('gSemGesta').value.trim();
     if (!semGestaActual) {
       document.getElementById('gSemGesta').value = `${semanas} SEMANAS Y ${dias} DIAS`;
@@ -2043,36 +2159,29 @@ function calcularSemanasFPP() {
   }
 }
 
+document.getElementById('gFechaNac').addEventListener('change', calcularEdad);
+document.getElementById('gFur').addEventListener('change', calcularSemanasFPP);
+document.getElementById('gFur').addEventListener('input', calcularSemanasFPP);
+document.getElementById('gNP').addEventListener('input', calcularNG);
+document.getElementById('gNC').addEventListener('input', calcularNG);
+document.getElementById('gNA').addEventListener('input', calcularNG);
+
 document.getElementById('gestanteForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const id = document.getElementById('gestanteId').value;
   const cedulaInput = document.getElementById('gCedula').value.trim();
 
-  // Validar que la cedula no exista (solo para nuevos registros)
   if (!id && cedulaInput) {
-    const { data: existente, error: cedulaError } = await supabaseClient
-      .from('gestantes')
-      .select('id, nombres, apellidos')
-      .eq('cedula', cedulaInput)
-      .neq('estado', 'archivado')
-      .maybeSingle();
-
-    if (cedulaError) {
-      showToast('Error verificando cédula: ' + cedulaError.message, 'error');
-      return;
-    }
-
+    const { data: existente, error: cedulaError } = await supabaseClient.from('gestantes').select('id, nombres, apellidos').eq('cedula', cedulaInput).neq('estado', 'archivado').maybeSingle();
+    if (cedulaError) { showToast('Error verificando cédula: ' + cedulaError.message, 'error'); return; }
     if (existente) {
       showToast('⚠️ La cédula ' + cedulaInput + ' ya está registrada a nombre de: ' + (existente.nombres || '') + ' ' + (existente.apellidos || ''), 'error');
       document.getElementById('gCedula').classList.add('border-red-500', 'bg-red-50');
-      setTimeout(() => {
-        document.getElementById('gCedula').classList.remove('border-red-500', 'bg-red-50');
-      }, 3000);
+      setTimeout(() => { document.getElementById('gCedula').classList.remove('border-red-500', 'bg-red-50'); }, 3000);
       return;
     }
   }
-  const furIncierto = document.getElementById('gFurIncierto').checked;
-  const fur = furIncierto ? null : document.getElementById('gFur').value;
+
   const semGesta = document.getElementById('gSemGesta').value;
   const semanaEpi = await getCurrentSemanaEpidemiologica();
   const semanaEpiNum = parseInt(semanaEpi) || null;
@@ -2088,7 +2197,7 @@ document.getElementById('gestanteForm').addEventListener('submit', async (e) => 
     consultorio: document.getElementById('gConsultorio').value,
     direccion: document.getElementById('gDireccion').value.trim().toUpperCase(),
     carnet_patria: document.getElementById('gCarnet').value,
-    fur: fur || null,
+    fur: document.getElementById('gFur').value || null,
     num_p: parseInt(document.getElementById('gNP').value) || 0,
     num_c: parseInt(document.getElementById('gNC').value) || 0,
     num_a: parseInt(document.getElementById('gNA').value) || 0,
@@ -2129,7 +2238,7 @@ document.getElementById('gestanteForm').addEventListener('submit', async (e) => 
   }
 
   closeGestanteModal();
-  await loadGestantes();
+  await loadGestantes(true);
 
   if (window._captacionDesdeControl && gestanteId && window._semanaCaptacion && window._anioCaptacion) {
     const controlData = {
@@ -2155,34 +2264,34 @@ document.getElementById('gestanteForm').addEventListener('submit', async (e) => 
 async function marcarPuerpera() {
   const id = document.getElementById('gestanteId').value;
   if (!id) { showToast('Guarde el registro primero', 'error'); return; }
-  if (!confirm('¿Marcar como Puérpera / Lactante? Se calculará desde la fecha de hoy.')) return;
+  if (!confirm('¿Marcar como Puérpera / Lactante?')) return;
   const { error } = await supabaseClient.from('gestantes').update({ estado: 'puerpera', fecha_parto: new Date().toISOString(), fecha_ultima_actualizacion: new Date().toISOString() }).eq('id', id);
   if (error) { showToast('Error: ' + error.message, 'error'); return; }
   showToast('Marcada como Puérpera');
   closeGestanteModal();
-  await loadGestantes();
+  await loadGestantes(true);
 }
 
 async function marcarAborto() {
   const id = document.getElementById('gestanteId').value;
   if (!id) { showToast('Guarde el registro primero', 'error'); return; }
-  if (!confirm('¿Archivar este registro? Se guardarán nombre, apellido y cédula para futuras consultas.')) return;
+  if (!confirm('¿Archivar este registro?')) return;
   const { error } = await supabaseClient.from('gestantes').update({ estado: 'archivado', motivo_archivo: 'ABORTO', fecha_archivo: new Date().toISOString(), fecha_ultima_actualizacion: new Date().toISOString() }).eq('id', id);
   if (error) { showToast('Error: ' + error.message, 'error'); return; }
   showToast('Registro archivado');
   closeGestanteModal();
-  await loadGestantes();
+  await loadGestantes(true);
 }
 
 async function nuevoEmbarazo() {
   const id = document.getElementById('gestanteId').value;
   if (!id) { showToast('Guarde el registro primero', 'error'); return; }
-  if (!confirm('¿Reactivar para nuevo embarazo? Se limpiarán datos obstétricos y se conservarán datos personales.')) return;
+  if (!confirm('¿Reactivar para nuevo embarazo?')) return;
   const { error } = await supabaseClient.from('gestantes').update({ estado: 'gestante', fur: null, semana_gestacion: null, fpp: null, num_p: 0, num_c: 0, num_a: 0, num_g: 0, trimestre: 0, fecha_parto: null, motivo_archivo: null, fecha_archivo: null, fecha_registro: new Date().toISOString(), fecha_ultima_actualizacion: new Date().toISOString() }).eq('id', id);
   if (error) { showToast('Error: ' + error.message, 'error'); return; }
   showToast('Reactivada para nuevo embarazo');
   closeGestanteModal();
-  await loadGestantes();
+  await loadGestantes(true);
 }
 
 // ==================== PUÉRPERAS ====================
@@ -2219,17 +2328,15 @@ async function reactivarArchivado(id) {
   const { error } = await supabaseClient.from('gestantes').update({ estado: 'gestante', fur: null, semana_gestacion: null, fpp: null, num_p: 0, num_c: 0, num_a: 0, num_g: 0, trimestre: 0, fecha_parto: null, motivo_archivo: null, fecha_archivo: null, fecha_registro: new Date().toISOString(), fecha_ultima_actualizacion: new Date().toISOString() }).eq('id', id);
   if (error) { showToast('Error: ' + error.message, 'error'); return; }
   showToast('Reactivada para nuevo embarazo');
-  await loadGestantes();
+  await loadGestantes(true);
   showSection('archivados');
 }
 
 // ==================== CONTROL SEMANAL ====================
 async function loadControlSemanal() {
-  // Obtener semana epidemiológica automática según fecha actual
   const semanaActual = await getCurrentSemanaEpidemiologica();
   const anioActual = new Date().getFullYear();
 
-  // Actualizar campos ocultos y display
   document.getElementById('semanaEpiSelect').value = semanaActual;
   document.getElementById('anioEpiSelect').value = anioActual;
   document.getElementById('semanaEpiValor').textContent = semanaActual;
@@ -2302,20 +2409,6 @@ function renderControlTable() {
     </tr>`;
   }).join('');
 }
-  tbody.innerHTML = controlData.map((c, i) => {
-    const g = c.gestantes || {};
-    const canEdit = currentProfile.role !== 'medico' || currentProfile.consultorio === g.consultorio;
-    const riesgo = g.aro ? 'SI' : 'NO';
-    const motivoBadge = c.motivo === 'CAPTACION' ? '<span class="px-2 py-1 bg-orange-100 text-orange-700 rounded text-xs font-medium">CAPTACIÓN</span>' : '<span class="px-2 py-1 bg-emerald-100 text-emerald-700 rounded text-xs font-medium">CONTROL</span>';
-    // La CAPTACION solo puede ser en la semana de registro original, no se puede cambiar
-    return `<tr class="hover:bg-gray-50"><td class="px-4 py-3">${i + 1}</td><td class="px-4 py-3 text-xs">${g.consultorio || ''}</td><td class="px-4 py-3">${c.fecha_control ? c.fecha_control.split('T')[0] : ''}</td><td class="px-4 py-3 font-medium">${g.nombres || ''} ${g.apellidos || ''}</td><td class="px-4 py-3">${g.edad || ''}</td><td class="px-4 py-3">${g.cedula || ''}</td><td class="px-4 py-3 text-xs">${g.direccion || ''}</td><td class="px-4 py-3">${g.telefono || ''}</td><td class="px-4 py-3">${g.fur || ''}</td><td class="px-4 py-3 font-medium">${c.semana_gestacion || g.semana_gestacion || ''}</td><td class="px-4 py-3">${g.num_g || 0}</td><td class="px-4 py-3">${riesgo}</td><td class="px-4 py-3">${motivoBadge}</td><td class="px-4 py-3">${c.diagnostico || ''}</td><td class="px-4 py-3">${c.tipo_consulta || ''}</td><td class="px-4 py-3">${c.referido || ''}</td><td class="px-4 py-3">${c.observacion || ''}</td><td class="px-4 py-3 text-center">
-              <button onclick="editControl('${c.id}')" class="text-emerald-600 hover:text-emerald-800 mx-1 ${canEdit ? '' : 'opacity-50 cursor-not-allowed'}" ${canEdit ? '' : 'disabled'} title="Editar"><i class="fas fa-edit"></i></button>
-              ${canEdit ? `<button onclick="eliminarControl('${c.id}')" class="text-red-600 hover:text-red-800 mx-1" title="Eliminar"><i class="fas fa-trash"></i></button>` : ''}
-            </td></tr>`;
-  }).join('');
-}
-
-
 
 function editControl(id) {
   const c = controlData.find(x => x.id === id);
@@ -2333,7 +2426,7 @@ function editControl(id) {
 function closeControlEditModal() { document.getElementById('controlEditModal').classList.add('hidden'); }
 
 async function eliminarControl(id) {
-  if (!confirm('¿Está seguro de eliminar este registro del Control Semanal? Esta acción no se puede deshacer.')) return;
+  if (!confirm('¿Está seguro de eliminar este registro del Control Semanal?')) return;
   const { error } = await supabaseClient.from('control_semanal').delete().eq('id', id);
   if (error) { showToast('Error: ' + error.message, 'error'); return; }
   showToast('Registro eliminado del Control Semanal');
@@ -2395,16 +2488,6 @@ async function exportarExcelSemanal() {
   XLSX.writeFile(wb, `Control_Semanal_SE${semana}_${anio}.xlsx`);
   showToast('Excel exportado exitosamente');
 }
-  const { data } = await supabaseClient.from('control_semanal').select('*, gestantes(*)').eq('semana_epidemiologica', parseInt(semana)).eq('anio', parseInt(anio));
-  const rows = (data || []).map((c, i) => {
-    const g = c.gestantes || {};
-    return { 'Nº': i + 1, 'CP': g.consultorio, 'Fecha': c.fecha_control ? c.fecha_control.split('T')[0] : '', 'Nombre y Apellido': `${g.nombres || ''} ${g.apellidos || ''}`, 'Edad': g.edad, 'Cédula': g.cedula, 'Dirección': g.direccion, 'Teléfono': g.telefono, 'F.U.R': g.fur, 'Sem. Gesta.': c.semana_gestacion || g.semana_gestacion, 'N° Gesta': g.num_g, 'Riesgo': g.aro ? 'SI' : 'NO', 'Motivo': c.motivo, 'Diagnóstico': c.diagnostico, 'Tipo': c.tipo_consulta, 'Referido': c.referido, 'Observación': c.observacion };
-  });
-  const ws = XLSX.utils.json_to_sheet(rows);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, `SE_${semana}`);
-  XLSX.writeFile(wb, `Control_Semanal_SE${semana}_${anio}.xlsx`);
-}
 
 // ==================== DASHBOARD ====================
 function renderDashboard() {
@@ -2432,7 +2515,6 @@ function renderDashboard() {
   const recientes = [...gestantesData].filter(g => g.estado !== 'archivado').sort((a, b) => new Date(b.fecha_registro) - new Date(a.fecha_registro)).slice(0, 5);
   document.getElementById('recentRecords').innerHTML = recientes.map(g => `<div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"><div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 text-xs"><i class="fas fa-female"></i></div><div class="flex-1 min-w-0"><p class="text-sm font-medium text-gray-800 truncate">${g.nombres} ${g.apellidos}</p><p class="text-xs text-gray-500">${g.consultorio} • ${g.semana_gestacion || ''}</p></div></div>`).join('');
 
-  // ===== REGISTRO MES DE =====
   const hoy = new Date();
   const mesActual = hoy.getMonth();
   const anioActual = hoy.getFullYear();
@@ -2462,7 +2544,6 @@ function renderDashboard() {
   document.getElementById('mesMenores').textContent = mesMenores.length;
   document.getElementById('mesMayores').textContent = mesMayores.length;
 
-  // ===== TOTAL ACUMULADO ANUAL =====
   const gestantesAnio = gestantesData.filter(g => {
     if (!g.fecha_registro) return false;
     const f = new Date(g.fecha_registro);
@@ -2510,17 +2591,14 @@ function renderUsers() {
 function openUserModal() { document.getElementById('userModal').classList.remove('hidden'); }
 function closeUserModal() { document.getElementById('userModal').classList.add('hidden'); }
 
-// ==================== CREAR USUARIO (SUPER ADMIN) ====================
 document.getElementById('userForm').addEventListener('submit', async (e) => {
   e.preventDefault();
-  
   const email = document.getElementById('uEmail').value.trim();
   const password = document.getElementById('uPassword').value;
   const nombre = document.getElementById('uNombre').value.trim();
   const rol = document.getElementById('uRol').value;
   const consultorio = document.getElementById('uConsultorio').value;
 
-  // Validar fortaleza de contraseña
   if (password.length < 8) { showToast('La contraseña debe tener mínimo 8 caracteres', 'error'); return; }
   if (!/[A-Z]/.test(password)) { showToast('La contraseña debe incluir al menos una mayúscula', 'error'); return; }
   if (!/[a-z]/.test(password)) { showToast('La contraseña debe incluir al menos una minúscula', 'error'); return; }
@@ -2532,39 +2610,38 @@ document.getElementById('userForm').addEventListener('submit', async (e) => {
   btn.disabled = true;
 
   try {
-    // functions.invoke envía automáticamente el token del usuario logueado
     const { data, error } = await supabaseClient.functions.invoke('create-user', {
-      body: {
-        email,
-        password,
-        nombre,
-        role: rol,
-        consultorio: consultorio || null,
-        created_by: currentUser.id
-      }
+      body: { email, password, nombre, role: rol, consultorio: consultorio || null, created_by: currentUser.id }
     });
-
-    if (error) {
-      throw new Error(error.message || 'Error al crear usuario');
-    }
-
-    if (data.error) {
-      throw new Error(data.error);
-    }
-
-    showToast('Usuario creado exitosamente. Puede iniciar sesión inmediatamente.');
+    if (error) throw new Error(error.message || 'Error al crear usuario');
+    if (data.error) throw new Error(data.error);
+    showToast('Usuario creado exitosamente.');
     closeUserModal();
     document.getElementById('userForm').reset();
     await loadUsers();
-    
   } catch (err) {
     showToast('Error: ' + err.message, 'error');
-    console.error('Error creando usuario:', err);
   } finally {
     btn.innerHTML = originalText;
     btn.disabled = false;
   }
 });
+
+async function toggleUser(id, activo) {
+  const { error } = await supabaseClient.from('profiles').update({ activo }).eq('id', id);
+  if (error) { showToast('Error: ' + error.message, 'error'); return; }
+  showToast(activo ? 'Usuario activado' : 'Usuario desactivado');
+  await loadUsers();
+}
+
+async function deleteUser(id) {
+  if (!confirm('¿Eliminar permanentemente este usuario?')) return;
+  const { error } = await supabaseClient.from('profiles').delete().eq('id', id);
+  if (error) { showToast('Error: ' + error.message, 'error'); return; }
+  showToast('Usuario eliminado');
+  await loadUsers();
+}
+
 // ==================== CALENDARIOS ====================
 async function loadCalendarios() {
   const { data, error } = await supabaseClient.from('calendarios_epidemiologicos').select('*').order('anio', { ascending: false });
@@ -2636,13 +2713,13 @@ async function restoreData() {
     const decrypted = CryptoJS.AES.decrypt(text, key).toString(CryptoJS.enc.Utf8);
     if (!decrypted) throw new Error('Clave incorrecta');
     const data = JSON.parse(decrypted);
-    if (!confirm(`¿Restaurar ${data.gestantes?.length || 0} gestantes, ${data.control_semanal?.length || 0} controles? Esto reemplazará los datos actuales.`)) return;
+    if (!confirm(`¿Restaurar ${data.gestantes?.length || 0} gestantes, ${data.control_semanal?.length || 0} controles?`)) return;
     await supabaseClient.from('control_semanal').delete().neq('id', '00000000-0000-0000-0000-000000000000');
     await supabaseClient.from('gestantes').delete().neq('id', '00000000-0000-0000-0000-000000000000');
     if (data.gestantes && data.gestantes.length > 0) { const { error } = await supabaseClient.from('gestantes').insert(data.gestantes); if (error) console.error('Error gestantes:', error); }
     if (data.control_semanal && data.control_semanal.length > 0) { const { error } = await supabaseClient.from('control_semanal').insert(data.control_semanal); if (error) console.error('Error control:', error); }
     showToast('Datos restaurados');
-    await loadGestantes();
+    await loadGestantes(true);
   } catch (err) { showToast('Error: ' + err.message, 'error'); }
 }
 
@@ -2702,7 +2779,7 @@ async function importarExcel() {
     const { error } = await supabaseClient.from('gestantes').insert(inserts);
     if (error) { showToast('Error: ' + error.message, 'error'); return; }
     showToast(`${inserts.length} registros importados`);
-    await loadGestantes();
+    await loadGestantes(true);
   } catch (err) { showToast('Error importando: ' + err.message, 'error'); }
 }
 
@@ -2737,7 +2814,6 @@ document.getElementById('passwordForm').addEventListener('submit', async (e) => 
   const btn = document.getElementById('passwordBtn');
 
   errorDiv.classList.add('hidden');
-
   if (newPass.length < 8) { errorDiv.textContent = 'La nueva contraseña debe tener mínimo 8 caracteres'; errorDiv.classList.remove('hidden'); return; }
   if (!/[A-Z]/.test(newPass)) { errorDiv.textContent = 'Debe incluir al menos una mayúscula'; errorDiv.classList.remove('hidden'); return; }
   if (!/[a-z]/.test(newPass)) { errorDiv.textContent = 'Debe incluir al menos una minúscula'; errorDiv.classList.remove('hidden'); return; }
@@ -2748,15 +2824,10 @@ document.getElementById('passwordForm').addEventListener('submit', async (e) => 
   btn.disabled = true;
 
   try {
-    const { error: authError } = await supabaseClient.auth.signInWithPassword({
-      email: currentUser.email,
-      password: currentPass
-    });
+    const { error: authError } = await supabaseClient.auth.signInWithPassword({ email: currentUser.email, password: currentPass });
     if (authError) { throw new Error('La contraseña actual es incorrecta'); }
-
     const { error: updateError } = await supabaseClient.auth.updateUser({ password: newPass });
     if (updateError) throw updateError;
-
     showToast('Contraseña actualizada exitosamente');
     closePasswordModal();
   } catch (err) {
@@ -2814,34 +2885,25 @@ async function applyPasswordReset() {
 
   try {
     const { data, error } = await supabaseClient.functions.invoke('reset-password', {
-      body: {
-        user_id: resetUserId,
-        new_password: newPassword
-      }
+      body: { user_id: resetUserId, new_password: newPassword }
     });
-
     if (error) throw new Error(error.message);
-
     if (data.error) throw new Error(data.error);
-
     successDiv.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Contraseña actualizada exitosamente para <strong>' + resetUserEmail + '</strong>.';
     successDiv.classList.remove('hidden');
     document.getElementById('tempPassword').value = '';
-
   } catch (err) {
     errorDiv.textContent = 'Error: ' + err.message;
     errorDiv.classList.remove('hidden');
   }
 }
 
-  async function sendPasswordResetEmail() {
+async function sendPasswordResetEmail() {
   const errorDiv = document.getElementById('resetPasswordError');
   const successDiv = document.getElementById('resetPasswordSuccess');
   errorDiv.classList.add('hidden');
   successDiv.classList.add('hidden');
-
   if (!resetUserEmail) return;
-
   try {
     const { error } = await supabaseClient.auth.resetPasswordForEmail(resetUserEmail, {
       redirectTo: window.location.origin + window.location.pathname
@@ -2856,21 +2918,24 @@ async function applyPasswordReset() {
 }
 
 // ==================== INICIO ====================
-
 window.addEventListener('DOMContentLoaded', () => {
-  // ===== CAPTCHA: SIEMPRE funciona, independiente de Supabase =====
+  // Verificar si es un refresh - si hay sesión activa pero no tab session, cerrar
+  if (!checkSessionOnLoad()) {
+    // Limpiar cualquier sesión residual
+    if (supabaseClient) supabaseClient.auth.signOut().catch(() => {});
+  }
+
+  // CAPTCHA: SIEMPRE funciona, independiente de Supabase
   setTimeout(() => {
     generateCaptcha();
     console.log('[CAPTCHA] Inicializado correctamente');
-  }, 50);
+  }, 100);
 
-  // ===== SUPABASE: Solo si está configurado =====
   if (!supabaseClient) {
     console.warn('[Sistema] Supabase no configurado. Modo demo activo.');
     return;
   }
 
-  // Ejecutar inicialización de Supabase en función async separada
   initSupabaseSession();
 });
 
@@ -2878,12 +2943,25 @@ async function initSupabaseSession() {
   try {
     const { data: { session } } = await supabaseClient.auth.getSession();
     if (session) {
+      // Verificar que esta pestaña tiene permiso de sesión
+      const tabSession = sessionStorage.getItem(TAB_SESSION_KEY);
+      const activeSession = localStorage.getItem(SESSION_KEY);
+
+      if (!tabSession || !activeSession) {
+        // Sesión sin tab session = refresh detectado, cerrar
+        console.log('[Seguridad] Refresh detectado, cerrando sesión...');
+        await supabaseClient.auth.signOut();
+        clearSession();
+        return;
+      }
+
       const { data: profile, error } = await supabaseClient.from('profiles').select('*').eq('id', session.user.id).single();
       if (profile && profile.activo && !error) {
         currentUser = session.user;
         currentProfile = profile;
         SECURITY.sessionId = generateSessionId();
         sessionStartTime = Date.now();
+        mySessionId = tabSession; // Restaurar session ID
         initApp();
         return;
       }
@@ -2899,6 +2977,7 @@ async function initSupabaseSession() {
         currentProfile = bs.profile;
         SECURITY.sessionId = generateSessionId();
         sessionStartTime = Date.now();
+        registerSession();
         initApp();
         return;
       } else { localStorage.removeItem('epi_session'); }
@@ -2906,30 +2985,6 @@ async function initSupabaseSession() {
   }
 }
 </script>
-
-<!-- MODAL CONFIRMAR CIERRE DE SESIÓN -->
-<div id="logoutConfirmModal" class="fixed inset-0 z-[60] hidden">
-  <div class="modal-overlay absolute inset-0" onclick="closeLogoutModal()"></div>
-  <div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm pointer-events-auto transform transition-all">
-      <div class="p-6 text-center">
-        <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4 text-red-600 text-2xl">
-          <i class="fas fa-sign-out-alt"></i>
-        </div>
-        <h2 class="text-xl font-bold text-gray-800 mb-2">¿Cerrar Sesión?</h2>
-        <p class="text-sm text-gray-500 mb-6">¿Está seguro que desea salir del sistema? Los cambios no guardados se perderán.</p>
-        <div class="flex justify-center gap-3">
-          <button onclick="closeLogoutModal()" class="px-5 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg transition font-medium">
-            Cancelar
-          </button>
-          <button onclick="confirmLogout()" class="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg transition font-medium">
-            <i class="fas fa-sign-out-alt mr-2"></i>Sí, Cerrar Sesión
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
 
 </body>
 </html>
