@@ -2409,9 +2409,6 @@ function renderControlTable() {
     </tr>`;
   }).join('');
 }
-
-function editControl(id) {
-
 function editControl(id) {
   const c = controlData.find(x => x.id === id);
   if (!c) return;
@@ -2450,47 +2447,7 @@ async function exportarExcelSemanal() {
   const semana = await getCurrentSemanaEpidemiologica();
   const anio = new Date().getFullYear();
   if (!semana || semana === '-') { showToast('No se pudo determinar la semana epidemiológica actual', 'error'); return; }
-  const { data } = await supabaseClient.from('control_semanal').select('*, gestantes(*)').eq('semana_epidemiologica', parseInt(semana)).eq('anio', parseInt(anio));
-  const rows = (data || []).map((c, i) => {
-    const g = c.gestantes || {};
-    return {
-      'N°': i + 1,
-      'FECHA DE REGISTRO': c.fecha_control ? c.fecha_control.split('T')[0] : '',
-      'APELLIDO': g.apellidos || '',
-      'NOMBRE': g.nombres || '',
-      'EDAD': g.edad || '',
-      'N° DE CEDULA': g.cedula || '',
-      'POSEE CARNET DE LA PATRIA SI': g.carnet_patria === 'SI' ? 'X' : '',
-      'POSEE CARNET DE LA PATRIA NO': g.carnet_patria === 'NO' ? 'X' : '',
-      'ESTADO': 'GUARICO',
-      'MUNICIPIO': 'CAMAGUAN',
-      'N° DE TELEFONO': g.telefono || '',
-      'N° TELEFONO DE FAMILIAR': '',
-      'FUR': g.fur || '',
-      'N° P': g.num_p || 0,
-      'N° C': g.num_c || 0,
-      'N° A': g.num_a || 0,
-      'TIEMPO DE EMBARAZO AL MOMENTO DEL REGISTRO': c.semana_gestacion || g.semana_gestacion || '',
-      'FPP': g.fpp || '',
-      'ESTAS EN CONTROL PRENATAL': g.control_prenatal || 'SI',
-      'DONDE PUBLICO O PRIVADO': g.donde_publico_privado || 'PUBLICO',
-      'TIENE ENFERMEDAD ASOCIADA': g.enfermedad_asociada || 'NO',
-      'CUAL': g.cual_enfermedad || '',
-      'ANTECEDENTES IMPORTANTES EN OTROS EMBARAZOS': g.antecedentes || '',
-      'RECIBES MICRONUTRIENTES': g.micronutrientes || 'NO',
-      'CONOCE EL ASIC DE SU TERRITORIO': g.conoce_asic || 'SI',
-      'ESTAS INSCRITA EN EL PROGRAMA PARTO HUMANIZADO': g.parto_humanizado || 'NO',
-      'PERTENECES A UN ETNIA/GRUPO SOCIAL/OTROS SI': g.etnia ? 'SI' : '',
-      'PERTENECES A UN ETNIA/GRUPO SOCIAL/OTROS CUAL': g.etnia || ''
-    };
-  });
-  const ws = XLSX.utils.json_to_sheet(rows);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, `SE_${semana}`);
-  XLSX.writeFile(wb, `Control_Semanal_SE${semana}_${anio}.xlsx`);
-  showToast('Excel exportado exitosamente');
-}
-
+ 
 // ==================== DASHBOARD ====================
 function renderDashboard() {
   const activas = gestantesData.filter(g => g.estado === 'gestante');
