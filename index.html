@@ -2363,7 +2363,7 @@ async function loadControlSemanal() {
 function renderControlTable() {
   const tbody = document.getElementById('controlTable');
   if (controlData.length === 0) { 
-    tbody.innerHTML = '<tr><td colspan="30" class="px-4 py-8 text-center text-gray-400">No hay registros para esta semana</td></tr>'; 
+    tbody.innerHTML = '<tr><td colspan="29" class="px-4 py-8 text-center text-gray-400">No hay registros para esta semana</td></tr>'; 
     return; 
   }
   tbody.innerHTML = controlData.map((c, i) => {
@@ -2409,6 +2409,8 @@ function renderControlTable() {
     </tr>`;
   }).join('');
 }
+
+function editControl(id) {
 
 function editControl(id) {
   const c = controlData.find(x => x.id === id);
@@ -2458,28 +2460,28 @@ async function exportarExcelSemanal() {
       'NOMBRE': g.nombres || '',
       'EDAD': g.edad || '',
       'N° DE CEDULA': g.cedula || '',
-      'CARNET PATRIA SI': g.carnet_patria === 'SI' ? 'X' : '',
-      'CARNET PATRIA NO': g.carnet_patria === 'NO' ? 'X' : '',
+      'POSEE CARNET DE LA PATRIA SI': g.carnet_patria === 'SI' ? 'X' : '',
+      'POSEE CARNET DE LA PATRIA NO': g.carnet_patria === 'NO' ? 'X' : '',
       'ESTADO': 'GUARICO',
       'MUNICIPIO': 'CAMAGUAN',
       'N° DE TELEFONO': g.telefono || '',
-      'N° TELEFONO FAMILIAR': '',
+      'N° TELEFONO DE FAMILIAR': '',
       'FUR': g.fur || '',
       'N° P': g.num_p || 0,
       'N° C': g.num_c || 0,
       'N° A': g.num_a || 0,
-      'TIEMPO DE EMBARAZO': c.semana_gestacion || g.semana_gestacion || '',
+      'TIEMPO DE EMBARAZO AL MOMENTO DEL REGISTRO': c.semana_gestacion || g.semana_gestacion || '',
       'FPP': g.fpp || '',
-      'CONTROL PRENATAL': g.control_prenatal || 'SI',
-      'DONDE': g.donde_publico_privado || 'PUBLICO',
-      'ENFERMEDAD ASOCIADA': g.enfermedad_asociada || 'NO',
+      'ESTAS EN CONTROL PRENATAL': g.control_prenatal || 'SI',
+      'DONDE PUBLICO O PRIVADO': g.donde_publico_privado || 'PUBLICO',
+      'TIENE ENFERMEDAD ASOCIADA': g.enfermedad_asociada || 'NO',
       'CUAL': g.cual_enfermedad || '',
-      'ANTECEDENTES IMPORTANTES': g.antecedentes || '',
-      'MICRONUTRIENTES': g.micronutrientes || 'NO',
-      'CONOCE ASIC': g.conoce_asic || 'SI',
-      'PARTO HUMANIZADO': g.parto_humanizado || 'NO',
-      'ETNIA SI': g.etnia ? 'SI' : '',
-      'ETNIA CUAL': g.etnia || ''
+      'ANTECEDENTES IMPORTANTES EN OTROS EMBARAZOS': g.antecedentes || '',
+      'RECIBES MICRONUTRIENTES': g.micronutrientes || 'NO',
+      'CONOCE EL ASIC DE SU TERRITORIO': g.conoce_asic || 'SI',
+      'ESTAS INSCRITA EN EL PROGRAMA PARTO HUMANIZADO': g.parto_humanizado || 'NO',
+      'PERTENECES A UN ETNIA/GRUPO SOCIAL/OTROS SI': g.etnia ? 'SI' : '',
+      'PERTENECES A UN ETNIA/GRUPO SOCIAL/OTROS CUAL': g.etnia || ''
     };
   });
   const ws = XLSX.utils.json_to_sheet(rows);
