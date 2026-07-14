@@ -1062,8 +1062,8 @@
 </div>
 <script>
 // ==================== CONFIGURACIÓN SUPABASE ====================
-const SUPABASE_URL = '';
-const SUPABASE_ANON_KEY = '';
+const SUPABASE_URL = 'https://kwvltqnxirdnxoshgcge.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_Ua7O9tt7sz2G-I2MOWXA1Q_jsJEoPfA';
 // CAPTCHA matemático: no requiere clave externa
 
 // Inicializar Supabase solo si hay credenciales válidas
@@ -1395,7 +1395,14 @@ if (!profile.activo) {
 async function forceLogout() {
   // Cierre automático por inactividad — sin confirmación
   try { await supabaseClient.auth.signOut(); } catch(e) {}
+  // Limpiar TODAS las claves de sesión posibles
   localStorage.removeItem('epi_session');
+  localStorage.removeItem('epi_last_activity');
+  // Forzar limpieza de tokens de Supabase por si signOut() falla
+  const supabaseKey = 'sb-' + SUPABASE_URL.replace('https://', '').replace('.supabase.co', '') + '-auth-token';
+  localStorage.removeItem(supabaseKey);
+  localStorage.removeItem('supabase.auth.token');
+  sessionStorage.clear();
   currentUser = null;
   currentProfile = null;
   gestantesData = [];
@@ -1415,8 +1422,13 @@ function closeLogoutModal() {
 
 async function confirmLogout() {
   closeLogoutModal();
-  await supabaseClient.auth.signOut();
+  try { await supabaseClient.auth.signOut(); } catch(e) {}
   localStorage.removeItem('epi_session');
+  localStorage.removeItem('epi_last_activity');
+  const supabaseKey = 'sb-' + SUPABASE_URL.replace('https://', '').replace('.supabase.co', '') + '-auth-token';
+  localStorage.removeItem(supabaseKey);
+  localStorage.removeItem('supabase.auth.token');
+  sessionStorage.clear();
   currentUser = null;
   currentProfile = null;
   gestantesData = [];
@@ -1445,6 +1457,9 @@ function startSessionTimer() {
     document.getElementById('sessionTimer').textContent = 
       `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
 
+    // Actualizar timestamp de actividad para que al recargar no se pierda la sesión
+    localStorage.setItem('epi_last_activity', Date.now().toString());
+
     // Advertencia cuando quedan 5 minutos
     if (remaining <= SECURITY.warningTime && remaining > SECURITY.warningTime - 1000) {
       showToast('Su sesión expira en 5 minutos. Guarde su trabajo.', 'error');
@@ -1454,6 +1469,7 @@ function startSessionTimer() {
 
 function resetSessionTimer() {
   sessionStartTime = Date.now();
+  localStorage.setItem('epi_last_activity', Date.now().toString());
 }
 
 // Detectar actividad del usuario para resetear timer
@@ -1467,6 +1483,8 @@ function resetSessionTimer() {
 async function initApp() {
   document.getElementById('loginScreen').classList.add('hidden');
   document.getElementById('appScreen').classList.remove('hidden');
+  // Marcar actividad al iniciar la app
+  localStorage.setItem('epi_last_activity', Date.now().toString());
 
   document.getElementById('userName').textContent = currentProfile.nombre || currentUser.email;
   document.getElementById('userRole').textContent = getRoleName(currentProfile.role);
@@ -2948,6 +2966,38 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 async function initSupabaseSession() {
+  // Verificar si hubo inactividad prolongada (más de 10 minutos)
+  const lastActivity = localStorage.getItem('epi_last_activity');
+  const now = Date.now();
+  const INACTIVITY_LIMIT = 10 * 60 * 1000; // 10 minutos
+
+  if (lastActivity) {
+    const elapsed = now - parseInt(lastActivity);
+    if (elapsed > INACTIVITY_LIMIT) {
+      // Sesión expirada por inactividad — forzar cierre completo
+      console.log('[Sesión] Expirada por inactividad al recargar. Cerrando...');
+      try { await supabaseClient.auth.signOut(); } catch(e) {}
+      localStorage.removeItem('epi_session');
+      localStorage.removeItem('epi_last_activity');
+      const supabaseKey = 'sb-' + SUPABASE_URL.replace('https://', '').replace('.supabase.co', '') + '-auth-token';
+      localStorage.removeItem(supabaseKey);
+      localStorage.removeItem('supabase.auth.token');
+      sessionStorage.clear();
+      // No iniciar app — mostrar login
+      return;
+    }
+  }
+
+  // Si no hay registro de actividad, tampoco permitir auto-login
+  if (!lastActivity) {
+    // Intentar cerrar sesión de Supabase por si quedó colgada
+    try { await supabaseClient.auth.signOut(); } catch(e) {}
+    const supabaseKey = 'sb-' + SUPABASE_URL.replace('https://', '').replace('.supabase.co', '') + '-auth-token';
+    localStorage.removeItem(supabaseKey);
+    localStorage.removeItem('supabase.auth.token');
+    return;
+  }
+
   try {
     const { data: { session } } = await supabaseClient.auth.getSession();
     if (session) {
@@ -2957,26 +3007,17 @@ async function initSupabaseSession() {
         currentProfile = profile;
         SECURITY.sessionId = generateSessionId();
         sessionStartTime = Date.now();
+        // Actualizar actividad al iniciar
+        localStorage.setItem('epi_last_activity', Date.now().toString());
         initApp();
         return;
       }
     }
   } catch (e) { console.warn('Error verificando sesión:', e); }
 
-  const bypassSession = localStorage.getItem('epi_session');
-  if (bypassSession) {
-    try {
-      const bs = JSON.parse(bypassSession);
-      if (bs.timestamp && (Date.now() - bs.timestamp) < 24 * 60 * 60 * 1000) {
-        currentUser = bs.user;
-        currentProfile = bs.profile;
-        SECURITY.sessionId = generateSessionId();
-        sessionStartTime = Date.now();
-        initApp();
-        return;
-      } else { localStorage.removeItem('epi_session'); }
-    } catch (e) { localStorage.removeItem('epi_session'); }
-  }
+  // Si llegamos aquí, no hay sesión válida — asegurar que todo esté limpio
+  localStorage.removeItem('epi_session');
+  localStorage.removeItem('epi_last_activity');
 }
 </script>
 
