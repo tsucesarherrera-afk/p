@@ -39,6 +39,10 @@
   .shake { animation: shake 0.5s; }
   @keyframes shake { 0%, 100% { transform: translateX(0); } 10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); } 20%, 40%, 60%, 80% { transform: translateX(5px); } }
 </style>
+
+<base target="_blank">
+<base target="_blank">
+<base target="_blank">
 <base target="_blank">
 </head>
 <body class="text-gray-800">
@@ -57,14 +61,6 @@
       <p class="text-xs text-gray-400">Camaguán, Guárico, Venezuela</p>
     </div>
 
-    <!-- Alerta de configuración -->
-    <div id="configAlert" class="hidden mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-      <div class="flex items-center gap-2 text-red-700 text-sm">
-        <i class="fas fa-exclamation-circle"></i>
-        <span id="configAlertText">Error de configuración del sistema.</span>
-      </div>
-    </div>
-
     <!-- Alerta de intentos fallidos -->
     <div id="loginAttemptsAlert" class="hidden mb-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
       <div class="flex items-center gap-2 text-orange-700 text-sm">
@@ -79,7 +75,7 @@
     <form id="loginForm" class="space-y-4">
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Usuario</label>
-        <input type="email" id="loginEmail" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none" placeholder="correo@ejemplo.com" required autocomplete="username">
+        <input type="email" id="loginEmail" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none" placeholder="••••••••" required autocomplete="username">
       </div>
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
@@ -425,17 +421,7 @@
                 <p class="text-lg font-bold text-emerald-600" id="semanaEpiDisplay">SE <span id="semanaEpiValor">-</span></p>
               </div>
             </div>
-            <div class="flex items-center gap-3">
-              <!-- Selector de semana SOLO para superadmin -->
-              <div id="superadminSemanaSelector" class="hidden flex items-center gap-2">
-                <label class="text-sm text-gray-600 font-medium">Ver semana:</label>
-                <select id="semanaEpiSelectSuper" onchange="cambiarSemanaControl()" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-sm">
-                  <option value="">Cargando...</option>
-                </select>
-                <span class="text-xs text-gray-400">Todos los usuarios</span>
-              </div>
-              <button onclick="exportarExcelSemanal()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition"><i class="fas fa-file-excel"></i> Exportar Excel</button>
-            </div>
+            <button onclick="exportarExcelSemanal()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition"><i class="fas fa-file-excel"></i> Exportar Excel</button>
           </div>
           <!-- Campos ocultos para mantener compatibilidad -->
           <input type="hidden" id="semanaEpiSelect" value="">
@@ -691,10 +677,6 @@
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">F.U.R</label>
               <input type="date" id="gFur" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none">
-            <div class="flex items-center gap-2 mt-2">
-              <input type="checkbox" id="gFurIncierto" onchange="toggleFurIncierto()" class="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500">
-              <label for="gFurIncierto" class="text-sm text-gray-600 cursor-pointer">F.U.R Incierto</label>
-            </div>
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">N° P (Partos)</label>
@@ -1063,54 +1045,21 @@
   </div>
 </div>
 
-<!-- MODAL CONFIRMAR CIERRE DE SESIÓN -->
-<div id="logoutConfirmModal" class="fixed inset-0 z-[60] hidden">
-  <div class="modal-overlay absolute inset-0" onclick="closeLogoutModal()"></div>
-  <div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm pointer-events-auto transform transition-all">
-      <div class="p-6 text-center">
-        <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4 text-red-600 text-2xl">
-          <i class="fas fa-sign-out-alt"></i>
-        </div>
-        <h2 class="text-xl font-bold text-gray-800 mb-2">¿Cerrar Sesión?</h2>
-        <p class="text-sm text-gray-500 mb-6">¿Está seguro que desea salir del sistema? Los cambios no guardados se perderán.</p>
-        <div class="flex justify-center gap-3">
-          <button onclick="closeLogoutModal()" class="px-5 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg transition font-medium">
-            Cancelar
-          </button>
-          <button onclick="confirmLogout()" class="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg transition font-medium">
-            <i class="fas fa-sign-out-alt mr-2"></i>Sí, Cerrar Sesión
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
 <script>
 // ==================== CONFIGURACIÓN SUPABASE ====================
-const SUPABASE_URL = 'https://kwvltqnxirdnxoshgcge.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_Ua7O9tt7sz2G-I2MOWXA1Q_jsJEoPfA';
+const SUPABASE_URL = '';
+const SUPABASE_ANON_KEY = '';
+// CAPTCHA matemático: no requiere clave externa
 
-// Inicializar Supabase
+// Inicializar Supabase solo si hay credenciales válidas
 let supabaseClient = null;
-let supabaseInitError = null;
-
 try {
-  if (typeof supabase === 'undefined') {
-    supabaseInitError = 'La librería de Supabase no se cargó. Verifique su conexión a internet.';
-    console.error('[Supabase] Librería no disponible');
-  } else if (!SUPABASE_URL || SUPABASE_URL.includes('REEMPLAZAR') || !SUPABASE_ANON_KEY || SUPABASE_ANON_KEY.includes('REEMPLAZAR')) {
-    supabaseInitError = 'Credenciales de Supabase no configuradas. Contacte al administrador.';
-    console.error('[Supabase] Credenciales no configuradas');
+  if (SUPABASE_URL && SUPABASE_ANON_KEY) {
+    supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   } else {
-    supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-      auth: { autoRefreshToken: true, persistSession: true }
-    });
-    console.log('[Supabase] Cliente inicializado correctamente');
+    console.warn('[Supabase] URL o ANON_KEY no configurados. El sistema funcionará en modo demo.');
   }
 } catch (e) {
-  supabaseInitError = 'Error al inicializar Supabase: ' + e.message;
   console.error('[Supabase] Error inicializando cliente:', e);
 }
 
@@ -1128,7 +1077,7 @@ let captchaExpectedValue = 0;
 
 // Helper para verificar si Supabase está disponible
 function supabaseReady() {
-  return supabaseClient !== null && supabaseClient !== undefined && typeof supabaseClient.auth === 'object';
+  return supabaseClient !== null && supabaseClient !== undefined;
 }
 
 const CONSULTORIOS = [
@@ -1198,12 +1147,12 @@ function generateCaptcha() {
   let num1, num2, resultado;
 
   if (op === '+') {
-    num1 = Math.floor(Math.random() * 9) + 1;
-    num2 = Math.floor(Math.random() * 9) + 1;
+    num1 = Math.floor(Math.random() * 9) + 1;  // 1-9 (resultados más pequeños, fáciles)
+    num2 = Math.floor(Math.random() * 9) + 1;  // 1-9
     resultado = num1 + num2;
   } else {
-    num1 = Math.floor(Math.random() * 9) + 5;
-    num2 = Math.floor(Math.random() * num1) + 1;
+    num1 = Math.floor(Math.random() * 9) + 5;  // 5-13
+    num2 = Math.floor(Math.random() * num1) + 1; // 1 a num1
     resultado = num1 - num2;
   }
 
@@ -1220,6 +1169,8 @@ function generateCaptcha() {
     answerEl.classList.remove('border-red-500', 'bg-red-50');
     answerEl.focus();
   }
+
+  console.log('[CAPTCHA] Generado:', num1, op, num2, '=', resultado);
 }
 
 // ==================== VISIBILIDAD DE CONTRASEÑA ====================
@@ -1277,20 +1228,6 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
 
   const btn = document.getElementById('loginBtn');
   const errorDiv = document.getElementById('loginError');
-  const configAlert = document.getElementById('configAlert');
-
-  // Verificar que Supabase esté listo ANTES de intentar login
-  if (!supabaseReady()) {
-    const msg = supabaseInitError || 'El sistema de autenticación no está disponible. Verifique su conexión y credenciales.';
-    configAlert.classList.remove('hidden');
-    document.getElementById('configAlertText').textContent = msg;
-    errorDiv.textContent = msg;
-    errorDiv.classList.remove('hidden');
-    console.error('[Login] Supabase no disponible:', msg);
-    return;
-  }
-
-  configAlert.classList.add('hidden');
 
   if (isLocked()) {
     showToast('Espere el tiempo de bloqueo antes de intentar de nuevo', 'error');
@@ -1309,6 +1246,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
   const userAnswerRaw = answerEl.value.trim();
   const expectedAnswerRaw = expectedEl.value.trim();
 
+  // Validar que el CAPTCHA fue generado
   if (!expectedAnswerRaw || expectedAnswerRaw === '0') {
     showToast('Error: Verificación no inicializada. Recargue la página.', 'error');
     generateCaptcha();
@@ -1336,6 +1274,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     return;
   }
 
+  // CAPTCHA correcto
   answerEl.classList.remove('border-red-500', 'bg-red-50');
 
   const email = document.getElementById('loginEmail').value.trim();
@@ -1350,62 +1289,71 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     if (error) throw error;
 
     let profile = null;
-    let pError = null;
+let pError = null;
 
-    try {
-      const result = await supabaseClient
-        .from('profiles')
-        .select('*')
-        .eq('id', data.user.id)
-        .single();
+try {
+  const result = await supabaseClient
+    .from('profiles')
+    .select('*')
+    .eq('id', data.user.id)
+    .single();
+  
+  profile = result.data;
+  pError = result.error;
+} catch (err) {
+  console.error('Error al obtener perfil:', err);
+  pError = err;
+}
 
-      profile = result.data;
-      pError = result.error;
-    } catch (err) {
-      console.error('Error al obtener perfil:', err);
-      pError = err;
-    }
-
-    if (pError || !profile) {
-      console.log('Perfil no encontrado o error del servidor. Intentando crear perfil...');
-
-      try {
-        const { data: newProfile, error: createError } = await supabaseClient
-          .from('profiles')
-          .insert([{
-            id: data.user.id,
-            email: data.user.email,
-            nombre: data.user.user_metadata?.nombre || data.user.email,
-            role: data.user.user_metadata?.role || 'superadmin',
-            consultorio: data.user.user_metadata?.consultorio || null,
-            activo: true
-          }])
-          .select()
-          .single();
-
-        if (createError) {
-          console.error('Error creando perfil:', createError);
-          if (createError.code === '42501' || createError.message.includes('row-level security')) {
-            throw new Error('Error de permisos (RLS). Contacte al administrador del sistema.');
-          }
-          throw new Error('No se pudo crear el perfil: ' + createError.message);
-        }
-
-        profile = newProfile;
-        console.log('✅ Perfil creado exitosamente:', profile);
-
-      } catch (createErr) {
-        console.error('Error en creación de perfil:', createErr);
-        await supabaseClient.auth.signOut();
-        throw new Error(createErr.message || 'Error al inicializar perfil de usuario');
+// Si hay error 500 o no existe perfil, intentar crearlo
+if (pError || !profile) {
+  console.log('Perfil no encontrado o error del servidor. Intentando crear perfil...');
+  
+  try {
+    const { data: newProfile, error: createError } = await supabaseClient
+      .from('profiles')
+      .insert([{
+        id: data.user.id,
+        email: data.user.email,
+        nombre: data.user.user_metadata?.nombre || data.user.email,
+        role: data.user.user_metadata?.role || 'superadmin',
+        consultorio: data.user.user_metadata?.consultorio || null,
+        activo: true
+      }])
+      .select()
+      .single();
+    
+    if (createError) {
+      console.error('Error creando perfil:', createError);
+      // Si falla por RLS, mostrar error específico
+      if (createError.code === '42501' || createError.message.includes('row-level security')) {
+        throw new Error('Error de permisos (RLS). Contacte al administrador del sistema.');
       }
+      throw new Error('No se pudo crear el perfil: ' + createError.message);
     }
+    
+    profile = newProfile;
+    console.log('✅ Perfil creado exitosamente:', profile);
+    
+  } catch (createErr) {
+    console.error('Error en creación de perfil:', createErr);
+    await supabaseClient.auth.signOut();
+    throw new Error(createErr.message || 'Error al inicializar perfil de usuario');
+  }
+}
+
+// Verificar que el usuario está activo
+if (!profile.activo) {
+  await supabaseClient.auth.signOut();
+  throw new Error('Usuario desactivado. Contacte al administrador');
+}
 
     if (!profile.activo) {
       await supabaseClient.auth.signOut();
       throw new Error('Usuario desactivado. Contacte al administrador');
     }
 
+    // Éxito: resetear intentos y generar sesión segura
     resetAttempts();
     SECURITY.sessionId = generateSessionId();
     sessionStartTime = Date.now();
@@ -1415,37 +1363,15 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     initApp();
   } catch (err) {
     recordFailedAttempt();
-    let msg = err.message || '';
-    if (msg.toLowerCase().includes('invalid login credentials')) {
-      msg = 'USUARIO O CLAVE INVALIDOS';
-    }
-    errorDiv.textContent = msg;
+    errorDiv.textContent = err.message;
     errorDiv.classList.remove('hidden');
+    // Resetear CAPTCHA
     generateCaptcha();
   } finally {
     btn.innerHTML = '<span>Ingresar al Sistema</span>';
     btn.disabled = false;
   }
 });
-
-async function forceLogout() {
-  try { 
-    if (supabaseReady()) await supabaseClient.auth.signOut(); 
-  } catch(e) {}
-  localStorage.removeItem('epi_session');
-  localStorage.removeItem('epi_last_activity');
-  const supabaseKey = 'sb-' + SUPABASE_URL.replace('https://', '').replace('.supabase.co', '') + '-auth-token';
-  localStorage.removeItem(supabaseKey);
-  localStorage.removeItem('supabase.auth.token');
-  sessionStorage.clear();
-  currentUser = null;
-  currentProfile = null;
-  gestantesData = [];
-  controlData = [];
-  usersData = [];
-  if (sessionTimer) clearInterval(sessionTimer);
-  location.reload();
-}
 
 async function logout() {
   document.getElementById('logoutConfirmModal').classList.remove('hidden');
@@ -1457,15 +1383,8 @@ function closeLogoutModal() {
 
 async function confirmLogout() {
   closeLogoutModal();
-  try { 
-    if (supabaseReady()) await supabaseClient.auth.signOut(); 
-  } catch(e) {}
+  await supabaseClient.auth.signOut();
   localStorage.removeItem('epi_session');
-  localStorage.removeItem('epi_last_activity');
-  const supabaseKey = 'sb-' + SUPABASE_URL.replace('https://', '').replace('.supabase.co', '') + '-auth-token';
-  localStorage.removeItem(supabaseKey);
-  localStorage.removeItem('supabase.auth.token');
-  sessionStorage.clear();
   currentUser = null;
   currentProfile = null;
   gestantesData = [];
@@ -1484,17 +1403,17 @@ function startSessionTimer() {
 
     if (remaining <= 0) {
       showToast('Sesión expirada por inactividad', 'error');
-      forceLogout();
+      logout();
       return;
     }
 
+    // Mostrar tiempo restante
     const mins = Math.floor(remaining / 60000);
     const secs = Math.floor((remaining % 60000) / 1000);
     document.getElementById('sessionTimer').textContent = 
       `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
 
-    localStorage.setItem('epi_last_activity', Date.now().toString());
-
+    // Advertencia cuando quedan 5 minutos
     if (remaining <= SECURITY.warningTime && remaining > SECURITY.warningTime - 1000) {
       showToast('Su sesión expira en 5 minutos. Guarde su trabajo.', 'error');
     }
@@ -1503,9 +1422,9 @@ function startSessionTimer() {
 
 function resetSessionTimer() {
   sessionStartTime = Date.now();
-  localStorage.setItem('epi_last_activity', Date.now().toString());
 }
 
+// Detectar actividad del usuario para resetear timer
 ['click', 'keypress', 'scroll', 'mousemove'].forEach(event => {
   document.addEventListener(event, () => {
     if (currentUser) resetSessionTimer();
@@ -1516,25 +1435,25 @@ function resetSessionTimer() {
 async function initApp() {
   document.getElementById('loginScreen').classList.add('hidden');
   document.getElementById('appScreen').classList.remove('hidden');
-  localStorage.setItem('epi_last_activity', Date.now().toString());
 
   document.getElementById('userName').textContent = currentProfile.nombre || currentUser.email;
   document.getElementById('userRole').textContent = getRoleName(currentProfile.role);
   document.getElementById('sessionIdShort').textContent = SECURITY.sessionId ? SECURITY.sessionId.substring(0,6) : '---';
 
+  // Mostrar/ocultar menús según rol
   if (currentProfile.role === 'superadmin') {
     document.getElementById('menuUsuarios').classList.remove('hidden');
     document.getElementById('menuCalendarios').classList.remove('hidden');
     document.getElementById('menuPuerperas').classList.remove('hidden');
     document.getElementById('menuArchivados').classList.remove('hidden');
     document.getElementById('menuBackup').classList.remove('hidden');
-    const semSelector = document.getElementById('superadminSemanaSelector');
-    if (semSelector) semSelector.classList.remove('hidden');
   } else if (currentProfile.role === 'admin') {
     document.getElementById('menuPuerperas').classList.remove('hidden');
     document.getElementById('menuArchivados').classList.remove('hidden');
     document.getElementById('menuBackup').classList.remove('hidden');
+    // admin NO ve usuarios ni calendarios
   }
+  // médico: solo ve Dashboard, Gestantes, Control Semanal (por defecto)
 
   const opciones = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
   document.getElementById('currentDate').textContent = new Date().toLocaleDateString('es-VE', opciones);
@@ -1547,6 +1466,7 @@ async function initApp() {
   initConsultoriosSelects();
   await initSemanasSelect();
 
+  // Iniciar timer de sesión
   startSessionTimer();
 
   await showSection('dashboard');
@@ -1597,8 +1517,10 @@ async function loadSemanasDisponibles() {
   loadControlSemanal();
 }
 
+
 // ==================== NAVEGACIÓN ====================
 async function showSection(section) {
+  // Proteger secciones restringidas para médicos
   if (currentProfile && currentProfile.role === 'medico') {
     const seccionesProhibidas = ['puerperas', 'archivados', 'usuarios', 'calendarios', 'backup'];
     if (seccionesProhibidas.includes(section)) {
@@ -1637,8 +1559,6 @@ function toggleSidebar() {
 
 // ==================== CONTROL SEMANAL: BÚSQUEDA POR CÉDULA ====================
 async function buscarCedulaControl() {
-  if (!supabaseReady()) { showToast('Sistema no disponible. Verifique la conexión.', 'error'); return; }
-
   const cedulaInput = document.getElementById('buscarCedulaControl');
   const resultadoDiv = document.getElementById('resultadoBusquedaCedula');
   const cedula = cedulaInput.value.trim();
@@ -1673,6 +1593,7 @@ async function buscarCedulaControl() {
             <div class="flex-1">
               <p class="font-medium text-green-800">Gestante encontrada: ${gestante.nombres} ${gestante.apellidos}</p>
               <p class="text-sm text-green-600">Consultorio: ${gestante.consultorio} • Cédula: ${gestante.cedula || 'N/A'}</p>
+
               <div class="mt-3 bg-white rounded-lg border border-green-200 p-3">
                 <label class="block text-sm font-medium text-gray-700 mb-1">
                   <i class="fas fa-baby text-green-500 mr-1"></i> Semana de Gestación Actual
@@ -1683,6 +1604,7 @@ async function buscarCedulaControl() {
                   placeholder="Ej: 24 SEMANAS Y 3 DIAS">
                 <p class="text-xs text-gray-400 mt-1">Puede modificar la semana de gestación antes de agregar al reporte.</p>
               </div>
+
               <div class="mt-3 flex gap-2">
                 <button onclick="agregarControlExistente('${gestante.id}', '${cedula}')" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm transition"><i class="fas fa-plus mr-1"></i> Agregar como CONTROL</button>
                 <button onclick="limpiarBusquedaCedula()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm transition">Cancelar</button>
@@ -1718,8 +1640,6 @@ function limpiarBusquedaCedula() {
 }
 
 async function agregarControlExistente(gestanteId, cedula) {
-  if (!supabaseReady()) { showToast('Sistema no disponible.', 'error'); return; }
-
   const semana = await getCurrentSemanaEpidemiologica();
   const anio = new Date().getFullYear();
   if (!semana || semana === '-') { showToast('No se pudo determinar la semana epidemiológica actual', 'error'); return; }
@@ -1728,9 +1648,12 @@ async function agregarControlExistente(gestanteId, cedula) {
   if (existente && existente.length > 0) { showToast('Esta gestante ya está registrada en esta semana epidemiológica', 'error'); return; }
 
   const { data: gestante } = await supabaseClient.from('gestantes').select('*').eq('id', gestanteId).single();
+
+  // Obtener la semana de gestación editada por el usuario
   const semGestaInput = document.getElementById('semGestaControlInput');
   const semGestaEditada = semGestaInput ? semGestaInput.value.trim() : (gestante.semana_gestacion || '');
 
+  // Actualizar la semana de gestación en la gestante si cambió
   if (semGestaEditada && semGestaEditada !== gestante.semana_gestacion) {
     const { error: updError } = await supabaseClient.from('gestantes').update({ 
       semana_gestacion: semGestaEditada,
@@ -1749,7 +1672,7 @@ async function agregarControlExistente(gestanteId, cedula) {
   if (error) { showToast('Error: ' + error.message, 'error'); return; }
   showToast('Control registrado exitosamente');
   limpiarBusquedaCedula();
-  await loadGestantes();
+  await loadGestantes(); // Recargar para reflejar cambios en semana gestación
   await loadControlSemanal();
 }
 
@@ -1777,7 +1700,6 @@ async function abrirCaptacionNueva(cedula) {
 
 // ==================== GESTANTES CRUD ====================
 async function loadGestantes() {
-  if (!supabaseReady()) { showToast('Sistema no disponible.', 'error'); return; }
   try {
     let query = supabaseClient.from('gestantes').select('*').order('fecha_registro', { ascending: false });
     if (currentProfile.role === 'medico' && currentProfile.consultorio) query = query.eq('consultorio', currentProfile.consultorio);
@@ -1823,7 +1745,9 @@ function openGestanteModal() {
   document.getElementById('gestanteId').value = '';
   document.getElementById('gestanteModalTitle').textContent = 'Nueva Embarazada';
   document.getElementById('accionesEspeciales').classList.add('hidden');
+  // Set default fecha de registro to today
   document.getElementById('gFechaRegistro').value = new Date().toISOString().split('T')[0];
+  // Reset custom fields
   document.getElementById('gSinCedula').checked = false;
   document.getElementById('gEdadManual').checked = false;
   document.getElementById('gFurIncierto').checked = false;
@@ -1837,8 +1761,6 @@ function openGestanteModal() {
   document.getElementById('gEnfermedad').value = 'NO';
   toggleCualEnfermedad();
   document.getElementById('gTipoConsulta').value = 'Consulta';
-  document.getElementById('gFurIncierto').checked = false;
-  toggleFurIncierto();
   window._captacionDesdeControl = false;
   if (currentProfile.role === 'medico' && currentProfile.consultorio) {
     document.getElementById('gConsultorio').value = currentProfile.consultorio;
@@ -1856,10 +1778,10 @@ function closeGestanteModal() {
   window._cedulaCaptacion = null;
   window._semanaCaptacion = null;
   window._anioCaptacion = null;
+  // Reset custom fields
   document.getElementById('gSinCedula').checked = false;
   document.getElementById('gEdadManual').checked = false;
   document.getElementById('gFurIncierto').checked = false;
-  toggleFurIncierto();
   document.getElementById('gCedula').readOnly = false;
   document.getElementById('gCedula').classList.remove('bg-gray-100');
   document.getElementById('gCedulaHelp').classList.add('hidden');
@@ -1874,7 +1796,7 @@ function editGestante(id) {
   const g = gestantesData.find(x => x.id === id);
   if (!g) return;
   document.getElementById('gestanteId').value = g.id;
-  document.getElementById('gFechaRegistro').value = g.fecha_registro ? g.fecha_registro.split('T')[0] : new Date().toISOString().split('T')[0];
+  // Handle cedula - check if it's a NO-POSEE generated one
   const cedulaVal = g.cedula || '';
   const esSinCedula = cedulaVal.startsWith('NO-POSEE-');
   document.getElementById('gSinCedula').checked = esSinCedula;
@@ -1903,7 +1825,7 @@ function editGestante(id) {
   document.getElementById('gNP').value = g.num_p || 0;
   document.getElementById('gNC').value = g.num_c || 0;
   document.getElementById('gNA').value = g.num_a || 0;
-  calcularNG();
+  calcularNG(); // N° G se calcula automáticamente
   document.getElementById('gSemGesta').value = g.semana_gestacion || '';
   document.getElementById('gSemGesta').readOnly = false;
   document.getElementById('gSemGesta').classList.remove('bg-gray-50');
@@ -1931,7 +1853,6 @@ function editGestante(id) {
 }
 
 async function deleteGestante(id) {
-  if (!supabaseReady()) { showToast('Sistema no disponible.', 'error'); return; }
   if (!confirm('¿Eliminar permanentemente este registro?')) return;
   const { error } = await supabaseClient.from('gestantes').delete().eq('id', id);
   if (error) { showToast('Error: ' + error.message, 'error'); return; }
@@ -1939,8 +1860,10 @@ async function deleteGestante(id) {
   await loadGestantes();
 }
 
+
+// ==================== VALIDAR CÉDULA ÚNICA ====================
 async function validarCedulaUnica(cedula, excluirId) {
-  if (!supabaseReady() || !cedula) return { valido: true };
+  if (!cedula) return { valido: true };
   const { data, error } = await supabaseClient
     .from('gestantes')
     .select('id, nombres, apellidos')
@@ -1952,6 +1875,7 @@ async function validarCedulaUnica(cedula, excluirId) {
   return { valido: true };
 }
 
+// Cálculos automáticos
 function calcularEdad() {
   const fechaNac = document.getElementById('gFechaNac').value;
   if (!fechaNac) return;
@@ -1963,6 +1887,7 @@ function calcularEdad() {
   if (edad >= 10 && edad <= 80) document.getElementById('gEdad').value = edad;
 }
 
+// Toggle edad manual
 function toggleEdadManual() {
   const checkbox = document.getElementById('gEdadManual');
   const edadInput = document.getElementById('gEdad');
@@ -1982,6 +1907,7 @@ function toggleEdadManual() {
   }
 }
 
+// Toggle F.U.R Incierto
 function toggleFurIncierto() {
   const checkbox = document.getElementById('gFurIncierto');
   const furInput = document.getElementById('gFur');
@@ -2006,6 +1932,7 @@ function toggleFurIncierto() {
   }
 }
 
+// Toggle ¿Cuál Enfermedad?
 function toggleCualEnfermedad() {
   const select = document.getElementById('gEnfermedad');
   const div = document.getElementById('divCualEnf');
@@ -2021,6 +1948,7 @@ function toggleCualEnfermedad() {
   }
 }
 
+// Calcular N° G automáticamente (P + C + A)
 function calcularNG() {
   const p = parseInt(document.getElementById('gNP').value) || 0;
   const c = parseInt(document.getElementById('gNC').value) || 0;
@@ -2028,8 +1956,9 @@ function calcularNG() {
   document.getElementById('gNG').value = p + c + a;
 }
 
+// Formato teléfono: (XXXX)XXXXXXX, máximo 10 números
 function formatTelefono(input) {
-  let val = input.value.replace(/\D/g, '');
+  let val = input.value.replace(/\D/g, ''); // solo números
   if (val.length > 10) val = val.substring(0, 10);
   if (val.length >= 4) {
     input.value = '(' + val.substring(0, 4) + ')' + val.substring(4);
@@ -2038,28 +1967,35 @@ function formatTelefono(input) {
   }
 }
 
+
+// Toggle sin cedula - genera numero unico
 async function toggleSinCedula() {
   const checkbox = document.getElementById('gSinCedula');
   const cedulaInput = document.getElementById('gCedula');
   const helpText = document.getElementById('gCedulaHelp');
 
   if (checkbox.checked) {
+    // Buscar el último número consecutivo NO-POSEE en la base de datos
     let siguienteNumero = 1;
-    if (supabaseReady()) {
-      try {
-        const { data: existentes, error } = await supabaseClient
-          .from('gestantes')
-          .select('cedula')
-          .ilike('cedula', 'NO-POSEE-%')
-          .order('cedula', { ascending: false })
-          .limit(1);
-        if (!error && existentes && existentes.length > 0) {
-          const ultima = existentes[0].cedula;
-          const match = ultima.match(/NO-POSEE-(\d+)/);
-          if (match) siguienteNumero = parseInt(match[1]) + 1;
+    try {
+      const { data: existentes, error } = await supabaseClient
+        .from('gestantes')
+        .select('cedula')
+        .ilike('cedula', 'NO-POSEE-%')
+        .order('cedula', { ascending: false })
+        .limit(1);
+
+      if (!error && existentes && existentes.length > 0) {
+        const ultima = existentes[0].cedula;
+        const match = ultima.match(/NO-POSEE-(\d+)/);
+        if (match) {
+          siguienteNumero = parseInt(match[1]) + 1;
         }
-      } catch (e) { console.warn('Error consultando último NO-POSEE:', e); }
+      }
+    } catch (e) {
+      console.warn('Error consultando último NO-POSEE:', e);
     }
+
     const numeroFormateado = siguienteNumero.toString().padStart(5, '0');
     const numeroUnico = `NO-POSEE-${numeroFormateado}`;
     cedulaInput.value = numeroUnico;
@@ -2079,6 +2015,7 @@ async function toggleSinCedula() {
 document.getElementById('gFechaNac').addEventListener('change', calcularEdad);
 document.getElementById('gFur').addEventListener('change', calcularSemanasFPP);
 document.getElementById('gFur').addEventListener('input', calcularSemanasFPP);
+// Event listeners para cálculo automático de N° G
 document.getElementById('gNP').addEventListener('input', calcularNG);
 document.getElementById('gNC').addEventListener('input', calcularNG);
 document.getElementById('gNA').addEventListener('input', calcularNG);
@@ -2093,6 +2030,7 @@ function calcularSemanasFPP() {
   const semanas = Math.floor(diffDays / 7);
   const dias = diffDays % 7;
   if (semanas >= 0 && semanas <= 42) {
+    // Solo calcular automáticamente si el campo está vacío (nuevo registro)
     const semGestaActual = document.getElementById('gSemGesta').value.trim();
     if (!semGestaActual) {
       document.getElementById('gSemGesta').value = `${semanas} SEMANAS Y ${dias} DIAS`;
@@ -2108,11 +2046,10 @@ function calcularSemanasFPP() {
 
 document.getElementById('gestanteForm').addEventListener('submit', async (e) => {
   e.preventDefault();
-  if (!supabaseReady()) { showToast('Sistema no disponible. No se puede guardar.', 'error'); return; }
-
   const id = document.getElementById('gestanteId').value;
   const cedulaInput = document.getElementById('gCedula').value.trim();
 
+  // Validar que la cedula no exista (solo para nuevos registros)
   if (!id && cedulaInput) {
     const { data: existente, error: cedulaError } = await supabaseClient
       .from('gestantes')
@@ -2135,7 +2072,6 @@ document.getElementById('gestanteForm').addEventListener('submit', async (e) => 
       return;
     }
   }
-
   const furIncierto = document.getElementById('gFurIncierto').checked;
   const fur = furIncierto ? null : document.getElementById('gFur').value;
   const semGesta = document.getElementById('gSemGesta').value;
@@ -2179,7 +2115,7 @@ document.getElementById('gestanteForm').addEventListener('submit', async (e) => 
     fecha_ultima_actualizacion: new Date().toISOString(),
     created_by: currentUser.id
   };
-  if (!id) data.fecha_registro = new Date().toISOString().split('T')[0];
+  if (!id) data.fecha_registro = new Date().toISOString();
 
   let gestanteId = id;
   if (id) {
@@ -2218,7 +2154,6 @@ document.getElementById('gestanteForm').addEventListener('submit', async (e) => 
 
 // ==================== ACCIONES ESPECIALES ====================
 async function marcarPuerpera() {
-  if (!supabaseReady()) { showToast('Sistema no disponible.', 'error'); return; }
   const id = document.getElementById('gestanteId').value;
   if (!id) { showToast('Guarde el registro primero', 'error'); return; }
   if (!confirm('¿Marcar como Puérpera / Lactante? Se calculará desde la fecha de hoy.')) return;
@@ -2230,7 +2165,6 @@ async function marcarPuerpera() {
 }
 
 async function marcarAborto() {
-  if (!supabaseReady()) { showToast('Sistema no disponible.', 'error'); return; }
   const id = document.getElementById('gestanteId').value;
   if (!id) { showToast('Guarde el registro primero', 'error'); return; }
   if (!confirm('¿Archivar este registro? Se guardarán nombre, apellido y cédula para futuras consultas.')) return;
@@ -2242,7 +2176,6 @@ async function marcarAborto() {
 }
 
 async function nuevoEmbarazo() {
-  if (!supabaseReady()) { showToast('Sistema no disponible.', 'error'); return; }
   const id = document.getElementById('gestanteId').value;
   if (!id) { showToast('Guarde el registro primero', 'error'); return; }
   if (!confirm('¿Reactivar para nuevo embarazo? Se limpiarán datos obstétricos y se conservarán datos personales.')) return;
@@ -2283,7 +2216,6 @@ function renderArchivados() {
 }
 
 async function reactivarArchivado(id) {
-  if (!supabaseReady()) { showToast('Sistema no disponible.', 'error'); return; }
   if (!confirm('¿Reactivar este registro para nuevo embarazo?')) return;
   const { error } = await supabaseClient.from('gestantes').update({ estado: 'gestante', fur: null, semana_gestacion: null, fpp: null, num_p: 0, num_c: 0, num_a: 0, num_g: 0, trimestre: 0, fecha_parto: null, motivo_archivo: null, fecha_archivo: null, fecha_registro: new Date().toISOString(), fecha_ultima_actualizacion: new Date().toISOString() }).eq('id', id);
   if (error) { showToast('Error: ' + error.message, 'error'); return; }
@@ -2293,61 +2225,18 @@ async function reactivarArchivado(id) {
 }
 
 // ==================== CONTROL SEMANAL ====================
-let semanaSeleccionadaSuper = null;
-
-async function cambiarSemanaControl() {
-  const sel = document.getElementById('semanaEpiSelectSuper');
-  if (!sel) return;
-  const val = sel.value;
-  if (!val) {
-    semanaSeleccionadaSuper = null;
-  } else {
-    semanaSeleccionadaSuper = parseInt(val);
-  }
-  await loadControlSemanal();
-}
-
-async function cargarOpcionesSemanaSuper() {
-  const sel = document.getElementById('semanaEpiSelectSuper');
-  if (!sel) return;
-  const anioActivo = parseInt(document.getElementById('anioEpiSelect').value) || new Date().getFullYear();
-  let semanas = calendariosData.filter(c => c.anio === anioActivo).sort((a, b) => a.semana - b.semana);
-  if (semanas.length === 0) {
-    semanas = generarCalendarioLocal(anioActivo, anioActivo + '-01-04');
-  }
-  const semanaActual = await getCurrentSemanaEpidemiologica();
-  sel.innerHTML = '<option value="">Actual (SE ' + semanaActual + ')</option>';
-  semanas.forEach(s => {
-    const opt = document.createElement('option');
-    opt.value = s.semana;
-    opt.textContent = 'SE ' + s.semana + ' (' + s.fecha_inicio + ' al ' + s.fecha_fin + ')';
-    if (semanaSeleccionadaSuper && s.semana === semanaSeleccionadaSuper) opt.selected = true;
-    else if (!semanaSeleccionadaSuper && s.semana == semanaActual) opt.selected = true;
-    sel.appendChild(opt);
-  });
-}
-
 async function loadControlSemanal() {
-  if (!supabaseReady()) { 
-    document.getElementById('controlTable').innerHTML = '<tr><td colspan="30" class="px-4 py-8 text-center text-gray-400">Sistema no disponible. Verifique la conexión.</td></tr>';
-    return; 
-  }
-
+  // Obtener semana epidemiológica automática según fecha actual
   const semanaActual = await getCurrentSemanaEpidemiologica();
   const anioActual = new Date().getFullYear();
 
-  const semana = (currentProfile && currentProfile.role === 'superadmin' && semanaSeleccionadaSuper)
-    ? semanaSeleccionadaSuper
-    : semanaActual;
+  // Actualizar campos ocultos y display
+  document.getElementById('semanaEpiSelect').value = semanaActual;
+  document.getElementById('anioEpiSelect').value = anioActual;
+  document.getElementById('semanaEpiValor').textContent = semanaActual;
+
+  const semana = semanaActual;
   const anio = anioActual;
-
-  document.getElementById('semanaEpiSelect').value = semana;
-  document.getElementById('anioEpiSelect').value = anio;
-  document.getElementById('semanaEpiValor').textContent = semana;
-
-  if (currentProfile && currentProfile.role === 'superadmin') {
-    await cargarOpcionesSemanaSuper();
-  }
   const tbody = document.getElementById('controlTable');
   const empty = document.getElementById('controlEmpty');
 
@@ -2359,14 +2248,9 @@ async function loadControlSemanal() {
   }
 
   empty.classList.add('hidden');
-  let query = supabaseClient.from('control_semanal').select('*, gestantes(*)').eq('semana_epidemiologica', parseInt(semana)).eq('anio', parseInt(anio));
-  const { data, error } = await query;
+  const { data, error } = await supabaseClient.from('control_semanal').select('*, gestantes(*)').eq('semana_epidemiologica', parseInt(semana)).eq('anio', parseInt(anio));
   if (error) { showToast('Error: ' + error.message, 'error'); return; }
-  let result = data || [];
-  if (currentProfile.role !== 'superadmin' && currentProfile.consultorio) {
-    result = result.filter(c => c.gestantes && c.gestantes.consultorio === currentProfile.consultorio);
-  }
-  controlData = result;
+  controlData = data || [];
   renderControlTable();
 }
 
@@ -2419,6 +2303,9 @@ function renderControlTable() {
     </tr>`;
   }).join('');
 }
+  
+
+
 
 function editControl(id) {
   const c = controlData.find(x => x.id === id);
@@ -2436,7 +2323,6 @@ function editControl(id) {
 function closeControlEditModal() { document.getElementById('controlEditModal').classList.add('hidden'); }
 
 async function eliminarControl(id) {
-  if (!supabaseReady()) { showToast('Sistema no disponible.', 'error'); return; }
   if (!confirm('¿Está seguro de eliminar este registro del Control Semanal? Esta acción no se puede deshacer.')) return;
   const { error } = await supabaseClient.from('control_semanal').delete().eq('id', id);
   if (error) { showToast('Error: ' + error.message, 'error'); return; }
@@ -2446,7 +2332,6 @@ async function eliminarControl(id) {
 
 document.getElementById('controlEditForm').addEventListener('submit', async (e) => {
   e.preventDefault();
-  if (!supabaseReady()) { showToast('Sistema no disponible.', 'error'); return; }
   const id = document.getElementById('ceId').value;
   const data = { semana_gestacion: document.getElementById('ceSemGesta').value, motivo: document.getElementById('ceMotivo').value, diagnostico: document.getElementById('ceDiagnostico').value.trim().toUpperCase(), tipo_consulta: document.getElementById('ceTipo').value, referido: document.getElementById('ceReferido').value.trim().toUpperCase(), observacion: document.getElementById('ceObservacion').value.trim().toUpperCase(), fecha_ultima_actualizacion: new Date().toISOString() };
   const { error } = await supabaseClient.from('control_semanal').update(data).eq('id', id);
@@ -2457,7 +2342,6 @@ document.getElementById('controlEditForm').addEventListener('submit', async (e) 
 });
 
 async function exportarExcelSemanal() {
-  if (!supabaseReady()) { showToast('Sistema no disponible.', 'error'); return; }
   const semana = await getCurrentSemanaEpidemiologica();
   const anio = new Date().getFullYear();
   if (!semana || semana === '-') { showToast('No se pudo determinar la semana epidemiológica actual', 'error'); return; }
@@ -2501,6 +2385,7 @@ async function exportarExcelSemanal() {
   XLSX.writeFile(wb, `Control_Semanal_SE${semana}_${anio}.xlsx`);
   showToast('Excel exportado exitosamente');
 }
+  
 
 // ==================== DASHBOARD ====================
 function renderDashboard() {
@@ -2528,6 +2413,7 @@ function renderDashboard() {
   const recientes = [...gestantesData].filter(g => g.estado !== 'archivado').sort((a, b) => new Date(b.fecha_registro) - new Date(a.fecha_registro)).slice(0, 5);
   document.getElementById('recentRecords').innerHTML = recientes.map(g => `<div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"><div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 text-xs"><i class="fas fa-female"></i></div><div class="flex-1 min-w-0"><p class="text-sm font-medium text-gray-800 truncate">${g.nombres} ${g.apellidos}</p><p class="text-xs text-gray-500">${g.consultorio} • ${g.semana_gestacion || ''}</p></div></div>`).join('');
 
+  // ===== REGISTRO MES DE =====
   const hoy = new Date();
   const mesActual = hoy.getMonth();
   const anioActual = hoy.getFullYear();
@@ -2557,6 +2443,7 @@ function renderDashboard() {
   document.getElementById('mesMenores').textContent = mesMenores.length;
   document.getElementById('mesMayores').textContent = mesMayores.length;
 
+  // ===== TOTAL ACUMULADO ANUAL =====
   const gestantesAnio = gestantesData.filter(g => {
     if (!g.fecha_registro) return false;
     const f = new Date(g.fecha_registro);
@@ -2589,7 +2476,6 @@ function renderChart(id, type, labels, data, colors) {
 
 // ==================== USUARIOS ====================
 async function loadUsers() {
-  if (!supabaseReady()) return;
   if (currentProfile.role !== 'superadmin') return;
   const { data, error } = await supabaseClient.from('profiles').select('*').order('created_at', { ascending: false });
   if (error) return;
@@ -2608,14 +2494,14 @@ function closeUserModal() { document.getElementById('userModal').classList.add('
 // ==================== CREAR USUARIO (SUPER ADMIN) ====================
 document.getElementById('userForm').addEventListener('submit', async (e) => {
   e.preventDefault();
-  if (!supabaseReady()) { showToast('Sistema no disponible. No se puede crear usuario.', 'error'); return; }
-
+  
   const email = document.getElementById('uEmail').value.trim();
   const password = document.getElementById('uPassword').value;
   const nombre = document.getElementById('uNombre').value.trim();
   const rol = document.getElementById('uRol').value;
   const consultorio = document.getElementById('uConsultorio').value;
 
+  // Validar fortaleza de contraseña
   if (password.length < 8) { showToast('La contraseña debe tener mínimo 8 caracteres', 'error'); return; }
   if (!/[A-Z]/.test(password)) { showToast('La contraseña debe incluir al menos una mayúscula', 'error'); return; }
   if (!/[a-z]/.test(password)) { showToast('La contraseña debe incluir al menos una minúscula', 'error'); return; }
@@ -2627,18 +2513,31 @@ document.getElementById('userForm').addEventListener('submit', async (e) => {
   btn.disabled = true;
 
   try {
+    // functions.invoke envía automáticamente el token del usuario logueado
     const { data, error } = await supabaseClient.functions.invoke('create-user', {
-      body: { email, password, nombre, role: rol, consultorio: consultorio || null, created_by: currentUser.id }
+      body: {
+        email,
+        password,
+        nombre,
+        role: rol,
+        consultorio: consultorio || null,
+        created_by: currentUser.id
+      }
     });
 
-    if (error) throw new Error(error.message || 'Error al crear usuario');
-    if (data.error) throw new Error(data.error);
+    if (error) {
+      throw new Error(error.message || 'Error al crear usuario');
+    }
+
+    if (data.error) {
+      throw new Error(data.error);
+    }
 
     showToast('Usuario creado exitosamente. Puede iniciar sesión inmediatamente.');
     closeUserModal();
     document.getElementById('userForm').reset();
     await loadUsers();
-
+    
   } catch (err) {
     showToast('Error: ' + err.message, 'error');
     console.error('Error creando usuario:', err);
@@ -2647,10 +2546,8 @@ document.getElementById('userForm').addEventListener('submit', async (e) => {
     btn.disabled = false;
   }
 });
-
 // ==================== CALENDARIOS ====================
 async function loadCalendarios() {
-  if (!supabaseReady()) return;
   const { data, error } = await supabaseClient.from('calendarios_epidemiologicos').select('*').order('anio', { ascending: false });
   if (error) { console.warn('Error cargando calendarios:', error); return; }
   calendariosData = data || [];
@@ -2672,7 +2569,6 @@ function closeCalendarioModal() { document.getElementById('calendarioModal').cla
 
 document.getElementById('calendarioForm').addEventListener('submit', async (e) => {
   e.preventDefault();
-  if (!supabaseReady()) { showToast('Sistema no disponible.', 'error'); return; }
   const anio = parseInt(document.getElementById('cAnio').value);
   const fechaInicio = new Date(document.getElementById('cFechaInicio').value + 'T00:00:00');
   const semanas = [];
@@ -2693,7 +2589,6 @@ document.getElementById('calendarioForm').addEventListener('submit', async (e) =
 
 // ==================== BACKUP / RESTORE ====================
 async function backupData() {
-  if (!supabaseReady()) { showToast('Sistema no disponible.', 'error'); return; }
   const key = document.getElementById('backupKey').value;
   if (!key || key.length < 8) { showToast('La clave debe tener mínimo 8 caracteres', 'error'); return; }
   const [{ data: gestantes }, { data: control }, { data: users }] = await Promise.all([
@@ -2714,7 +2609,6 @@ async function backupData() {
 }
 
 async function restoreData() {
-  if (!supabaseReady()) { showToast('Sistema no disponible.', 'error'); return; }
   const file = document.getElementById('restoreFile').files[0];
   const key = document.getElementById('restoreKey').value;
   if (!file || !key) { showToast('Seleccione archivo e ingrese clave', 'error'); return; }
@@ -2735,7 +2629,6 @@ async function restoreData() {
 
 // ==================== EXCEL IMPORT/EXPORT ====================
 async function exportarExcel() {
-  if (!supabaseReady()) { showToast('Sistema no disponible.', 'error'); return; }
   const { data } = await supabaseClient.from('gestantes').select('*');
   const rows = (data || []).map(g => ({ CEDULA: g.cedula, NOMBRES: g.nombres, APELLIDOS: g.apellidos, CONSULTORIO: g.consultorio, EDAD: g.edad, TELEFONO: g.telefono, DIRECCION: g.direccion, FUR: g.fur, SEM_GESTACION: g.semana_gestacion, FPP: g.fpp, ARO: g.aro, ESTADO: g.estado }));
   const ws = XLSX.utils.json_to_sheet(rows);
@@ -2746,7 +2639,6 @@ async function exportarExcel() {
 }
 
 async function exportarExcelEncriptado() {
-  if (!supabaseReady()) { showToast('Sistema no disponible.', 'error'); return; }
   const key = document.getElementById('excelKey').value;
   if (!key) { showToast('Ingrese clave para encriptar', 'error'); return; }
   const { data } = await supabaseClient.from('gestantes').select('*');
@@ -2768,7 +2660,6 @@ async function exportarExcelEncriptado() {
 }
 
 async function importarExcel() {
-  if (!supabaseReady()) { showToast('Sistema no disponible.', 'error'); return; }
   const file = document.getElementById('excelImport').files[0];
   const key = document.getElementById('excelImportKey').value;
   if (!file) { showToast('Seleccione un archivo', 'error'); return; }
@@ -2820,8 +2711,6 @@ function closePasswordModal() {
 
 document.getElementById('passwordForm').addEventListener('submit', async (e) => {
   e.preventDefault();
-  if (!supabaseReady()) { showToast('Sistema no disponible.', 'error'); return; }
-
   const currentPass = document.getElementById('currentPassword').value;
   const newPass = document.getElementById('newPassword').value;
   const confirmPass = document.getElementById('confirmNewPassword').value;
@@ -2894,7 +2783,6 @@ function generateTempPassword() {
 }
 
 async function applyPasswordReset() {
-  if (!supabaseReady()) { showToast('Sistema no disponible.', 'error'); return; }
   const errorDiv = document.getElementById('resetPasswordError');
   const successDiv = document.getElementById('resetPasswordSuccess');
   const newPassword = document.getElementById('tempPassword').value;
@@ -2907,10 +2795,14 @@ async function applyPasswordReset() {
 
   try {
     const { data, error } = await supabaseClient.functions.invoke('reset-password', {
-      body: { user_id: resetUserId, new_password: newPassword }
+      body: {
+        user_id: resetUserId,
+        new_password: newPassword
+      }
     });
 
     if (error) throw new Error(error.message);
+
     if (data.error) throw new Error(data.error);
 
     successDiv.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Contraseña actualizada exitosamente para <strong>' + resetUserEmail + '</strong>.';
@@ -2923,8 +2815,7 @@ async function applyPasswordReset() {
   }
 }
 
-async function sendPasswordResetEmail() {
-  if (!supabaseReady()) { showToast('Sistema no disponible.', 'error'); return; }
+  async function sendPasswordResetEmail() {
   const errorDiv = document.getElementById('resetPasswordError');
   const successDiv = document.getElementById('resetPasswordSuccess');
   errorDiv.classList.add('hidden');
@@ -2945,74 +2836,26 @@ async function sendPasswordResetEmail() {
   }
 }
 
-async function toggleUser(userId, activo) {
-  if (!supabaseReady()) { showToast('Sistema no disponible.', 'error'); return; }
-  const { error } = await supabaseClient.from('profiles').update({ activo }).eq('id', userId);
-  if (error) { showToast('Error: ' + error.message, 'error'); return; }
-  showToast('Usuario actualizado');
-  await loadUsers();
-}
-
-async function deleteUser(userId) {
-  if (!supabaseReady()) { showToast('Sistema no disponible.', 'error'); return; }
-  if (!confirm('¿Eliminar permanentemente este usuario?')) return;
-  const { error } = await supabaseClient.from('profiles').delete().eq('id', userId);
-  if (error) { showToast('Error: ' + error.message, 'error'); return; }
-  showToast('Usuario eliminado');
-  await loadUsers();
-}
-
 // ==================== INICIO ====================
 
 window.addEventListener('DOMContentLoaded', () => {
+  // ===== CAPTCHA: SIEMPRE funciona, independiente de Supabase =====
   setTimeout(() => {
     generateCaptcha();
     console.log('[CAPTCHA] Inicializado correctamente');
   }, 50);
 
+  // ===== SUPABASE: Solo si está configurado =====
   if (!supabaseClient) {
     console.warn('[Sistema] Supabase no configurado. Modo demo activo.');
-    const configAlert = document.getElementById('configAlert');
-    if (configAlert) {
-      configAlert.classList.remove('hidden');
-      document.getElementById('configAlertText').textContent = supabaseInitError || 'El sistema de autenticación no está disponible.';
-    }
     return;
   }
 
+  // Ejecutar inicialización de Supabase en función async separada
   initSupabaseSession();
 });
 
 async function initSupabaseSession() {
-  if (!supabaseReady()) return;
-
-  const lastActivity = localStorage.getItem('epi_last_activity');
-  const now = Date.now();
-  const INACTIVITY_LIMIT = 10 * 60 * 1000;
-
-  if (lastActivity) {
-    const elapsed = now - parseInt(lastActivity);
-    if (elapsed > INACTIVITY_LIMIT) {
-      console.log('[Sesión] Expirada por inactividad al recargar. Cerrando...');
-      try { await supabaseClient.auth.signOut(); } catch(e) {}
-      localStorage.removeItem('epi_session');
-      localStorage.removeItem('epi_last_activity');
-      const supabaseKey = 'sb-' + SUPABASE_URL.replace('https://', '').replace('.supabase.co', '') + '-auth-token';
-      localStorage.removeItem(supabaseKey);
-      localStorage.removeItem('supabase.auth.token');
-      sessionStorage.clear();
-      return;
-    }
-  }
-
-  if (!lastActivity) {
-    try { await supabaseClient.auth.signOut(); } catch(e) {}
-    const supabaseKey = 'sb-' + SUPABASE_URL.replace('https://', '').replace('.supabase.co', '') + '-auth-token';
-    localStorage.removeItem(supabaseKey);
-    localStorage.removeItem('supabase.auth.token');
-    return;
-  }
-
   try {
     const { data: { session } } = await supabaseClient.auth.getSession();
     if (session) {
@@ -3022,17 +2865,52 @@ async function initSupabaseSession() {
         currentProfile = profile;
         SECURITY.sessionId = generateSessionId();
         sessionStartTime = Date.now();
-        localStorage.setItem('epi_last_activity', Date.now().toString());
         initApp();
         return;
       }
     }
   } catch (e) { console.warn('Error verificando sesión:', e); }
 
-  localStorage.removeItem('epi_session');
-  localStorage.removeItem('epi_last_activity');
+  const bypassSession = localStorage.getItem('epi_session');
+  if (bypassSession) {
+    try {
+      const bs = JSON.parse(bypassSession);
+      if (bs.timestamp && (Date.now() - bs.timestamp) < 24 * 60 * 60 * 1000) {
+        currentUser = bs.user;
+        currentProfile = bs.profile;
+        SECURITY.sessionId = generateSessionId();
+        sessionStartTime = Date.now();
+        initApp();
+        return;
+      } else { localStorage.removeItem('epi_session'); }
+    } catch (e) { localStorage.removeItem('epi_session'); }
+  }
 }
 </script>
+
+<!-- MODAL CONFIRMAR CIERRE DE SESIÓN -->
+<div id="logoutConfirmModal" class="fixed inset-0 z-[60] hidden">
+  <div class="modal-overlay absolute inset-0" onclick="closeLogoutModal()"></div>
+  <div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm pointer-events-auto transform transition-all">
+      <div class="p-6 text-center">
+        <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4 text-red-600 text-2xl">
+          <i class="fas fa-sign-out-alt"></i>
+        </div>
+        <h2 class="text-xl font-bold text-gray-800 mb-2">¿Cerrar Sesión?</h2>
+        <p class="text-sm text-gray-500 mb-6">¿Está seguro que desea salir del sistema? Los cambios no guardados se perderán.</p>
+        <div class="flex justify-center gap-3">
+          <button onclick="closeLogoutModal()" class="px-5 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg transition font-medium">
+            Cancelar
+          </button>
+          <button onclick="confirmLogout()" class="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg transition font-medium">
+            <i class="fas fa-sign-out-alt mr-2"></i>Sí, Cerrar Sesión
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
