@@ -1,0 +1,66 @@
+{
+  "name": "EPI 13 - Ruta Materna",
+  "short_name": "EPI 13 Ruta Materna",
+  "description": "Sistema de gestión de embarazadas, control semanal, calendario epidemiológico y puérperas para el ASIC Antonio José de Sucre - Camaguán, Guárico, Venezuela.",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#059669",
+  "orientation": "portrait",
+  "scope": ".",
+  "lang": "es",
+  "icons": [
+    {
+      "src": "https://github.com/tsucesarherrera-afk/p/blob/main/imagenes/pngtree-pregnant-woman-vector-art-png-image_15049016.png?raw=true",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://github.com/tsucesarherrera-afk/p/blob/main/imagenes/pngtree-pregnant-woman-vector-art-png-image_15049016.png?raw=true",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["health", "medical", "productivity"],
+  "screenshots": [
+    {
+      "src": "https://github.com/tsucesarherrera-afk/p/blob/main/imagenes/pngtree-pregnant-woman-vector-art-png-image_15049016.png?raw=true",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Dashboard del sistema EPI 13"
+    },
+    {
+      "src": "https://github.com/tsucesarherrera-afk/p/blob/main/imagenes/pngtree-pregnant-woman-vector-art-png-image_15049016.png?raw=true",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Versión móvil del sistema EPI 13"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "Ver resumen general",
+      "url": "./#dashboard",
+      "icons": [{"src": "https://github.com/tsucesarherrera-afk/p/blob/main/imagenes/pngtree-pregnant-woman-vector-art-png-image_15049016.png?raw=true", "sizes": "96x96"}]
+    },
+    {
+      "name": "Nueva Gestante",
+      "short_name": "+ Gestante",
+      "description": "Registrar nueva embarazada",
+      "url": "./#gestantes",
+      "icons": [{"src": "https://github.com/tsucesarherrera-afk/p/blob/main/imagenes/pngtree-pregnant-woman-vector-art-png-image_15049016.png?raw=true", "sizes": "96x96"}]
+    },
+    {
+      "name": "Control Semanal",
+      "short_name": "Control",
+      "description": "Ver control semanal",
+      "url": "./#control",
+      "icons": [{"src": "https://github.com/tsucesarherrera-afk/p/blob/main/imagenes/pngtree-pregnant-woman-vector-art-png-image_15049016.png?raw=true", "sizes": "96x96"}]
+    }
+  ]
+}
