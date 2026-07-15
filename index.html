@@ -1646,16 +1646,38 @@ function checkPageReload() {
 }
 
 function forceLogout(reason) {
+  // 1. Detener todo inmediatamente
   stopSessionMonitor();
-  localStorage.removeItem(SESSION_KEY);
-  localStorage.removeItem('epi_session');
+  if (sessionTimer) { clearInterval(sessionTimer); sessionTimer = null; }
+
+  // 2. Limpiar variables globales
+  currentUser = null;
+  currentProfile = null;
+  gestantesData = [];
+  controlData = [];
+  usersData = [];
+  calendariosData = [];
+  auditoriaData = [];
+  SECURITY.sessionId = null;
+  sessionStartTime = null;
+
+  // 3. Limpiar TODO el storage
+  const keysToRemove = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key && (key.startsWith('sb-') || key.startsWith('epi_') || key.includes('supabase') || key.includes('refresh'))) {
+      keysToRemove.push(key);
+    }
+  }
+  keysToRemove.forEach(k => localStorage.removeItem(k));
+  sessionStorage.clear();
+
+  // 4. Intentar signOut (no bloqueante)
   if (supabaseClient) {
     supabaseClient.auth.signOut().catch(() => {});
   }
-  currentUser = null;
-  currentProfile = null;
 
-  // Mostrar pantalla de bloqueo según razón
+  // 5. Mostrar pantalla de login
   const loginScreen = document.getElementById('loginScreen');
   const appScreen = document.getElementById('appScreen');
   if (loginScreen && appScreen) {
@@ -1669,14 +1691,15 @@ function forceLogout(reason) {
         sesion_expirada: 'Su sesión ha expirado por inactividad.',
         sesion_invalidada: 'Su sesión ha sido cerrada por el administrador.'
       };
-      errorDiv.textContent = msgs[reason] || 'Sesión finalizada. Ingrese nuevamente.';
+      errorDiv.innerHTML = '<div class="text-center"><i class="fas fa-lock text-2xl text-orange-500 mb-2"></i><p class="font-semibold">' + (msgs[reason] || 'Sesión finalizada. Ingrese nuevamente.') + '</p></div>';
       errorDiv.classList.remove('hidden');
     }
   }
 
-  // Limpiar timers
-  if (sessionTimer) clearInterval(sessionTimer);
-  sessionTimer = null;
+  // 6. Forzar recarga limpia después de 3 segundos para asegurar limpieza total
+  setTimeout(() => {
+    window.location.href = window.location.href.split('#')[0];
+  }, 3000);
 }
 
 // Helper para verificar si Supabase está disponible
@@ -2038,21 +2061,60 @@ function closeLogoutModal() {
 
 async function confirmLogout() {
   closeLogoutModal();
-  // Registrar logout en auditoría
-  if (currentUser) {
-    await registrarAuditoria('LOGOUT', 'auth', currentUser.id, null, { email: currentUser.email, timestamp: new Date().toISOString() });
-  }
+
+  // 1. LIMPIAR TODO INMEDIATAMENTE (antes de cualquier operación de red)
   stopSessionMonitor();
-  localStorage.removeItem(SESSION_KEY);
-  await supabaseClient.auth.signOut();
-  localStorage.removeItem('epi_session');
+  if (sessionTimer) { clearInterval(sessionTimer); sessionTimer = null; }
+
+  // Guardar email para auditoría antes de limpiar
+  const userEmail = currentUser?.email;
+  const userId = currentUser?.id;
+
+  // Limpiar variables globales
   currentUser = null;
   currentProfile = null;
   gestantesData = [];
   controlData = [];
   usersData = [];
-  if (sessionTimer) clearInterval(sessionTimer);
-  location.reload();
+  calendariosData = [];
+  auditoriaData = [];
+  SECURITY.sessionId = null;
+  sessionStartTime = null;
+
+  // Limpiar TODO el storage
+  const keysToRemove = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key && (key.startsWith('sb-') || key.startsWith('epi_') || key.includes('supabase') || key.includes('refresh'))) {
+      keysToRemove.push(key);
+    }
+  }
+  keysToRemove.forEach(k => localStorage.removeItem(k));
+  sessionStorage.clear();
+
+  // 2. Intentar registrar auditoría (no bloqueante)
+  if (userId) {
+    try {
+      await registrarAuditoria('LOGOUT', 'auth', userId, null, { email: userEmail, timestamp: new Date().toISOString() });
+    } catch (e) {
+      console.warn('[Logout] Error registrando auditoría:', e);
+    }
+  }
+
+  // 3. Intentar signOut de Supabase (no bloqueante)
+  if (supabaseClient) {
+    try {
+      await supabaseClient.auth.signOut();
+    } catch (e) {
+      console.warn('[Logout] Error en signOut:', e);
+    }
+  }
+
+  // 4. Forzar recarga limpia
+  console.log('[Logout] Sesión cerrada. Recargando...');
+  setTimeout(() => {
+    window.location.href = window.location.href.split('#')[0];
+  }, 100);
 }
 
 // ==================== SESIÓN: TIMER Y AUTO-LOGOUT ====================
