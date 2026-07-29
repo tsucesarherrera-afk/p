@@ -6,7 +6,7 @@
 <title>ASIC ANTONIO JOSÉ DE SUCRE | EPI 13 - Ruta Materna</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<!-- Chart.js eliminado - estadísticas con barras de progreso -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -59,13 +59,6 @@
   @media (max-width: 768px) {
     /* Login */
     #loginScreen > div { margin: 1rem; padding: 1.5rem; }
-
-    /* Offline badge */
-    #offlineBadge { margin: 0 0.5rem 0.5rem; }
-
-    /* Conexión status */
-    #conexionStatus { padding: 0.25rem 0.5rem; }
-    #conexionText { font-size: 0.65rem; }
     #loginScreen h1 { font-size: 1.25rem; }
 
     /* Header */
@@ -147,14 +140,8 @@
 <base target="_blank">
 <base target="_blank">
 <base target="_blank">
-
-  <!-- PWA: Progressive Web App -->
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#059669">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="EPI 13 Ruta Materna">
-  <link rel="apple-touch-icon" href="https://github.com/tsucesarherrera-afk/p/blob/main/imagenes/pngtree-pregnant-woman-vector-art-png-image_15049016.png?raw=true">
+<base target="_blank">
+<base target="_blank">
 <base target="_blank">
 </head>
 <body class="text-gray-800">
@@ -187,7 +174,7 @@
     <form id="loginForm" class="space-y-4">
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Usuario</label>
-        <input type="email" id="loginEmail" class="w-full px-3 lg:px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none text-sm lg:text-base" placeholder="correo@ejemplo.com" required autocomplete="username">
+        <input type="email" id="loginEmail" class="w-full px-3 lg:px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none text-sm lg:text-base" placeholder="••••••••" required autocomplete="username">
       </div>
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
@@ -223,36 +210,6 @@
       <button type="submit" id="loginBtn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 lg:py-2.5 rounded-lg transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm lg:text-base">
         <span>Ingresar al Sistema</span>
       </button>
-
-      <!-- BIOMETRÍA / HUELLA DACTILAR -->
-      <div id="biometricLoginSection" class="hidden mt-4">
-        <div class="relative flex items-center justify-center mb-3">
-          <div class="absolute inset-0 flex items-center">
-            <div class="w-full border-t border-gray-200"></div>
-          </div>
-          <span class="relative bg-white px-3 text-xs text-gray-400">o</span>
-        </div>
-        <button type="button" onclick="loginWithBiometric()" id="biometricBtn" class="w-full bg-gray-800 hover:bg-gray-900 text-white font-semibold py-3 lg:py-2.5 rounded-lg transition flex items-center justify-center gap-2 disabled:opacity-50">
-          <i class="fas fa-fingerprint text-xl"></i>
-          <span id="biometricBtnText">Iniciar con Huella / Face ID</span>
-          <div id="biometricSpinner" class="spinner hidden" style="border-top-color: white;"></div>
-        </button>
-        <p class="text-xs text-gray-400 text-center mt-2">Disponible en dispositivos con lector de huella o reconocimiento facial</p>
-      </div>
-
-      <div id="biometricSetupPrompt" class="hidden mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-        <div class="flex items-start gap-2">
-          <i class="fas fa-fingerprint text-blue-500 mt-0.5"></i>
-          <div>
-            <p class="text-sm font-medium text-blue-800">¿Usar huella para futuros inicios?</p>
-            <p class="text-xs text-blue-600 mt-1">Active el inicio rápido con huella o Face ID en este dispositivo.</p>
-            <div class="flex gap-2 mt-2">
-              <button type="button" onclick="registerBiometric()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded-lg transition">Sí, habilitar</button>
-              <button type="button" onclick="dismissBiometricPrompt()" class="px-3 py-1.5 bg-gray-200 hover:bg-gray-300 text-gray-700 text-xs rounded-lg transition">Ahora no</button>
-            </div>
-          </div>
-        </div>
-      </div>
     </form>
 
     <div id="loginError" class="hidden mt-4 p-3 bg-red-50 text-red-700 text-sm rounded-lg border border-red-200"></div>
@@ -306,12 +263,16 @@
       <button id="menuCalendarios" onclick="showSection('calendarios')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-emerald-50 hover:text-emerald-600 transition hidden" data-section="calendarios">
         <i class="fas fa-calendar-alt w-5"></i> Calendarios Epi.
       </button>
+      <button id="menuAuditoria" onclick="showSection('auditoria')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-emerald-50 hover:text-emerald-600 transition hidden" data-section="auditoria">
+        <i class="fas fa-clipboard-list w-5"></i> Auditoría
+      </button>
+      <button id="menuReporteCaptacion" onclick="showSection('reporteCaptacion')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-emerald-50 hover:text-emerald-600 transition hidden" data-section="reporteCaptacion">
+        <i class="fas fa-file-medical w-5"></i> Reporte Captación
+      </button>
+
       <!-- Solo visible para admin y superadmin -->
       <button id="menuBackup" onclick="showSection('backup')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-emerald-50 hover:text-emerald-600 transition hidden" data-section="backup">
         <i class="fas fa-database w-5"></i> Backup / Restore
-      </button>
-      <button id="menuAuditoria" onclick="showSection('auditoria')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-emerald-50 hover:text-emerald-600 transition hidden" data-section="auditoria">
-        <i class="fas fa-clipboard-list w-5"></i> Auditoría
       </button>
     </nav>
     <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100 bg-white">
@@ -328,17 +289,8 @@
         <p class="text-xs text-gray-400"><i class="fas fa-clock mr-1"></i><span id="sessionTimer">--:--</span></p>
         <p class="text-xs text-gray-400"><i class="fas fa-fingerprint mr-1"></i><span id="sessionIdShort">---</span></p>
       </div>
-      <div id="offlineBadge" class="hidden mb-2 px-3 py-1.5 bg-orange-50 border border-orange-200 rounded-lg">
-        <div class="flex items-center justify-between">
-          <span class="text-xs text-orange-700 font-medium"><i class="fas fa-wifi-slash mr-1"></i>Datos pendientes</span>
-          <span id="offlineCount" class="text-xs bg-orange-200 text-orange-800 px-2 py-0.5 rounded-full font-bold">0</span>
-        </div>
-      </div>
       <button onclick="openPasswordModal()" class="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm text-emerald-600 hover:bg-emerald-50 rounded-lg transition mb-2">
         <i class="fas fa-key"></i> Cambiar Contraseña
-      </button>
-      <button onclick="sincronizarDatosOffline()" id="btnSyncOffline" class="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-lg transition mb-2">
-        <i class="fas fa-sync-alt"></i> Sincronizar Datos
       </button>
       <button onclick="logout()" class="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition">
         <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
@@ -357,9 +309,9 @@
           <p id="currentDate" class="text-sm font-medium text-gray-700"></p>
           <p id="currentEpiWeek" class="text-xs text-emerald-600 font-medium"></p>
         </div>
-        <div id="conexionStatus" class="flex items-center gap-2 px-3 py-1 bg-green-50 rounded-full border border-green-200 transition-colors">
-          <div id="conexionDot" class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-          <span id="conexionText" class="text-xs text-green-700 font-medium">Online</span>
+        <div class="flex items-center gap-2 px-3 py-1 bg-green-50 rounded-full border border-green-200">
+          <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+          <span class="text-xs text-green-700 font-medium">Seguro</span>
         </div>
         <button onclick="toggleSidebarMobile()" class="lg:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-lg" id="menuBtn">
           <i class="fas fa-bars"></i>
@@ -370,71 +322,105 @@
     <div class="p-8">
       <!-- DASHBOARD -->
       <section id="dashboard" class="section fade-in">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 card-hover">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+          <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100 card-hover">
             <div class="flex items-center justify-between mb-4">
-              <div class="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-600"><i class="fas fa-female text-xl"></i></div>
+              <div class="w-9 h-9 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-600"><i class="fas fa-female text-sm"></i></div>
               <span class="text-xs font-medium text-gray-400">Total</span>
             </div>
-            <h3 id="dashTotal" class="text-2xl font-bold text-gray-800">0</h3>
+            <h3 id="dashTotal" class="text-xl font-bold text-gray-800">0</h3>
             <p class="text-sm text-gray-500 mt-1">Gestantes Activas</p>
           </div>
-          <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 card-hover">
+          <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100 card-hover">
             <div class="flex items-center justify-between mb-4">
-              <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center text-purple-600"><i class="fas fa-baby text-xl"></i></div>
+              <div class="w-9 h-9 bg-purple-100 rounded-lg flex items-center justify-center text-purple-600"><i class="fas fa-baby text-sm"></i></div>
               <span class="text-xs font-medium text-gray-400">Total</span>
             </div>
-            <h3 id="dashPuerperas" class="text-2xl font-bold text-gray-800">0</h3>
+            <h3 id="dashPuerperas" class="text-xl font-bold text-gray-800">0</h3>
             <p class="text-sm text-gray-500 mt-1">Puérperas / Lactantes</p>
           </div>
-          <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 card-hover">
+          <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100 card-hover">
             <div class="flex items-center justify-between mb-4">
-              <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center text-green-600"><i class="fas fa-child text-xl"></i></div>
+              <div class="w-9 h-9 bg-green-100 rounded-lg flex items-center justify-center text-green-600"><i class="fas fa-child text-sm"></i></div>
               <span class="text-xs font-medium text-gray-400">< 18 años</span>
             </div>
-            <h3 id="dashMenores" class="text-2xl font-bold text-gray-800">0</h3>
+            <h3 id="dashMenores" class="text-xl font-bold text-gray-800">0</h3>
             <p class="text-sm text-gray-500 mt-1">Embarazos Juveniles</p>
           </div>
-          <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 card-hover">
+          <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100 card-hover">
             <div class="flex items-center justify-between mb-4">
-              <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center text-orange-600"><i class="fas fa-calendar-check text-xl"></i></div>
+              <div class="w-9 h-9 bg-orange-100 rounded-lg flex items-center justify-center text-orange-600"><i class="fas fa-calendar-check text-sm"></i></div>
               <span class="text-xs font-medium text-gray-400">Semana</span>
             </div>
-            <h3 id="dashSemanaEpi" class="text-2xl font-bold text-gray-800">-</h3>
+            <h3 id="dashSemanaEpi" class="text-xl font-bold text-gray-800">-</h3>
             <p class="text-sm text-gray-500 mt-1">Epidemiológica Actual</p>
           </div>
         </div>
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-            <h3 class="font-bold text-gray-800 mb-4">Distribución por Trimestre</h3>
-            <canvas id="chartTrimestres" height="200"></canvas>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+          <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100 card-hover">
+            <h3 class="font-bold text-gray-700 mb-3 text-xs uppercase tracking-wide flex items-center gap-2">
+              <i class="fas fa-chart-pie text-emerald-500"></i> Trimestres
+            </h3>
+            <div class="space-y-2">
+              <div class="flex items-center justify-between"><span class="text-xs text-gray-500">1er Trimestre</span><span id="statT1" class="text-sm font-bold text-emerald-600">0</span></div>
+              <div class="w-full bg-gray-100 rounded-full h-1.5"><div id="barT1" class="bg-emerald-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div></div>
+              <div class="flex items-center justify-between"><span class="text-xs text-gray-500">2do Trimestre</span><span id="statT2" class="text-sm font-bold text-blue-600">0</span></div>
+              <div class="w-full bg-gray-100 rounded-full h-1.5"><div id="barT2" class="bg-blue-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div></div>
+              <div class="flex items-center justify-between"><span class="text-xs text-gray-500">3er Trimestre</span><span id="statT3" class="text-sm font-bold text-amber-600">0</span></div>
+              <div class="w-full bg-gray-100 rounded-full h-1.5"><div id="barT3" class="bg-amber-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div></div>
+            </div>
           </div>
-          <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-            <h3 class="font-bold text-gray-800 mb-4">Distribución por Consultorio</h3>
-            <canvas id="chartConsultorios" height="200"></canvas>
+          <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100 card-hover">
+            <h3 class="font-bold text-gray-700 mb-3 text-xs uppercase tracking-wide flex items-center gap-2">
+              <i class="fas fa-hospital text-blue-500"></i> Top Consultorios
+            </h3>
+            <div id="statConsultorios" class="space-y-2 max-h-40 overflow-y-auto"><p class="text-xs text-gray-400 text-center py-2">Cargando...</p></div>
           </div>
-        </div>
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 lg:col-span-2">
-            <h3 class="font-bold text-gray-800 mb-4">Gestantes por Riesgo (ARO)</h3>
-            <canvas id="chartARO" height="150"></canvas>
+          <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100 card-hover">
+            <h3 class="font-bold text-gray-700 mb-3 text-xs uppercase tracking-wide flex items-center gap-2">
+              <i class="fas fa-exclamation-triangle text-red-500"></i> Clasificación ARO
+            </h3>
+            <div class="space-y-2">
+              <div class="flex items-center justify-between"><span class="text-xs text-gray-500">Sin ARO</span><span id="statAro0" class="text-sm font-bold text-gray-600">0</span></div>
+              <div class="w-full bg-gray-100 rounded-full h-1.5"><div id="barAro0" class="bg-gray-400 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div></div>
+              <div class="flex items-center justify-between"><span class="text-xs text-gray-500">ARO I</span><span id="statAro1" class="text-sm font-bold text-green-600">0</span></div>
+              <div class="w-full bg-gray-100 rounded-full h-1.5"><div id="barAro1" class="bg-green-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div></div>
+              <div class="flex items-center justify-between"><span class="text-xs text-gray-500">ARO II</span><span id="statAro2" class="text-sm font-bold text-yellow-600">0</span></div>
+              <div class="w-full bg-gray-100 rounded-full h-1.5"><div id="barAro2" class="bg-yellow-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div></div>
+              <div class="flex items-center justify-between"><span class="text-xs text-gray-500">ARO III</span><span id="statAro3" class="text-sm font-bold text-red-600">0</span></div>
+              <div class="w-full bg-gray-100 rounded-full h-1.5"><div id="barAro3" class="bg-red-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div></div>
+            </div>
           </div>
-          <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-            <h3 class="font-bold text-gray-800 mb-4">Registros Recientes</h3>
-            <div id="recentRecords" class="space-y-3 max-h-64 overflow-y-auto"><p class="text-sm text-gray-400 text-center py-4">Cargando...</p></div>
+          <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100 card-hover">
+            <h3 class="font-bold text-gray-700 mb-3 text-xs uppercase tracking-wide flex items-center gap-2">
+              <i class="fas fa-clock text-purple-500"></i> Registros Recientes
+            </h3>
+            <div id="recentRecords" class="space-y-2 max-h-40 overflow-y-auto"><p class="text-xs text-gray-400 text-center py-2">Cargando...</p></div>
           </div>
         </div>
 
-        <!-- REGISTRO MES DE -->
-        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mb-8">
+        <!-- REGISTRO POR MES -->
+        <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100 mb-4">
           <div class="flex items-center justify-between mb-4">
-            <h3 class="font-bold text-gray-800 text-lg"><i class="fas fa-calendar-alt text-emerald-600 mr-2"></i>REGISTRO POR MES <span id="mesActualLabel" class="text-emerald-600"></span></h3>
-            <span class="text-xs bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full font-medium">Mes en curso</span>
+            <div class="flex items-center gap-3 flex-wrap">
+              <h3 class="font-bold text-gray-800 text-sm"><i class="fas fa-calendar-alt text-emerald-600 mr-2"></i>REGISTRO POR MES</h3>
+              <select id="mesSelector" onchange="renderDashboard()" class="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none bg-white">
+                <option value="0">Enero</option><option value="1">Febrero</option><option value="2">Marzo</option><option value="3">Abril</option>
+                <option value="4">Mayo</option><option value="5">Junio</option><option value="6">Julio</option><option value="7">Agosto</option>
+                <option value="8">Septiembre</option><option value="9">Octubre</option><option value="10">Noviembre</option><option value="11">Diciembre</option>
+              </select>
+              <select id="mesAnioSelector" onchange="renderDashboard()" class="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none bg-white">
+                <option value="2024">2024</option><option value="2025">2025</option><option value="2026">2026</option>
+                <option value="2027">2027</option><option value="2028">2028</option>
+              </select>
+              <span id="mesActualLabel" class="text-emerald-600 font-bold text-sm"></span>
+            </div>
+            <span class="text-xs bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full font-medium">Seleccione mes</span>
           </div>
           <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            <div class="bg-gray-50 rounded-lg p-3 text-center border border-gray-100">
-              <p class="text-xs text-gray-500 mb-1">GESTANTES</p>
-              <p id="mesGestantes" class="text-xl font-bold text-gray-800">0</p>
+            <div class="bg-gray-50 rounded-lg p-2 text-center border border-gray-100">
+              <p class="text-xs text-gray-500 mb-0">GESTANTES</p>
+              <p id="mesGestantes" class="text-lg font-bold text-gray-800">0</p>
             </div>
             <div class="bg-emerald-50 rounded-lg p-3 text-center border border-emerald-100">
               <p class="text-xs text-emerald-600 mb-1">PRIMER TRIMESTRE</p>
@@ -476,13 +462,20 @@
         </div>
 
         <!-- TOTAL ACUMULADO ACTUAL ANUAL -->
-        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mb-8">
+        <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100 mb-4">
           <div class="flex items-center justify-between mb-4">
-            <h3 class="font-bold text-gray-800 text-lg"><i class="fas fa-chart-bar text-emerald-600 mr-2"></i>TOTAL ACUMULADO ACTUAL ANUAL <span id="anioActualLabel" class="text-emerald-600"></span></h3>
-            <span class="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-medium">Año en curso</span>
+            <div class="flex items-center gap-3 flex-wrap">
+              <h3 class="font-bold text-gray-800 text-sm"><i class="fas fa-chart-bar text-emerald-600 mr-2"></i>TOTAL ACUMULADO ANUAL</h3>
+              <select id="anioSelector" onchange="renderDashboard()" class="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none bg-white">
+                <option value="2024">2024</option><option value="2025">2025</option><option value="2026">2026</option>
+                <option value="2027">2027</option><option value="2028">2028</option>
+              </select>
+              <span id="anioActualLabel" class="text-emerald-600 font-bold text-sm"></span>
+            </div>
+            <span class="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-medium">Seleccione año</span>
           </div>
           <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            <div class="bg-gray-50 rounded-lg p-3 text-center border border-gray-100">
+            <div class="bg-gray-50 rounded-lg p-2 text-center border border-gray-100">
               <p class="text-xs text-gray-500 mb-1">GESTANTES</p>
               <p id="anioGestantes" class="text-xl font-bold text-gray-800">0</p>
             </div>
@@ -526,15 +519,15 @@
         </div>
 
         <!-- TOTAL GESTANTES Y LACTANTES ATENDIDAS -->
-        <div class="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-xl p-6 shadow-lg border border-emerald-400">
+        <div class="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-xl p-4 shadow-lg border border-emerald-400">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
-              <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-white">
-                <i class="fas fa-female text-xl"></i>
+              <div class="w-9 h-9 bg-white/20 rounded-full flex items-center justify-center text-white">
+                <i class="fas fa-female text-sm"></i>
               </div>
               <div>
                 <p class="text-emerald-100 text-sm font-medium">TOTAL GESTANTES Y LACTANTES ATENDIDAS</p>
-                <p id="totalGestantesLactantes" class="text-3xl font-bold text-white">0</p>
+                <p id="totalGestantesLactantes" class="text-2xl font-bold text-white">0</p>
               </div>
             </div>
             <div class="text-right hidden md:block">
@@ -568,7 +561,7 @@
           <div class="table-container">
             <table class="w-full text-sm">
               <thead class="bg-gray-50 text-gray-600 font-medium">
-                <tr><th class="px-4 py-3 text-left">Cédula</th><th class="px-4 py-3 text-left">Nombre y Apellido</th><th class="px-4 py-3 text-left">Edad</th><th class="px-4 py-3 text-left">Consultorio</th><th class="px-4 py-3 text-left">Sem. Gesta.</th><th class="px-4 py-3 text-left">FPP</th><th class="px-4 py-3 text-left">Estado</th><th class="px-4 py-3 text-left">ARO</th><th class="px-4 py-3 text-center">Acciones</th></tr>
+                <tr><th class="px-4 py-3 text-left">Cédula</th><th class="px-4 py-3 text-left">Nombre y Apellido</th><th class="px-4 py-3 text-left">Edad</th><th class="px-4 py-3 text-left">Consultorio</th><th class="px-4 py-3 text-left">Sem. Gesta.</th><th class="px-4 py-3 text-left">FPP</th><th class="px-4 py-3 text-left">Estado</th><th class="px-4 py-3 text-left">ARO</th><th class="px-4 py-3 text-left">Registrado por</th><th class="px-4 py-3 text-center">Acciones</th></tr>
               </thead>
               <tbody id="gestantesTable" class="divide-y divide-gray-100"></tbody>
             </table>
@@ -731,26 +724,22 @@
 
       <!-- AUDITORÍA -->
       <section id="auditoria" class="section hidden fade-in">
-        <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
-          <h3 class="font-bold text-gray-800 text-lg"><i class="fas fa-clipboard-list text-emerald-600 mr-2"></i>Registro de Auditoría</h3>
-          <div class="flex flex-wrap gap-2">
-            <select id="auditFiltroAccion" onchange="filtrarAuditoria()" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <h3 class="font-bold text-gray-800 text-lg">Registro de Auditoría</h3>
+            <p class="text-sm text-gray-500">Historial de cambios realizados en el sistema</p>
+          </div>
+          <div class="flex gap-3">
+            <select id="auditFilterAccion" onchange="filterAuditoria()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none">
               <option value="">Todas las acciones</option>
-              <option value="INSERT">Creaciones</option>
-              <option value="UPDATE">Modificaciones</option>
-              <option value="DELETE">Eliminaciones</option>
-              <option value="LOGIN">Inicios de sesión</option>
-              <option value="LOGOUT">Cierres de sesión</option>
+              <option value="INSERT">INSERT (Creación)</option>
+              <option value="UPDATE">UPDATE (Modificación)</option>
+              <option value="DELETE">DELETE (Eliminación)</option>
+              <option value="LOGIN">LOGIN (Inicio sesión)</option>
+              <option value="LOGOUT">LOGOUT (Cierre sesión)</option>
             </select>
-            <select id="auditFiltroTabla" onchange="filtrarAuditoria()" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
-              <option value="">Todas las tablas</option>
-              <option value="gestantes">Gestantes</option>
-              <option value="profiles">Usuarios</option>
-              <option value="control_semanal">Control Semanal</option>
-              <option value="auth">Autenticación</option>
-            </select>
-            <input type="date" id="auditFiltroFecha" onchange="filtrarAuditoria()" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
-            <button onclick="exportarAuditoriaExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm transition flex items-center gap-2">
+            <input type="date" id="auditFilterFecha" onchange="filterAuditoria()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none">
+            <button onclick="exportarAuditoriaExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition">
               <i class="fas fa-file-excel"></i> Exportar
             </button>
           </div>
@@ -765,8 +754,8 @@
                   <th class="px-4 py-3 text-left">Rol</th>
                   <th class="px-4 py-3 text-left">Acción</th>
                   <th class="px-4 py-3 text-left">Tabla</th>
-                  <th class="px-4 py-3 text-left">Registro</th>
-                  <th class="px-4 py-3 text-left">Cambios</th>
+                  <th class="px-4 py-3 text-left">Registro ID</th>
+                  <th class="px-4 py-3 text-left">Detalles</th>
                 </tr>
               </thead>
               <tbody id="auditoriaTable" class="divide-y divide-gray-100"></tbody>
@@ -787,7 +776,7 @@
             <p class="text-sm text-gray-500 mb-4">Exporta todos los datos del sistema en un archivo JSON encriptado.</p>
             <div class="mb-4">
               <label class="block text-sm font-medium text-gray-700 mb-1">Clave de encriptación</label>
-              <form onsubmit="event.preventDefault();" autocomplete="off"><input type="password" id="backupKey" autocomplete="new-password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Mínimo 8 caracteres"></form>
+              <input type="password" id="backupKey" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Mínimo 8 caracteres">
             </div>
             <button onclick="backupData()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded-lg transition">Descargar Backup (.epi)</button>
           </div>
@@ -800,7 +789,7 @@
             </div>
             <div class="mb-4">
               <label class="block text-sm font-medium text-gray-700 mb-1">Clave de encriptación</label>
-              <form onsubmit="event.preventDefault();" autocomplete="off"><input type="password" id="restoreKey" autocomplete="current-password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Ingrese la clave"></form>
+              <input type="password" id="restoreKey" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Ingrese la clave">
             </div>
             <button onclick="restoreData()" class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg transition">Restaurar Datos</button>
           </div>
@@ -810,7 +799,7 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <p class="text-sm text-gray-500 mb-3">Exportar datos de gestantes a Excel normal o encriptado.</p>
-              <div class="mb-3"><form onsubmit="event.preventDefault();" autocomplete="off"><input type="password" id="excelKey" autocomplete="new-password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Clave para encriptar (opcional)"></form></div>
+              <div class="mb-3"><input type="password" id="excelKey" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Clave para encriptar (opcional)"></div>
               <div class="flex gap-2">
                 <button onclick="exportarExcel()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition"><i class="fas fa-file-export mr-2"></i>Exportar Excel</button>
                 <button onclick="exportarExcelEncriptado()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition"><i class="fas fa-lock mr-2"></i>Encriptado</button>
@@ -819,12 +808,112 @@
             <div>
               <p class="text-sm text-gray-500 mb-3">Importar gestantes desde Excel (normal o encriptado).</p>
               <input type="file" id="excelImport" accept=".xlsx,.xls,.epi" class="w-full px-4 py-2 border border-gray-300 rounded-lg mb-3">
-              <div class="mb-3"><form onsubmit="event.preventDefault();" autocomplete="off"><input type="password" id="excelImportKey" autocomplete="current-password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Clave si el archivo está encriptado"></form></div>
+              <div class="mb-3"><input type="password" id="excelImportKey" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Clave si el archivo está encriptado"></div>
               <button onclick="importarExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg transition"><i class="fas fa-file-import mr-2"></i>Importar Excel</button>
             </div>
           </div>
         </div>
       </section>
+      <!-- REPORTE CONTROL Y SEGUIMIENTO GESTANTES CAPTADAS -->
+      <section id="reporteCaptacion" class="section hidden fade-in">
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+          <div>
+            <h3 class="font-bold text-gray-800 text-lg">Control y Seguimiento de Gestantes Captadas</h3>
+            <p class="text-sm text-gray-500">Reporte mensual de captación por semanas epidemiológicas</p>
+          </div>
+          <div class="flex gap-3">
+            <select id="reporteMes" onchange="renderReporteCaptacion()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none bg-white">
+              <option value="0">Enero</option><option value="1">Febrero</option><option value="2">Marzo</option><option value="3">Abril</option>
+              <option value="4">Mayo</option><option value="5">Junio</option><option value="6">Julio</option><option value="7">Agosto</option>
+              <option value="8">Septiembre</option><option value="9">Octubre</option><option value="10">Noviembre</option><option value="11">Diciembre</option>
+            </select>
+            <select id="reporteAnio" onchange="renderReporteCaptacion()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none bg-white">
+              <option value="2024">2024</option><option value="2025">2025</option><option value="2026" selected>2026</option>
+              <option value="2027">2027</option><option value="2028">2028</option>
+            </select>
+            <select id="reporteConsultorio" onchange="renderReporteCaptacion()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none bg-white">
+              <option value="">Todos los consultorios</option>
+            </select>
+            <button onclick="exportarReporteCaptacionExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition">
+              <i class="fas fa-file-excel"></i> Exportar Excel
+            </button>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-4">
+          <div class="p-4 bg-emerald-50 border-b border-emerald-100 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <i class="fas fa-calendar-alt text-emerald-600"></i>
+              <span class="font-bold text-emerald-800" id="reporteTituloMes">Reporte Mensual</span>
+            </div>
+            <div class="flex gap-4 text-sm">
+              <span class="text-gray-600">Total Gestantes: <strong id="reporteTotalGestantes" class="text-emerald-700">0</strong></span>
+              <span class="text-gray-600">Total Controles: <strong id="reporteTotalControles" class="text-blue-700">0</strong></span>
+              <span class="text-gray-600">Puérperas: <strong id="reporteTotalPuerperas" class="text-purple-700">0</strong></span>
+            </div>
+          </div>
+          <div class="lg:hidden bg-gray-50 border-b border-gray-100 px-4 py-2 flex items-center gap-2 text-xs text-gray-500">
+            <i class="fas fa-arrows-alt-h"></i>
+            <span>Deslice horizontalmente para ver toda la tabla</span>
+          </div>
+          <div class="table-container">
+            <table class="w-full text-xs">
+              <thead class="bg-gray-50 text-gray-600 font-medium">
+                <tr>
+                  <th class="px-2 py-2 text-center border" rowspan="2">N°</th>
+                  <th class="px-2 py-2 text-center border" rowspan="2">SEMANA<br>EPIDEMIOLÓGICA</th>
+                  <th class="px-2 py-2 text-center border" rowspan="2">ESTABLECIMIENTO DE SALUD<br>PARA ATENCIÓN O REFERENCIA</th>
+                  <th class="px-2 py-2 text-center border" rowspan="2">RESPONSABLE DE CAPTACIÓN<br>Y/O CONTROL Y TELÉFONO</th>
+                  <th class="px-2 py-2 text-center border" rowspan="2">FECHA</th>
+                  <th class="px-2 py-2 text-center border" colspan="2">CAPTACIÓN<br>CASA A CASA</th>
+                  <th class="px-2 py-2 text-center border" colspan="2">CONDICIÓN</th>
+                  <th class="px-2 py-2 text-center border" rowspan="2">NOMBRES Y<br>APELLIDOS USUARIA</th>
+                  <th class="px-2 py-2 text-center border" rowspan="2">C.I.</th>
+                  <th class="px-2 py-2 text-center border" rowspan="2">EDAD</th>
+                  <th class="px-2 py-2 text-center border" rowspan="2">N°<br>TELÉFONO</th>
+                  <th class="px-2 py-2 text-center border" rowspan="2">EDAD<br>GESTACIONAL<br>(SEMANAS)</th>
+                  <th class="px-2 py-2 text-center border" rowspan="2">ESTADO<br>RESIDENCIA</th>
+                  <th class="px-2 py-2 text-center border" rowspan="2">MUNICIPIO<br>RESIDENCIA</th>
+                  <th class="px-2 py-2 text-center border" rowspan="2">ASIC<br>RESIDENCIA</th>
+                  <th class="px-2 py-2 text-center border" rowspan="2">DIRECCIÓN<br>RESIDENCIA</th>
+                  <th class="px-2 py-2 text-center border" colspan="3">CONTROL PRENATAL</th>
+                  <th class="px-2 py-2 text-center border" rowspan="2">TIPO DE<br>RIESGO</th>
+                  <th class="px-2 py-2 text-center border" rowspan="2">DIAGNÓSTICO<br>AL INGRESO</th>
+                  <th class="px-2 py-2 text-center border" rowspan="2">ESTABLECIMIENTO<br>QUE RECIBE<br>(REFERIDA)</th>
+                  <th class="px-2 py-2 text-center border" rowspan="2">FECHA INGRESO<br>HOSPITALARIO</th>
+                  <th class="px-2 py-2 text-center border" colspan="2">ESTADO</th>
+                  <th class="px-2 py-2 text-center border" rowspan="2">TIPO DE<br>PARTO</th>
+                  <th class="px-2 py-2 text-center border" rowspan="2">FECHA DEL<br>VACIADO<br>OBSTÉTRICO</th>
+                  <th class="px-2 py-2 text-center border" rowspan="2">FECHA<br>INGRESO<br>UCI</th>
+                  <th class="px-2 py-2 text-center border" rowspan="2">DIAGNÓSTICO<br>INGRESO UCI</th>
+                  <th class="px-2 py-2 text-center border" rowspan="2">RESPONSABLE<br>MONITOREO<br>HOSPITAL</th>
+                  <th class="px-2 py-2 text-center border" rowspan="2">CONDICIÓN<br>ACTUAL</th>
+                  <th class="px-2 py-2 text-center border" rowspan="2">FECHA<br>EGRESO</th>
+                  <th class="px-2 py-2 text-center border" rowspan="2">CAUSA<br>MUERTE</th>
+                  <th class="px-2 py-2 text-center border" rowspan="2">FECHA<br>MUERTE</th>
+                </tr>
+                <tr class="bg-gray-100">
+                  <th class="px-2 py-1 text-center border">SI</th>
+                  <th class="px-2 py-1 text-center border">NO</th>
+                  <th class="px-2 py-1 text-center border">A.<br>ESTABLE</th>
+                  <th class="px-2 py-1 text-center border">B.<br>GRAVE</th>
+                  <th class="px-2 py-1 text-center border">SI/NO</th>
+                  <th class="px-2 py-1 text-center border">N°<br>CONTROL</th>
+                  <th class="px-2 py-1 text-center border">PÚBLICO/<br>PRIVADO</th>
+                  <th class="px-2 py-1 text-center border">GESTANTE</th>
+                  <th class="px-2 py-1 text-center border">PUÉRPERA</th>
+                </tr>
+              </thead>
+              <tbody id="reporteCaptacionTable" class="divide-y divide-gray-100"></tbody>
+            </table>
+          </div>
+          <div id="reporteCaptacionEmpty" class="hidden p-8 text-center text-gray-400">
+            <i class="fas fa-inbox text-4xl mb-2"></i>
+            <p>No hay registros para el período seleccionado</p>
+          </div>
+        </div>
+      </section>
+
     </div>
   </main>
 </div>
@@ -862,7 +951,7 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Fecha de Registro</label>
-            <input type="date" id="gFechaRegistro" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" required>
+            <input type="date" id="gFechaRegistro" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none bg-gray-50" required readonly title="Fecha de registro original. No se puede modificar.">
             <p class="text-xs text-gray-400 mt-1">Fecha en que se realiza el registro en el sistema</p>
           </div>
           <div>
@@ -878,8 +967,13 @@
             <input type="number" id="gEdad" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" min="10" max="80" readonly>
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono <span class="text-xs text-gray-400 font-normal">(0412)1234567</span></label>
-            <input type="text" id="gTelefono" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" maxlength="14" placeholder="(0412)1234567" oninput="formatTelefono(this)">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono <span class="text-xs text-gray-400 font-normal">Ej: (0412)1234567</span></label>
+            <div class="flex items-center gap-2 mb-2">
+              <input type="checkbox" id="gSinTelefono" onchange="toggleSinTelefono()" class="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500">
+              <label for="gSinTelefono" class="text-sm text-gray-600 cursor-pointer">No posee teléfono</label>
+            </div>
+            <input type="text" id="gTelefono" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="(0412)1234567" oninput="formatTelefono(this)" maxlength="14" inputmode="numeric">
+            <p id="gTelefonoHelp" class="text-xs text-gray-400 mt-1 hidden">Se guardará como "NO POSEE" en el sistema</p>
           </div>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -1282,7 +1376,7 @@
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Contraseña Temporal</label>
-          <input type="password" id="uPassword" autocomplete="new-password" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" required minlength="8">
+          <input type="password" id="uPassword" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" required minlength="8">
           <p class="text-xs text-gray-400 mt-1">Mínimo 8 caracteres, incluya mayúsculas, minúsculas y números</p>
         </div>
         <div>
@@ -1358,16 +1452,16 @@
       <form id="passwordForm" class="p-6 space-y-4">
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Contraseña Actual</label>
-          <input type="password" id="currentPassword" autocomplete="current-password" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" required minlength="8">
+          <input type="password" id="currentPassword" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" required minlength="8">
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Nueva Contraseña</label>
-          <input type="password" id="newPassword" autocomplete="new-password" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" required minlength="8">
+          <input type="password" id="newPassword" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" required minlength="8">
           <p class="text-xs text-gray-400 mt-1">Mínimo 8 caracteres, mayúsculas, minúsculas y números</p>
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Confirmar Nueva Contraseña</label>
-          <input type="password" id="confirmNewPassword" autocomplete="new-password" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" required minlength="8">
+          <input type="password" id="confirmNewPassword" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" required minlength="8">
         </div>
         <div id="passwordError" class="hidden p-3 bg-red-50 text-red-700 text-sm rounded-lg border border-red-200"></div>
         <div class="flex justify-end gap-3 pt-4">
@@ -1476,8 +1570,12 @@
 
 <script>
 // ==================== CONFIGURACIÓN SUPABASE ====================
-const SUPABASE_URL = '';
-const SUPABASE_ANON_KEY = '';
+// Credenciales ofuscadas
+const _UB = 'aHR0cHM6Ly9rd3ZsdHFueGlyZG54b3NoZ2NnZS5zdXBhYmFzZS5jbw==';
+const _KB = 'c2JfcHVibGlzaGFibGVfVWE3Tzl0dDdzejJHLUkyTU9XWEExUV9qc0pFb1BmQQ==';
+function _d(b){try{return atob(b);}catch(e){return '';}}
+const SUPABASE_URL = _d(_UB);
+const SUPABASE_ANON_KEY = _d(_KB);
 // CAPTCHA matemático: no requiere clave externa
 
 // Inicializar Supabase solo si hay credenciales válidas
@@ -1492,65 +1590,6 @@ try {
   console.error('[Supabase] Error inicializando cliente:', e);
 }
 
-// ==================== CORRECCIÓN REFRESH TOKEN ====================
-// Interceptar errores 400 en el endpoint de refresh_token para limpiar sesión corrupta
-const _originalFetch = window.fetch;
-window.fetch = async function(...args) {
-  try {
-    const response = await _originalFetch.apply(this, args);
-    // Detectar error 400 en refresh_token
-    if (args[0] && typeof args[0] === 'string' && 
-        args[0].includes('token?grant_type=refresh_token') && response.status === 400) {
-      console.warn('[Auth] Refresh token inválido detectado. Limpiando sesión...');
-      // Limpiar TODO el storage relacionado con Supabase
-      Object.keys(localStorage).forEach(k => {
-        if (k.startsWith('sb-') || k.includes('supabase') || k.includes('refresh')) {
-          localStorage.removeItem(k);
-        }
-      });
-      sessionStorage.clear();
-      localStorage.removeItem('epi_session');
-      localStorage.removeItem(SESSION_KEY);
-      // No recargar inmediatamente para permitir que el error se maneje gracefulmente
-    }
-    return response;
-  } catch (err) {
-    throw err;
-  }
-};
-
-// Suscribirse a cambios de auth para detectar problemas de sesión
-if (supabaseClient) {
-  supabaseClient.auth.onAuthStateChange((event, session) => {
-    if (event === 'TOKEN_REFRESHED') {
-      console.log('[Auth] Token refrescado correctamente');
-    }
-    if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
-      Object.keys(localStorage).forEach(k => {
-        if (k.startsWith('sb-')) localStorage.removeItem(k);
-      });
-    }
-  });
-}
-
-async function clearInvalidSession() {
-  Object.keys(localStorage).forEach(k => {
-    if (k.startsWith('sb-') || k.includes('supabase') || k.includes('refresh')) {
-      localStorage.removeItem(k);
-    }
-  });
-  sessionStorage.clear();
-  localStorage.removeItem('epi_session');
-  localStorage.removeItem(SESSION_KEY);
-  if (supabaseClient) {
-    await supabaseClient.auth.signOut().catch(() => {});
-  }
-  currentUser = null;
-  currentProfile = null;
-}
-
-
-
 // ==================== VARIABLES GLOBALES ====================
 let currentUser = null;
 let currentProfile = null;
@@ -1558,149 +1597,10 @@ let gestantesData = [];
 let controlData = [];
 let usersData = [];
 let calendariosData = [];
-let charts = {};
+// charts eliminado - estadísticas con barras de progreso
 let sessionTimer = null;
 let sessionStartTime = null;
 let captchaExpectedValue = 0;
-
-// ==================== SEGURIDAD: UNA SOLA SESIÓN POR USUARIO ====================
-const SESSION_KEY = 'epi_active_session';
-const SESSION_CHECK_INTERVAL = 3000; // Verificar cada 3 segundos
-let sessionCheckTimer = null;
-let mySessionToken = null;
-
-function generateSessionToken() {
-  return Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
-}
-
-function claimSession() {
-  mySessionToken = generateSessionToken();
-  localStorage.setItem(SESSION_KEY, JSON.stringify({
-    token: mySessionToken,
-    userId: currentUser?.id,
-    timestamp: Date.now()
-  }));
-}
-
-function checkSingleSession() {
-  if (!currentUser) return;
-  try {
-    const stored = localStorage.getItem(SESSION_KEY);
-    if (!stored) {
-      // Alguien cerró todas las sesiones o primera vez
-      claimSession();
-      return;
-    }
-    const data = JSON.parse(stored);
-    if (data.token !== mySessionToken) {
-      // ¡Otra pestaña/ventana tomó la sesión!
-      showToast('Sesión abierta en otro dispositivo o pestaña. Cerrando...', 'error');
-      setTimeout(() => {
-        forceLogout('sesion_duplicada');
-      }, 2000);
-    }
-  } catch (e) {
-    claimSession();
-  }
-}
-
-function startSessionMonitor() {
-  if (sessionCheckTimer) clearInterval(sessionCheckTimer);
-  claimSession();
-  sessionCheckTimer = setInterval(checkSingleSession, SESSION_CHECK_INTERVAL);
-}
-
-function stopSessionMonitor() {
-  if (sessionCheckTimer) {
-    clearInterval(sessionCheckTimer);
-    sessionCheckTimer = null;
-  }
-}
-
-// Detectar cuando la ventana pierde/gana foco (cambio de pestaña)
-document.addEventListener('visibilitychange', () => {
-  if (!document.hidden && currentUser) {
-    checkSingleSession();
-  }
-});
-
-// ==================== CIERRE AUTOMÁTICO AL ACTUALIZAR ====================
-// Marcar que la página se está recargando para invalidar la sesión anterior
-window.addEventListener('beforeunload', (e) => {
-  if (currentUser && mySessionToken) {
-    // Solo invalidar si es recarga real (no cierre de pestaña)
-    sessionStorage.setItem('epi_reloading', mySessionToken);
-  }
-});
-
-// Al cargar, verificar si es recarga
-function checkPageReload() {
-  const reloadingToken = sessionStorage.getItem('epi_reloading');
-  if (reloadingToken) {
-    // Era una recarga - invalidar la sesión anterior
-    sessionStorage.removeItem('epi_reloading');
-    // La nueva sesión se reclamará en initApp
-    return true;
-  }
-  return false;
-}
-
-function forceLogout(reason) {
-  // 1. Detener todo inmediatamente
-  stopSessionMonitor();
-  if (sessionTimer) { clearInterval(sessionTimer); sessionTimer = null; }
-
-  // 2. Limpiar variables globales
-  currentUser = null;
-  currentProfile = null;
-  gestantesData = [];
-  controlData = [];
-  usersData = [];
-  calendariosData = [];
-  auditoriaData = [];
-  SECURITY.sessionId = null;
-  sessionStartTime = null;
-
-  // 3. Limpiar TODO el storage
-  const keysToRemove = [];
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
-    if (key && (key.startsWith('sb-') || key.startsWith('epi_') || key.includes('supabase') || key.includes('refresh'))) {
-      keysToRemove.push(key);
-    }
-  }
-  keysToRemove.forEach(k => localStorage.removeItem(k));
-  sessionStorage.clear();
-
-  // 4. Intentar signOut (no bloqueante)
-  if (supabaseClient) {
-    supabaseClient.auth.signOut().catch(() => {});
-  }
-
-  // 5. Mostrar pantalla de login
-  const loginScreen = document.getElementById('loginScreen');
-  const appScreen = document.getElementById('appScreen');
-  if (loginScreen && appScreen) {
-    appScreen.classList.add('hidden');
-    loginScreen.classList.remove('hidden');
-
-    const errorDiv = document.getElementById('loginError');
-    if (errorDiv) {
-      const msgs = {
-        sesion_duplicada: 'Su sesión fue abierta en otro dispositivo o pestaña del navegador. Solo puede tener una sesión activa.',
-        sesion_expirada: 'Su sesión ha expirado por inactividad.',
-        sesion_invalidada: 'Su sesión ha sido cerrada por el administrador.'
-      };
-      errorDiv.innerHTML = '<div class="text-center"><i class="fas fa-lock text-2xl text-orange-500 mb-2"></i><p class="font-semibold">' + (msgs[reason] || 'Sesión finalizada. Ingrese nuevamente.') + '</p></div>';
-      errorDiv.classList.remove('hidden');
-    }
-  }
-
-  // 6. Forzar recarga limpia después de 3 segundos para asegurar limpieza total
-  setTimeout(() => {
-    window.location.href = window.location.href.split('#')[0];
-  }, 3000);
-}
 
 // Helper para verificar si Supabase está disponible
 function supabaseReady() {
@@ -1856,22 +1756,6 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
   const btn = document.getElementById('loginBtn');
   const errorDiv = document.getElementById('loginError');
 
-  // ==================== BLOQUEAR LOGIN SIN INTERNET ====================
-  if (!navigator.onLine) {
-    errorDiv.innerHTML = `
-      <div class="text-center">
-        <i class="fas fa-wifi text-2xl text-red-500 mb-2"></i>
-        <p class="font-semibold">Sin conexión a internet</p>
-        <p class="mt-1 text-sm">El sistema requiere conexión para verificar credenciales y cargar datos de las gestantes.</p>
-        <p class="mt-2 text-xs text-gray-500">Conecte su dispositivo a internet e intente nuevamente.</p>
-      </div>
-    `;
-    errorDiv.classList.remove('hidden');
-    return;
-  }
-
-  errorDiv.classList.add('hidden');
-
   if (isLocked()) {
     showToast('Espere el tiempo de bloqueo antes de intentar de nuevo', 'error');
     return;
@@ -1930,34 +1814,6 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
   try {
     const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
     if (error) throw error;
-
-    // ==================== BLOQUEAR SESIÓN DUPLICADA ====================
-    const storedSession = localStorage.getItem(SESSION_KEY);
-    if (storedSession) {
-      try {
-        const sessionData = JSON.parse(storedSession);
-        if (sessionData.userId === data.user.id) {
-          await supabaseClient.auth.signOut();
-          errorDiv.innerHTML = `
-            <div class="text-center">
-              <i class="fas fa-lock text-2xl text-orange-500 mb-2"></i>
-              <p class="font-semibold">Sesión ya activa</p>
-              <p class="mt-1 text-sm">Este usuario ya tiene una sesión abierta en otro dispositivo o pestaña del navegador.</p>
-              <p class="mt-2 text-xs font-medium">Cierre la sesión activa primero para iniciar una nueva.</p>
-              <p class="mt-1 text-xs text-red-600 font-bold">Si no es usted, comuníquese con el administrador notificando la falla.</p>
-            </div>
-          `;
-          errorDiv.classList.remove('hidden');
-          btn.innerHTML = '<span>Ingresar al Sistema</span>';
-          btn.disabled = false;
-          return;
-        } else {
-          localStorage.removeItem(SESSION_KEY);
-        }
-      } catch (e) {
-        localStorage.removeItem(SESSION_KEY);
-      }
-    }
 
     let profile = null;
 let pError = null;
@@ -2029,15 +1885,9 @@ if (!profile.activo) {
     SECURITY.sessionId = generateSessionId();
     sessionStartTime = Date.now();
 
-    // Registrar login en auditoría
-    await registrarAuditoria('LOGIN', 'auth', data.user.id, null, { email: data.user.email, timestamp: new Date().toISOString() });
-
     currentUser = data.user;
     currentProfile = profile;
-
-    // Mostrar prompt para configurar huella (después de que la UI esté lista)
-    setTimeout(() => showBiometricSetupPrompt(), 1500);
-
+    await registrarAuditoria('LOGIN', 'auth', data.user.id, null, { email: data.user.email, nombre: profile.nombre, role: profile.role });
     initApp();
   } catch (err) {
     recordFailedAttempt();
@@ -2061,60 +1911,15 @@ function closeLogoutModal() {
 
 async function confirmLogout() {
   closeLogoutModal();
-
-  // 1. LIMPIAR TODO INMEDIATAMENTE (antes de cualquier operación de red)
-  stopSessionMonitor();
-  if (sessionTimer) { clearInterval(sessionTimer); sessionTimer = null; }
-
-  // Guardar email para auditoría antes de limpiar
-  const userEmail = currentUser?.email;
-  const userId = currentUser?.id;
-
-  // Limpiar variables globales
+  await registrarAuditoria('LOGOUT', 'auth', currentUser.id, null, { email: currentUser.email });
+  await supabaseClient.auth.signOut();
   currentUser = null;
   currentProfile = null;
   gestantesData = [];
   controlData = [];
   usersData = [];
-  calendariosData = [];
-  auditoriaData = [];
-  SECURITY.sessionId = null;
-  sessionStartTime = null;
-
-  // Limpiar TODO el storage
-  const keysToRemove = [];
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
-    if (key && (key.startsWith('sb-') || key.startsWith('epi_') || key.includes('supabase') || key.includes('refresh'))) {
-      keysToRemove.push(key);
-    }
-  }
-  keysToRemove.forEach(k => localStorage.removeItem(k));
-  sessionStorage.clear();
-
-  // 2. Intentar registrar auditoría (no bloqueante)
-  if (userId) {
-    try {
-      await registrarAuditoria('LOGOUT', 'auth', userId, null, { email: userEmail, timestamp: new Date().toISOString() });
-    } catch (e) {
-      console.warn('[Logout] Error registrando auditoría:', e);
-    }
-  }
-
-  // 3. Intentar signOut de Supabase (no bloqueante)
-  if (supabaseClient) {
-    try {
-      await supabaseClient.auth.signOut();
-    } catch (e) {
-      console.warn('[Logout] Error en signOut:', e);
-    }
-  }
-
-  // 4. Forzar recarga limpia
-  console.log('[Logout] Sesión cerrada. Recargando...');
-  setTimeout(() => {
-    window.location.href = window.location.href.split('#')[0];
-  }, 100);
+  if (sessionTimer) clearInterval(sessionTimer);
+  location.reload();
 }
 
 // ==================== SESIÓN: TIMER Y AUTO-LOGOUT ====================
@@ -2125,18 +1930,20 @@ function startSessionTimer() {
     const remaining = SECURITY.sessionTimeout - elapsed;
 
     if (remaining <= 0) {
-      showToast('Sesión expirada por inactividad', 'error');
-      logout();
+      showToast('Sesión expirada por inactividad. Inicie sesión nuevamente.', 'error');
+      supabaseClient.auth.signOut().then(() => {
+        currentUser = null; currentProfile = null;
+        if (sessionTimer) clearInterval(sessionTimer);
+        location.reload();
+      }).catch(() => { location.reload(); });
       return;
     }
 
-    // Mostrar tiempo restante
     const mins = Math.floor(remaining / 60000);
     const secs = Math.floor((remaining % 60000) / 1000);
     document.getElementById('sessionTimer').textContent = 
       `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
 
-    // Advertencia cuando quedan 5 minutos
     if (remaining <= SECURITY.warningTime && remaining > SECURITY.warningTime - 1000) {
       showToast('Su sesión expira en 5 minutos. Guarde su trabajo.', 'error');
     }
@@ -2154,303 +1961,10 @@ function resetSessionTimer() {
   });
 });
 
-// ==================== MODO OFFLINE / SIN INTERNET ====================
-const OFFLINE_KEY = 'epi_offline_data';
-const OFFLINE_QUEUE = 'epi_offline_queue';
-let isOnline = navigator.onLine;
-let syncInProgress = false;
-
-// Detectar cambio de conectividad
-window.addEventListener('online', () => {
-  isOnline = true;
-  showToast('Conexión restablecida. Sincronizando datos...', 'success');
-  sincronizarDatosOffline();
-});
-
-window.addEventListener('offline', () => {
-  isOnline = false;
-  showToast('Sin conexión a internet. Los datos se guardarán localmente.', 'error');
-});
-
-// Guardar datos en localStorage cuando no hay internet
-function guardarOffline(tabla, datos) {
-  try {
-    const queue = JSON.parse(localStorage.getItem(OFFLINE_QUEUE) || '[]');
-    queue.push({
-      id: generateSessionToken(),
-      tabla: tabla,
-      accion: datos.id ? 'UPDATE' : 'INSERT',
-      datos: datos,
-      timestamp: new Date().toISOString(),
-      userId: currentUser?.id,
-      userEmail: currentUser?.email
-    });
-    localStorage.setItem(OFFLINE_QUEUE, JSON.stringify(queue));
-    return true;
-  } catch (e) {
-    console.error('Error guardando offline:', e);
-    return false;
-  }
-}
-
-// Sincronizar datos offline cuando vuelve la conexión
-async function sincronizarDatosOffline() {
-  if (syncInProgress || !supabaseClient) return;
-  syncInProgress = true;
-
-  try {
-    const queue = JSON.parse(localStorage.getItem(OFFLINE_QUEUE) || '[]');
-    if (queue.length === 0) { syncInProgress = false; actualizarContadorOffline(); return; }
-
-    showToast(`Sincronizando ${queue.length} registro(s) pendiente(s)...`, 'success');
-    const exitosos = [];
-    const fallidos = [];
-
-    for (const item of queue) {
-      try {
-        if (item.tabla === 'gestantes') {
-          if (item.accion === 'INSERT') {
-            const { data, error } = await supabaseClient.from('gestantes').insert([item.datos]).select();
-            if (error) throw error;
-            // Registrar auditoría
-            await registrarAuditoria('INSERT', 'gestantes', data[0]?.id, null, item.datos);
-          } else {
-            const { error } = await supabaseClient.from('gestantes').update(item.datos).eq('id', item.datos.id);
-            if (error) throw error;
-            await registrarAuditoria('UPDATE', 'gestantes', item.datos.id, null, item.datos);
-          }
-        } else if (item.tabla === 'control_semanal') {
-          const { error } = await supabaseClient.from('control_semanal').insert([item.datos]);
-          if (error) throw error;
-          await registrarAuditoria('INSERT', 'control_semanal', item.datos.gestante_id, null, item.datos);
-        }
-        exitosos.push(item.id);
-      } catch (e) {
-        console.warn('Error sincronizando item:', e);
-        fallidos.push(item);
-      }
-    }
-
-    localStorage.setItem(OFFLINE_QUEUE, JSON.stringify(fallidos));
-
-    if (exitosos.length > 0) {
-      showToast(`${exitosos.length} registro(s) sincronizado(s) exitosamente.`, 'success');
-      await loadGestantes(); // Recargar y cachear
-    }
-    if (fallidos.length > 0) {
-      showToast(`${fallidos.length} registro(s) pendiente(s). Se reintentará automáticamente.`, 'error');
-    }
-  } catch (e) {
-    console.error('Error en sincronización:', e);
-  } finally {
-    syncInProgress = false;
-    actualizarContadorOffline();
-  }
-}
-
-// Función wrapper para operaciones CRUD con fallback offline
-async function crudConOffline(tabla, accion, datos, id = null) {
-  // Si hay internet, intentar operación online
-  if (navigator.onLine && supabaseClient) {
-    try {
-      if (accion === 'INSERT') {
-        const { data, error } = await supabaseClient.from(tabla).insert([datos]).select();
-        if (error) throw error;
-        // Actualizar cache
-        if (tabla === 'gestantes' && data && data[0]) {
-          gestantesData.unshift(data[0]);
-          guardarCache({ gestantes: gestantesData, timestamp: new Date().toISOString() });
-        }
-        return { success: true, data, offline: false };
-      } else if (accion === 'UPDATE') {
-        const { error } = await supabaseClient.from(tabla).update(datos).eq('id', id);
-        if (error) throw error;
-        // Actualizar cache
-        if (tabla === 'gestantes') {
-          const idx = gestantesData.findIndex(g => g.id === id);
-          if (idx >= 0) {
-            gestantesData[idx] = { ...gestantesData[idx], ...datos };
-            guardarCache({ gestantes: gestantesData, timestamp: new Date().toISOString() });
-          }
-        }
-        return { success: true, offline: false };
-      } else if (accion === 'DELETE') {
-        const { error } = await supabaseClient.from(tabla).delete().eq('id', id);
-        if (error) throw error;
-        // Actualizar cache
-        if (tabla === 'gestantes') {
-          gestantesData = gestantesData.filter(g => g.id !== id);
-          guardarCache({ gestantes: gestantesData, timestamp: new Date().toISOString() });
-        }
-        return { success: true, offline: false };
-      }
-    } catch (e) {
-      console.warn('Error online, intentando offline:', e);
-      // Si falló online pero hay conexión, puede ser error del servidor
-      // Intentar guardar offline como fallback
-    }
-  }
-
-  // Sin internet o falló online: guardar en cola offline
-  const guardado = guardarOffline(tabla, id ? { ...datos, id } : datos);
-  if (guardado) {
-    if (tabla === 'gestantes') {
-      if (accion === 'INSERT') {
-        datos.id = datos.id || generateSessionToken();
-        datos._offline = true;
-        datos._pendingSync = true;
-        gestantesData.unshift(datos);
-      } else if (accion === 'UPDATE' && id) {
-        const idx = gestantesData.findIndex(g => g.id === id);
-        if (idx >= 0) gestantesData[idx] = { ...gestantesData[idx], ...datos, _pendingSync: true };
-      } else if (accion === 'DELETE' && id) {
-        gestantesData = gestantesData.filter(g => g.id !== id);
-      }
-      // Actualizar cache local
-      guardarCache({ gestantes: gestantesData, timestamp: new Date().toISOString() });
-    }
-    return { success: true, offline: true, message: '⚠️ Sin conexión estable. Guardado localmente. Se sincronizará automáticamente cuando mejore la conexión.' };
-  }
-  return { success: false, error: 'No se pudo guardar. Verifique su conexión a internet.' };
-}
-
-// ==================== CACHEO LOCAL DE DATOS ====================
-const CACHE_KEY = 'epi_cached_data';
-const CACHE_TIMESTAMP = 'epi_cache_timestamp';
-const CACHE_MAX_AGE = 24 * 60 * 60 * 1000; // 24 horas
-
-function guardarCache(datos) {
-  try {
-    localStorage.setItem(CACHE_KEY, JSON.stringify(datos));
-    localStorage.setItem(CACHE_TIMESTAMP, Date.now().toString());
-  } catch (e) {
-    console.warn('Error guardando cache:', e);
-  }
-}
-
-function cargarCache() {
-  try {
-    const datos = localStorage.getItem(CACHE_KEY);
-    const timestamp = localStorage.getItem(CACHE_TIMESTAMP);
-    if (!datos || !timestamp) return null;
-
-    const age = Date.now() - parseInt(timestamp);
-    if (age > CACHE_MAX_AGE) {
-      localStorage.removeItem(CACHE_KEY);
-      localStorage.removeItem(CACHE_TIMESTAMP);
-      return null;
-    }
-    return JSON.parse(datos);
-  } catch (e) {
-    return null;
-  }
-}
-
-// Validar cédula contra datos locales (cache) + servidor
-async function validarCedulaCompleta(cedula, excluirId = null) {
-  // 1. Validar contra datos en memoria (más rápido)
-  const duplicadoMemoria = gestantesData.find(g => 
-    g.cedula === cedula && g.id !== excluirId && g.estado !== 'archivado'
-  );
-  if (duplicadoMemoria) {
-    return { valido: false, duplicado: duplicadoMemoria, fuente: 'local' };
-  }
-
-  // 2. Validar contra cache local
-  const cache = cargarCache();
-  if (cache && cache.gestantes) {
-    const duplicadoCache = cache.gestantes.find(g => 
-      g.cedula === cedula && g.id !== excluirId && g.estado !== 'archivado'
-    );
-    if (duplicadoCache) {
-      return { valido: false, duplicado: duplicadoCache, fuente: 'cache' };
-    }
-  }
-
-  // 3. Validar contra servidor (si hay internet)
-  if (navigator.onLine && supabaseClient) {
-    try {
-      const { data, error } = await supabaseClient
-        .from('gestantes')
-        .select('id, nombres, apellidos, cedula')
-        .eq('cedula', cedula)
-        .neq('estado', 'archivado');
-
-      if (error) throw error;
-      const duplicadoServidor = data.find(g => g.id !== excluirId);
-      if (duplicadoServidor) {
-        return { valido: false, duplicado: duplicadoServidor, fuente: 'servidor' };
-      }
-    } catch (e) {
-      console.warn('Error validando cédula en servidor:', e);
-      // Si falla el servidor pero tenemos cache, asumimos válido
-      // Si no hay cache, bloquear por seguridad
-      if (!cache) {
-        return { valido: false, error: 'No se pudo verificar la cédula. Verifique su conexión e intente de nuevo.' };
-      }
-    }
-  } else {
-    // Sin internet - solo validar contra datos locales/cache
-    // Si no hay datos locales suficientes, bloquear por seguridad
-    if (gestantesData.length === 0 && (!cache || cache.gestantes.length === 0)) {
-      return { valido: false, error: 'Sin conexión para verificar la cédula. Conecte a internet e intente de nuevo.' };
-    }
-  }
-
-  return { valido: true };
-}
-
-function actualizarContadorOffline() {
-  const badge = document.getElementById('offlineBadge');
-  const count = document.getElementById('offlineCount');
-  if (!badge || !count) return;
-
-  try {
-    const queue = JSON.parse(localStorage.getItem(OFFLINE_QUEUE) || '[]');
-    if (queue.length > 0) {
-      badge.classList.remove('hidden');
-      count.textContent = queue.length;
-    } else {
-      badge.classList.add('hidden');
-    }
-  } catch (e) {
-    badge.classList.add('hidden');
-  }
-}
-
 // ==================== INICIALIZACIÓN ====================
-function actualizarIndicadorConexion() {
-  const dot = document.getElementById('conexionDot');
-  const text = document.getElementById('conexionText');
-  const container = document.getElementById('conexionStatus');
-  if (!dot || !text || !container) return;
-
-  if (navigator.onLine) {
-    dot.className = 'w-2 h-2 bg-green-500 rounded-full animate-pulse';
-    text.textContent = 'Online';
-    text.className = 'text-xs text-green-700 font-medium';
-    container.className = 'flex items-center gap-2 px-3 py-1 bg-green-50 rounded-full border border-green-200 transition-colors';
-  } else {
-    dot.className = 'w-2 h-2 bg-orange-500 rounded-full';
-    text.textContent = 'Offline';
-    text.className = 'text-xs text-orange-700 font-medium';
-    container.className = 'flex items-center gap-2 px-3 py-1 bg-orange-50 rounded-full border border-orange-200 transition-colors';
-  }
-}
-
 async function initApp() {
   document.getElementById('loginScreen').classList.add('hidden');
   document.getElementById('appScreen').classList.remove('hidden');
-
-  // Resetear campos de login para próxima vez
-  document.getElementById('loginEmail').value = '';
-  document.getElementById('loginEmail').readOnly = false;
-  document.getElementById('loginEmail').classList.remove('bg-gray-100');
-  document.getElementById('loginPassword').value = '';
-
-  actualizarIndicadorConexion();
-  window.addEventListener('online', actualizarIndicadorConexion);
-  window.addEventListener('offline', actualizarIndicadorConexion);
 
   document.getElementById('userName').textContent = currentProfile.nombre || currentUser.email;
   document.getElementById('userRole').textContent = getRoleName(currentProfile.role);
@@ -2464,10 +1978,12 @@ async function initApp() {
     document.getElementById('menuArchivados').classList.remove('hidden');
     document.getElementById('menuBackup').classList.remove('hidden');
     document.getElementById('menuAuditoria').classList.remove('hidden');
+    document.getElementById('menuReporteCaptacion').classList.remove('hidden');
   } else if (currentProfile.role === 'admin') {
     document.getElementById('menuPuerperas').classList.remove('hidden');
     document.getElementById('menuArchivados').classList.remove('hidden');
     document.getElementById('menuBackup').classList.remove('hidden');
+    document.getElementById('menuReporteCaptacion').classList.remove('hidden');
     // admin NO ve usuarios ni calendarios
   }
   // médico: solo ve Dashboard, Gestantes, Control Semanal (por defecto)
@@ -2481,33 +1997,19 @@ async function initApp() {
   await loadGestantes();
   await loadUsers();
   initConsultoriosSelects();
+  initReporteConsultorios();
   await initSemanasSelect();
-
-  // Cachear todos los datos para uso offline temporal
-  try {
-    guardarCache({ 
-      gestantes: gestantesData, 
-      users: usersData,
-      calendarios: calendariosData,
-      timestamp: new Date().toISOString() 
-    });
-  } catch (e) {
-    console.warn('Error cacheando datos iniciales:', e);
-  }
-
-  // Iniciar monitoreo de sesión única
-  startSessionMonitor();
 
   // Iniciar timer de sesión
   startSessionTimer();
 
-  // Actualizar contador de datos offline
-  actualizarContadorOffline();
-
-  // Intentar sincronizar datos pendientes al iniciar
-  if (navigator.onLine) {
-    setTimeout(sincronizarDatosOffline, 3000);
-  }
+  supabaseClient.auth.onAuthStateChange((event, session) => {
+    if (event === 'SIGNED_OUT' || (event === 'TOKEN_REFRESHED' && !session)) {
+      currentUser = null; currentProfile = null;
+      if (sessionTimer) clearInterval(sessionTimer);
+      location.reload();
+    }
+  });
 
   await showSection('dashboard');
 }
@@ -2564,7 +2066,7 @@ async function showSection(section) {
   closeSidebarMobile();
   // Proteger secciones restringidas para médicos
   if (currentProfile && currentProfile.role === 'medico') {
-    const seccionesProhibidas = ['puerperas', 'archivados', 'usuarios', 'calendarios', 'backup', 'auditoria'];
+    const seccionesProhibidas = ['puerperas', 'archivados', 'usuarios', 'calendarios', 'backup', 'reporteCaptacion'];
     if (seccionesProhibidas.includes(section)) {
       showToast('Acceso denegado. No tiene permisos para esta sección.', 'error');
       return;
@@ -2582,7 +2084,8 @@ async function showSection(section) {
     controlSemanal: ['Control Semanal','Reporte semanal por semana epidemiológica'], puerperas: ['Puérperas / Lactantes','Mujeres en periodo postparto'],
     archivados: ['Archivados','Registros de abortos y cierres'], usuarios: ['Usuarios','Gestión de usuarios del sistema'],
     calendarios: ['Calendarios','Calendarios epidemiológicos'], backup: ['Backup / Restore','Respaldo y restauración de datos'],
-    auditoria: ['Auditoría','Registro de actividades de usuarios']
+    auditoria: ['Auditoría','Registro de cambios del sistema'],
+    reporteCaptacion: ['Reporte Captación','Control y seguimiento de gestantes captadas']
   };
   document.getElementById('pageTitle').textContent = titles[section][0];
   document.getElementById('pageSubtitle').textContent = titles[section][1];
@@ -2594,7 +2097,8 @@ async function showSection(section) {
   if (section === 'archivados') renderArchivados();
   if (section === 'usuarios') renderUsers();
   if (section === 'calendarios') renderCalendarios();
-  if (section === 'auditoria') renderAuditoria();
+  if (section === 'auditoria') await loadAuditoria();
+  if (section === 'reporteCaptacion') await loadReporteCaptacion();
 }
 
 function toggleSidebar() {
@@ -2739,7 +2243,11 @@ async function abrirCaptacionNueva(cedula) {
   document.getElementById('gestanteId').value = '';
   document.getElementById('gestanteModalTitle').textContent = 'Nueva Embarazada - CAPTACIÓN';
   document.getElementById('accionesEspeciales').classList.add('hidden');
-  document.getElementById('gFechaRegistro').value = new Date().toISOString().split('T')[0];
+  const fechaRegClose = document.getElementById('gFechaRegistro');
+  fechaRegClose.value = new Date().toISOString().split('T')[0];
+  fechaRegClose.readOnly = true;
+  fechaRegClose.classList.add('bg-gray-50');
+  fechaRegClose.title = "Fecha de registro original. No se puede modificar.";
   document.getElementById('gCedula').value = cedula;
   document.getElementById('gMotivo').value = 'CAPTACION';
   if (currentProfile.role === 'medico' && currentProfile.consultorio) {
@@ -2759,60 +2267,15 @@ async function abrirCaptacionNueva(cedula) {
 // ==================== GESTANTES CRUD ====================
 async function loadGestantes() {
   try {
-    if (!navigator.onLine) {
-      // Sin internet: intentar usar cache
-      const cache = cargarCache();
-      if (cache && cache.gestantes) {
-        gestantesData = cache.gestantes;
-        showToast('Sin internet. Mostrando datos en caché (' + gestantesData.length + ' registros). Algunas funciones pueden estar limitadas.', 'error');
-        renderGestantes();
-        renderDashboard();
-      } else {
-        showToast('Sin internet y sin datos en caché. Conecte a internet para cargar el sistema.', 'error');
-        gestantesData = [];
-        renderGestantes();
-        renderDashboard();
-      }
-      return;
-    }
-
     let query = supabaseClient.from('gestantes').select('*').order('fecha_registro', { ascending: false });
+    // Solo médicos ven gestantes de su consultorio. Admin y superadmin ven TODAS.
     if (currentProfile.role === 'medico' && currentProfile.consultorio) query = query.eq('consultorio', currentProfile.consultorio);
     const { data, error } = await query;
-    if (error) { 
-      showToast('Error cargando gestantes: ' + error.message, 'error'); 
-      // Intentar usar cache como fallback
-      const cache = cargarCache();
-      if (cache && cache.gestantes) {
-        gestantesData = cache.gestantes;
-        showToast('Error del servidor. Mostrando datos en caché.', 'error');
-        renderGestantes();
-        renderDashboard();
-      }
-      return; 
-    }
+    if (error) { showToast('Error cargando gestantes: ' + error.message, 'error'); return; }
     gestantesData = data || [];
-
-    // Guardar en cache
-    guardarCache({ gestantes: gestantesData, timestamp: new Date().toISOString() });
-
     renderGestantes();
     renderDashboard();
-  } catch (err) { 
-    showToast('Error de conexión: ' + err.message, 'error');
-    // Intentar usar cache
-    const cache = cargarCache();
-    if (cache && cache.gestantes) {
-      gestantesData = cache.gestantes;
-      showToast('Error de conexión. Mostrando datos en caché.', 'error');
-      renderGestantes();
-      renderDashboard();
-    } else {
-      gestantesData = [];
-      renderGestantes();
-      renderDashboard();
-    }
-  }
+  } catch (err) { showToast('Error crítico: ' + err.message, 'error'); }
 }
 
 function renderGestantes() {
@@ -2875,11 +2338,12 @@ function renderGestantes() {
             <div><span class="text-gray-400">Edad:</span> ${g.edad || '-'} años</div>
             <div><span class="text-gray-400">Sem:</span> ${g.semana_gestacion || '-'}</div>
             <div class="col-span-2"><span class="text-gray-400">Consultorio:</span> ${g.consultorio || '-'}</div>
+            <div class="col-span-2"><span class="text-gray-400">Teléfono:</span> ${g.telefono || 'NO POSEE'}</div>
             <div class="col-span-2"><span class="text-gray-400">FPP:</span> ${g.fpp || '-'}</div>
           </div>
           <div class="flex gap-2">
             <button onclick="editGestante('${g.id}')" class="flex-1 bg-emerald-50 text-emerald-600 py-1.5 rounded-lg text-xs font-medium ${canEdit ? '' : 'opacity-50'}" ${canEdit ? '' : 'disabled'}><i class="fas fa-edit mr-1"></i>Editar</button>
-            ${currentProfile.role === 'superadmin' ? `<button onclick="deleteGestante('${g.id}')" class="px-3 bg-red-50 text-red-600 py-1.5 rounded-lg text-xs"><i class="fas fa-trash"></i></button>` : ''}
+            ${(currentProfile.role === 'superadmin' || currentProfile.role === 'admin') ? `<button onclick="deleteGestante('${g.id}')" class="px-3 bg-red-50 text-red-600 py-1.5 rounded-lg text-xs"><i class="fas fa-trash"></i></button>` : ''}
           </div>
         </div>`;
     }).join('');
@@ -2898,7 +2362,9 @@ function renderGestantes() {
     const aroText = g.aro ? `ARO ${g.aro}` : '-';
     const estadoBadge = g.estado === 'gestante' ? '<span class="px-2 py-1 bg-emerald-100 text-emerald-700 rounded text-xs font-medium">Gestante</span>' : g.estado === 'puerpera' ? '<span class="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs font-medium">Puérpera</span>' : g.estado === 'lactante' ? '<span class="px-2 py-1 bg-emerald-100 text-emerald-700 rounded text-xs font-medium">Lactante</span>' : '-';
     const canEdit = currentProfile.role === 'superadmin' || currentProfile.role === 'admin' || (currentProfile.role === 'medico' && currentProfile.consultorio === g.consultorio);
-    return `<tr class="hover:bg-gray-50 ${trimClass}"><td class="px-4 py-3">${g.cedula || ''}</td><td class="px-4 py-3 font-medium">${g.nombres || ''} ${g.apellidos || ''}</td><td class="px-4 py-3">${g.edad || ''}</td><td class="px-4 py-3 text-xs">${g.consultorio || ''}</td><td class="px-4 py-3 font-medium">${g.semana_gestacion || ''}</td><td class="px-4 py-3">${g.fpp || ''}</td><td class="px-4 py-3">${estadoBadge}</td><td class="px-4 py-3"><span class="px-2 py-1 rounded text-xs font-medium ${aroClass}">${aroText}</span></td><td class="px-4 py-3 text-center"><button onclick="editGestante('${g.id}')" class="text-emerald-600 hover:text-emerald-800 mx-1 ${canEdit ? '' : 'opacity-50 cursor-not-allowed'}" title="Editar" ${canEdit ? '' : 'disabled'}><i class="fas fa-edit"></i></button>${currentProfile.role === 'superadmin' ? `<button onclick="deleteGestante('${g.id}')" class="text-red-600 hover:text-red-800 mx-1" title="Eliminar"><i class="fas fa-trash"></i></button>` : ''}</td></tr>`;
+    const registradoPor = g.created_by ? (usersData.find(u => u.id === g.created_by)?.nombre || g.created_by.substring(0,8)) : '-';
+    const mostrarAuditoria = currentProfile.role === 'superadmin';
+    return `<tr class="hover:bg-gray-50 ${trimClass}"><td class="px-4 py-3">${g.cedula || ''}</td><td class="px-4 py-3 font-medium">${g.nombres || ''} ${g.apellidos || ''}</td><td class="px-4 py-3">${g.edad || ''}</td><td class="px-4 py-3 text-xs">${g.consultorio || ''}</td><td class="px-4 py-3 font-medium">${g.semana_gestacion || ''}</td><td class="px-4 py-3">${g.fpp || ''}</td><td class="px-4 py-3">${estadoBadge}</td><td class="px-4 py-3"><span class="px-2 py-1 rounded text-xs font-medium ${aroClass}">${aroText}</span></td>${mostrarAuditoria ? `<td class="px-4 py-3 text-xs text-gray-500" title="ID: ${g.created_by || ''}">${registradoPor}</td>` : '<td class="px-4 py-3 text-xs text-gray-400">-</td>'}<td class="px-4 py-3 text-center"><button onclick="editGestante('${g.id}')" class="text-emerald-600 hover:text-emerald-800 mx-1 ${canEdit ? '' : 'opacity-50 cursor-not-allowed'}" title="Editar" ${canEdit ? '' : 'disabled'}><i class="fas fa-edit"></i></button>${(currentProfile.role === 'superadmin' || currentProfile.role === 'admin') ? `<button onclick="deleteGestante('${g.id}')" class="text-red-600 hover:text-red-800 mx-1" title="Eliminar"><i class="fas fa-trash"></i></button>` : ''}</td></tr>`;
   }).join('');
 }
 
@@ -2909,19 +2375,34 @@ function openGestanteModal() {
   document.getElementById('gestanteId').value = '';
   document.getElementById('gestanteModalTitle').textContent = 'Nueva Embarazada';
   document.getElementById('accionesEspeciales').classList.add('hidden');
-  // Set default fecha de registro to today
-  document.getElementById('gFechaRegistro').value = new Date().toISOString().split('T')[0];
+  // Set default fecha de registro to today y HABILITAR solo en creación
+  const fechaRegInput = document.getElementById('gFechaRegistro');
+  fechaRegInput.value = new Date().toISOString().split('T')[0];
+  fechaRegInput.readOnly = false;
+  fechaRegInput.classList.remove('bg-gray-50');
+  fechaRegInput.title = "Fecha en que se realiza el registro en el sistema";
   // Reset custom fields
   document.getElementById('gSinCedula').checked = false;
+  document.getElementById('gSinTelefono').checked = false;
   document.getElementById('gEdadManual').checked = false;
   const furInciertoCheckbox = document.getElementById('gFurIncierto');
   if (furInciertoCheckbox) {
     furInciertoCheckbox.checked = false;
     toggleFurIncierto();
   }
+  // Asegurar que FPP esté en modo automático al crear nueva gestante
+  const fppInputNew = document.getElementById('gFpp');
+  if (fppInputNew) {
+    fppInputNew.readOnly = true;
+    fppInputNew.classList.add('bg-gray-50');
+  }
   document.getElementById('gCedula').readOnly = false;
   document.getElementById('gCedula').classList.remove('bg-gray-100');
   document.getElementById('gCedulaHelp').classList.add('hidden');
+  document.getElementById('gTelefono').disabled = false;
+  document.getElementById('gTelefono').classList.remove('bg-gray-100', 'cursor-not-allowed');
+  document.getElementById('gTelefono').placeholder = '(0412)1234567';
+  document.getElementById('gTelefonoHelp').classList.add('hidden');
   document.getElementById('gEdad').readOnly = true;
   document.getElementById('gEdad').classList.add('bg-gray-50');
   document.getElementById('gNG').value = 0;
@@ -2953,11 +2434,16 @@ function closeGestanteModal() {
   window._anioCaptacion = null;
   // Reset custom fields
   document.getElementById('gSinCedula').checked = false;
+  document.getElementById('gSinTelefono').checked = false;
   document.getElementById('gEdadManual').checked = false;
   document.getElementById('gFurIncierto').checked = false;
   document.getElementById('gCedula').readOnly = false;
   document.getElementById('gCedula').classList.remove('bg-gray-100');
   document.getElementById('gCedulaHelp').classList.add('hidden');
+  document.getElementById('gTelefono').disabled = false;
+  document.getElementById('gTelefono').classList.remove('bg-gray-100', 'cursor-not-allowed');
+  document.getElementById('gTelefono').placeholder = '(0412)1234567';
+  document.getElementById('gTelefonoHelp').classList.add('hidden');
   document.getElementById('gEdad').readOnly = true;
   document.getElementById('gEdad').classList.add('bg-gray-50');
   document.getElementById('gNG').value = 0;
@@ -2992,8 +2478,22 @@ function editGestante(id) {
   document.getElementById('gApellidos').value = g.apellidos || '';
   document.getElementById('gFechaNac').value = g.fecha_nacimiento || '';
   document.getElementById('gEdad').value = g.edad || '';
-  document.getElementById('gTelefono').value = g.telefono || '';
-  formatTelefono(document.getElementById('gTelefono'));
+  const telefonoVal = (g.telefono || '').trim();
+  const sinTelefono = !telefonoVal || telefonoVal === '' || telefonoVal === 'NO POSEE';
+  document.getElementById('gSinTelefono').checked = sinTelefono;
+  document.getElementById('gTelefono').value = sinTelefono ? '' : telefonoVal;
+  if (sinTelefono) {
+    document.getElementById('gTelefono').disabled = true;
+    document.getElementById('gTelefono').classList.add('bg-gray-100', 'cursor-not-allowed');
+    document.getElementById('gTelefono').placeholder = 'NO POSEE';
+    document.getElementById('gTelefonoHelp').classList.remove('hidden');
+  } else {
+    document.getElementById('gTelefono').disabled = false;
+    document.getElementById('gTelefono').classList.remove('bg-gray-100', 'cursor-not-allowed');
+    document.getElementById('gTelefono').placeholder = '(0412)1234567';
+    document.getElementById('gTelefonoHelp').classList.add('hidden');
+    formatTelefono(document.getElementById('gTelefono'));
+  }
   document.getElementById('gConsultorio').value = g.consultorio || '';
   document.getElementById('gDireccion').value = g.direccion || '';
   document.getElementById('gCarnet').value = g.carnet_patria || '';
@@ -3002,69 +2502,30 @@ function editGestante(id) {
   if (furInciertoCheckboxEdit) {
     furInciertoCheckboxEdit.checked = !g.fur;
     toggleFurIncierto();
+    // Si hay FPP guardado y FUR es incierto, mostrar el FPP guardado
+    if (!g.fur && g.fpp) {
+      const fppInputEdit = document.getElementById('gFpp');
+      if (fppInputEdit) {
+        fppInputEdit.value = g.fpp;
+      }
+    }
   }
   document.getElementById('gNP').value = g.num_p || 0;
   document.getElementById('gNC').value = g.num_c || 0;
   document.getElementById('gNA').value = g.num_a || 0;
   calcularNG(); // N° G se calcula automáticamente
   document.getElementById('gSemGesta').value = g.semana_gestacion || '';
+  // Semana gestación SIEMPRE editable (tanto si hay FUR como si no)
   document.getElementById('gSemGesta').readOnly = false;
   document.getElementById('gSemGesta').classList.remove('bg-gray-50');
   document.getElementById('gFpp').value = g.fpp || '';
   document.getElementById('gAro').value = g.aro || '';
 
-  // Cargar criterios ARO si existen
-  if (g.aro_criterios) {
-    const ac = g.aro_criterios;
-    const aro1MapRev = {
-      'Edad extrema (<15 o >35 años)': 'aro1_edad_extrema',
-      'Multiparidad': 'aro1_multiparidad',
-      'Analfabetismo / Bajo nivel educativo': 'aro1_analfabetismo',
-      'Pobreza extrema / Vulnerabilidad social': 'aro1_pobreza',
-      'Vivienda lejana al centro de salud': 'aro1_lejania',
-      'Unión inestable': 'aro1_union_inestable',
-      'Tabaquismo / Alcoholismo / Drogas': 'aro1_tabaco_alcohol',
-      'Talla < 1.50m o peso < 45kg / Obesidad': 'aro1_talla_baja',
-      'Control tardío o embarazo no deseado': 'aro1_control_tardio'
-    };
-    const aro2MapRev = {
-      'Parto prematuro previo': 'aro2_parto_prematuro',
-      'Embarazo prolongado previo': 'aro2_embarazo_prolongado',
-      'Cesárea anterior': 'aro2_cesarea_previa',
-      'Hemorragias obstétricas previas': 'aro2_hemorragia',
-      'Mola hidatidiforme previa': 'aro2_mola',
-      'Malformaciones congénitas previas': 'aro2_malformacion',
-      'Preeclampsia-eclampsia previa': 'aro2_preeclampsia',
-      'RPM previa': 'aro2_rpm_previa',
-      'Trauma o infección fetal/neonatal previa': 'aro2_trauma_neonatal'
-    };
-    const aro3MapRev = {
-      'Amenaza de parto pretérmino': 'aro3_amenaza_pret',
-      'Preeclampsia / Eclampsia actual': 'aro3_preeclampsia_actual',
-      'Diabetes gestacional': 'aro3_diabetes_gest',
-      'Hemorragias obstétricas actuales': 'aro3_hemorragia_actual',
-      'Placenta previa / Abruption': 'aro3_placenta_previa',
-      'Embarazo múltiple': 'aro3_embarazo_multiple',
-      'RCIU': 'aro3_rciu',
-      'Hipertensión arterial': 'aro3_hta',
-      'Diabetes mellitus': 'aro3_dm',
-      'Cardiopatías / Nefropatías': 'aro3_cardiopatia',
-      'Anemias graves': 'aro3_anemia_grave',
-      'Isoinmunización Rh': 'aro3_isoinmunizacion',
-      'Malformaciones congénitas actuales': 'aro3_malformacion_actual',
-      'Pérdida fetal recurrente': 'aro3_perdida_recurrente',
-      'Incompetencia cervical': 'aro3_incompetencia'
-    };
-    if (ac.aro1) ac.aro1.forEach(c => { const id = aro1MapRev[c]; if (id) { const el = document.getElementById(id); if (el) el.checked = true; } });
-    if (ac.aro2) ac.aro2.forEach(c => { const id = aro2MapRev[c]; if (id) { const el = document.getElementById(id); if (el) el.checked = true; } });
-    if (ac.aro3) ac.aro3.forEach(c => { const id = aro3MapRev[c]; if (id) { const el = document.getElementById(id); if (el) el.checked = true; } });
-    calcularAROAutomatico();
-  } else {
-    // Limpiar todos los checkboxes ARO
-    document.querySelectorAll('[id^="aro1_"], [id^="aro2_"], [id^="aro3_"]').forEach(el => el.checked = false);
-    const resDiv = document.getElementById('aroResultado');
-    if (resDiv) resDiv.classList.add('hidden');
-  }
+  // Los criterios ARO no se almacenan en BD (solo se guarda el resultado: aro = I/II/III)
+  // Al editar se limpian los checkboxes para que el usuario pueda recalcular si desea
+  document.querySelectorAll('[id^="aro1_"], [id^="aro2_"], [id^="aro3_"]').forEach(el => el.checked = false);
+  const resDiv = document.getElementById('aroResultado');
+  if (resDiv) resDiv.classList.add('hidden');
   document.getElementById('gControlPre').value = g.control_prenatal || 'SI';
   document.getElementById('gDonde').value = g.donde_publico_privado || 'PUBLICO';
   document.getElementById('gEnfermedad').value = g.enfermedad_asociada || 'NO';
@@ -3088,18 +2549,13 @@ function editGestante(id) {
 
 async function deleteGestante(id) {
   if (!confirm('¿Eliminar permanentemente este registro?')) return;
-  const { data: datosAnteriores } = await supabaseClient.from('gestantes').select('*').eq('id', id).single();
-  const resultado = await crudConOffline('gestantes', 'DELETE', {}, id);
-  if (!resultado.success) { showToast('Error: ' + (resultado.error || 'No se pudo eliminar'), 'error'); return; }
-  if (resultado.offline) {
-    showToast(resultado.message, 'success');
-    gestantesData = gestantesData.filter(g => g.id !== id);
-    renderGestantes();
-  } else {
-    await registrarAuditoria('DELETE', 'gestantes', id, datosAnteriores, null);
-    showToast('Registro eliminado');
-    await loadGestantes();
-  }
+  // Obtener datos antes de eliminar para auditoría
+  const { data: oldData } = await supabaseClient.from('gestantes').select('*').eq('id', id).single();
+  const { error } = await supabaseClient.from('gestantes').delete().eq('id', id);
+  if (error) { showToast('Error: ' + error.message, 'error'); return; }
+  showToast('Registro eliminado');
+  await registrarAuditoria('DELETE', 'gestantes', id, oldData, null);
+  await loadGestantes();
 }
 
 
@@ -3153,24 +2609,47 @@ function toggleEdadManual() {
 function toggleFurIncierto() {
   const checkbox = document.getElementById('gFurIncierto');
   const furInput = document.getElementById('gFur');
-  if (!checkbox || !furInput) return;
+  const fppInput = document.getElementById('gFpp');
+  const semGestaInput = document.getElementById('gSemGesta');
+  if (!checkbox || !furInput || !fppInput || !semGestaInput) return;
+
   if (checkbox.checked) {
+    // F.U.R Incierto: deshabilitar FUR, habilitar semana gestación y FPP manual
     furInput.dataset.valorOriginal = furInput.value;
     furInput.value = '';
     furInput.disabled = true;
     furInput.classList.add('bg-gray-100', 'cursor-not-allowed');
     furInput.placeholder = 'F.U.R Incierto';
-    document.getElementById('gSemGesta').readOnly = false;
-    document.getElementById('gSemGesta').classList.remove('bg-gray-50');
-    document.getElementById('gFpp').value = '';
-    document.getElementById('gFpp').placeholder = 'Ingrese manualmente';
+
+    // Habilitar semana de gestación para ingreso manual
+    semGestaInput.readOnly = false;
+    semGestaInput.classList.remove('bg-gray-50');
+    semGestaInput.placeholder = 'Ej: 24 SEMANAS Y 3 DIAS';
+
+    // Habilitar FPP para ingreso manual
+    fppInput.readOnly = false;
+    fppInput.classList.remove('bg-gray-50');
+    fppInput.classList.remove('cursor-not-allowed');
+    fppInput.placeholder = 'Ingrese FPP manualmente';
+    fppInput.value = '';
   } else {
+    // F.U.R conocido: habilitar FUR, calcular automáticamente
     furInput.disabled = false;
     furInput.classList.remove('bg-gray-100', 'cursor-not-allowed');
     furInput.placeholder = '';
     if (furInput.dataset.valorOriginal) {
       furInput.value = furInput.dataset.valorOriginal;
     }
+
+    // Semana gestación: calcular automáticamente pero PERMITIR edición manual
+    semGestaInput.readOnly = false;
+    semGestaInput.classList.remove('bg-gray-50');
+
+    // FPP se calcula automáticamente (solo lectura)
+    fppInput.readOnly = true;
+    fppInput.classList.add('bg-gray-50');
+    fppInput.placeholder = '';
+
     calcularSemanasFPP();
   }
 }
@@ -3201,8 +2680,9 @@ function calcularNG() {
 
 // Formato teléfono: (XXXX)XXXXXXX, máximo 10 números
 function formatTelefono(input) {
-  let val = input.value.replace(/\D/g, ''); // solo números
-  if (val.length > 10) val = val.substring(0, 10);
+  // Formato del constraint BD: ^\([0-9]{4}\)[0-9]{7}$ → (0412)1234567
+  let val = input.value.replace(/\D/g, '');
+  if (val.length > 11) val = val.substring(0, 11);
   if (val.length >= 4) {
     input.value = '(' + val.substring(0, 4) + ')' + val.substring(4);
   } else {
@@ -3212,6 +2692,29 @@ function formatTelefono(input) {
 
 
 // Toggle sin cedula - genera numero unico
+function toggleSinTelefono() {
+  const checkbox = document.getElementById('gSinTelefono');
+  const telefonoInput = document.getElementById('gTelefono');
+  const helpText = document.getElementById('gTelefonoHelp');
+
+  if (checkbox.checked) {
+    telefonoInput.dataset.valorOriginal = telefonoInput.value;
+    telefonoInput.value = '';
+    telefonoInput.disabled = true;
+    telefonoInput.classList.add('bg-gray-100', 'cursor-not-allowed');
+    telefonoInput.placeholder = 'NO POSEE';
+    helpText.classList.remove('hidden');
+  } else {
+    telefonoInput.disabled = false;
+    telefonoInput.classList.remove('bg-gray-100', 'cursor-not-allowed');
+    telefonoInput.placeholder = '(0412)1234567';
+    if (telefonoInput.dataset.valorOriginal) {
+      telefonoInput.value = telefonoInput.dataset.valorOriginal;
+    }
+    helpText.classList.add('hidden');
+  }
+}
+
 async function toggleSinCedula() {
   const checkbox = document.getElementById('gSinCedula');
   const cedulaInput = document.getElementById('gCedula');
@@ -3351,11 +2854,13 @@ function calcularSemanasFPP() {
   const semanas = Math.floor(diffDays / 7);
   const dias = diffDays % 7;
   if (semanas >= 0 && semanas <= 42) {
-    // Solo calcular automáticamente si el campo está vacío (nuevo registro)
-    const semGestaActual = document.getElementById('gSemGesta').value.trim();
-    if (!semGestaActual) {
-      document.getElementById('gSemGesta').value = `${semanas} SEMANAS Y ${dias} DIAS`;
-    }
+    // Calcular automáticamente pero PERMITIR edición manual después
+    const semGestaInput = document.getElementById('gSemGesta');
+    semGestaInput.value = `${semanas} SEMANAS Y ${dias} DIAS`;
+    // Siempre habilitar edición manual de semana gestación
+    semGestaInput.readOnly = false;
+    semGestaInput.classList.remove('bg-gray-50');
+
     const fpp = new Date(furDate);
     fpp.setDate(fpp.getDate() + 280);
     document.getElementById('gFpp').value = fpp.toISOString().split('T')[0];
@@ -3370,21 +2875,26 @@ document.getElementById('gestanteForm').addEventListener('submit', async (e) => 
   const id = document.getElementById('gestanteId').value;
   const cedulaInput = document.getElementById('gCedula').value.trim();
 
-  // Validar que la cédula no exista (solo para nuevos registros)
+  // Validar que la cedula no exista (solo para nuevos registros)
   if (!id && cedulaInput) {
-    const validacion = await validarCedulaCompleta(cedulaInput);
+    const { data: existente, error: cedulaError } = await supabaseClient
+      .from('gestantes')
+      .select('id, nombres, apellidos')
+      .eq('cedula', cedulaInput)
+      .neq('estado', 'archivado')
+      .maybeSingle();
 
-    if (!validacion.valido) {
-      if (validacion.error) {
-        showToast('⚠️ ' + validacion.error, 'error');
-      } else if (validacion.duplicado) {
-        const fuente = validacion.fuente === 'servidor' ? '' : ' (datos ' + validacion.fuente + ')';
-        showToast('⚠️ La cédula ' + cedulaInput + ' ya está registrada' + fuente + ' a nombre de: ' + (validacion.duplicado.nombres || '') + ' ' + (validacion.duplicado.apellidos || ''), 'error');
-        document.getElementById('gCedula').classList.add('border-red-500', 'bg-red-50');
-        setTimeout(() => {
-          document.getElementById('gCedula').classList.remove('border-red-500', 'bg-red-50');
-        }, 3000);
-      }
+    if (cedulaError) {
+      showToast('Error verificando cédula: ' + cedulaError.message, 'error');
+      return;
+    }
+
+    if (existente) {
+      showToast('⚠️ La cédula ' + cedulaInput + ' ya está registrada a nombre de: ' + (existente.nombres || '') + ' ' + (existente.apellidos || ''), 'error');
+      document.getElementById('gCedula').classList.add('border-red-500', 'bg-red-50');
+      setTimeout(() => {
+        document.getElementById('gCedula').classList.remove('border-red-500', 'bg-red-50');
+      }, 3000);
       return;
     }
   }
@@ -3459,13 +2969,12 @@ document.getElementById('gestanteForm').addEventListener('submit', async (e) => 
     cedula: document.getElementById('gCedula').value.trim(),
     estado: 'gestante',
     trimestre: trimestre,
-    aro_criterios: aroCriterios,
     nombres: document.getElementById('gNombres').value.trim().toUpperCase(),
     apellidos: document.getElementById('gApellidos').value.trim().toUpperCase(),
-    fecha_registro: document.getElementById('gFechaRegistro').value || new Date().toISOString().split('T')[0],
+    // fecha_registro solo en creación (ver abajo)
     fecha_nacimiento: document.getElementById('gFechaNac').value || null,
     edad: parseInt(document.getElementById('gEdad').value) || null,
-    telefono: document.getElementById('gTelefono').value.trim(),
+    telefono: document.getElementById('gSinTelefono').checked ? '' : document.getElementById('gTelefono').value.trim(),
     consultorio: document.getElementById('gConsultorio').value,
     direccion: document.getElementById('gDireccion').value.trim().toUpperCase(),
     carnet_patria: document.getElementById('gCarnet').value,
@@ -3495,35 +3004,21 @@ document.getElementById('gestanteForm').addEventListener('submit', async (e) => 
     fecha_ultima_actualizacion: new Date().toISOString(),
     created_by: currentUser.id
   };
+  // fecha_registro solo se asigna en creación, NO en edición
   if (!id) data.fecha_registro = new Date().toISOString();
 
   let gestanteId = id;
   if (id) {
-    // UPDATE
-    const { data: datosAnteriores } = await supabaseClient.from('gestantes').select('*').eq('id', id).single();
-    const resultado = await crudConOffline('gestantes', 'UPDATE', data, id);
-    if (!resultado.success) { showToast('Error: ' + resultado.error, 'error'); return; }
-    if (resultado.offline) {
-      showToast(resultado.message, 'success');
-    } else {
-      await registrarAuditoria('UPDATE', 'gestantes', id, datosAnteriores, data);
-      showToast('Registro actualizado');
-    }
+    const { error } = await supabaseClient.from('gestantes').update(data).eq('id', id);
+    if (error) { showToast('Error: ' + error.message, 'error'); return; }
+    showToast('Registro actualizado');
+    await registrarAuditoria('UPDATE', 'gestantes', id, null, data);
   } else {
-    // INSERT
-    const resultado = await crudConOffline('gestantes', 'INSERT', data);
-    if (!resultado.success) { showToast('Error: ' + resultado.error, 'error'); return; }
-    if (resultado.offline) {
-      showToast(resultado.message, 'success');
-      gestanteId = data.id;
-    } else {
-      const insertData = resultado.data;
-      showToast('Gestante registrada');
-      if (insertData && insertData.length > 0) {
-        gestanteId = insertData[0].id;
-        await registrarAuditoria('INSERT', 'gestantes', gestanteId, null, data);
-      }
-    }
+    const { data: insertData, error } = await supabaseClient.from('gestantes').insert([data]).select();
+    if (error) { showToast('Error: ' + error.message, 'error'); return; }
+    showToast('Gestante registrada');
+    if (insertData && insertData.length > 0) gestanteId = insertData[0].id;
+    await registrarAuditoria('INSERT', 'gestantes', gestanteId, null, data);
   }
 
   closeGestanteModal();
@@ -3554,10 +3049,8 @@ async function marcarPuerpera() {
   const id = document.getElementById('gestanteId').value;
   if (!id) { showToast('Guarde el registro primero', 'error'); return; }
   if (!confirm('¿Marcar como Puérpera / Lactante? Se calculará desde la fecha de hoy.')) return;
-  const { data: datosAnteriores } = await supabaseClient.from('gestantes').select('*').eq('id', id).single();
   const { error } = await supabaseClient.from('gestantes').update({ estado: 'puerpera', fecha_parto: new Date().toISOString(), fecha_ultima_actualizacion: new Date().toISOString() }).eq('id', id);
   if (error) { showToast('Error: ' + error.message, 'error'); return; }
-  await registrarAuditoria('UPDATE', 'gestantes', id, datosAnteriores, { estado: 'puerpera', fecha_parto: new Date().toISOString() });
   showToast('Marcada como Puérpera');
   closeGestanteModal();
   await loadGestantes();
@@ -3567,10 +3060,8 @@ async function marcarAborto() {
   const id = document.getElementById('gestanteId').value;
   if (!id) { showToast('Guarde el registro primero', 'error'); return; }
   if (!confirm('¿Archivar este registro? Se guardarán nombre, apellido y cédula para futuras consultas.')) return;
-  const { data: datosAnteriores } = await supabaseClient.from('gestantes').select('*').eq('id', id).single();
   const { error } = await supabaseClient.from('gestantes').update({ estado: 'archivado', motivo_archivo: 'ABORTO', fecha_archivo: new Date().toISOString(), fecha_ultima_actualizacion: new Date().toISOString() }).eq('id', id);
   if (error) { showToast('Error: ' + error.message, 'error'); return; }
-  await registrarAuditoria('UPDATE', 'gestantes', id, datosAnteriores, { estado: 'archivado', motivo_archivo: 'ABORTO', fecha_archivo: new Date().toISOString() });
   showToast('Registro archivado');
   closeGestanteModal();
   await loadGestantes();
@@ -3579,7 +3070,7 @@ async function marcarAborto() {
 async function nuevoEmbarazo() {
   const id = document.getElementById('gestanteId').value;
   if (!id) { showToast('Guarde el registro primero', 'error'); return; }
-  if (!confirm('¿Reactivar para nuevo embarazo? Se limpiarán datos obstétricos y se conservarán datos personales.')) return;
+  if (!confirm('¿Reactivar para nuevo embarazo? Se limpiarán datos obstétricos, se conservarán datos personales y se actualizará la fecha de registro.')) return;
   const { error } = await supabaseClient.from('gestantes').update({ estado: 'gestante', fur: null, semana_gestacion: null, fpp: null, num_p: 0, num_c: 0, num_a: 0, num_g: 0, trimestre: 0, fecha_parto: null, motivo_archivo: null, fecha_archivo: null, fecha_registro: new Date().toISOString(), fecha_ultima_actualizacion: new Date().toISOString() }).eq('id', id);
   if (error) { showToast('Error: ' + error.message, 'error'); return; }
   showToast('Reactivada para nuevo embarazo');
@@ -3695,11 +3186,9 @@ function renderArchivados() {
 }
 
 async function reactivarArchivado(id) {
-  if (!confirm('¿Reactivar este registro para nuevo embarazo?')) return;
-  const { data: datosAnteriores } = await supabaseClient.from('gestantes').select('*').eq('id', id).single();
+  if (!confirm('¿Reactivar este registro para nuevo embarazo? Se actualizará la fecha de registro.')) return;
   const { error } = await supabaseClient.from('gestantes').update({ estado: 'gestante', fur: null, semana_gestacion: null, fpp: null, num_p: 0, num_c: 0, num_a: 0, num_g: 0, trimestre: 0, fecha_parto: null, motivo_archivo: null, fecha_archivo: null, fecha_registro: new Date().toISOString(), fecha_ultima_actualizacion: new Date().toISOString() }).eq('id', id);
   if (error) { showToast('Error: ' + error.message, 'error'); return; }
-  await registrarAuditoria('UPDATE', 'gestantes', id, datosAnteriores, { estado: 'gestante', motivo: 'reactivacion_nuevo_embarazo' });
   showToast('Reactivada para nuevo embarazo');
   await loadGestantes();
   showSection('archivados');
@@ -3805,10 +3294,8 @@ function closeControlEditModal() { document.getElementById('controlEditModal').c
 
 async function eliminarControl(id) {
   if (!confirm('¿Está seguro de eliminar este registro del Control Semanal? Esta acción no se puede deshacer.')) return;
-  const { data: datosAnteriores } = await supabaseClient.from('control_semanal').select('*').eq('id', id).single();
   const { error } = await supabaseClient.from('control_semanal').delete().eq('id', id);
   if (error) { showToast('Error: ' + error.message, 'error'); return; }
-  await registrarAuditoria('DELETE', 'control_semanal', id, datosAnteriores, null);
   showToast('Registro eliminado del Control Semanal');
   await loadControlSemanal();
 }
@@ -3820,7 +3307,6 @@ document.getElementById('controlEditForm').addEventListener('submit', async (e) 
   const { error } = await supabaseClient.from('control_semanal').update(data).eq('id', id);
   if (error) { showToast('Error: ' + error.message, 'error'); return; }
   showToast('Control actualizado');
-  await registrarAuditoria('UPDATE', 'control_semanal', id, null, data);
   closeControlEditModal();
   await loadControlSemanal();
 });
@@ -3843,7 +3329,7 @@ async function exportarExcelSemanal() {
       'CARNET PATRIA NO': g.carnet_patria === 'NO' ? 'X' : '',
       'ESTADO': 'GUARICO',
       'MUNICIPIO': 'CAMAGUAN',
-      'N° DE TELEFONO': g.telefono || '',
+      'N° DE TELEFONO': g.telefono || 'NO POSEE',
       'N° TELEFONO FAMILIAR': '',
       'FUR': g.fur || '',
       'N° P': g.num_p || 0,
@@ -3876,46 +3362,94 @@ function renderDashboard() {
   const activas = gestantesData.filter(g => g.estado === 'gestante');
   const puerperas = gestantesData.filter(g => g.estado === 'puerpera' || g.estado === 'lactante');
   const menores = activas.filter(g => g.edad && g.edad < 18);
-  const mayores = activas.filter(g => g.edad && g.edad >= 18);
   document.getElementById('dashTotal').textContent = activas.length;
   document.getElementById('dashPuerperas').textContent = puerperas.length;
   document.getElementById('dashMenores').textContent = menores.length;
   getCurrentSemanaEpidemiologica().then(se => { document.getElementById('dashSemanaEpi').textContent = se; });
-  const t1 = activas.filter(g => g.trimestre === 1).length;
-  const t2 = activas.filter(g => g.trimestre === 2).length;
-  const t3 = activas.filter(g => g.trimestre === 3).length;
-  renderChart('chartTrimestres', 'doughnut', ['1er Trimestre', '2do Trimestre', '3er Trimestre'], [t1, t2, t3], ['#10b981', '#3b82f6', '#f59e0b']);
+
+  // ===== TRIMESTRES DINÁMICOS (FUR + tiempo transcurrido) =====
+  const hoy = new Date();
+  let t1 = 0, t2 = 0, t3 = 0;
+  activas.forEach(g => {
+    let semanasActuales = 0;
+    if (g.fur) {
+      const furDate = new Date(g.fur + 'T00:00:00');
+      const diffDays = Math.floor((hoy - furDate) / (1000 * 60 * 60 * 24));
+      semanasActuales = Math.floor(diffDays / 7);
+    } else if (g.semana_gestacion) {
+      const match = g.semana_gestacion.match(/(\d+)/);
+      const semRegistro = match ? parseInt(match[1]) : 0;
+      if (g.fecha_registro) {
+        const fechaReg = new Date(g.fecha_registro);
+        const diffDays = Math.floor((hoy - fechaReg) / (1000 * 60 * 60 * 24));
+        semanasActuales = semRegistro + Math.floor(diffDays / 7);
+      } else {
+        semanasActuales = semRegistro;
+      }
+    }
+    if (semanasActuales >= 1 && semanasActuales <= 12) t1++;
+    else if (semanasActuales >= 13 && semanasActuales <= 27) t2++;
+    else if (semanasActuales >= 28) t3++;
+  });
+  const totalTrim = t1 + t2 + t3 || 1;
+  document.getElementById('statT1').textContent = t1;
+  document.getElementById('barT1').style.width = ((t1 / totalTrim) * 100) + '%';
+  document.getElementById('statT2').textContent = t2;
+  document.getElementById('barT2').style.width = ((t2 / totalTrim) * 100) + '%';
+  document.getElementById('statT3').textContent = t3;
+  document.getElementById('barT3').style.width = ((t3 / totalTrim) * 100) + '%';
+
+  // ===== TOP CONSULTORIOS (nombre completo) =====
   const consCounts = {};
   CONSULTORIOS.forEach(c => consCounts[c] = 0);
   activas.forEach(g => { if (g.consultorio) consCounts[g.consultorio] = (consCounts[g.consultorio] || 0) + 1; });
-  renderChart('chartConsultorios', 'bar', Object.keys(consCounts).map(c => c.split(' ')[0]), Object.values(consCounts), '#3b82f6');
+  const topConsultorios = Object.entries(consCounts).filter(([_, count]) => count > 0).sort((a, b) => b[1] - a[1]).slice(0, 5);
+  document.getElementById('statConsultorios').innerHTML = topConsultorios.length === 0
+    ? '<p class="text-xs text-gray-400 text-center py-2">Sin registros</p>'
+    : topConsultorios.map(([nombre, count], i) => {
+        const pct = activas.length > 0 ? ((count / activas.length) * 100).toFixed(1) : 0;
+        const colores = ['bg-emerald-500', 'bg-blue-500', 'bg-amber-500', 'bg-purple-500', 'bg-pink-500'];
+        return `<div class="flex items-center gap-2"><span class="text-xs text-gray-400 w-4">${i + 1}.</span><div class="flex-1 min-w-0"><p class="text-xs text-gray-700 truncate" title="${nombre}">${nombre}</p><div class="w-full bg-gray-100 rounded-full h-1"><div class="${colores[i] || 'bg-gray-400'} h-1 rounded-full transition-all duration-500" style="width: ${pct}%"></div></div></div><span class="text-xs font-bold text-gray-600">${count}</span></div>`;
+      }).join('');
+
+  // ===== ESTADÍSTICAS ARO =====
   const aro1 = activas.filter(g => g.aro === 'I').length;
   const aro2 = activas.filter(g => g.aro === 'II').length;
   const aro3 = activas.filter(g => g.aro === 'III').length;
   const aro0 = activas.length - aro1 - aro2 - aro3;
-  renderChart('chartARO', 'bar', ['Sin ARO', 'ARO I', 'ARO II', 'ARO III'], [aro0, aro1, aro2, aro3], ['#9ca3af', '#10b981', '#f59e0b', '#ef4444']);
-  const recientes = [...gestantesData].filter(g => g.estado !== 'archivado').sort((a, b) => new Date(b.fecha_registro) - new Date(a.fecha_registro)).slice(0, 5);
-  document.getElementById('recentRecords').innerHTML = recientes.map(g => `<div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"><div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 text-xs"><i class="fas fa-female"></i></div><div class="flex-1 min-w-0"><p class="text-sm font-medium text-gray-800 truncate">${g.nombres} ${g.apellidos}</p><p class="text-xs text-gray-500">${g.consultorio} • ${g.semana_gestacion || ''}</p></div></div>`).join('');
+  const totalAro = activas.length || 1;
+  document.getElementById('statAro0').textContent = aro0;
+  document.getElementById('barAro0').style.width = ((aro0 / totalAro) * 100) + '%';
+  document.getElementById('statAro1').textContent = aro1;
+  document.getElementById('barAro1').style.width = ((aro1 / totalAro) * 100) + '%';
+  document.getElementById('statAro2').textContent = aro2;
+  document.getElementById('barAro2').style.width = ((aro2 / totalAro) * 100) + '%';
+  document.getElementById('statAro3').textContent = aro3;
+  document.getElementById('barAro3').style.width = ((aro3 / totalAro) * 100) + '%';
 
-  // ===== REGISTRO MES DE =====
-  const hoy = new Date();
-  const mesActual = hoy.getMonth();
-  const anioActual = hoy.getFullYear();
+  // ===== REGISTROS RECIENTES =====
+  const recientes = [...gestantesData].filter(g => g.estado !== 'archivado').sort((a, b) => new Date(b.fecha_registro) - new Date(a.fecha_registro)).slice(0, 5);
+  document.getElementById('recentRecords').innerHTML = recientes.map(g => `<div class="flex items-center gap-2 p-2 bg-gray-50 rounded-lg"><div class="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 text-xs flex-shrink-0"><i class="fas fa-female"></i></div><div class="flex-1 min-w-0"><p class="text-xs font-medium text-gray-800 truncate">${g.nombres} ${g.apellidos}</p><p class="text-xs text-gray-500 truncate">${g.consultorio} • ${g.semana_gestacion || ''}</p></div></div>`).join('');
+
+  // ===== REGISTRO POR MES (con selector de mes y año) =====
+  const mesSel = parseInt(document.getElementById('mesSelector').value);
+  const mesSeleccionado = isNaN(mesSel) ? hoy.getMonth() : mesSel;
+  const mesAnioSel = parseInt(document.getElementById('mesAnioSelector').value);
+  const anioMesSeleccionado = isNaN(mesAnioSel) ? hoy.getFullYear() : mesAnioSel;
   const meses = ['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];
-  document.getElementById('mesActualLabel').textContent = meses[mesActual];
-  document.getElementById('anioActualLabel').textContent = anioActual;
+  const mesSelector = document.getElementById('mesSelector');
+  const mesAnioSelector = document.getElementById('mesAnioSelector');
+  if (mesSelector && !mesSelector.dataset.inicializado) { mesSelector.value = hoy.getMonth(); mesSelector.dataset.inicializado = 'true'; }
+  if (mesAnioSelector && !mesAnioSelector.dataset.inicializado) { mesAnioSelector.value = hoy.getFullYear(); mesAnioSelector.dataset.inicializado = 'true'; }
+  document.getElementById('mesActualLabel').textContent = meses[mesSeleccionado] + ' ' + anioMesSeleccionado;
 
   const gestantesMes = gestantesData.filter(g => {
     if (!g.fecha_registro) return false;
     const f = new Date(g.fecha_registro);
-    return f.getMonth() === mesActual && f.getFullYear() === anioActual && g.estado !== 'archivado';
+    return f.getMonth() === mesSeleccionado && f.getFullYear() === anioMesSeleccionado && g.estado !== 'archivado';
   });
-
   const mesActivas = gestantesMes.filter(g => g.estado === 'gestante');
   const mesPuerperas = gestantesMes.filter(g => g.estado === 'puerpera' || g.estado === 'lactante');
-  const mesMenores = mesActivas.filter(g => g.edad && g.edad < 18);
-  const mesMayores = mesActivas.filter(g => g.edad && g.edad >= 18);
-
   document.getElementById('mesGestantes').textContent = mesActivas.length;
   document.getElementById('mesT1').textContent = mesActivas.filter(g => g.trimestre === 1).length;
   document.getElementById('mesT2').textContent = mesActivas.filter(g => g.trimestre === 2).length;
@@ -3924,24 +3458,26 @@ function renderDashboard() {
   document.getElementById('mesAro2').textContent = mesActivas.filter(g => g.aro === 'II').length;
   document.getElementById('mesAro3').textContent = mesActivas.filter(g => g.aro === 'III').length;
   document.getElementById('mesPuerperas').textContent = mesPuerperas.length;
-  document.getElementById('mesMenores').textContent = mesMenores.length;
-  document.getElementById('mesMayores').textContent = mesMayores.length;
+  document.getElementById('mesMenores').textContent = mesActivas.filter(g => g.edad && g.edad < 18).length;
+  document.getElementById('mesMayores').textContent = mesActivas.filter(g => g.edad && g.edad >= 18).length;
 
-  // ===== TOTAL ACUMULADO ANUAL =====
+  // ===== TOTAL ACUMULADO ANUAL (con selector de año) =====
+  const anioSel = parseInt(document.getElementById('anioSelector').value);
+  const anioSeleccionado = isNaN(anioSel) ? hoy.getFullYear() : anioSel;
+  const anioSelector = document.getElementById('anioSelector');
+  if (anioSelector && !anioSelector.dataset.inicializado) { anioSelector.value = hoy.getFullYear(); anioSelector.dataset.inicializado = 'true'; }
+  document.getElementById('anioActualLabel').textContent = anioSeleccionado;
+
   const gestantesAnio = gestantesData.filter(g => {
     if (!g.fecha_registro) return false;
     const f = new Date(g.fecha_registro);
-    return f.getFullYear() === anioActual && g.estado !== 'archivado';
+    return f.getFullYear() === anioSeleccionado && g.estado !== 'archivado';
   });
-
   const anioActivas = gestantesAnio.filter(g => g.estado === 'gestante');
   const anioPuerperas = gestantesAnio.filter(g => g.estado === 'puerpera' || g.estado === 'lactante');
-  const anioMenores = anioActivas.filter(g => g.edad && g.edad < 18);
-  const anioMayores = anioActivas.filter(g => g.edad && g.edad >= 18);
-
   document.getElementById('anioGestantes').textContent = anioActivas.length;
-  document.getElementById('anioMenores').textContent = anioMenores.length;
-  document.getElementById('anioMayores').textContent = anioMayores.length;
+  document.getElementById('anioMenores').textContent = anioActivas.filter(g => g.edad && g.edad < 18).length;
+  document.getElementById('anioMayores').textContent = anioActivas.filter(g => g.edad && g.edad >= 18).length;
   document.getElementById('anioT1').textContent = anioActivas.filter(g => g.trimestre === 1).length;
   document.getElementById('anioT2').textContent = anioActivas.filter(g => g.trimestre === 2).length;
   document.getElementById('anioT3').textContent = anioActivas.filter(g => g.trimestre === 3).length;
@@ -3956,74 +3492,23 @@ function renderDashboard() {
   document.getElementById('totalGLDetalle').textContent = `${anioActivas.length} gestantes + ${anioPuerperas.length} puérperas/lactantes`;
 }
 
-function renderChart(id, type, labels, data, colors) {
-  const ctx = document.getElementById(id);
-  if (!ctx) return;
-  if (charts[id]) charts[id].destroy();
-  charts[id] = new Chart(ctx, { type: type, data: { labels: labels, datasets: [{ data: data, backgroundColor: colors, borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } }, scales: type === 'bar' ? { y: { beginAtZero: true, ticks: { stepSize: 1 } } } : {} } });
-}
+
+
+
 
 // ==================== USUARIOS ====================
-// ==================== AUDITORÍA / LOGS ====================
-async function registrarAuditoria(accion, tabla, registroId, datosAnteriores, datosNuevos) {
-  if (!supabaseClient || !currentUser) return;
-  try {
-    await supabaseClient.from('auditoria').insert([{
-      user_id: currentUser.id,
-      user_email: currentUser.email,
-      user_nombre: currentProfile?.nombre || currentUser.email,
-      user_role: currentProfile?.role || 'desconocido',
-      accion: accion, // INSERT, UPDATE, DELETE, LOGIN, LOGOUT
-      tabla_afectada: tabla,
-      registro_id: registroId,
-      datos_anteriores: datosAnteriores,
-      datos_nuevos: datosNuevos,
-      ip_address: null, // Supabase no expone IP directamente
-      user_agent: navigator.userAgent,
-      timestamp: new Date().toISOString()
-    }]);
-  } catch (e) {
-    console.warn('Error registrando auditoría:', e);
-  }
-}
-
-async function cargarAuditoria(filtros = {}) {
-  if (currentProfile.role !== 'superadmin') return [];
-  try {
-    let query = supabaseClient.from('auditoria').select('*').order('timestamp', { ascending: false });
-    if (filtros.userId) query = query.eq('user_id', filtros.userId);
-    if (filtros.accion) query = query.eq('accion', filtros.accion);
-    if (filtros.tabla) query = query.eq('tabla_afectada', filtros.tabla);
-    if (filtros.fechaDesde) query = query.gte('timestamp', filtros.fechaDesde);
-    if (filtros.fechaHasta) query = query.lte('timestamp', filtros.fechaHasta);
-    if (filtros.limit) query = query.limit(filtros.limit);
-    else query = query.limit(500);
-
-    const { data, error } = await query;
-    if (error) throw error;
-    return data || [];
-  } catch (e) {
-    console.error('Error cargando auditoría:', e);
-    return [];
-  }
-}
-
 async function toggleUser(userId, nuevoEstado) {
   if (!confirm(`¿${nuevoEstado ? 'Activar' : 'Desactivar'} este usuario?`)) return;
-  const { data: datosAnteriores } = await supabaseClient.from('profiles').select('*').eq('id', userId).single();
   const { error } = await supabaseClient.from('profiles').update({ activo: nuevoEstado }).eq('id', userId);
   if (error) { showToast('Error: ' + error.message, 'error'); return; }
-  await registrarAuditoria('UPDATE', 'profiles', userId, datosAnteriores, { activo: nuevoEstado });
   showToast(`Usuario ${nuevoEstado ? 'activado' : 'desactivado'}`);
   await loadUsers();
 }
 
 async function deleteUser(userId) {
   if (!confirm('¿Eliminar permanentemente este usuario?')) return;
-  const { data: datosAnteriores } = await supabaseClient.from('profiles').select('*').eq('id', userId).single();
   const { error } = await supabaseClient.from('profiles').delete().eq('id', userId);
   if (error) { showToast('Error: ' + error.message, 'error'); return; }
-  await registrarAuditoria('DELETE', 'profiles', userId, datosAnteriores, null);
   showToast('Usuario eliminado');
   await loadUsers();
 }
@@ -4133,7 +3618,6 @@ document.getElementById('userForm').addEventListener('submit', async (e) => {
     }
 
     showToast('Usuario creado exitosamente. Puede iniciar sesión inmediatamente.');
-    await registrarAuditoria('INSERT', 'profiles', data.user_id || email, null, { email, nombre, role: rol, consultorio });
     closeUserModal();
     document.getElementById('userForm').reset();
     await loadUsers();
@@ -4156,86 +3640,6 @@ async function loadCalendarios() {
     calendariosData = [...calendariosData, ...cal2026];
   }
   renderCalendarios();
-}
-
-let auditoriaData = [];
-
-async function renderAuditoria() {
-  if (currentProfile.role !== 'superadmin') { showToast('Acceso denegado', 'error'); return; }
-  const tbody = document.getElementById('auditoriaTable');
-  const empty = document.getElementById('auditoriaEmpty');
-  tbody.innerHTML = '<tr><td colspan="7" class="px-4 py-8 text-center text-gray-400"><div class="spinner mx-auto"></div>Cargando auditoría...</td></tr>';
-
-  auditoriaData = await cargarAuditoria({ limit: 500 });
-  filtrarAuditoria();
-}
-
-function filtrarAuditoria() {
-  const tbody = document.getElementById('auditoriaTable');
-  const empty = document.getElementById('auditoriaEmpty');
-  const fAccion = document.getElementById('auditFiltroAccion').value;
-  const fTabla = document.getElementById('auditFiltroTabla').value;
-  const fFecha = document.getElementById('auditFiltroFecha').value;
-
-  let filtered = auditoriaData;
-  if (fAccion) filtered = filtered.filter(a => a.accion === fAccion);
-  if (fTabla) filtered = filtered.filter(a => a.tabla_afectada === fTabla);
-  if (fFecha) {
-    const fechaFiltro = new Date(fFecha).toISOString().split('T')[0];
-    filtered = filtered.filter(a => a.timestamp && a.timestamp.startsWith(fechaFiltro));
-  }
-
-  if (filtered.length === 0) { tbody.innerHTML = ''; empty.classList.remove('hidden'); return; }
-  empty.classList.add('hidden');
-
-  const accionColors = {
-    INSERT: 'bg-green-100 text-green-700',
-    UPDATE: 'bg-blue-100 text-blue-700',
-    DELETE: 'bg-red-100 text-red-700',
-    LOGIN: 'bg-emerald-100 text-emerald-700',
-    LOGOUT: 'bg-gray-100 text-gray-700'
-  };
-
-  tbody.innerHTML = filtered.map(a => {
-    const fecha = a.timestamp ? new Date(a.timestamp).toLocaleString('es-VE') : '-';
-    const accionClass = accionColors[a.accion] || 'bg-gray-100 text-gray-700';
-    const cambios = [];
-    if (a.datos_nuevos && Object.keys(a.datos_nuevos).length > 0) {
-      cambios.push('<span class="text-green-600">Nuevos: ' + Object.keys(a.datos_nuevos).join(', ') + '</span>');
-    }
-    if (a.datos_anteriores && Object.keys(a.datos_anteriores).length > 0) {
-      cambios.push('<span class="text-red-600">Anteriores: ' + Object.keys(a.datos_anteriores).join(', ') + '</span>');
-    }
-    return `<tr class="hover:bg-gray-50">
-      <td class="px-4 py-3 text-xs whitespace-nowrap">${fecha}</td>
-      <td class="px-4 py-3 text-xs">${a.user_nombre || a.user_email || '-'}</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded text-xs font-medium ${a.user_role === 'superadmin' ? 'bg-red-100 text-red-700' : a.user_role === 'admin' ? 'bg-orange-100 text-orange-700' : 'bg-emerald-100 text-emerald-700'}">${a.user_role || '-'}</span></td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded text-xs font-medium ${accionClass}">${a.accion}</span></td>
-      <td class="px-4 py-3 text-xs">${a.tabla_afectada || '-'}</td>
-      <td class="px-4 py-3 text-xs font-mono text-gray-500">${a.registro_id ? a.registro_id.substring(0, 8) + '...' : '-'}</td>
-      <td class="px-4 py-3 text-xs">${cambios.join('<br>') || '-'}</td>
-    </tr>`;
-  }).join('');
-}
-
-async function exportarAuditoriaExcel() {
-  if (auditoriaData.length === 0) { showToast('No hay datos para exportar', 'error'); return; }
-  const rows = auditoriaData.map(a => ({
-    Fecha: a.timestamp ? new Date(a.timestamp).toLocaleString('es-VE') : '',
-    Usuario: a.user_nombre || a.user_email || '',
-    Email: a.user_email || '',
-    Rol: a.user_role || '',
-    Accion: a.accion,
-    Tabla: a.tabla_afectada || '',
-    Registro_ID: a.registro_id || '',
-    Datos_Anteriores: a.datos_anteriores ? JSON.stringify(a.datos_anteriores).substring(0, 500) : '',
-    Datos_Nuevos: a.datos_nuevos ? JSON.stringify(a.datos_nuevos).substring(0, 500) : ''
-  }));
-  const ws = XLSX.utils.json_to_sheet(rows);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'Auditoria');
-  XLSX.writeFile(wb, `auditoria_${new Date().toISOString().split('T')[0]}.xlsx`);
-  showToast('Auditoría exportada');
 }
 
 function renderCalendarios() {
@@ -4310,7 +3714,7 @@ async function restoreData() {
 // ==================== EXCEL IMPORT/EXPORT ====================
 async function exportarExcel() {
   const { data } = await supabaseClient.from('gestantes').select('*');
-  const rows = (data || []).map(g => ({ CEDULA: g.cedula, NOMBRES: g.nombres, APELLIDOS: g.apellidos, CONSULTORIO: g.consultorio, EDAD: g.edad, TELEFONO: g.telefono, DIRECCION: g.direccion, FUR: g.fur, SEM_GESTACION: g.semana_gestacion, FPP: g.fpp, ARO: g.aro, ESTADO: g.estado }));
+  const rows = (data || []).map(g => ({ CEDULA: g.cedula, NOMBRES: g.nombres, APELLIDOS: g.apellidos, CONSULTORIO: g.consultorio, EDAD: g.edad, TELEFONO: g.telefono || 'NO POSEE', DIRECCION: g.direccion, FUR: g.fur, SEM_GESTACION: g.semana_gestacion, FPP: g.fpp, ARO: g.aro, ESTADO: g.estado }));
   const ws = XLSX.utils.json_to_sheet(rows);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Gestantes');
@@ -4322,7 +3726,7 @@ async function exportarExcelEncriptado() {
   const key = document.getElementById('excelKey').value;
   if (!key) { showToast('Ingrese clave para encriptar', 'error'); return; }
   const { data } = await supabaseClient.from('gestantes').select('*');
-  const rows = (data || []).map(g => ({ CEDULA: g.cedula, NOMBRES: g.nombres, APELLIDOS: g.apellidos, CONSULTORIO: g.consultorio, EDAD: g.edad, TELEFONO: g.telefono, DIRECCION: g.direccion, FUR: g.fur, SEM_GESTACION: g.semana_gestacion, FPP: g.fpp, ARO: g.aro, ESTADO: g.estado }));
+  const rows = (data || []).map(g => ({ CEDULA: g.cedula, NOMBRES: g.nombres, APELLIDOS: g.apellidos, CONSULTORIO: g.consultorio, EDAD: g.edad, TELEFONO: g.telefono || 'NO POSEE', DIRECCION: g.direccion, FUR: g.fur, SEM_GESTACION: g.semana_gestacion, FPP: g.fpp, ARO: g.aro, ESTADO: g.estado }));
   const ws = XLSX.utils.json_to_sheet(rows);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Gestantes');
@@ -4516,6 +3920,112 @@ async function applyPasswordReset() {
   }
 }
 
+
+
+// ==================== AUDITORÍA ====================
+async function registrarAuditoria(accion, tabla, registroId, datosAnteriores, datosNuevos) {
+  if (!supabaseClient || !currentUser) return;
+  try {
+    await supabaseClient.from('auditoria').insert([{
+      user_id: currentUser.id,
+      user_email: currentUser.email,
+      user_nombre: currentProfile.nombre || currentUser.email,
+      user_role: currentProfile.role,
+      accion: accion,
+      tabla_afectada: tabla,
+      registro_id: registroId,
+      datos_anteriores: datosAnteriores,
+      datos_nuevos: datosNuevos,
+      user_agent: navigator.userAgent
+    }]);
+  } catch (e) {
+    console.warn('Error registrando auditoría:', e);
+  }
+}
+
+let auditoriaData = [];
+
+async function loadAuditoria() {
+  if (currentProfile.role !== 'superadmin') {
+    showToast('Acceso denegado', 'error');
+    return;
+  }
+  try {
+    const { data, error } = await supabaseClient
+      .from('auditoria')
+      .select('*')
+      .order('timestamp', { ascending: false })
+      .limit(500);
+    if (error) throw error;
+    auditoriaData = data || [];
+    renderAuditoria();
+  } catch (err) {
+    showToast('Error cargando auditoría: ' + err.message, 'error');
+  }
+}
+
+function renderAuditoria() {
+  const tbody = document.getElementById('auditoriaTable');
+  const empty = document.getElementById('auditoriaEmpty');
+  const filterAccion = document.getElementById('auditFilterAccion').value;
+  const filterFecha = document.getElementById('auditFilterFecha').value;
+
+  let filtered = auditoriaData.filter(a => {
+    const matchAccion = !filterAccion || a.accion === filterAccion;
+    const matchFecha = !filterFecha || (a.timestamp && a.timestamp.startsWith(filterFecha));
+    return matchAccion && matchFecha;
+  });
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '';
+    empty.classList.remove('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+
+  tbody.innerHTML = filtered.map(a => {
+    const fecha = a.timestamp ? new Date(a.timestamp).toLocaleString('es-VE') : '-';
+    const accionColor = a.accion === 'INSERT' ? 'bg-green-100 text-green-700' :
+                        a.accion === 'UPDATE' ? 'bg-blue-100 text-blue-700' :
+                        a.accion === 'DELETE' ? 'bg-red-100 text-red-700' :
+                        a.accion === 'LOGIN' ? 'bg-purple-100 text-purple-700' :
+                        'bg-gray-100 text-gray-700';
+    const detalles = a.datos_nuevos ? JSON.stringify(a.datos_nuevos).substring(0, 100) + '...' :
+                     a.datos_anteriores ? JSON.stringify(a.datos_anteriores).substring(0, 100) + '...' : '-';
+    return `<tr class="hover:bg-gray-50">
+      <td class="px-4 py-3 text-xs">${fecha}</td>
+      <td class="px-4 py-3 font-medium">${a.user_nombre || a.user_email || '-'}</td>
+      <td class="px-4 py-3"><span class="px-2 py-1 rounded text-xs font-medium ${a.user_role === 'superadmin' ? 'bg-red-100 text-red-700' : a.user_role === 'admin' ? 'bg-orange-100 text-orange-700' : 'bg-emerald-100 text-emerald-700'}">${a.user_role || '-'}</span></td>
+      <td class="px-4 py-3"><span class="px-2 py-1 rounded text-xs font-medium ${accionColor}">${a.accion}</span></td>
+      <td class="px-4 py-3 text-xs">${a.tabla_afectada || '-'}</td>
+      <td class="px-4 py-3 text-xs font-mono">${a.registro_id ? a.registro_id.substring(0, 8) + '...' : '-'}</td>
+      <td class="px-4 py-3 text-xs text-gray-500 max-w-xs truncate" title="${detalles}">${detalles}</td>
+    </tr>`;
+  }).join('');
+}
+
+function filterAuditoria() {
+  renderAuditoria();
+}
+
+async function exportarAuditoriaExcel() {
+  const rows = auditoriaData.map(a => ({
+    'FECHA/HORA': a.timestamp ? new Date(a.timestamp).toLocaleString('es-VE') : '-',
+    'USUARIO': a.user_nombre || a.user_email || '-',
+    'ROL': a.user_role || '-',
+    'ACCIÓN': a.accion,
+    'TABLA': a.tabla_afectada || '-',
+    'REGISTRO ID': a.registro_id || '-',
+    'DATOS ANTERIORES': a.datos_anteriores ? JSON.stringify(a.datos_anteriores) : '-',
+    'DATOS NUEVOS': a.datos_nuevos ? JSON.stringify(a.datos_nuevos) : '-'
+  }));
+  const ws = XLSX.utils.json_to_sheet(rows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Auditoria');
+  XLSX.writeFile(wb, `auditoria_${new Date().toISOString().split('T')[0]}.xlsx`);
+  showToast('Auditoría exportada a Excel');
+}
+
 // ==================== INICIO ====================
 
 let lastWindowWidth = window.innerWidth;
@@ -4531,7 +4041,6 @@ window.addEventListener('resize', () => {
 window.addEventListener('DOMContentLoaded', () => {
   // ===== CAPTCHA: SIEMPRE funciona, independiente de Supabase =====
   setTimeout(() => {
-    updateBiometricUI();
     generateCaptcha();
     console.log('[CAPTCHA] Inicializado correctamente');
   }, 50);
@@ -4547,21 +4056,8 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 async function initSupabaseSession() {
-  // Verificar si es recarga de página
-  const isReload = checkPageReload();
-
   try {
-    const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
-
-    // Manejar error de refresh token inválido
-    if (sessionError) {
-      console.warn('[Auth] Error obteniendo sesión:', sessionError.message);
-      if (sessionError.message?.includes('Refresh Token') || sessionError.status === 400 || sessionError.status === 401) {
-        await clearInvalidSession();
-        showToast('Su sesión ha expirado. Por favor ingrese nuevamente.', 'error');
-        return;
-      }
-    }
+    const { data: { session } } = await supabaseClient.auth.getSession();
     if (session) {
       const { data: profile, error } = await supabaseClient.from('profiles').select('*').eq('id', session.user.id).single();
       if (profile && profile.activo && !error) {
@@ -4574,408 +4070,265 @@ async function initSupabaseSession() {
       }
     }
   } catch (e) { console.warn('Error verificando sesión:', e); }
-
-  const bypassSession = localStorage.getItem('epi_session');
-  if (bypassSession) {
-    try {
-      const bs = JSON.parse(bypassSession);
-      if (bs.timestamp && (Date.now() - bs.timestamp) < 24 * 60 * 60 * 1000) {
-        currentUser = bs.user;
-        currentProfile = bs.profile;
-        SECURITY.sessionId = generateSessionId();
-        sessionStartTime = Date.now();
-        initApp();
-        return;
-      } else { localStorage.removeItem('epi_session'); }
-    } catch (e) { localStorage.removeItem('epi_session'); }
-  }
+  // NO hay bypass - usuario SIEMPRE debe iniciar sesión
 }
 
 
-// ==================== WEBAUTHN / BIOMETRÍA (HUELLA / FACE ID) ====================
-const BIO_STORAGE_KEY = 'epi_biometric_v2';
-
-function isWebAuthnSupported() {
-  return window.PublicKeyCredential !== undefined && 
-         typeof window.PublicKeyCredential === 'function';
+// ===== PROTECCIÓN ANTI-SESIONES PERSISTENTES =====
+function verificarSesionActiva() {
+  if (!currentUser) return;
+  supabaseClient.auth.getSession().then(({ data: { session } }) => {
+    if (!session) { currentUser = null; currentProfile = null; if (sessionTimer) clearInterval(sessionTimer); location.reload(); }
+  }).catch(() => {});
 }
-
-function getBiometricData() {
-  try {
-    const raw = localStorage.getItem(BIO_STORAGE_KEY);
-    if (!raw) return null;
-    return JSON.parse(raw);
-  } catch (e) { return null; }
-}
-
-function setBiometricData(data) {
-  localStorage.setItem(BIO_STORAGE_KEY, JSON.stringify(data));
-}
-
-function removeBiometricData() {
-  localStorage.removeItem(BIO_STORAGE_KEY);
-}
-
-// Mostrar u ocultar botón de huella según disponibilidad
-function updateBiometricUI() {
-  const section = document.getElementById('biometricLoginSection');
-  const bioData = getBiometricData();
-  if (!section) return;
-
-  if (isWebAuthnSupported() && bioData && bioData.credentialId && bioData.email) {
-    section.classList.remove('hidden');
-  } else {
-    section.classList.add('hidden');
-  }
-}
-
-// Generar challenge aleatorio seguro
-function generateChallenge(length = 32) {
-  const arr = new Uint8Array(length);
-  crypto.getRandomValues(arr);
-  return arr;
-}
-
-// Convertir ArrayBuffer a Base64url
-function bufferToBase64url(buffer) {
-  const bytes = new Uint8Array(buffer);
-  let binary = '';
-  for (let i = 0; i < bytes.byteLength; i++) {
-    binary += String.fromCharCode(bytes[i]);
-  }
-  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-}
-
-function base64urlToBuffer(base64url) {
-  const base64 = base64url.replace(/-/g, '+').replace(/_/g, '/');
-  const padLen = (4 - (base64.length % 4)) % 4;
-  const padded = base64 + '='.repeat(padLen);
-  const binary = atob(padded);
-  const buffer = new ArrayBuffer(binary.length);
-  const view = new Uint8Array(buffer);
-  for (let i = 0; i < binary.length; i++) {
-    view[i] = binary.charCodeAt(i);
-  }
-  return buffer;
-}
-
-// Registrar huella / Face ID para este dispositivo
-async function registerBiometric() {
-  if (!isWebAuthnSupported()) {
-    showToast('Su dispositivo no soporta autenticación biométrica', 'error');
-    return;
-  }
-  if (!currentUser || !currentProfile) {
-    showToast('Debe iniciar sesión primero para configurar la huella', 'error');
-    return;
-  }
-
-  const email = currentUser.email;
-  const userId = currentUser.id;
-
-  try {
-    // Verificar si ya hay credenciales registradas para este usuario
-    const existing = getBiometricData();
-    if (existing && existing.email === email) {
-      if (!confirm('Ya tiene huella configurada. ¿Desea reemplazarla?')) return;
-    }
-
-    // Crear credencial WebAuthn (passkey local / platform authenticator)
-    const publicKey = {
-      challenge: generateChallenge(32),
-      rp: {
-        name: 'EPI 13 - Ruta Materna',
-        id: window.location.hostname
-      },
-      user: {
-        id: new TextEncoder().encode(userId.substring(0, 64)),
-        name: email,
-        displayName: currentProfile.nombre || email
-      },
-      pubKeyCredParams: [
-        { alg: -7, type: 'public-key' },   // ES256
-        { alg: -257, type: 'public-key' }  // RS256
-      ],
-      authenticatorSelection: {
-        authenticatorAttachment: 'platform', // Solo biometría del dispositivo (huella/Face ID)
-        userVerification: 'required',
-        residentKey: 'preferred',
-        requireResidentKey: false
-      },
-      attestation: 'none',
-      timeout: 60000
-    };
-
-    showToast('Toque el sensor de huella o use Face ID para confirmar...', 'success');
-    const credential = await navigator.credentials.create({ publicKey });
-
-    if (!credential) {
-      showToast('No se pudo registrar la huella. Intente de nuevo.', 'error');
-      return;
-    }
-
-    // Guardar datos de la credencial
-    const credentialId = bufferToBase64url(credential.rawId);
-    setBiometricData({
-      email: email,
-      userId: userId,
-      credentialId: credentialId,
-      createdAt: new Date().toISOString(),
-      device: navigator.userAgent.substring(0, 100)
-    });
-
-    document.getElementById('biometricSetupPrompt').classList.add('hidden');
-    showToast('✅ Huella / Face ID configurada exitosamente. Podrá iniciar sesión rápidamente en este dispositivo.');
-    updateBiometricUI();
-
-  } catch (err) {
-    console.error('[Biometric] Error registrando:', err);
-    if (err.name === 'NotAllowedError') {
-      showToast('Permiso denegado o cancelado por el usuario.', 'error');
-    } else if (err.name === 'NotSupportedError') {
-      showToast('Su dispositivo o navegador no soporta esta función.', 'error');
-    } else {
-      showToast('Error al configurar huella: ' + err.message, 'error');
-    }
-  }
-}
-
-// Iniciar sesión con huella / Face ID
-async function loginWithBiometric() {
-  if (!isWebAuthnSupported()) {
-    showToast('Su dispositivo no soporta autenticación biométrica', 'error');
-    return;
-  }
-
-  const bioData = getBiometricData();
-  if (!bioData || !bioData.credentialId || !bioData.email) {
-    showToast('No hay huella configurada en este dispositivo. Inicie sesión con usuario y clave.', 'error');
-    return;
-  }
-
-  const btn = document.getElementById('biometricBtn');
-  const btnText = document.getElementById('biometricBtnText');
-  const spinner = document.getElementById('biometricSpinner');
-  const errorDiv = document.getElementById('loginError');
-
-  btn.disabled = true;
-  btnText.textContent = 'Verificando huella...';
-  spinner.classList.remove('hidden');
-  errorDiv.classList.add('hidden');
-
-  try {
-    const credentialIdBuffer = base64urlToBuffer(bioData.credentialId);
-
-    const publicKey = {
-      challenge: generateChallenge(32),
-      allowCredentials: [{
-        id: credentialIdBuffer,
-        type: 'public-key',
-        transports: ['internal']
-      }],
-      userVerification: 'required',
-      timeout: 60000
-    };
-
-    const assertion = await navigator.credentials.get({ publicKey });
-
-    if (!assertion) {
-      throw new Error('No se recibió respuesta del sensor biométrico');
-    }
-
-    // Huella verificada exitosamente
-    // Autocompletar email y hacer focus en password para que el usuario solo escriba la clave
-    // O si el navegador tiene Credential Management API, intentar autocompletar password
-    document.getElementById('loginEmail').value = bioData.email;
-    document.getElementById('loginEmail').readOnly = true;
-    document.getElementById('loginEmail').classList.add('bg-gray-100');
-
-    // Ocultar CAPTCHA cuando se usa huella (confianza elevada)
-    const captchaSection = document.querySelector('.bg-gray-50.border.border-gray-200.rounded-lg.p-4');
-    if (captchaSection) captchaSection.style.display = 'none';
-
-    // Focus en password
-    const passInput = document.getElementById('loginPassword');
-    passInput.focus();
-    passInput.placeholder = 'Ingrese su contraseña';
-
-    showToast('Huella verificada ✅. Ingrese su contraseña para continuar.');
-
-    // Intentar autocompletar con Credential Management API si está disponible
-    if ('credentials' in navigator && navigator.credentials.get) {
-      try {
-        const cred = await navigator.credentials.get({ password: true });
-        if (cred && cred.type === 'password' && cred.id === bioData.email) {
-          passInput.value = cred.password;
-          // Auto-submit después de un breve delay
-          setTimeout(() => {
-            document.getElementById('loginForm').dispatchEvent(new Event('submit'));
-          }, 500);
-        }
-      } catch (e) { /* Silencioso - el navegador no tiene la password guardada */ }
-    }
-
-  } catch (err) {
-    console.error('[Biometric] Error autenticando:', err);
-    if (err.name === 'NotAllowedError') {
-      showToast('Autenticación cancelada o huella no reconocida.', 'error');
-    } else if (err.name === 'SecurityError') {
-      showToast('Error de seguridad. Verifique que está usando HTTPS.', 'error');
-    } else {
-      showToast('Error de huella: ' + (err.message || 'Intente de nuevo'), 'error');
-    }
-  } finally {
-    btn.disabled = false;
-    btnText.textContent = 'Iniciar con Huella / Face ID';
-    spinner.classList.add('hidden');
-  }
-}
-
-function dismissBiometricPrompt() {
-  document.getElementById('biometricSetupPrompt').classList.add('hidden');
-  localStorage.setItem('epi_biometric_dismissed', Date.now().toString());
-}
-
-function showBiometricSetupPrompt() {
-  const dismissed = localStorage.getItem('epi_biometric_dismissed');
-  if (dismissed && (Date.now() - parseInt(dismissed)) < 7 * 24 * 60 * 60 * 1000) return; // 7 días
-  if (!isWebAuthnSupported()) return;
-  const prompt = document.getElementById('biometricSetupPrompt');
-  if (prompt) prompt.classList.remove('hidden');
-}
-
-// Inicializar UI biométrica al cargar
-document.addEventListener('DOMContentLoaded', () => {
-  setTimeout(() => {
-    updateBiometricUI();
-    generateCaptcha();
-    console.log('[CAPTCHA] Inicializado correctamente');
-  }, 50);
-});
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') verificarSesionActiva(); });
+setInterval(verificarSesionActiva, 30000);
 
 
-
-// ==================== PWA: SERVICE WORKER & INSTALACIÓN ====================
-let deferredInstallPrompt = null;
-
-// Registrar Service Worker
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js')
-      .then(reg => console.log('[PWA] Service Worker registrado:', reg.scope))
-      .catch(err => console.warn('[PWA] Error registrando SW:', err));
+// ==================== REPORTE CONTROL Y SEGUIMIENTO GESTANTES CAPTADAS ====================
+function initReporteConsultorios() {
+  const sel = document.getElementById('reporteConsultorio');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">Todos los consultorios</option>';
+  CONSULTORIOS.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c;
+    opt.textContent = c;
+    sel.appendChild(opt);
   });
 }
 
-// Detectar evento beforeinstallprompt (Chrome/Android)
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredInstallPrompt = e;
-  console.log('[PWA] beforeinstallprompt detectado');
-  showInstallPrompt();
-});
+let reporteData = [];
+let reporteControlesCount = {};
 
-// Detectar cuando la app ya está instalada
-window.addEventListener('appinstalled', () => {
-  console.log('[PWA] App instalada exitosamente');
-  deferredInstallPrompt = null;
-  hideInstallPrompt();
-  showToast('✅ Aplicación instalada. Acceda desde su pantalla de inicio.', 'success');
-});
+async function loadReporteCaptacion() {
+  try {
+    // Cargar TODAS las gestantes de la base de datos
+    let query = supabaseClient.from('gestantes').select('*')
+      .order('fecha_registro', { ascending: true });
 
-// Verificar si ya está instalada (standalone o fullscreen)
-function isAppInstalled() {
-  return window.matchMedia('(display-mode: standalone)').matches ||
-         window.matchMedia('(display-mode: fullscreen)').matches ||
-         (window.navigator.standalone === true); // iOS
-}
+    if (currentProfile.role === 'medico' && currentProfile.consultorio) {
+      query = query.eq('consultorio', currentProfile.consultorio);
+    }
 
-// Mostrar prompt de instalación en móviles
-function showInstallPrompt() {
-  // Solo mostrar en móviles (ancho <= 768) y si no está ya instalada
-  if (window.innerWidth > 768 || isAppInstalled()) return;
-  if (!deferredInstallPrompt) return;
+    const { data: gestantes, error: gError } = await query;
+    if (gError) throw gError;
 
-  const promptHtml = `
-    <div id="pwaInstallBanner" class="fixed top-0 left-0 right-0 z-[70] bg-emerald-600 text-white px-4 py-3 shadow-lg transform transition-transform duration-300">
-      <div class="flex items-center justify-between max-w-lg mx-auto">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
-            <i class="fas fa-mobile-alt text-lg"></i>
-          </div>
-          <div>
-            <p class="font-semibold text-sm">Instalar EPI 13 - Ruta Materna</p>
-            <p class="text-xs text-emerald-100">Acceda rápidamente desde su pantalla de inicio</p>
-          </div>
-        </div>
-        <div class="flex items-center gap-2">
-          <button onclick="dismissInstallPrompt()" class="px-3 py-1.5 text-xs text-emerald-100 hover:text-white transition">Ahora no</button>
-          <button onclick="installPWA()" class="px-4 py-2 bg-white text-emerald-700 text-xs font-bold rounded-lg hover:bg-emerald-50 transition shadow">
-            <i class="fas fa-download mr-1"></i>Instalar
-          </button>
-        </div>
-      </div>
-    </div>
-  `;
+    // Cargar todos los controles semanales para contar
+    let ctrlQuery = supabaseClient.from('control_semanal').select('*');
+    const { data: controles, error: cError } = await ctrlQuery;
+    if (cError) throw cError;
 
-  // Insertar banner
-  const existing = document.getElementById('pwaInstallBanner');
-  if (existing) existing.remove();
-  document.body.insertAdjacentHTML('afterbegin', promptHtml);
+    // Contar controles por gestante
+    reporteControlesCount = {};
+    (controles || []).forEach(c => {
+      reporteControlesCount[c.gestante_id] = (reporteControlesCount[c.gestante_id] || 0) + 1;
+    });
 
-  // Ajustar padding del loginScreen si está visible
-  const loginScreen = document.getElementById('loginScreen');
-  if (loginScreen && !loginScreen.classList.contains('hidden')) {
-    loginScreen.style.paddingTop = '60px';
+    // Guardar datos combinados
+    reporteData = (gestantes || []).map(g => {
+      const numControles = reporteControlesCount[g.id] || 0;
+      const creador = usersData.find(u => u.id === g.created_by);
+      const fechaReg = g.fecha_registro ? new Date(g.fecha_registro) : null;
+      const semanaEpi = g.semana_epidemiologica || '-';
+
+      return {
+        ...g,
+        num_controles: numControles,
+        responsable_nombre: creador ? (creador.nombre || creador.email) : 'Sistema',
+        responsable_telefono: creador ? (creador.telefono || '') : '',
+        fecha_reg_obj: fechaReg,
+        semana_epi_display: semanaEpi
+      };
+    });
+
+    // Set default month to current
+    const hoy = new Date();
+    const mesSel = document.getElementById('reporteMes');
+    const anioSel = document.getElementById('reporteAnio');
+    if (mesSel && !mesSel.dataset.inicializado) {
+      mesSel.value = hoy.getMonth();
+      mesSel.dataset.inicializado = 'true';
+    }
+    if (anioSel && !anioSel.dataset.inicializado) {
+      anioSel.value = hoy.getFullYear();
+      anioSel.dataset.inicializado = 'true';
+    }
+
+    renderReporteCaptacion();
+  } catch (err) {
+    showToast('Error cargando reporte: ' + err.message, 'error');
+    console.error(err);
   }
 }
 
-function hideInstallPrompt() {
-  const banner = document.getElementById('pwaInstallBanner');
-  if (banner) {
-    banner.style.transform = 'translateY(-100%)';
-    setTimeout(() => banner.remove(), 300);
-  }
-  const loginScreen = document.getElementById('loginScreen');
-  if (loginScreen) loginScreen.style.paddingTop = '';
-}
+function renderReporteCaptacion() {
+  const tbody = document.getElementById('reporteCaptacionTable');
+  const empty = document.getElementById('reporteCaptacionEmpty');
+  const mesSel = parseInt(document.getElementById('reporteMes').value);
+  const anioSel = parseInt(document.getElementById('reporteAnio').value);
+  const consSel = document.getElementById('reporteConsultorio').value;
 
-function dismissInstallPrompt() {
-  hideInstallPrompt();
-  localStorage.setItem('epi_pwa_dismissed', Date.now().toString());
-}
+  const meses = ['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];
+  document.getElementById('reporteTituloMes').textContent = `REPORTE MENSUAL: ${meses[mesSel]} ${anioSel}`;
 
-async function installPWA() {
-  if (!deferredInstallPrompt) {
-    showToast('La instalación no está disponible en este momento. Agregue la página a su pantalla de inicio manualmente.', 'error');
+  // Mostrar TODAS las gestantes de la base de datos
+  // El mes/año seleccionado solo afecta el título del reporte
+  let filtered = reporteData.filter(r => {
+    const matchCons = !consSel || r.consultorio === consSel;
+    return matchCons;
+  });
+
+  // Actualizar totales
+  const totalGestantes = filtered.length;
+  const totalControles = filtered.reduce((sum, r) => sum + (r.num_controles || 0), 0);
+  const totalPuerperas = filtered.filter(r => r.estado === 'puerpera' || r.estado === 'lactante').length;
+
+  document.getElementById('reporteTotalGestantes').textContent = totalGestantes;
+  document.getElementById('reporteTotalControles').textContent = totalControles;
+  document.getElementById('reporteTotalPuerperas').textContent = totalPuerperas;
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '';
+    empty.classList.remove('hidden');
     return;
   }
-  deferredInstallPrompt.prompt();
-  const { outcome } = await deferredInstallPrompt.userChoice;
-  console.log('[PWA] Resultado de instalación:', outcome);
-  if (outcome === 'accepted') {
-    deferredInstallPrompt = null;
-    hideInstallPrompt();
-  } else {
-    showToast('Puede instalarla más tarde desde el menú de su navegador.', 'success');
-  }
+  empty.classList.add('hidden');
+
+  tbody.innerHTML = filtered.map((r, i) => {
+    const fechaStr = r.fecha_reg_obj ? r.fecha_reg_obj.toISOString().split('T')[0] : '';
+    const captacionSi = r.motivo_consulta === 'CAPTACION' ? '<span class="text-emerald-600 font-bold">✓</span>' : '';
+    const captacionNo = r.motivo_consulta !== 'CAPTACION' ? '<span class="text-red-600 font-bold">✓</span>' : '';
+    // Todas las gestantes captadas se consideran ESTABLES en el reporte
+    const estable = '<span class="text-emerald-600 font-bold">✓</span>';
+    const grave = '';
+    const gestanteX = r.estado === 'gestante' ? '<span class="text-emerald-600 font-bold">✓</span>' : '';
+    const puerperaX = (r.estado === 'puerpera' || r.estado === 'lactante') ? '<span class="text-purple-600 font-bold">✓</span>' : '';
+    const tipoRiesgo = r.aro ? `ARO ${r.aro}` : 'NINGUNO';
+    const controlPre = r.control_prenatal === 'SI' ? '<span class="text-emerald-600 font-bold">SI</span>' : '<span class="text-red-600">NO</span>';
+    const responsable = r.responsable_nombre + (r.responsable_telefono ? ` ${r.responsable_telefono}` : '');
+    const vaciadoObs = r.fecha_parto ? r.fecha_parto.split('T')[0] : '';
+    const condicionActual = r.estado === 'gestante' ? 'Gestante' : r.estado === 'puerpera' ? 'Puérpera' : r.estado === 'lactante' ? 'Lactante' : r.estado === 'archivado' ? 'Archivada' : 'Activa';
+
+    return `<tr class="hover:bg-gray-50 text-center">
+      <td class="px-2 py-2 border">
+        <div class="flex flex-col items-center gap-1">
+          <span class="font-medium">${i + 1}</span>
+          <button onclick="editGestante('${r.id}')" class="text-emerald-600 hover:text-emerald-800 text-xs" title="Editar gestante">
+            <i class="fas fa-edit"></i>
+          </button>
+        </div>
+      </td>
+      <td class="px-2 py-2 border font-medium">${r.semana_epi_display}</td>
+      <td class="px-2 py-2 border">ASIC ANTONIO JOSÉ DE SUCRE</td>
+      <td class="px-2 py-2 border text-left">${responsable}</td>
+      <td class="px-2 py-2 border">${fechaStr}</td>
+      <td class="px-2 py-2 border">${captacionSi}</td>
+      <td class="px-2 py-2 border">${captacionNo}</td>
+      <td class="px-2 py-2 border">${estable}</td>
+      <td class="px-2 py-2 border">${grave}</td>
+      <td class="px-2 py-2 border text-left font-medium">${(r.nombres || '') + ' ' + (r.apellidos || '')}</td>
+      <td class="px-2 py-2 border">${r.cedula || ''}</td>
+      <td class="px-2 py-2 border">${r.edad || ''}</td>
+      <td class="px-2 py-2 border">${r.telefono || 'NO POSEE'}</td>
+      <td class="px-2 py-2 border">${r.semana_gestacion || ''}</td>
+      <td class="px-2 py-2 border">GUARICO</td>
+      <td class="px-2 py-2 border">CAMAGUAN</td>
+      <td class="px-2 py-2 border">ASIC ANTONIO JOSÉ DE SUCRE</td>
+      <td class="px-2 py-2 border text-left">${r.consultorio || ''}</td>
+      <td class="px-2 py-2 border">${controlPre}</td>
+      <td class="px-2 py-2 border">${r.num_controles || 0}</td>
+      <td class="px-2 py-2 border">${r.donde_publico_privado || 'PUBLICO'}</td>
+      <td class="px-2 py-2 border">${tipoRiesgo}</td>
+      <td class="px-2 py-2 border text-left">${r.diagnostico || ''}</td>
+      <td class="px-2 py-2 border">${r.referido || ''}</td>
+      <td class="px-2 py-2 border"></td>
+      <td class="px-2 py-2 border">${gestanteX}</td>
+      <td class="px-2 py-2 border">${puerperaX}</td>
+      <td class="px-2 py-2 border"></td>
+      <td class="px-2 py-2 border">${vaciadoObs}</td>
+      <td class="px-2 py-2 border"></td>
+      <td class="px-2 py-2 border"></td>
+      <td class="px-2 py-2 border"></td>
+      <td class="px-2 py-2 border">${condicionActual}</td>
+      <td class="px-2 py-2 border"></td>
+      <td class="px-2 py-2 border"></td>
+      <td class="px-2 py-2 border"></td>
+    </tr>`;
+  }).join('');
 }
 
-// Mostrar prompt de instalación cuando se detecta móvil (con delay)
-setTimeout(() => {
-  const dismissed = localStorage.getItem('epi_pwa_dismissed');
-  if (dismissed && (Date.now() - parseInt(dismissed)) < 3 * 24 * 60 * 60 * 1000) return; // 3 días
-  if (isAppInstalled()) return;
-  showInstallPrompt();
-}, 3000);
+async function exportarReporteCaptacionExcel() {
+  const mesSel = parseInt(document.getElementById('reporteMes').value);
+  const anioSel = parseInt(document.getElementById('reporteAnio').value);
+  const consSel = document.getElementById('reporteConsultorio').value;
+  const meses = ['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];
 
-// Escuchar cambios de display-mode
-window.matchMedia('(display-mode: standalone)').addEventListener('change', (e) => {
-  if (e.matches) {
-    console.log('[PWA] App ejecutándose en modo standalone');
-    hideInstallPrompt();
+  let filtered = reporteData.filter(r => {
+    if (!r.fecha_reg_obj) return false;
+    const matchMes = r.fecha_reg_obj.getMonth() === mesSel;
+    const matchAnio = r.fecha_reg_obj.getFullYear() === anioSel;
+    const matchCons = !consSel || r.consultorio === consSel;
+    return matchMes && matchAnio && matchCons;
+  });
+
+  const rows = filtered.map((r, i) => {
+    const fechaStr = r.fecha_reg_obj ? r.fecha_reg_obj.toISOString().split('T')[0] : '';
+    const responsable = r.responsable_nombre + (r.responsable_telefono ? ` ${r.responsable_telefono}` : '');
+    const vaciadoObs = r.fecha_parto ? r.fecha_parto.split('T')[0] : '';
+    const condicionActual = r.estado === 'gestante' ? 'Gestante' : r.estado === 'puerpera' ? 'Puérpera' : r.estado === 'lactante' ? 'Lactante' : r.estado === 'archivado' ? 'Archivada' : 'Activa';
+
+    return {
+      'N°': i + 1,
+      'SEMANA EPIDEMIOLÓGICA': r.semana_epi_display,
+      'ESTABLECIMIENTO DE SALUD': 'ASIC ANTONIO JOSÉ DE SUCRE',
+      'RESPONSABLE DE CAPTACIÓN Y/O CONTROL Y TELÉFONO': responsable,
+      'FECHA': fechaStr,
+      'CAPTACIÓN CASA A CASA SI': r.motivo_consulta === 'CAPTACION' ? 'SI' : '',
+      'CAPTACIÓN CASA A CASA NO': r.motivo_consulta !== 'CAPTACION' ? 'NO' : '',
+      'A. ESTABLE': !r.aro ? 'A' : '',
+      'B. GRAVE': r.aro ? 'B' : '',
+      'NOMBRES Y APELLIDOS USUARIA': (r.nombres || '') + ' ' + (r.apellidos || ''),
+      'C.I.': r.cedula || '',
+      'EDAD': r.edad || '',
+      'N° TELÉFONO': r.telefono || 'NO POSEE',
+      'EDAD GESTACIONAL (SEMANAS)': r.semana_gestacion || '',
+      'ESTADO DE RESIDENCIA': 'GUARICO',
+      'MUNICIPIO DE RESIDENCIA': 'CAMAGUAN',
+      'ASIC RESIDENCIA': 'ASIC ANTONIO JOSÉ DE SUCRE',
+      'DIRECCIÓN DE RESIDENCIA': r.consultorio || '',
+      'CONTROL PRENATAL SI/NO': r.control_prenatal || 'SI',
+      'NÚMERO DE CONTROL PRENATAL': r.num_controles || 0,
+      'CONTROL PRENATAL PÚBLICO/PRIVADO': r.donde_publico_privado || 'PUBLICO',
+      'TIPO DE RIESGO': r.aro ? `ARO ${r.aro}` : 'NINGUNO',
+      'DIAGNÓSTICO AL INGRESO': r.diagnostico || '',
+      'ESTABLECIMIENTO QUE RECIBE (REFERIDA)': r.referido || '',
+      'FECHA DE INGRESO HOSPITALARIO': '',
+      'GESTANTE': r.estado === 'gestante' ? 'X' : '',
+      'PUÉRPERA': (r.estado === 'puerpera' || r.estado === 'lactante') ? 'X' : '',
+      'TIPO DE PARTO (VAGINAL O CESÁREA)': '',
+      'FECHA DEL VACIADO OBSTÉTRICO': vaciadoObs,
+      'FECHA DE INGRESO A UCI': '',
+      'DIAGNÓSTICO DE INGRESO A UCI': '',
+      'RESPONSABLE DEL MONITOREO HOSPITAL': '',
+      'CONDICIÓN ACTUAL DE LA PACIENTE': condicionActual,
+      'FECHA DE EGRESO': '',
+      'CAUSA DE MUERTE': '',
+      'FECHA DE MUERTE': ''
+    };
+  });
+
+  if (rows.length === 0) {
+    showToast('No hay datos para exportar', 'error');
+    return;
   }
-});
+
+  const ws = XLSX.utils.json_to_sheet(rows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, `${meses[mesSel]}_${anioSel}`);
+  XLSX.writeFile(wb, `Reporte_Captacion_${meses[mesSel]}_${anioSel}.xlsx`);
+  showToast(`Reporte de ${meses[mesSel]} ${anioSel} exportado a Excel`);
+}
 
 </script>
 
