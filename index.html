@@ -39,12 +39,6 @@
   .shake { animation: shake 0.5s; }
   @keyframes shake { 0%, 100% { transform: translateX(0); } 10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); } 20%, 40%, 60%, 80% { transform: translateX(5px); } }
 
-  /* Scrollbar personalizada para el menu lateral */
-  .sidebar-nav::-webkit-scrollbar { width: 4px; }
-  .sidebar-nav::-webkit-scrollbar-track { background: transparent; }
-  .sidebar-nav::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
-  .sidebar-nav::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
-
   /* ==================== RESPONSIVE MÓVIL ==================== */
   @media (max-width: 1024px) {
     #appScreen { flex-direction: column; }
@@ -226,9 +220,8 @@
 <!-- APP -->
 <div id="appScreen" class="hidden min-h-screen flex">
   <div id="sidebarOverlay" class="sidebar-overlay" onclick="closeSidebarMobile()"></div>
-<aside id="sidebar" class="sidebar w-64 bg-white border-r border-gray-200 flex-shrink-0 fixed h-full z-30 flex flex-col">
-    <!-- Header / Logo -->
-    <div class="p-6 border-b border-gray-100 flex-shrink-0">
+<aside id="sidebar" class="sidebar w-64 bg-white border-r border-gray-200 flex-shrink-0 fixed h-full z-30 overflow-y-auto">
+    <div class="p-6 border-b border-gray-100">
       <div class="flex items-center justify-between mb-2 lg:hidden">
         <span class="text-xs text-gray-400 font-medium">MENÚ</span>
         <button onclick="closeSidebarMobile()" class="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition">
@@ -236,8 +229,10 @@
         </button>
       </div>
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 bg-emerald-600 rounded-lg flex items-center justify-center text-white overflow-hidden">
-          <img src="https://github.com/tsucesarherrera-afk/p/blob/main/imagenes/pngtree-pregnant-woman-vector-art-png-image_15049016.png?raw=true" alt="Logo EPI" class="w-full h-full object-cover" style="filter: brightness(1.1) contrast(1.1);">
+        <div class="w-10 h-10 bg-emerald-600 rounded-lg flex items-center justify-center text-white">
+          <div class="w-16 h-16 rounded-full overflow-hidden border-2 border-emerald-500 shadow-lg flex items-center justify-center bg-white">
+  <img src="https://github.com/tsucesarherrera-afk/p/blob/main/imagenes/pngtree-pregnant-woman-vector-art-png-image_15049016.png?raw=true" alt="Logo EPI" class="w-full h-full object-cover" style="filter: brightness(1.1) contrast(1.1);">
+</div>
         </div>
         <div>
           <h2 class="font-bold text-gray-800 text-sm leading-tight">EPI 13 - Ruta Materna</h2>
@@ -245,9 +240,7 @@
         </div>
       </div>
     </div>
-
-    <!-- Nav: flex-1 overflow-y-auto para scroll independiente -->
-    <nav class="sidebar-nav flex-1 overflow-y-auto min-h-0 p-4 space-y-1">
+    <nav class="p-4 space-y-1">
       <button onclick="showSection('dashboard')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-emerald-50 hover:text-emerald-600 transition" data-section="dashboard">
         <i class="fas fa-chart-pie w-5"></i> Dashboard
       </button>
@@ -273,14 +266,16 @@
       <button id="menuAuditoria" onclick="showSection('auditoria')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-emerald-50 hover:text-emerald-600 transition hidden" data-section="auditoria">
         <i class="fas fa-clipboard-list w-5"></i> Auditoría
       </button>
+      <button id="menuReporteCaptacion" onclick="showSection('reporteCaptacion')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-emerald-50 hover:text-emerald-600 transition hidden" data-section="reporteCaptacion">
+        <i class="fas fa-file-medical w-5"></i> Reporte Captación
+      </button>
+
       <!-- Solo visible para admin y superadmin -->
       <button id="menuBackup" onclick="showSection('backup')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-emerald-50 hover:text-emerald-600 transition hidden" data-section="backup">
         <i class="fas fa-database w-5"></i> Backup / Restore
       </button>
     </nav>
-
-    <!-- Footer usuario: ya no es absolute, es parte del flex -->
-    <div class="flex-shrink-0 p-4 border-t border-gray-100 bg-white">
+    <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100 bg-white">
       <div class="flex items-center gap-3 mb-3">
         <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-gray-600 text-xs">
           <i class="fas fa-user"></i>
@@ -819,6 +814,106 @@
           </div>
         </div>
       </section>
+      <!-- REPORTE CONTROL Y SEGUIMIENTO GESTANTES CAPTADAS -->
+      <section id="reporteCaptacion" class="section hidden fade-in">
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+          <div>
+            <h3 class="font-bold text-gray-800 text-lg">Control y Seguimiento de Gestantes Captadas</h3>
+            <p class="text-sm text-gray-500">Reporte mensual de captación por semanas epidemiológicas</p>
+          </div>
+          <div class="flex gap-3">
+            <select id="reporteMes" onchange="renderReporteCaptacion()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none bg-white">
+              <option value="0">Enero</option><option value="1">Febrero</option><option value="2">Marzo</option><option value="3">Abril</option>
+              <option value="4">Mayo</option><option value="5">Junio</option><option value="6">Julio</option><option value="7">Agosto</option>
+              <option value="8">Septiembre</option><option value="9">Octubre</option><option value="10">Noviembre</option><option value="11">Diciembre</option>
+            </select>
+            <select id="reporteAnio" onchange="renderReporteCaptacion()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none bg-white">
+              <option value="2024">2024</option><option value="2025">2025</option><option value="2026" selected>2026</option>
+              <option value="2027">2027</option><option value="2028">2028</option>
+            </select>
+            <select id="reporteConsultorio" onchange="renderReporteCaptacion()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none bg-white">
+              <option value="">Todos los consultorios</option>
+            </select>
+            <button onclick="exportarReporteCaptacionExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition">
+              <i class="fas fa-file-excel"></i> Exportar Excel
+            </button>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-4">
+          <div class="p-4 bg-emerald-50 border-b border-emerald-100 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <i class="fas fa-calendar-alt text-emerald-600"></i>
+              <span class="font-bold text-emerald-800" id="reporteTituloMes">Reporte Mensual</span>
+            </div>
+            <div class="flex gap-4 text-sm">
+              <span class="text-gray-600">Total Gestantes: <strong id="reporteTotalGestantes" class="text-emerald-700">0</strong></span>
+              <span class="text-gray-600">Total Controles: <strong id="reporteTotalControles" class="text-blue-700">0</strong></span>
+              <span class="text-gray-600">Puérperas: <strong id="reporteTotalPuerperas" class="text-purple-700">0</strong></span>
+            </div>
+          </div>
+          <div class="lg:hidden bg-gray-50 border-b border-gray-100 px-4 py-2 flex items-center gap-2 text-xs text-gray-500">
+            <i class="fas fa-arrows-alt-h"></i>
+            <span>Deslice horizontalmente para ver toda la tabla</span>
+          </div>
+          <div class="table-container">
+            <table class="w-full text-xs">
+              <thead class="bg-gray-50 text-gray-600 font-medium">
+                <tr>
+                  <th class="px-2 py-2 text-center border" rowspan="2">N°</th>
+                  <th class="px-2 py-2 text-center border" rowspan="2">SEMANA<br>EPIDEMIOLÓGICA</th>
+                  <th class="px-2 py-2 text-center border" rowspan="2">ESTABLECIMIENTO DE SALUD<br>PARA ATENCIÓN O REFERENCIA</th>
+                  <th class="px-2 py-2 text-center border" rowspan="2">RESPONSABLE DE CAPTACIÓN<br>Y/O CONTROL Y TELÉFONO</th>
+                  <th class="px-2 py-2 text-center border" rowspan="2">FECHA</th>
+                  <th class="px-2 py-2 text-center border" colspan="2">CAPTACIÓN<br>CASA A CASA</th>
+                  <th class="px-2 py-2 text-center border" colspan="2">CONDICIÓN</th>
+                  <th class="px-2 py-2 text-center border" rowspan="2">NOMBRES Y<br>APELLIDOS USUARIA</th>
+                  <th class="px-2 py-2 text-center border" rowspan="2">C.I.</th>
+                  <th class="px-2 py-2 text-center border" rowspan="2">EDAD</th>
+                  <th class="px-2 py-2 text-center border" rowspan="2">N°<br>TELÉFONO</th>
+                  <th class="px-2 py-2 text-center border" rowspan="2">EDAD<br>GESTACIONAL<br>(SEMANAS)</th>
+                  <th class="px-2 py-2 text-center border" rowspan="2">ESTADO<br>RESIDENCIA</th>
+                  <th class="px-2 py-2 text-center border" rowspan="2">MUNICIPIO<br>RESIDENCIA</th>
+                  <th class="px-2 py-2 text-center border" rowspan="2">ASIC<br>RESIDENCIA</th>
+                  <th class="px-2 py-2 text-center border" rowspan="2">DIRECCIÓN<br>RESIDENCIA</th>
+                  <th class="px-2 py-2 text-center border" colspan="3">CONTROL PRENATAL</th>
+                  <th class="px-2 py-2 text-center border" rowspan="2">TIPO DE<br>RIESGO</th>
+                  <th class="px-2 py-2 text-center border" rowspan="2">DIAGNÓSTICO<br>AL INGRESO</th>
+                  <th class="px-2 py-2 text-center border" rowspan="2">ESTABLECIMIENTO<br>QUE RECIBE<br>(REFERIDA)</th>
+                  <th class="px-2 py-2 text-center border" rowspan="2">FECHA INGRESO<br>HOSPITALARIO</th>
+                  <th class="px-2 py-2 text-center border" colspan="2">ESTADO</th>
+                  <th class="px-2 py-2 text-center border" rowspan="2">TIPO DE<br>PARTO</th>
+                  <th class="px-2 py-2 text-center border" rowspan="2">FECHA DEL<br>VACIADO<br>OBSTÉTRICO</th>
+                  <th class="px-2 py-2 text-center border" rowspan="2">FECHA<br>INGRESO<br>UCI</th>
+                  <th class="px-2 py-2 text-center border" rowspan="2">DIAGNÓSTICO<br>INGRESO UCI</th>
+                  <th class="px-2 py-2 text-center border" rowspan="2">RESPONSABLE<br>MONITOREO<br>HOSPITAL</th>
+                  <th class="px-2 py-2 text-center border" rowspan="2">CONDICIÓN<br>ACTUAL</th>
+                  <th class="px-2 py-2 text-center border" rowspan="2">FECHA<br>EGRESO</th>
+                  <th class="px-2 py-2 text-center border" rowspan="2">CAUSA<br>MUERTE</th>
+                  <th class="px-2 py-2 text-center border" rowspan="2">FECHA<br>MUERTE</th>
+                </tr>
+                <tr class="bg-gray-100">
+                  <th class="px-2 py-1 text-center border">SI</th>
+                  <th class="px-2 py-1 text-center border">NO</th>
+                  <th class="px-2 py-1 text-center border">A.<br>ESTABLE</th>
+                  <th class="px-2 py-1 text-center border">B.<br>GRAVE</th>
+                  <th class="px-2 py-1 text-center border">SI/NO</th>
+                  <th class="px-2 py-1 text-center border">N°<br>CONTROL</th>
+                  <th class="px-2 py-1 text-center border">PÚBLICO/<br>PRIVADO</th>
+                  <th class="px-2 py-1 text-center border">GESTANTE</th>
+                  <th class="px-2 py-1 text-center border">PUÉRPERA</th>
+                </tr>
+              </thead>
+              <tbody id="reporteCaptacionTable" class="divide-y divide-gray-100"></tbody>
+            </table>
+          </div>
+          <div id="reporteCaptacionEmpty" class="hidden p-8 text-center text-gray-400">
+            <i class="fas fa-inbox text-4xl mb-2"></i>
+            <p>No hay registros para el período seleccionado</p>
+          </div>
+        </div>
+      </section>
+
     </div>
   </main>
 </div>
@@ -1494,6 +1589,7 @@ try {
 } catch (e) {
   console.error('[Supabase] Error inicializando cliente:', e);
 }
+
 // ==================== VARIABLES GLOBALES ====================
 let currentUser = null;
 let currentProfile = null;
@@ -1882,10 +1978,12 @@ async function initApp() {
     document.getElementById('menuArchivados').classList.remove('hidden');
     document.getElementById('menuBackup').classList.remove('hidden');
     document.getElementById('menuAuditoria').classList.remove('hidden');
+    document.getElementById('menuReporteCaptacion').classList.remove('hidden');
   } else if (currentProfile.role === 'admin') {
     document.getElementById('menuPuerperas').classList.remove('hidden');
     document.getElementById('menuArchivados').classList.remove('hidden');
     document.getElementById('menuBackup').classList.remove('hidden');
+    document.getElementById('menuReporteCaptacion').classList.remove('hidden');
     // admin NO ve usuarios ni calendarios
   }
   // médico: solo ve Dashboard, Gestantes, Control Semanal (por defecto)
@@ -1899,6 +1997,7 @@ async function initApp() {
   await loadGestantes();
   await loadUsers();
   initConsultoriosSelects();
+  initReporteConsultorios();
   await initSemanasSelect();
 
   // Iniciar timer de sesión
@@ -1967,7 +2066,7 @@ async function showSection(section) {
   closeSidebarMobile();
   // Proteger secciones restringidas para médicos
   if (currentProfile && currentProfile.role === 'medico') {
-    const seccionesProhibidas = ['puerperas', 'archivados', 'usuarios', 'calendarios', 'backup'];
+    const seccionesProhibidas = ['puerperas', 'archivados', 'usuarios', 'calendarios', 'backup', 'reporteCaptacion'];
     if (seccionesProhibidas.includes(section)) {
       showToast('Acceso denegado. No tiene permisos para esta sección.', 'error');
       return;
@@ -1985,7 +2084,8 @@ async function showSection(section) {
     controlSemanal: ['Control Semanal','Reporte semanal por semana epidemiológica'], puerperas: ['Puérperas / Lactantes','Mujeres en periodo postparto'],
     archivados: ['Archivados','Registros de abortos y cierres'], usuarios: ['Usuarios','Gestión de usuarios del sistema'],
     calendarios: ['Calendarios','Calendarios epidemiológicos'], backup: ['Backup / Restore','Respaldo y restauración de datos'],
-    auditoria: ['Auditoría','Registro de cambios del sistema']
+    auditoria: ['Auditoría','Registro de cambios del sistema'],
+    reporteCaptacion: ['Reporte Captación','Control y seguimiento de gestantes captadas']
   };
   document.getElementById('pageTitle').textContent = titles[section][0];
   document.getElementById('pageSubtitle').textContent = titles[section][1];
@@ -1998,6 +2098,7 @@ async function showSection(section) {
   if (section === 'usuarios') renderUsers();
   if (section === 'calendarios') renderCalendarios();
   if (section === 'auditoria') await loadAuditoria();
+  if (section === 'reporteCaptacion') await loadReporteCaptacion();
 }
 
 function toggleSidebar() {
@@ -3982,6 +4083,253 @@ function verificarSesionActiva() {
 }
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') verificarSesionActiva(); });
 setInterval(verificarSesionActiva, 30000);
+
+
+// ==================== REPORTE CONTROL Y SEGUIMIENTO GESTANTES CAPTADAS ====================
+function initReporteConsultorios() {
+  const sel = document.getElementById('reporteConsultorio');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">Todos los consultorios</option>';
+  CONSULTORIOS.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c;
+    opt.textContent = c;
+    sel.appendChild(opt);
+  });
+}
+
+let reporteData = [];
+let reporteControlesCount = {};
+
+async function loadReporteCaptacion() {
+  try {
+    // Cargar TODAS las gestantes de la base de datos
+    let query = supabaseClient.from('gestantes').select('*')
+      .order('fecha_registro', { ascending: true });
+
+    if (currentProfile.role === 'medico' && currentProfile.consultorio) {
+      query = query.eq('consultorio', currentProfile.consultorio);
+    }
+
+    const { data: gestantes, error: gError } = await query;
+    if (gError) throw gError;
+
+    // Cargar todos los controles semanales para contar
+    let ctrlQuery = supabaseClient.from('control_semanal').select('*');
+    const { data: controles, error: cError } = await ctrlQuery;
+    if (cError) throw cError;
+
+    // Contar controles por gestante
+    reporteControlesCount = {};
+    (controles || []).forEach(c => {
+      reporteControlesCount[c.gestante_id] = (reporteControlesCount[c.gestante_id] || 0) + 1;
+    });
+
+    // Guardar datos combinados
+    reporteData = (gestantes || []).map(g => {
+      const numControles = reporteControlesCount[g.id] || 0;
+      const creador = usersData.find(u => u.id === g.created_by);
+      const fechaReg = g.fecha_registro ? new Date(g.fecha_registro) : null;
+      const semanaEpi = g.semana_epidemiologica || '-';
+
+      return {
+        ...g,
+        num_controles: numControles,
+        responsable_nombre: creador ? (creador.nombre || creador.email) : 'Sistema',
+        responsable_telefono: creador ? (creador.telefono || '') : '',
+        fecha_reg_obj: fechaReg,
+        semana_epi_display: semanaEpi
+      };
+    });
+
+    // Set default month to current
+    const hoy = new Date();
+    const mesSel = document.getElementById('reporteMes');
+    const anioSel = document.getElementById('reporteAnio');
+    if (mesSel && !mesSel.dataset.inicializado) {
+      mesSel.value = hoy.getMonth();
+      mesSel.dataset.inicializado = 'true';
+    }
+    if (anioSel && !anioSel.dataset.inicializado) {
+      anioSel.value = hoy.getFullYear();
+      anioSel.dataset.inicializado = 'true';
+    }
+
+    renderReporteCaptacion();
+  } catch (err) {
+    showToast('Error cargando reporte: ' + err.message, 'error');
+    console.error(err);
+  }
+}
+
+function renderReporteCaptacion() {
+  const tbody = document.getElementById('reporteCaptacionTable');
+  const empty = document.getElementById('reporteCaptacionEmpty');
+  const mesSel = parseInt(document.getElementById('reporteMes').value);
+  const anioSel = parseInt(document.getElementById('reporteAnio').value);
+  const consSel = document.getElementById('reporteConsultorio').value;
+
+  const meses = ['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];
+  document.getElementById('reporteTituloMes').textContent = `REPORTE MENSUAL: ${meses[mesSel]} ${anioSel}`;
+
+  // Mostrar TODAS las gestantes de la base de datos
+  // El mes/año seleccionado solo afecta el título del reporte
+  let filtered = reporteData.filter(r => {
+    const matchCons = !consSel || r.consultorio === consSel;
+    return matchCons;
+  });
+
+  // Actualizar totales
+  const totalGestantes = filtered.length;
+  const totalControles = filtered.reduce((sum, r) => sum + (r.num_controles || 0), 0);
+  const totalPuerperas = filtered.filter(r => r.estado === 'puerpera' || r.estado === 'lactante').length;
+
+  document.getElementById('reporteTotalGestantes').textContent = totalGestantes;
+  document.getElementById('reporteTotalControles').textContent = totalControles;
+  document.getElementById('reporteTotalPuerperas').textContent = totalPuerperas;
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '';
+    empty.classList.remove('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+
+  tbody.innerHTML = filtered.map((r, i) => {
+    const fechaStr = r.fecha_reg_obj ? r.fecha_reg_obj.toISOString().split('T')[0] : '';
+    const captacionSi = r.motivo_consulta === 'CAPTACION' ? '<span class="text-emerald-600 font-bold">✓</span>' : '';
+    const captacionNo = r.motivo_consulta !== 'CAPTACION' ? '<span class="text-red-600 font-bold">✓</span>' : '';
+    // Todas las gestantes captadas se consideran ESTABLES en el reporte
+    const estable = '<span class="text-emerald-600 font-bold">✓</span>';
+    const grave = '';
+    const gestanteX = r.estado === 'gestante' ? '<span class="text-emerald-600 font-bold">✓</span>' : '';
+    const puerperaX = (r.estado === 'puerpera' || r.estado === 'lactante') ? '<span class="text-purple-600 font-bold">✓</span>' : '';
+    const tipoRiesgo = r.aro ? `ARO ${r.aro}` : 'NINGUNO';
+    const controlPre = r.control_prenatal === 'SI' ? '<span class="text-emerald-600 font-bold">SI</span>' : '<span class="text-red-600">NO</span>';
+    const responsable = r.responsable_nombre + (r.responsable_telefono ? ` ${r.responsable_telefono}` : '');
+    const vaciadoObs = r.fecha_parto ? r.fecha_parto.split('T')[0] : '';
+    const condicionActual = r.estado === 'gestante' ? 'Gestante' : r.estado === 'puerpera' ? 'Puérpera' : r.estado === 'lactante' ? 'Lactante' : r.estado === 'archivado' ? 'Archivada' : 'Activa';
+
+    return `<tr class="hover:bg-gray-50 text-center">
+      <td class="px-2 py-2 border">
+        <div class="flex flex-col items-center gap-1">
+          <span class="font-medium">${i + 1}</span>
+          <button onclick="editGestante('${r.id}')" class="text-emerald-600 hover:text-emerald-800 text-xs" title="Editar gestante">
+            <i class="fas fa-edit"></i>
+          </button>
+        </div>
+      </td>
+      <td class="px-2 py-2 border font-medium">${r.semana_epi_display}</td>
+      <td class="px-2 py-2 border">ASIC ANTONIO JOSÉ DE SUCRE</td>
+      <td class="px-2 py-2 border text-left">${responsable}</td>
+      <td class="px-2 py-2 border">${fechaStr}</td>
+      <td class="px-2 py-2 border">${captacionSi}</td>
+      <td class="px-2 py-2 border">${captacionNo}</td>
+      <td class="px-2 py-2 border">${estable}</td>
+      <td class="px-2 py-2 border">${grave}</td>
+      <td class="px-2 py-2 border text-left font-medium">${(r.nombres || '') + ' ' + (r.apellidos || '')}</td>
+      <td class="px-2 py-2 border">${r.cedula || ''}</td>
+      <td class="px-2 py-2 border">${r.edad || ''}</td>
+      <td class="px-2 py-2 border">${r.telefono || 'NO POSEE'}</td>
+      <td class="px-2 py-2 border">${r.semana_gestacion || ''}</td>
+      <td class="px-2 py-2 border">GUARICO</td>
+      <td class="px-2 py-2 border">CAMAGUAN</td>
+      <td class="px-2 py-2 border">ASIC ANTONIO JOSÉ DE SUCRE</td>
+      <td class="px-2 py-2 border text-left">${r.consultorio || ''}</td>
+      <td class="px-2 py-2 border">${controlPre}</td>
+      <td class="px-2 py-2 border">${r.num_controles || 0}</td>
+      <td class="px-2 py-2 border">${r.donde_publico_privado || 'PUBLICO'}</td>
+      <td class="px-2 py-2 border">${tipoRiesgo}</td>
+      <td class="px-2 py-2 border text-left">${r.diagnostico || ''}</td>
+      <td class="px-2 py-2 border">${r.referido || ''}</td>
+      <td class="px-2 py-2 border"></td>
+      <td class="px-2 py-2 border">${gestanteX}</td>
+      <td class="px-2 py-2 border">${puerperaX}</td>
+      <td class="px-2 py-2 border"></td>
+      <td class="px-2 py-2 border">${vaciadoObs}</td>
+      <td class="px-2 py-2 border"></td>
+      <td class="px-2 py-2 border"></td>
+      <td class="px-2 py-2 border"></td>
+      <td class="px-2 py-2 border">${condicionActual}</td>
+      <td class="px-2 py-2 border"></td>
+      <td class="px-2 py-2 border"></td>
+      <td class="px-2 py-2 border"></td>
+    </tr>`;
+  }).join('');
+}
+
+async function exportarReporteCaptacionExcel() {
+  const mesSel = parseInt(document.getElementById('reporteMes').value);
+  const anioSel = parseInt(document.getElementById('reporteAnio').value);
+  const consSel = document.getElementById('reporteConsultorio').value;
+  const meses = ['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];
+
+  let filtered = reporteData.filter(r => {
+    if (!r.fecha_reg_obj) return false;
+    const matchMes = r.fecha_reg_obj.getMonth() === mesSel;
+    const matchAnio = r.fecha_reg_obj.getFullYear() === anioSel;
+    const matchCons = !consSel || r.consultorio === consSel;
+    return matchMes && matchAnio && matchCons;
+  });
+
+  const rows = filtered.map((r, i) => {
+    const fechaStr = r.fecha_reg_obj ? r.fecha_reg_obj.toISOString().split('T')[0] : '';
+    const responsable = r.responsable_nombre + (r.responsable_telefono ? ` ${r.responsable_telefono}` : '');
+    const vaciadoObs = r.fecha_parto ? r.fecha_parto.split('T')[0] : '';
+    const condicionActual = r.estado === 'gestante' ? 'Gestante' : r.estado === 'puerpera' ? 'Puérpera' : r.estado === 'lactante' ? 'Lactante' : r.estado === 'archivado' ? 'Archivada' : 'Activa';
+
+    return {
+      'N°': i + 1,
+      'SEMANA EPIDEMIOLÓGICA': r.semana_epi_display,
+      'ESTABLECIMIENTO DE SALUD': 'ASIC ANTONIO JOSÉ DE SUCRE',
+      'RESPONSABLE DE CAPTACIÓN Y/O CONTROL Y TELÉFONO': responsable,
+      'FECHA': fechaStr,
+      'CAPTACIÓN CASA A CASA SI': r.motivo_consulta === 'CAPTACION' ? 'SI' : '',
+      'CAPTACIÓN CASA A CASA NO': r.motivo_consulta !== 'CAPTACION' ? 'NO' : '',
+      'A. ESTABLE': !r.aro ? 'A' : '',
+      'B. GRAVE': r.aro ? 'B' : '',
+      'NOMBRES Y APELLIDOS USUARIA': (r.nombres || '') + ' ' + (r.apellidos || ''),
+      'C.I.': r.cedula || '',
+      'EDAD': r.edad || '',
+      'N° TELÉFONO': r.telefono || 'NO POSEE',
+      'EDAD GESTACIONAL (SEMANAS)': r.semana_gestacion || '',
+      'ESTADO DE RESIDENCIA': 'GUARICO',
+      'MUNICIPIO DE RESIDENCIA': 'CAMAGUAN',
+      'ASIC RESIDENCIA': 'ASIC ANTONIO JOSÉ DE SUCRE',
+      'DIRECCIÓN DE RESIDENCIA': r.consultorio || '',
+      'CONTROL PRENATAL SI/NO': r.control_prenatal || 'SI',
+      'NÚMERO DE CONTROL PRENATAL': r.num_controles || 0,
+      'CONTROL PRENATAL PÚBLICO/PRIVADO': r.donde_publico_privado || 'PUBLICO',
+      'TIPO DE RIESGO': r.aro ? `ARO ${r.aro}` : 'NINGUNO',
+      'DIAGNÓSTICO AL INGRESO': r.diagnostico || '',
+      'ESTABLECIMIENTO QUE RECIBE (REFERIDA)': r.referido || '',
+      'FECHA DE INGRESO HOSPITALARIO': '',
+      'GESTANTE': r.estado === 'gestante' ? 'X' : '',
+      'PUÉRPERA': (r.estado === 'puerpera' || r.estado === 'lactante') ? 'X' : '',
+      'TIPO DE PARTO (VAGINAL O CESÁREA)': '',
+      'FECHA DEL VACIADO OBSTÉTRICO': vaciadoObs,
+      'FECHA DE INGRESO A UCI': '',
+      'DIAGNÓSTICO DE INGRESO A UCI': '',
+      'RESPONSABLE DEL MONITOREO HOSPITAL': '',
+      'CONDICIÓN ACTUAL DE LA PACIENTE': condicionActual,
+      'FECHA DE EGRESO': '',
+      'CAUSA DE MUERTE': '',
+      'FECHA DE MUERTE': ''
+    };
+  });
+
+  if (rows.length === 0) {
+    showToast('No hay datos para exportar', 'error');
+    return;
+  }
+
+  const ws = XLSX.utils.json_to_sheet(rows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, `${meses[mesSel]}_${anioSel}`);
+  XLSX.writeFile(wb, `Reporte_Captacion_${meses[mesSel]}_${anioSel}.xlsx`);
+  showToast(`Reporte de ${meses[mesSel]} ${anioSel} exportado a Excel`);
+}
+
 </script>
 
 <!-- MODAL CONFIRMAR CIERRE DE SESIÓN -->
