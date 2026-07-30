@@ -143,6 +143,7 @@
 <base target="_blank">
 <base target="_blank">
 <base target="_blank">
+<base target="_blank">
 </head>
 <body class="text-gray-800">
 
@@ -220,7 +221,7 @@
 <!-- APP -->
 <div id="appScreen" class="hidden min-h-screen flex">
   <div id="sidebarOverlay" class="sidebar-overlay" onclick="closeSidebarMobile()"></div>
-<aside id="sidebar" class="sidebar w-64 bg-white border-r border-gray-200 flex-shrink-0 fixed h-full z-30 overflow-y-auto">
+<aside id="sidebar" class="sidebar w-64 bg-white border-r border-gray-200 flex-shrink-0 fixed h-full z-30 flex flex-col overflow-hidden">
     <div class="p-6 border-b border-gray-100">
       <div class="flex items-center justify-between mb-2 lg:hidden">
         <span class="text-xs text-gray-400 font-medium">MENÚ</span>
@@ -240,7 +241,7 @@
         </div>
       </div>
     </div>
-    <nav class="p-4 space-y-1">
+    <nav class="p-4 space-y-1 flex-1 overflow-y-auto min-h-0">
       <button onclick="showSection('dashboard')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-emerald-50 hover:text-emerald-600 transition" data-section="dashboard">
         <i class="fas fa-chart-pie w-5"></i> Dashboard
       </button>
@@ -275,7 +276,7 @@
         <i class="fas fa-database w-5"></i> Backup / Restore
       </button>
     </nav>
-    <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100 bg-white">
+    <div class="p-4 border-t border-gray-100 bg-white flex-shrink-0">
       <div class="flex items-center gap-3 mb-3">
         <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-gray-600 text-xs">
           <i class="fas fa-user"></i>
@@ -1601,6 +1602,7 @@ let calendariosData = [];
 let sessionTimer = null;
 let sessionStartTime = null;
 let captchaExpectedValue = 0;
+let captchaInitialized = false;
 
 // Helper para verificar si Supabase está disponible
 function supabaseReady() {
@@ -1697,6 +1699,7 @@ function generateCaptcha() {
     answerEl.focus();
   }
 
+  captchaInitialized = true;
   console.log('[CAPTCHA] Generado:', num1, op, num2, '=', resultado);
 }
 
@@ -1774,7 +1777,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
   const expectedAnswerRaw = expectedEl.value.trim();
 
   // Validar que el CAPTCHA fue generado
-  if (!expectedAnswerRaw || expectedAnswerRaw === '0') {
+  if (!captchaInitialized) {
     showToast('Error: Verificación no inicializada. Recargue la página.', 'error');
     generateCaptcha();
     return;
