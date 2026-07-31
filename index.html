@@ -143,7 +143,19 @@
 <base target="_blank">
 <base target="_blank">
 <base target="_blank">
-<base target="_blank">
+
+  <!-- PWA: Meta tags para instalación nativa -->
+  <meta name="theme-color" content="#059669">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="EPI Ruta Materna">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="application-name" content="EPI 13 - Ruta Materna">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512x512.png">
+
 </head>
 <body class="text-gray-800">
 
@@ -4358,6 +4370,69 @@ async function exportarReporteCaptacionExcel() {
     </div>
   </div>
 </div>
+
+
+<!-- PWA: Registro del Service Worker -->
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('service-worker.js')
+      .then((registration) => {
+        console.log('[PWA] Service Worker registrado:', registration.scope);
+
+        // Detectar nueva versión y forzar actualización
+        registration.addEventListener('updatefound', () => {
+          const newWorker = registration.installing;
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              console.log('[PWA] Nueva versión disponible');
+              // Opcional: mostrar toast de actualización
+              if (typeof showToast === 'function') {
+                showToast('Nueva versión disponible. Reinicie la app para actualizar.', 'success');
+              }
+            }
+          });
+        });
+      })
+      .catch((err) => {
+        console.warn('[PWA] Error registrando SW:', err);
+      });
+  });
+
+  // Forzar recarga cuando el SW se actualiza (para reinstalación limpia)
+  let refreshing = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!refreshing) {
+      refreshing = true;
+      console.log('[PWA] Nuevo controller activo, recargando...');
+      window.location.reload();
+    }
+  });
+}
+
+// PWA: Detectar si está instalada
+window.addEventListener('DOMContentLoaded', () => {
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches 
+    || window.navigator.standalone === true;
+  if (isStandalone) {
+    console.log('[PWA] App ejecutándose en modo standalone');
+    document.body.classList.add('pwa-standalone');
+  }
+
+  // Prevenir zoom en inputs en iOS
+  document.querySelectorAll('input, select, textarea').forEach(el => {
+    el.addEventListener('focus', () => {
+      document.querySelector('meta[name=viewport]').setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0');
+    });
+    el.addEventListener('blur', () => {
+      document.querySelector('meta[name=viewport]').setAttribute('content', 'width=device-width, initial-scale=1.0');
+    });
+  });
+});
+
+// PWA: Prevenir que la app se cierre al deslizar hacia atrás en móvil (opcional)
+document.addEventListener('gesturestart', (e) => e.preventDefault());
+</script>
 
 </body>
 </html>
