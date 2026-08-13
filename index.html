@@ -152,10 +152,15 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="application-name" content="EPI 13 - Ruta Materna">
   <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192x192.png">
-  <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512x512.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="https://github.com/tsucesarherrera-afk/RutaMaterna/blob/main/favicon/apple-touch-icon.png?raw=true">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://github.com/tsucesarherrera-afk/RutaMaterna/blob/main/favicon/favicon-16x16.png?raw=true">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://github.com/tsucesarherrera-afk/RutaMaterna/blob/main/favicon/favicon-32x32.png?raw=true">
+  <link rel="icon" type="image/png" sizes="48x48" href="https://github.com/tsucesarherrera-afk/RutaMaterna/blob/main/favicon/favicon-48x48.png?raw=true">
+  <link rel="icon" type="image/png" sizes="64x64" href="https://github.com/tsucesarherrera-afk/RutaMaterna/blob/main/favicon/favicon-64x64.png?raw=true">
+  <link rel="icon" type="image/png" sizes="192x192" href="https://github.com/tsucesarherrera-afk/RutaMaterna/blob/main/favicon/android-chrome-192x192.png?raw=true">
+  <link rel="icon" type="image/png" sizes="512x512" href="https://github.com/tsucesarherrera-afk/RutaMaterna/blob/main/favicon/android-chrome-512x512.png?raw=true">
 
+<base target="_blank">
 </head>
 <body class="text-gray-800">
 
@@ -1586,6 +1591,12 @@
 // Credenciales ofuscadas
 const _UB = 'aHR0cHM6Ly9rd3ZsdHFueGlyZG54b3NoZ2NnZS5zdXBhYmFzZS5jbw==';
 const _KB = 'c2JfcHVibGlzaGFibGVfVWE3Tzl0dDdzejJHLUkyTU9XWEExUV9qc0pFb1BmQQ==';
+/* ============================================================
+  DECODIFICACIÓN BASE64
+  Decodifica strings en base64. Se usa para ofuscar las credenciales
+  de conexión a Supabase (URL y ANON_KEY) en el código fuente.
+  ============================================================ */
+
 function _d(b){try{return atob(b);}catch(e){return '';}}
 const SUPABASE_URL = _d(_UB);
 const SUPABASE_ANON_KEY = _d(_KB);
@@ -1617,6 +1628,12 @@ let captchaExpectedValue = 0;
 let captchaInitialized = false;
 
 // Helper para verificar si Supabase está disponible
+/* ============================================================
+  VERIFICACIÓN DE SUPABASE
+  Retorna true si el cliente de Supabase está inicializado y listo
+  para usar. Permite verificar conectividad antes de cada operación.
+  ============================================================ */
+
 function supabaseReady() {
   return supabaseClient !== null && supabaseClient !== undefined;
 }
@@ -1638,15 +1655,34 @@ const SECURITY = {
   sessionId: null
 };
 
+/* ============================================================
+  GENERADOR DE ID DE SESIÓN
+  Genera un identificador único criptográficamente seguro de 32
+  caracteres hexadecimales usando crypto.getRandomValues().
+  Se muestra en la barra lateral para trazabilidad de sesión.
+  ============================================================ */
+
 function generateSessionId() {
   const array = new Uint8Array(16);
   crypto.getRandomValues(array);
   return Array.from(array, b => b.toString(16).padStart(2, '0')).join('');
 }
 
+/* ============================================================
+  VERIFICACIÓN DE BLOQUEO POR INTENTOS FALLIDOS
+  Retorna true si el login está bloqueado por exceder el límite
+  de intentos (5 fallidos = 30 segundos de bloqueo).
+  ============================================================ */
+
 function isLocked() {
   return Date.now() < SECURITY.lockedUntil;
 }
+
+/* ============================================================
+  REGISTRO DE INTENTO FALLIDO
+  Incrementa el contador de intentos fallidos de login. Si se
+  alcanzan 5 intentos, activa el bloqueo por 30 segundos.
+  ============================================================ */
 
 function recordFailedAttempt() {
   SECURITY.attempts++;
@@ -1656,11 +1692,23 @@ function recordFailedAttempt() {
   }
 }
 
+/* ============================================================
+  RESET DE INTENTOS FALLIDOS
+  Limpia el contador de intentos fallidos y el estado de bloqueo
+  del login. Se ejecuta tras un login exitoso.
+  ============================================================ */
+
 function resetAttempts() {
   SECURITY.attempts = 0;
   SECURITY.lockedUntil = 0;
   document.getElementById('loginAttemptsAlert').classList.add('hidden');
 }
+
+/* ============================================================
+  MOSTRAR ALERTA DE BLOQUEO
+  Muestra la alerta visual de bloqueo con barra de progreso
+  que cuenta los 30 segundos restantes antes de poder reintentar.
+  ============================================================ */
 
 function showLoginLockout() {
   const alert = document.getElementById('loginAttemptsAlert');
@@ -1682,6 +1730,12 @@ function showLoginLockout() {
 }
 
 // ==================== CAPTCHA MATEMÁTICO ====================
+/* ============================================================
+  GENERADOR DE CAPTCHA MATEMÁTICO
+  Crea una operación matemática simple (suma o resta) como
+  verificación de seguridad anti-bot. No requiere servicios externos.
+  ============================================================ */
+
 function generateCaptcha() {
   const operations = ['+', '-'];
   const op = operations[Math.floor(Math.random() * operations.length)];
@@ -1716,6 +1770,12 @@ function generateCaptcha() {
 }
 
 // ==================== VISIBILIDAD DE CONTRASEÑA ====================
+/* ============================================================
+  MOSTRAR/OCULTAR CONTRASEÑA
+  Alterna entre tipo password y tipo text en el campo de login,
+  cambiando el ícono del ojo correspondientemente.
+  ============================================================ */
+
 function togglePasswordVisibility() {
   const input = document.getElementById('loginPassword');
   const icon = document.getElementById('eyeIcon');
@@ -1729,6 +1789,13 @@ function togglePasswordVisibility() {
 }
 
 // ==================== CALENDARIO EPIDEMIOLÓGICO ====================
+/* ============================================================
+  GENERADOR DE CALENDARIO EPIDEMIOLÓGICO LOCAL
+  Genera las 52 semanas epidemiológicas de un año dado,
+  comenzando desde el domingo indicado (formato Guárico).
+  Se usa como fallback cuando no hay calendario en la BD.
+  ============================================================ */
+
 function generarCalendarioLocal(anio, fechaInicioSem1) {
   const semanas = [];
   const inicio = new Date(fechaInicioSem1 + 'T00:00:00');
@@ -1741,6 +1808,12 @@ function generarCalendarioLocal(anio, fechaInicioSem1) {
   }
   return semanas;
 }
+
+/* ============================================================
+  OBTENER SEMANA EPIDEMIOLÓGICA DE UNA FECHA
+  Busca en el calendario epidemiológico a qué semana corresponde
+  una fecha específica. Retorna el número de semana o null.
+  ============================================================ */
 
 function getSemanaEpidemiologica(fecha, calendario) {
   if (!fecha || !calendario || calendario.length === 0) return null;
@@ -1765,6 +1838,13 @@ async function getCurrentSemanaEpidemiologica() {
 }
 
 // ==================== AUTH CON CAPTCHA ====================
+/* ============================================================
+  MANEJADOR DE LOGIN CON CAPTCHA
+  Valida el CAPTCHA matemático, verifica bloqueo por intentos,
+  autentica contra Supabase, obtiene/crea perfil, verifica
+  que esté activo e inicializa la aplicación.
+  ============================================================ */
+
 document.getElementById('loginForm').addEventListener('submit', async (e) => {
   e.preventDefault();
 
@@ -1920,6 +2000,11 @@ async function logout() {
   document.getElementById('logoutConfirmModal').classList.remove('hidden');
 }
 
+/* ============================================================
+  CERRAR MODAL DE LOGOUT
+  Oculta el modal de confirmación de cierre de sesión.
+  ============================================================ */
+
 function closeLogoutModal() {
   document.getElementById('logoutConfirmModal').classList.add('hidden');
 }
@@ -1938,6 +2023,13 @@ async function confirmLogout() {
 }
 
 // ==================== SESIÓN: TIMER Y AUTO-LOGOUT ====================
+/* ============================================================
+  INICIAR TIMER DE SESIÓN
+  Inicia un intervalo que cuenta el tiempo restante de sesión
+  (10 minutos). Muestra advertencia a los 2 minutos y expira
+  automáticamente al llegar a cero.
+  ============================================================ */
+
 function startSessionTimer() {
   if (sessionTimer) clearInterval(sessionTimer);
   sessionTimer = setInterval(() => {
@@ -1964,6 +2056,12 @@ function startSessionTimer() {
     }
   }, 1000);
 }
+
+/* ============================================================
+  RESETEAR TIMER DE SESIÓN
+  Reinicia el contador de tiempo de sesión a 10 minutos.
+  Se ejecuta automáticamente ante cualquier interacción del usuario.
+  ============================================================ */
 
 function resetSessionTimer() {
   sessionStartTime = Date.now();
@@ -2029,10 +2127,22 @@ async function initApp() {
   await showSection('dashboard');
 }
 
+/* ============================================================
+  TRADUCTOR DE ROLES
+  Convierte el rol técnico (superadmin, admin, medico) a un
+  nombre legible en español para mostrar en la interfaz.
+  ============================================================ */
+
 function getRoleName(role) {
   const map = { superadmin: 'Super Administrador', admin: 'Administrador', medico: 'Médico' };
   return map[role] || role;
 }
+
+/* ============================================================
+  INICIALIZAR SELECTS DE CONSULTORIOS
+  Pobla los elementos <select> de consultorios con la lista
+  completa de los 11 consultorios del ASIC Puerto Miranda.
+  ============================================================ */
 
 function initConsultoriosSelects() {
   const selects = ['filterConsultorio', 'gConsultorio', 'uConsultorio'];
@@ -2116,9 +2226,19 @@ async function showSection(section) {
   if (section === 'reporteCaptacion') await loadReporteCaptacion();
 }
 
+/* ============================================================
+  TOGGLE SIDEBAR (DESKTOP)
+  Alterna la visibilidad del sidebar en vista de escritorio.
+  ============================================================ */
+
 function toggleSidebar() {
   document.getElementById('sidebar').classList.toggle('-translate-x-full');
 }
+
+/* ============================================================
+  TOGGLE SIDEBAR (MÓVIL)
+  Abre/cierra el sidebar en dispositivos móviles con overlay.
+  ============================================================ */
 
 function toggleSidebarMobile() {
   const sidebar = document.getElementById('sidebar');
@@ -2126,6 +2246,11 @@ function toggleSidebarMobile() {
   sidebar.classList.toggle('mobile-open');
   if (overlay) overlay.classList.toggle('active');
 }
+
+/* ============================================================
+  CERRAR SIDEBAR MÓVIL
+  Oculta el sidebar móvil y desactiva el overlay oscuro.
+  ============================================================ */
 
 function closeSidebarMobile() {
   const sidebar = document.getElementById('sidebar');
@@ -2210,6 +2335,12 @@ async function buscarCedulaControl() {
   }
 }
 
+/* ============================================================
+  LIMPIAR BÚSQUEDA DE CÉDULA
+  Resetea el campo de búsqueda y oculta los resultados del
+  panel de búsqueda por cédula en Control Semanal.
+  ============================================================ */
+
 function limpiarBusquedaCedula() {
   document.getElementById('buscarCedulaControl').value = '';
   document.getElementById('resultadoBusquedaCedula').classList.add('hidden');
@@ -2292,6 +2423,13 @@ async function loadGestantes() {
     renderDashboard();
   } catch (err) { showToast('Error crítico: ' + err.message, 'error'); }
 }
+
+/* ============================================================
+  RENDERIZAR TABLA DE GESTANTES
+  Dibuja la tabla de gestantes aplicando filtros de búsqueda,
+  consultorio y estado. En móvil muestra tarjetas en lugar de tabla.
+  Incluye permisos de edición/eliminación según rol.
+  ============================================================ */
 
 function renderGestantes() {
   const tbody = document.getElementById('gestantesTable');
@@ -2383,7 +2521,20 @@ function renderGestantes() {
   }).join('');
 }
 
+/* ============================================================
+  FILTRAR GESTANTES
+  Función wrapper que re-renderiza la tabla aplicando los
+  filtros activos en los inputs de búsqueda.
+  ============================================================ */
+
 function filterGestantes() { renderGestantes(); }
+
+/* ============================================================
+  ABRIR MODAL NUEVA GESTANTE
+  Prepara el formulario para crear una nueva embarazada:
+  limpia campos, establece fecha de hoy, resetea toggles y
+  deshabilita campos según configuración.
+  ============================================================ */
 
 function openGestanteModal() {
   document.getElementById('gestanteForm').reset();
@@ -2441,6 +2592,12 @@ function openGestanteModal() {
   calcularSemanasFPP();
 }
 
+/* ============================================================
+  CERRAR MODAL DE GESTANTE
+  Oculta el modal, limpia flags de captación y resetea todos
+  los campos personalizados a su estado inicial.
+  ============================================================ */
+
 function closeGestanteModal() {
   document.getElementById('gestanteModal').classList.add('hidden');
   window._captacionDesdeControl = false;
@@ -2470,6 +2627,13 @@ function closeGestanteModal() {
   const resDiv = document.getElementById('aroResultado');
   if (resDiv) resDiv.classList.add('hidden');
 }
+
+/* ============================================================
+  EDITAR GESTANTE
+  Carga los datos de una gestante existente en el modal para
+  edición. Pre-llena todos los campos incluyendo fecha de
+  registro, criterios ARO y acciones especiales.
+  ============================================================ */
 
 function editGestante(id) {
   const g = gestantesData.find(x => x.id === id);
@@ -2556,6 +2720,14 @@ function editGestante(id) {
   document.getElementById('gTipoConsulta').value = g.tipo_consulta || 'Consulta';
   document.getElementById('gReferido').value = g.referido || '';
   document.getElementById('gObservacion').value = g.observacion || '';
+  // Cargar fecha de registro existente en edición (solo lectura para preservar)
+  const fechaRegEdit = document.getElementById('gFechaRegistro');
+  if (g.fecha_registro) {
+    fechaRegEdit.value = g.fecha_registro.split('T')[0];
+  }
+  fechaRegEdit.readOnly = false;  // Permitir que super admin modifique la fecha de registro
+  fechaRegEdit.classList.remove('bg-gray-50');
+  fechaRegEdit.title = "Fecha de registro. Puede modificarla si es necesario.";
   document.getElementById('gestanteModalTitle').textContent = 'Editar Embarazada';
   document.getElementById('accionesEspeciales').classList.remove('hidden');
   document.getElementById('gConsultorio').disabled = currentProfile.role === 'medico';
@@ -2589,6 +2761,12 @@ async function validarCedulaUnica(cedula, excluirId) {
 }
 
 // Cálculos automáticos
+/* ============================================================
+  CALCULAR EDAD DESDE FECHA DE NACIMIENTO
+  Calcula la edad en años a partir de la fecha de nacimiento
+  ingresada y la coloca automáticamente en el campo Edad.
+  ============================================================ */
+
 function calcularEdad() {
   const fechaNac = document.getElementById('gFechaNac').value;
   if (!fechaNac) return;
@@ -2601,6 +2779,12 @@ function calcularEdad() {
 }
 
 // Toggle edad manual
+/* ============================================================
+  TOGGLE EDAD MANUAL
+  Permite al usuario ingresar la edad manualmente en lugar de
+  calcularla desde la fecha de nacimiento. Des/habilita campos.
+  ============================================================ */
+
 function toggleEdadManual() {
   const checkbox = document.getElementById('gEdadManual');
   const edadInput = document.getElementById('gEdad');
@@ -2621,6 +2805,13 @@ function toggleEdadManual() {
 }
 
 // Toggle F.U.R Incierto
+/* ============================================================
+  TOGGLE F.U.R INCIERTO
+  Cuando está activo, deshabilita el campo FUR y permite
+  ingresar semana de gestación y FPP manualmente. Cuando está
+  inactivo, calcula automáticamente desde el FUR conocido.
+  ============================================================ */
+
 function toggleFurIncierto() {
   const checkbox = document.getElementById('gFurIncierto');
   const furInput = document.getElementById('gFur');
@@ -2670,6 +2861,12 @@ function toggleFurIncierto() {
 }
 
 // Toggle ¿Cuál Enfermedad?
+/* ============================================================
+  TOGGLE CAMPO "¿CUÁL ENFERMEDAD?"
+  Muestra u oculta el campo de texto para especificar la
+  enfermedad asociada, dependiendo del select SI/NO.
+  ============================================================ */
+
 function toggleCualEnfermedad() {
   const select = document.getElementById('gEnfermedad');
   const div = document.getElementById('divCualEnf');
@@ -2686,6 +2883,12 @@ function toggleCualEnfermedad() {
 }
 
 // Calcular N° G automáticamente (P + C + A)
+/* ============================================================
+  CALCULAR NÚMERO DE GESTAS (N° G)
+  Calcula automáticamente N° G = N° P + N° C + N° A.
+  Se ejecuta cada vez que cambian los antecedentes obstétricos.
+  ============================================================ */
+
 function calcularNG() {
   const p = parseInt(document.getElementById('gNP').value) || 0;
   const c = parseInt(document.getElementById('gNC').value) || 0;
@@ -2694,6 +2897,12 @@ function calcularNG() {
 }
 
 // Formato teléfono: (XXXX)XXXXXXX, máximo 10 números
+/* ============================================================
+  FORMATEAR NÚMERO DE TELÉFONO
+  Aplica formato venezolano: (0412)1234567. Limita a 11 dígitos
+  y ajusta el placeholder según el estado.
+  ============================================================ */
+
 function formatTelefono(input) {
   // Formato del constraint BD: ^\([0-9]{4}\)[0-9]{7}$ → (0412)1234567
   let val = input.value.replace(/\D/g, '');
@@ -2707,6 +2916,12 @@ function formatTelefono(input) {
 
 
 // Toggle sin cedula - genera numero unico
+/* ============================================================
+  TOGGLE "NO POSEE TELÉFONO"
+  Cuando está activo, deshabilita el campo teléfono y guarda
+  valor vacío. Al desactivar, restaura el valor anterior.
+  ============================================================ */
+
 function toggleSinTelefono() {
   const checkbox = document.getElementById('gSinTelefono');
   const telefonoInput = document.getElementById('gTelefono');
@@ -2780,6 +2995,13 @@ document.getElementById('gFur').addEventListener('input', calcularSemanasFPP);
 document.getElementById('gNP').addEventListener('input', calcularNG);
 document.getElementById('gNC').addEventListener('input', calcularNG);
 document.getElementById('gNA').addEventListener('input', calcularNG);
+
+/* ============================================================
+  CALCULAR CLASIFICACIÓN ARO AUTOMÁTICA
+  Evalúa los checkboxes de criterios ARO I, II y III. Aplica
+  prioridad: ARO III > ARO II > ARO I. Actualiza el select y
+  muestra resultado visual con color e ícono.
+  ============================================================ */
 
 function calcularAROAutomatico() {
   let aro1Count = 0;
@@ -2859,6 +3081,14 @@ function calcularAROAutomatico() {
   showToast(`ARO calculado: ${aroSelect.value || 'Sin clasificación'}`);
 }
 
+/* ============================================================
+  CALCULAR SEMANAS DE GESTACIÓN Y FPP
+  Desde la FUR ingresada, calcula automáticamente:
+  - Semanas y días de gestación actual
+  - Fecha Probable de Parto (FPP = FUR + 280 días)
+  Permite edición manual posterior de la semana gestacional.
+  ============================================================ */
+
 function calcularSemanasFPP() {
   const fur = document.getElementById('gFur').value;
   if (!fur) return;
@@ -2884,6 +3114,14 @@ function calcularSemanasFPP() {
     document.getElementById('gFur').value = '';
   }
 }
+
+/* ============================================================
+  GUARDAR GESTANTE (CREAR/ACTUALIZAR)
+  Valida cédula única, calcula trimestre y criterios ARO,
+  prepara el objeto de datos y ejecuta INSERT o UPDATE en
+  Supabase. Si viene desde Control Semanal, también crea el
+  registro de control automáticamente.
+  ============================================================ */
 
 document.getElementById('gestanteForm').addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -3019,8 +3257,15 @@ document.getElementById('gestanteForm').addEventListener('submit', async (e) => 
     fecha_ultima_actualizacion: new Date().toISOString(),
     created_by: currentUser.id
   };
-  // fecha_registro solo se asigna en creación, NO en edición
-  if (!id) data.fecha_registro = new Date().toISOString();
+  // fecha_registro: usar la fecha del input (permite modificación por super admin)
+  const fechaRegistroInput = document.getElementById('gFechaRegistro').value;
+  if (fechaRegistroInput) {
+    // Asegurar formato ISO con hora del inicio del día para consistencia
+    data.fecha_registro = fechaRegistroInput + 'T00:00:00.000Z';
+  } else if (!id) {
+    // Solo fallback a fecha actual si es nuevo registro y no hay fecha
+    data.fecha_registro = new Date().toISOString();
+  }
 
   let gestanteId = id;
   if (id) {
@@ -3094,6 +3339,13 @@ async function nuevoEmbarazo() {
 }
 
 // ==================== PUÉRPERAS ====================
+/* ============================================================
+  RENDERIZAR TABLA DE PUÉRPERAS / LACTANTES
+  Muestra gestantes en estado puérpera o lactante (hasta 365
+  días postparto). Calcula días transcurridos desde el parto.
+  En móvil muestra tarjetas.
+  ============================================================ */
+
 function renderPuerperas() {
   const tbody = document.getElementById('puerperasTable');
   const isMobile = window.innerWidth <= 768;
@@ -3156,9 +3408,21 @@ function renderPuerperas() {
   }).join('');
 }
 
+/* ============================================================
+  FILTRAR PUÉRPERAS
+  Wrapper que re-renderiza la lista de puérperas aplicando
+  el filtro de búsqueda por texto.
+  ============================================================ */
+
 function filterPuerperas() { renderPuerperas(); }
 
 // ==================== ARCHIVADOS ====================
+/* ============================================================
+  RENDERIZAR ARCHIVADOS / ABORTOS
+  Muestra los registros archivados (abortos o cierres).
+  Incluye botón para reactivar a gestante. En móvil usa tarjetas.
+  ============================================================ */
+
 function renderArchivados() {
   const tbody = document.getElementById('archivadosTable');
   const isMobile = window.innerWidth <= 768;
@@ -3239,6 +3503,13 @@ async function loadControlSemanal() {
   renderControlTable();
 }
 
+/* ============================================================
+  RENDERIZAR TABLA DE CONTROL SEMANAL
+  Dibuja la tabla completa del Control Semanal con todas las
+  columnas del formato epidemiológico. Incluye permisos de
+  edición/eliminación según consultorio del usuario.
+  ============================================================ */
+
 function renderControlTable() {
   const tbody = document.getElementById('controlTable');
   if (controlData.length === 0) { 
@@ -3292,6 +3563,12 @@ function renderControlTable() {
 
 
 
+/* ============================================================
+  EDITAR CONTROL SEMANAL
+  Abre el modal de edición con los datos del control seleccionado:
+  semana gestacional, motivo, diagnóstico, tipo de consulta, etc.
+  ============================================================ */
+
 function editControl(id) {
   const c = controlData.find(x => x.id === id);
   if (!c) return;
@@ -3305,6 +3582,11 @@ function editControl(id) {
   document.getElementById('controlEditModal').classList.remove('hidden');
 }
 
+/* ============================================================
+  CERRAR MODAL DE EDICIÓN DE CONTROL
+  Oculta el modal de edición del Control Semanal.
+  ============================================================ */
+
 function closeControlEditModal() { document.getElementById('controlEditModal').classList.add('hidden'); }
 
 async function eliminarControl(id) {
@@ -3314,6 +3596,12 @@ async function eliminarControl(id) {
   showToast('Registro eliminado del Control Semanal');
   await loadControlSemanal();
 }
+
+/* ============================================================
+  GUARDAR EDICIÓN DE CONTROL SEMANAL
+  Actualiza los campos editables de un registro de control
+  semanal existente en la base de datos.
+  ============================================================ */
 
 document.getElementById('controlEditForm').addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -3373,6 +3661,18 @@ async function exportarExcelSemanal() {
   
 
 // ==================== DASHBOARD ====================
+/* ============================================================
+  RENDERIZAR DASHBOARD / PANEL PRINCIPAL
+  Calcula y muestra todas las estadísticas del sistema:
+  - Totales de gestantes, puérperas, menores de edad
+  - Distribución por trimestres (dinámica según FUR)
+  - Top consultorios
+  - Clasificación ARO
+  - Registros recientes
+  - Estadísticas por mes y por año seleccionados
+  - Total acumulado de gestantes y lactantes atendidas
+  ============================================================ */
+
 function renderDashboard() {
   const activas = gestantesData.filter(g => g.estado === 'gestante');
   const puerperas = gestantesData.filter(g => g.estado === 'puerpera' || g.estado === 'lactante');
@@ -3536,6 +3836,13 @@ async function loadUsers() {
   renderUsers();
 }
 
+/* ============================================================
+  RENDERIZAR TABLA DE USUARIOS
+  Dibuja la tabla de gestión de usuarios con roles, estados,
+  consultorios y acciones (activar/desactivar/resetear/eliminar).
+  En móvil muestra tarjetas.
+  ============================================================ */
+
 function renderUsers() {
   const tbody = document.getElementById('usersTable');
   const isMobile = window.innerWidth <= 768;
@@ -3587,10 +3894,26 @@ function renderUsers() {
   tbody.innerHTML = usersData.map(u => `<tr><td class="px-4 py-3">${u.email}</td><td class="px-4 py-3">${u.nombre || ''}</td><td class="px-4 py-3"><span class="px-2 py-1 rounded text-xs font-medium ${u.role === 'superadmin' ? 'bg-red-100 text-red-700' : u.role === 'admin' ? 'bg-orange-100 text-orange-700' : 'bg-emerald-100 text-emerald-700'}">${getRoleName(u.role)}</span></td><td class="px-4 py-3">${u.consultorio || 'Todos'}</td><td class="px-4 py-3"><span class="px-2 py-1 rounded text-xs ${u.activo ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}">${u.activo ? 'Activo' : 'Inactivo'}</span></td><td class="px-4 py-3 text-center">${u.role !== 'superadmin' ? `<button onclick="toggleUser('${u.id}', ${!u.activo})" class="text-emerald-600 hover:text-emerald-800 mx-1" title="${u.activo ? 'Desactivar' : 'Activar'}"><i class="fas ${u.activo ? 'fa-user-slash' : 'fa-user-check'}"></i></button><button onclick="openResetPasswordModal('${u.id}', '${u.email}')" class="text-orange-600 hover:text-orange-800 mx-1" title="Resetear Contraseña"><i class="fas fa-key"></i></button><button onclick="deleteUser('${u.id}')" class="text-red-600 hover:text-red-800 mx-1" title="Eliminar"><i class="fas fa-trash"></i></button>` : '<span class="text-gray-400 text-xs">Protegido</span>'}</td></tr>`).join('');
 }
 
+/* ============================================================
+  ABRIR MODAL NUEVO USUARIO
+  Muestra el formulario para crear un nuevo usuario del sistema.
+  ============================================================ */
+
 function openUserModal() { document.getElementById('userModal').classList.remove('hidden'); }
+/* ============================================================
+  CERRAR MODAL DE USUARIO
+  Oculta el modal de creación de usuarios.
+  ============================================================ */
+
 function closeUserModal() { document.getElementById('userModal').classList.add('hidden'); }
 
 // ==================== CREAR USUARIO (SUPER ADMIN) ====================
+/* ============================================================
+  CREAR NUEVO USUARIO (SUPER ADMIN)
+  Valida fortaleza de contraseña y crea un nuevo usuario
+  mediante Edge Function de Supabase, asignando rol y consultorio.
+  ============================================================ */
+
 document.getElementById('userForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   
@@ -3657,14 +3980,37 @@ async function loadCalendarios() {
   renderCalendarios();
 }
 
+/* ============================================================
+  RENDERIZAR CALENDARIOS
+  Muestra los calendarios disponibles agrupados por año, con
+  cantidad de semanas y rango de fechas.
+  ============================================================ */
+
 function renderCalendarios() {
   const container = document.getElementById('calendariosList');
   const anios = [...new Set(calendariosData.map(c => c.anio))].sort((a, b) => b - a);
   container.innerHTML = anios.map(anio => { const semanas = calendariosData.filter(c => c.anio === anio).sort((a, b) => a.semana - b.semana); return `<div class="bg-gray-50 rounded-lg p-4 border border-gray-200"><div class="flex items-center justify-between mb-2"><h4 class="font-bold text-gray-800">Año ${anio}</h4><span class="text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded">${semanas.length} semanas</span></div><p class="text-xs text-gray-500">Inicio: ${semanas[0]?.fecha_inicio} • Fin: ${semanas[semanas.length-1]?.fecha_fin}</p></div>`; }).join('');
 }
 
+/* ============================================================
+  ABRIR MODAL NUEVO CALENDARIO
+  Muestra el formulario para agregar un nuevo calendario
+  epidemiológico indicando año y fecha de inicio.
+  ============================================================ */
+
 function openCalendarioModal() { document.getElementById('calendarioModal').classList.remove('hidden'); }
+/* ============================================================
+  CERRAR MODAL DE CALENDARIO
+  Oculta el modal de creación de calendarios.
+  ============================================================ */
+
 function closeCalendarioModal() { document.getElementById('calendarioModal').classList.add('hidden'); }
+
+/* ============================================================
+  CREAR NUEVO CALENDARIO EPIDEMIOLÓGICO
+  Genera 52 semanas a partir de la fecha de inicio indicada
+  e inserta todas en la tabla calendarios_epidemiologicos.
+  ============================================================ */
 
 document.getElementById('calendarioForm').addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -3798,15 +4144,32 @@ function showToast(msg, type = 'success') {
 }
 
 // ==================== CAMBIO DE CONTRASEÑA PROPIO ====================
+/* ============================================================
+  ABRIR MODAL CAMBIAR CONTRASEÑA
+  Muestra el formulario para que el usuario cambie su propia
+  contraseña. Requiere validar contraseña actual.
+  ============================================================ */
+
 function openPasswordModal() {
   document.getElementById('passwordForm').reset();
   document.getElementById('passwordError').classList.add('hidden');
   document.getElementById('passwordModal').classList.remove('hidden');
 }
 
+/* ============================================================
+  CERRAR MODAL DE CONTRASEÑA
+  Oculta el modal de cambio de contraseña personal.
+  ============================================================ */
+
 function closePasswordModal() {
   document.getElementById('passwordModal').classList.add('hidden');
 }
+
+/* ============================================================
+  CAMBIAR CONTRASEÑA PROPIA
+  Valida contraseña actual contra Supabase, verifica requisitos
+  de seguridad de la nueva contraseña y actualiza el password.
+  ============================================================ */
 
 document.getElementById('passwordForm').addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -3852,6 +4215,12 @@ document.getElementById('passwordForm').addEventListener('submit', async (e) => 
 let resetUserId = null;
 let resetUserEmail = null;
 
+/* ============================================================
+  ABRIR MODAL RESETEAR CONTRASEÑA (SUPER ADMIN)
+  Muestra el panel para que el super admin cambie la contraseña
+  de otro usuario o envíe email de recuperación.
+  ============================================================ */
+
 function openResetPasswordModal(userId, email) {
   resetUserId = userId;
   resetUserEmail = email;
@@ -3862,11 +4231,22 @@ function openResetPasswordModal(userId, email) {
   document.getElementById('resetPasswordModal').classList.remove('hidden');
 }
 
+/* ============================================================
+  CERRAR MODAL DE RESETEO
+  Oculta el modal de reseteo de contraseña y limpia variables.
+  ============================================================ */
+
 function closeResetPasswordModal() {
   document.getElementById('resetPasswordModal').classList.add('hidden');
   resetUserId = null;
   resetUserEmail = null;
 }
+
+/* ============================================================
+  GENERAR CONTRASEÑA TEMPORAL
+  Crea una contraseña aleatoria segura de 12 caracteres con
+  mayúsculas, minúsculas, números y símbolos. La copia al portapapeles.
+  ============================================================ */
 
 function generateTempPassword() {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&*';
@@ -3979,6 +4359,12 @@ async function loadAuditoria() {
   }
 }
 
+/* ============================================================
+  RENDERIZAR TABLA DE AUDITORÍA
+  Dibuja la tabla de auditoría aplicando filtros de acción y
+  fecha. Muestra usuario, rol, acción, tabla, ID y detalles.
+  ============================================================ */
+
 function renderAuditoria() {
   const tbody = document.getElementById('auditoriaTable');
   const empty = document.getElementById('auditoriaEmpty');
@@ -4018,6 +4404,12 @@ function renderAuditoria() {
     </tr>`;
   }).join('');
 }
+
+/* ============================================================
+  FILTRAR AUDITORÍA
+  Wrapper que re-renderiza la tabla aplicando los filtros
+  de tipo de acción y fecha seleccionados.
+  ============================================================ */
 
 function filterAuditoria() {
   renderAuditoria();
@@ -4090,6 +4482,13 @@ async function initSupabaseSession() {
 
 
 // ===== PROTECCIÓN ANTI-SESIONES PERSISTENTES =====
+/* ============================================================
+  VERIFICAR SESIÓN ACTIVA
+  Consulta periódicamente si la sesión de Supabase sigue válida.
+  Si no, fuerza recarga de página para volver al login.
+  Se ejecuta cada 30 segundos y al volver a la pestaña.
+  ============================================================ */
+
 function verificarSesionActiva() {
   if (!currentUser) return;
   supabaseClient.auth.getSession().then(({ data: { session } }) => {
@@ -4101,6 +4500,12 @@ setInterval(verificarSesionActiva, 30000);
 
 
 // ==================== REPORTE CONTROL Y SEGUIMIENTO GESTANTES CAPTADAS ====================
+/* ============================================================
+  INICIALIZAR SELECT DE CONSULTORIOS EN REPORTE
+  Pobla el selector de consultorios del módulo Reporte de
+  Captación con la lista completa de consultorios del ASIC.
+  ============================================================ */
+
 function initReporteConsultorios() {
   const sel = document.getElementById('reporteConsultorio');
   if (!sel) return;
@@ -4176,6 +4581,13 @@ async function loadReporteCaptacion() {
     console.error(err);
   }
 }
+
+/* ============================================================
+  RENDERIZAR REPORTE DE CAPTACIÓN
+  Dibuja la tabla completa del Reporte de Control y Seguimiento
+  de Gestantes Captadas con formato epidemiológico oficial.
+  Incluye totales y permite filtrar por consultorio.
+  ============================================================ */
 
 function renderReporteCaptacion() {
   const tbody = document.getElementById('reporteCaptacionTable');
