@@ -1,1 +1,1896 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema de Control de Enfermeria - Estado Apure</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+body{font-family:'Inter',sans-serif;}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-track{background:#f1f5f9}
+::-webkit-scrollbar-thumb{background:#94a3b8;border-radius:4px}
+.nav-btn.active-nav{background:#eff6ff;color:#1e3a8a;border-right:3px solid #1e3a8a}
+.pulse{animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.7}}
+</style>
+<base target="_blank">
+</head>
+<body class="bg-slate-50 text-slate-800">
 
+<!-- LOGIN -->
+<div id="login-view" class="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900">
+<div class="bg-white/95 backdrop-blur rounded-2xl shadow-2xl p-8 w-full max-w-md mx-4">
+<div class="text-center mb-6">
+<img src="https://github.com/tsucesarherrera-afk/p/raw/refs/heads/main/imagenes/WhatsApp_Image_2025-06-11_at_10.22.41_AM-removebg-preview-removebg-preview.ico" alt="Logo" class="w-24 h-24 mx-auto mb-4 object-contain drop-shadow-lg">
+<h1 class="text-2xl font-bold text-blue-900 tracking-tight">Sistema de Enfermeria</h1>
+<p class="text-slate-500 text-sm mt-1">Estado Apure, Venezuela</p>
+<div class="mt-2 inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 rounded-full">
+<span class="w-2 h-2 rounded-full bg-green-500 pulse"></span>
+<span class="text-xs text-blue-700 font-medium">Sistema Activo</span>
+</div>
+</div>
+<form id="login-form" class="space-y-4">
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-1.5">Correo electronico</label>
+<input type="email" id="login-email" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition bg-slate-50" placeholder="correo@ejemplo.com" required>
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-1.5">Contrasena</label>
+<input type="password" id="login-password" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition bg-slate-50" placeholder="••••••••" required>
+</div>
+<button type="submit" class="w-full bg-blue-900 text-white py-3 rounded-xl font-semibold hover:bg-blue-800 transition shadow-lg shadow-blue-900/30">Iniciar Sesion</button>
+</form>
+<div class="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+<p class="text-xs text-amber-800 text-center font-medium">Credenciales de prueba:</p>
+<p class="text-xs text-amber-700 text-center mt-0.5">superadmin@apure.gob.ve / Admin123!</p>
+</div>
+<div id="login-error" class="hidden mt-3 p-3 bg-red-50 text-red-600 text-sm rounded-xl text-center font-medium border border-red-200"></div>
+</div>
+</div>
+
+<!-- DASHBOARD APP -->
+<div id="app-view" class="hidden min-h-screen">
+<header class="bg-blue-900 text-white shadow-lg sticky top-0 z-40">
+<div class="max-w-full mx-auto px-4 py-3 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<img src="https://github.com/tsucesarherrera-afk/p/raw/refs/heads/main/imagenes/WhatsApp_Image_2025-06-11_at_10.22.41_AM-removebg-preview-removebg-preview.ico" alt="Logo" class="w-10 h-10 object-contain">
+<div>
+<h1 class="font-bold text-lg leading-tight">Sistema de Enfermeria</h1>
+<p class="text-xs text-blue-200">Estado Apure, Venezuela</p>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<span id="user-role-badge" class="px-3 py-1 bg-blue-700/80 rounded-full text-xs font-medium border border-blue-600"></span>
+<span id="user-name" class="text-sm font-medium"></span>
+<button onclick="logout()" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-xl text-sm font-medium transition shadow-md flex items-center gap-1.5">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+Salir
+</button>
+</div>
+</div>
+</header>
+
+<div class="flex">
+<aside class="w-64 bg-white shadow-md min-h-[calc(100vh-60px)] sticky top-[60px]">
+<nav class="p-3 space-y-1">
+<button onclick="showSection('dashboard')" class="nav-btn active-nav w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left hover:bg-blue-50 text-slate-700 font-medium transition" data-section="dashboard">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+Dashboard
+</button>
+<button onclick="showSection('enfermeros')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left hover:bg-blue-50 text-slate-700 font-medium transition" data-section="enfermeros">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+Personal de Enfermeria
+</button>
+<button onclick="showSection('postulados')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left hover:bg-blue-50 text-slate-700 font-medium transition" data-section="postulados">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+Punto de Cuenta
+</button>
+<button onclick="showSection('cambio-estatus')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left hover:bg-blue-50 text-slate-700 font-medium transition" data-section="cambio-estatus">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+Cambio de Estatus
+</button>
+<button id="btn-usuarios" onclick="showSection('usuarios')" class="nav-btn hidden w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left hover:bg-blue-50 text-slate-700 font-medium transition" data-section="usuarios">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+Gestion de Usuarios
+</button>
+<button onclick="showSection('sincronizar')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left hover:bg-blue-50 text-slate-700 font-medium transition" data-section="sincronizar">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+Sincronizar / Backup
+</button>
+</nav>
+<div class="mt-auto p-4 border-t">
+<div class="bg-slate-50 rounded-xl p-3">
+<p class="text-xs text-slate-500 text-center">v1.0.0 - Estado Apure</p>
+<p class="text-xs text-slate-400 text-center mt-0.5">Desarrollado para el SPNS</p>
+</div>
+</div>
+</aside>
+
+<main class="flex-1 p-6 overflow-auto min-h-[calc(100vh-60px)]">
+
+<!-- DASHBOARD -->
+<div id="section-dashboard" class="section-content">
+<h2 class="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+<svg class="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+Dashboard
+</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+<div class="bg-white rounded-2xl shadow-md p-6 border-l-4 border-blue-600 hover:shadow-lg transition">
+<div class="flex items-center justify-between">
+<div>
+<p class="text-sm text-slate-500 font-medium">Total Enfermeros</p>
+<p id="dash-total" class="text-4xl font-bold text-blue-900 mt-1">0</p>
+</div>
+<div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+<svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+</div>
+</div>
+</div>
+<div class="bg-white rounded-2xl shadow-md p-6 border-l-4 border-emerald-600 hover:shadow-lg transition">
+<div class="flex items-center justify-between">
+<div>
+<p class="text-sm text-slate-500 font-medium">Profesionales</p>
+<p id="dash-prof" class="text-4xl font-bold text-emerald-700 mt-1">0</p>
+<p class="text-xs text-slate-400 mt-1.5 flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-pink-400"></span><span id="dash-prof-f">0</span> F
+<span class="w-2 h-2 rounded-full bg-blue-400 ml-1"></span><span id="dash-prof-m">0</span> M
+</p>
+</div>
+<div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
+<svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+</div>
+</div>
+</div>
+<div class="bg-white rounded-2xl shadow-md p-6 border-l-4 border-amber-500 hover:shadow-lg transition">
+<div class="flex items-center justify-between">
+<div>
+<p class="text-sm text-slate-500 font-medium">TSU</p>
+<p id="dash-tsu" class="text-4xl font-bold text-amber-700 mt-1">0</p>
+<p class="text-xs text-slate-400 mt-1.5 flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-pink-400"></span><span id="dash-tsu-f">0</span> F
+<span class="w-2 h-2 rounded-full bg-blue-400 ml-1"></span><span id="dash-tsu-m">0</span> M
+</p>
+</div>
+<div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center">
+<svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+</div>
+</div>
+</div>
+<div class="bg-white rounded-2xl shadow-md p-6 border-l-4 border-violet-600 hover:shadow-lg transition">
+<div class="flex items-center justify-between">
+<div>
+<p class="text-sm text-slate-500 font-medium">Auxiliares</p>
+<p id="dash-aux" class="text-4xl font-bold text-violet-700 mt-1">0</p>
+<p class="text-xs text-slate-400 mt-1.5 flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-pink-400"></span><span id="dash-aux-f">0</span> F
+<span class="w-2 h-2 rounded-full bg-blue-400 ml-1"></span><span id="dash-aux-m">0</span> M
+</p>
+</div>
+<div class="w-12 h-12 bg-violet-100 rounded-xl flex items-center justify-center">
+<svg class="w-6 h-6 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+</div>
+</div>
+</div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+<div class="bg-white rounded-2xl shadow-md p-6">
+<h3 class="font-bold text-slate-700 mb-4 flex items-center gap-2">
+<svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+Distribucion por Cargo
+</h3>
+<div id="chart-cargos" class="h-56 flex items-end justify-around gap-3 px-4"></div>
+</div>
+<div class="bg-white rounded-2xl shadow-md p-6">
+<h3 class="font-bold text-slate-700 mb-4 flex items-center gap-2">
+<svg class="w-5 h-5 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"/></svg>
+Distribucion por Genero
+</h3>
+<div class="flex items-center justify-center h-56">
+<div class="relative w-44 h-44">
+<svg viewBox="0 0 36 36" class="w-full h-full -rotate-90">
+<path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#e2e8f0" stroke-width="3"/>
+<path id="pie-femenino" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#ec4899" stroke-width="3" stroke-dasharray="0,100" stroke-linecap="round"/>
+<path id="pie-masculino" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#3b82f6" stroke-width="3" stroke-dasharray="0,100" stroke-linecap="round"/>
+</svg>
+<div class="absolute inset-0 flex items-center justify-center">
+<div class="text-center">
+<p class="text-3xl font-bold text-slate-800" id="pie-total">0</p>
+<p class="text-xs text-slate-500">Total</p>
+</div>
+</div>
+</div>
+<div class="ml-8 space-y-3">
+<div class="flex items-center gap-2.5"><span class="w-4 h-4 rounded-full bg-pink-500 shadow-sm"></span><span class="text-sm text-slate-600">Femenino: <b class="text-slate-800 text-lg" id="pie-f-val">0</b></span></div>
+<div class="flex items-center gap-2.5"><span class="w-4 h-4 rounded-full bg-blue-500 shadow-sm"></span><span class="text-sm text-slate-600">Masculino: <b class="text-slate-800 text-lg" id="pie-m-val">0</b></span></div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<div class="bg-white rounded-2xl shadow-md p-6">
+<h3 class="font-bold text-slate-700 mb-4 flex items-center gap-2">
+<svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+Por Municipio
+</h3>
+<div id="chart-municipios" class="space-y-2 max-h-56 overflow-y-auto pr-1"></div>
+</div>
+<div class="bg-white rounded-2xl shadow-md p-6">
+<h3 class="font-bold text-slate-700 mb-4 flex items-center gap-2">
+<svg class="w-5 h-5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+Estatus
+</h3>
+<div id="chart-estatus" class="space-y-3"></div>
+</div>
+<div class="bg-white rounded-2xl shadow-md p-6">
+<h3 class="font-bold text-slate-700 mb-4 flex items-center gap-2">
+<svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+Resumen General
+</h3>
+<div class="space-y-3.5">
+<div class="flex justify-between items-center border-b border-slate-100 pb-2.5">
+<span class="text-slate-600 text-sm">Postulados (Punto de Cuenta)</span>
+<span id="dash-postulados" class="font-bold text-blue-900 bg-blue-50 px-3 py-1 rounded-lg text-sm">0</span>
+</div>
+<div class="flex justify-between items-center border-b border-slate-100 pb-2.5">
+<span class="text-slate-600 text-sm">Cambios de Estatus</span>
+<span id="dash-cambios" class="font-bold text-blue-900 bg-blue-50 px-3 py-1 rounded-lg text-sm">0</span>
+</div>
+<div class="flex justify-between items-center border-b border-slate-100 pb-2.5">
+<span class="text-slate-600 text-sm">Activos</span>
+<span id="dash-activos" class="font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-lg text-sm">0</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-slate-600 text-sm">Inactivos</span>
+<span id="dash-inactivos" class="font-bold text-red-600 bg-red-50 px-3 py-1 rounded-lg text-sm">0</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ENFERMEROS -->
+<div id="section-enfermeros" class="section-content hidden">
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
+<h2 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
+<svg class="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+Personal de Enfermeria
+</h2>
+<div class="flex flex-wrap gap-2">
+<button onclick="exportTable('enfermeros')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-sm font-medium transition shadow-md flex items-center gap-2">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+Exportar Excel
+</button>
+<button onclick="importTable('enfermeros')" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-xl text-sm font-medium transition shadow-md flex items-center gap-2">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+Importar Excel
+</button>
+<button id="btn-add-enfermero" onclick="openModal('enfermero')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-medium transition shadow-md flex items-center gap-2">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+Agregar
+</button>
+</div>
+</div>
+<div class="bg-white rounded-2xl shadow-md overflow-hidden border border-slate-200">
+<div class="p-4 border-b border-slate-200 flex flex-col sm:flex-row gap-3 bg-slate-50/50">
+<input type="text" id="search-enfermeros" oninput="searchTable('enfermeros')" placeholder="Buscar por nombre, cedula, cargo..." class="flex-1 px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-white text-sm">
+<select id="filter-cargo" onchange="filterTable('enfermeros')" class="px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-white text-sm">
+<option value="">Todos los cargos</option>
+<option value="Profesional">Profesional</option>
+<option value="TSU">TSU</option>
+<option value="Auxiliar">Auxiliar</option>
+</select>
+<select id="filter-estatus" onchange="filterTable('enfermeros')" class="px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-white text-sm">
+<option value="">Todos los estatus</option>
+<option value="Activo">Activo</option>
+<option value="Inactivo">Inactivo</option>
+</select>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-sm">
+<thead class="bg-slate-50">
+<tr>
+<th class="px-4 py-3 text-left font-semibold text-slate-700 whitespace-nowrap">Apellidos y Nombres</th>
+<th class="px-4 py-3 text-left font-semibold text-slate-700">Cedula</th>
+<th class="px-4 py-3 text-left font-semibold text-slate-700">Edad</th>
+<th class="px-4 py-3 text-left font-semibold text-slate-700">Genero</th>
+<th class="px-4 py-3 text-left font-semibold text-slate-700">Cargo</th>
+<th class="px-4 py-3 text-left font-semibold text-slate-700">Municipio</th>
+<th class="px-4 py-3 text-left font-semibold text-slate-700">Estatus</th>
+<th class="px-4 py-3 text-center font-semibold text-slate-700">Acciones</th>
+</tr>
+</thead>
+<tbody id="tbody-enfermeros" class="divide-y divide-slate-100"></tbody>
+</table>
+</div>
+<div id="empty-enfermeros" class="hidden p-12 text-center">
+<svg class="w-16 h-16 text-slate-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+<p class="text-slate-500 text-lg font-medium">No hay registros</p>
+<p class="text-slate-400 text-sm mt-1">Agregue personal de enfermeria para comenzar</p>
+</div>
+</div>
+</div>
+
+<!-- POSTULADOS -->
+<div id="section-postulados" class="section-content hidden">
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
+<h2 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
+<svg class="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+Punto de Cuenta (Postulados)
+</h2>
+<div class="flex flex-wrap gap-2">
+<button onclick="exportTable('postulados')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-sm font-medium transition shadow-md flex items-center gap-2">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+Exportar Excel
+</button>
+<button onclick="importTable('postulados')" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-xl text-sm font-medium transition shadow-md flex items-center gap-2">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+Importar Excel
+</button>
+<button id="btn-add-postulado" onclick="openModal('postulado')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-medium transition shadow-md flex items-center gap-2">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+Agregar Postulado
+</button>
+</div>
+</div>
+<div class="bg-white rounded-2xl shadow-md overflow-hidden border border-slate-200">
+<div class="p-4 border-b border-slate-200 bg-slate-50/50">
+<input type="text" id="search-postulados" oninput="searchTable('postulados')" placeholder="Buscar postulado..." class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-white text-sm">
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-sm">
+<thead class="bg-slate-50">
+<tr>
+<th class="px-4 py-3 text-left font-semibold text-slate-700 whitespace-nowrap">Apellidos y Nombres</th>
+<th class="px-4 py-3 text-left font-semibold text-slate-700">Cedula</th>
+<th class="px-4 py-3 text-left font-semibold text-slate-700">Edad</th>
+<th class="px-4 py-3 text-left font-semibold text-slate-700">Titulo</th>
+<th class="px-4 py-3 text-left font-semibold text-slate-700">Cargo</th>
+<th class="px-4 py-3 text-left font-semibold text-slate-700">ASIC / Ubicacion</th>
+<th class="px-4 py-3 text-left font-semibold text-slate-700">Documentos</th>
+<th class="px-4 py-3 text-center font-semibold text-slate-700">Acciones</th>
+</tr>
+</thead>
+<tbody id="tbody-postulados" class="divide-y divide-slate-100"></tbody>
+</table>
+</div>
+<div id="empty-postulados" class="hidden p-12 text-center">
+<svg class="w-16 h-16 text-slate-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+<p class="text-slate-500 text-lg font-medium">No hay postulados</p>
+<p class="text-slate-400 text-sm mt-1">Agregue postulados a contratacion</p>
+</div>
+</div>
+</div>
+
+<!-- CAMBIO ESTATUS -->
+<div id="section-cambio-estatus" class="section-content hidden">
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
+<h2 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
+<svg class="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+Cambio de Estatus
+</h2>
+<div class="flex flex-wrap gap-2">
+<button onclick="exportTable('cambio_estatus')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-sm font-medium transition shadow-md flex items-center gap-2">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+Exportar Excel
+</button>
+<button onclick="importTable('cambio_estatus')" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-xl text-sm font-medium transition shadow-md flex items-center gap-2">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+Importar Excel
+</button>
+<button id="btn-add-cambio" onclick="openModal('cambio')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-medium transition shadow-md flex items-center gap-2">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+Nuevo Cambio
+</button>
+</div>
+</div>
+<div class="bg-white rounded-2xl shadow-md overflow-hidden border border-slate-200">
+<div class="p-4 border-b border-slate-200 bg-slate-50/50">
+<input type="text" id="search-cambio" oninput="searchTable('cambio_estatus')" placeholder="Buscar cambio de estatus..." class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-white text-sm">
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-sm">
+<thead class="bg-slate-50">
+<tr>
+<th class="px-4 py-3 text-left font-semibold text-slate-700 whitespace-nowrap">Apellidos y Nombres</th>
+<th class="px-4 py-3 text-left font-semibold text-slate-700">Cedula</th>
+<th class="px-4 py-3 text-left font-semibold text-slate-700">Titulo</th>
+<th class="px-4 py-3 text-left font-semibold text-slate-700">Cargo Actual</th>
+<th class="px-4 py-3 text-left font-semibold text-slate-700">Cambio</th>
+<th class="px-4 py-3 text-left font-semibold text-slate-700">Celular</th>
+<th class="px-4 py-3 text-left font-semibold text-slate-700">Correo</th>
+<th class="px-4 py-3 text-center font-semibold text-slate-700">Acciones</th>
+</tr>
+</thead>
+<tbody id="tbody-cambio" class="divide-y divide-slate-100"></tbody>
+</table>
+</div>
+<div id="empty-cambio" class="hidden p-12 text-center">
+<svg class="w-16 h-16 text-slate-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+<p class="text-slate-500 text-lg font-medium">No hay cambios de estatus</p>
+<p class="text-slate-400 text-sm mt-1">Registre un nuevo cambio de estatus</p>
+</div>
+</div>
+</div>
+
+<!-- USUARIOS -->
+<div id="section-usuarios" class="section-content hidden">
+<div class="flex justify-between items-center mb-6">
+<h2 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
+<svg class="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+Gestion de Usuarios
+</h2>
+<button onclick="openModal('usuario')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-medium transition shadow-md flex items-center gap-2">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+Crear Usuario
+</button>
+</div>
+<div class="bg-white rounded-2xl shadow-md overflow-hidden border border-slate-200">
+<div class="overflow-x-auto">
+<table class="w-full text-sm">
+<thead class="bg-slate-50">
+<tr>
+<th class="px-4 py-3 text-left font-semibold text-slate-700">Nombre</th>
+<th class="px-4 py-3 text-left font-semibold text-slate-700">Correo</th>
+<th class="px-4 py-3 text-left font-semibold text-slate-700">Rol</th>
+<th class="px-4 py-3 text-center font-semibold text-slate-700">Acciones</th>
+</tr>
+</thead>
+<tbody id="tbody-usuarios" class="divide-y divide-slate-100"></tbody>
+</table>
+</div>
+</div>
+</div>
+
+<!-- SINCRONIZAR -->
+<div id="section-sincronizar" class="section-content hidden">
+<h2 class="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+<svg class="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+Sincronizar / Backup
+</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="bg-white rounded-2xl shadow-md p-6 border border-slate-200 hover:shadow-lg transition">
+<div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4">
+<svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+</div>
+<h3 class="font-bold text-slate-700 mb-2">Exportar Backup Completo</h3>
+<p class="text-slate-500 text-sm mb-4">Descarga todos los datos del sistema en formato JSON encriptado.</p>
+<button onclick="exportBackup()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-xl font-medium transition shadow-md">Descargar Backup</button>
+</div>
+<div class="bg-white rounded-2xl shadow-md p-6 border border-slate-200 hover:shadow-lg transition">
+<div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center mb-4">
+<svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+</div>
+<h3 class="font-bold text-slate-700 mb-2">Restaurar Backup</h3>
+<p class="text-slate-500 text-sm mb-4">Restaura los datos desde un archivo de backup JSON encriptado.</p>
+<input type="file" id="backup-file" accept=".json" class="w-full mb-3 px-4 py-2 border border-slate-300 rounded-xl text-sm bg-slate-50">
+<button onclick="importBackup()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl font-medium transition shadow-md">Restaurar Backup</button>
+</div>
+<div class="bg-white rounded-2xl shadow-md p-6 border border-slate-200 hover:shadow-lg transition">
+<div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mb-4">
+<svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+</div>
+<h3 class="font-bold text-slate-700 mb-2">Sincronizar con Supabase</h3>
+<p class="text-slate-500 text-sm mb-4">Sincroniza los datos locales con Supabase (sube o descarga).</p>
+<div class="flex gap-2">
+<button onclick="syncToSupabase()" class="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-2.5 rounded-xl font-medium transition shadow-md text-sm">Subir a Supabase</button>
+<button onclick="syncFromSupabase()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-xl font-medium transition shadow-md text-sm">Descargar de Supabase</button>
+</div>
+</div>
+<div class="bg-white rounded-2xl shadow-md p-6 border border-slate-200 hover:shadow-lg transition">
+<div class="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center mb-4">
+<svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+</div>
+<h3 class="font-bold text-slate-700 mb-2">Importar/Exportar Excel</h3>
+<p class="text-slate-500 text-sm mb-4">Gestiona los datos en formato Excel (.xlsx) con todas las tablas.</p>
+<div class="space-y-2">
+<button onclick="exportAllExcel()" class="w-full bg-orange-500 hover:bg-orange-600 text-white py-2 rounded-xl font-medium transition shadow-md text-sm">Exportar Todo a Excel</button>
+<button onclick="importAllExcel()" class="w-full bg-teal-500 hover:bg-teal-600 text-white py-2 rounded-xl font-medium transition shadow-md text-sm">Importar Todo desde Excel</button>
+</div>
+</div>
+</div>
+</div>
+
+</main>
+</div>
+</div>
+
+<!-- MODAL ENFERMERO -->
+<div id="modal-enfermero" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4 backdrop-blur-sm">
+<div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+<div class="sticky top-0 bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center rounded-t-2xl z-10">
+<h3 id="modal-enfermero-title" class="text-xl font-bold text-slate-800">Agregar Personal de Enfermeria</h3>
+<button onclick="closeModal('enfermero')" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100 transition"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+</div>
+<form id="form-enfermero" class="p-6 space-y-4">
+<input type="hidden" id="enf-id">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="md:col-span-2">
+<label class="block text-sm font-medium text-slate-700 mb-1.5">Apellidos y Nombres <span class="text-red-500">*</span></label>
+<input type="text" id="enf-nombres" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-slate-50" required>
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-1.5">Genero <span class="text-red-500">*</span></label>
+<select id="enf-genero" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-slate-50" required>
+<option value="">Seleccione...</option>
+<option value="Femenino">Femenino</option>
+<option value="Masculino">Masculino</option>
+</select>
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-1.5">Fecha de Nacimiento</label>
+<input type="date" id="enf-fecha_nac" onchange="calcularEdad('enf')" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-slate-50">
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-1.5">Edad</label>
+<input type="number" id="enf-edad" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-slate-50" placeholder="Se calcula automaticamente">
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-1.5">Cedula <span class="text-red-500">*</span></label>
+<input type="text" id="enf-cedula" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-slate-50" required>
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-1.5">Telefono</label>
+<input type="text" id="enf-telefono" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-slate-50">
+</div>
+<div class="md:col-span-2">
+<label class="block text-sm font-medium text-slate-700 mb-1.5">Correo Electronico</label>
+<input type="email" id="enf-correo" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-slate-50">
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-1.5">Cargo Nominal <span class="text-red-500">*</span></label>
+<select id="enf-cargo" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-slate-50" required>
+<option value="">Seleccione...</option>
+<option value="Profesional">Profesional</option>
+<option value="TSU">TSU</option>
+<option value="Auxiliar">Auxiliar</option>
+</select>
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-1.5">Municipio <span class="text-red-500">*</span></label>
+<select id="enf-municipio" onchange="cargarParroquias('enf')" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-slate-50" required>
+<option value="">Seleccione...</option>
+<option value="San Fernando">San Fernando</option>
+<option value="Biruaca">Biruaca</option>
+<option value="Pedro Camejo">Pedro Camejo</option>
+<option value="Achaguas">Achaguas</option>
+<option value="Muñoz">Muñoz</option>
+<option value="Páez">Páez</option>
+<option value="Rómulo Gallegos">Rómulo Gallegos</option>
+</select>
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-1.5">Parroquia</label>
+<select id="enf-parroquia" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-slate-50">
+<option value="">Seleccione municipio primero</option>
+</select>
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-1.5">Ubicacion Administrativa</label>
+<input type="text" id="enf-ubicacion_admin" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-slate-50">
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-1.5">Ubicacion Fisica</label>
+<input type="text" id="enf-ubicacion_fisica" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-slate-50">
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-1.5">Estatus <span class="text-red-500">*</span></label>
+<select id="enf-estatus" onchange="toggleCausa('enf')" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-slate-50" required>
+<option value="Activo">Activo</option>
+<option value="Inactivo">Inactivo</option>
+</select>
+</div>
+<div id="enf-causa-container" class="hidden md:col-span-2">
+<label class="block text-sm font-medium text-slate-700 mb-1.5">Causa de Inactividad</label>
+<input type="text" id="enf-causa" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-slate-50">
+</div>
+<div class="md:col-span-2">
+<label class="block text-sm font-medium text-slate-700 mb-1.5">Formacion (si esta estudiando)</label>
+<input type="text" id="enf-formacion" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-slate-50" placeholder="Ej: Especializacion en UCI">
+</div>
+<div class="md:col-span-2">
+<label class="block text-sm font-medium text-slate-700 mb-1.5">Observaciones</label>
+<textarea id="enf-observaciones" rows="2" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-slate-50 resize-none"></textarea>
+</div>
+</div>
+<div class="flex justify-end gap-3 pt-4 border-t border-slate-200">
+<button type="button" onclick="closeModal('enfermero')" class="px-6 py-2.5 border border-slate-300 rounded-xl text-slate-700 hover:bg-slate-50 transition font-medium">Cancelar</button>
+<button type="submit" class="px-6 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition font-medium shadow-md">Guardar</button>
+</div>
+</form>
+</div>
+</div>
+
+<!-- MODAL POSTULADO -->
+<div id="modal-postulado" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4 backdrop-blur-sm">
+<div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+<div class="sticky top-0 bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center rounded-t-2xl z-10">
+<h3 id="modal-postulado-title" class="text-xl font-bold text-slate-800">Agregar Postulado</h3>
+<button onclick="closeModal('postulado')" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100 transition"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+</div>
+<form id="form-postulado" class="p-6 space-y-4">
+<input type="hidden" id="pos-id">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="md:col-span-2">
+<label class="block text-sm font-medium text-slate-700 mb-1.5">Apellidos y Nombres <span class="text-red-500">*</span></label>
+<input type="text" id="pos-nombres" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-slate-50" required>
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-1.5">Cedula <span class="text-red-500">*</span></label>
+<input type="text" id="pos-cedula" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-slate-50" required>
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-1.5">Fecha de Nacimiento</label>
+<input type="date" id="pos-fecha_nac" onchange="calcularEdad('pos')" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-slate-50">
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-1.5">Edad</label>
+<input type="number" id="pos-edad" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-slate-50" placeholder="Se calcula automaticamente">
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-1.5">Titulo <span class="text-red-500">*</span></label>
+<input type="text" id="pos-titulo" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-slate-50" required>
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-1.5">Cargo <span class="text-red-500">*</span></label>
+<select id="pos-cargo" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-slate-50" required>
+<option value="">Seleccione...</option>
+<option value="Profesional">Profesional</option>
+<option value="TSU">TSU</option>
+<option value="Auxiliar">Auxiliar</option>
+</select>
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-1.5">ASIC / Ubicacion</label>
+<input type="text" id="pos-asic" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-slate-50">
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-1.5">Ubicacion</label>
+<input type="text" id="pos-ubicacion" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-slate-50">
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-1.5">Celular</label>
+<input type="text" id="pos-celular" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-slate-50">
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-1.5">Correo Electronico</label>
+<input type="email" id="pos-correo" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-slate-50">
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-1.5">Documentos Completos</label>
+<select id="pos-documentos" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-slate-50">
+<option value="Si">Si</option>
+<option value="No">No</option>
+<option value="En proceso">En proceso</option>
+</select>
+</div>
+<div class="md:col-span-2">
+<label class="block text-sm font-medium text-slate-700 mb-1.5">Observaciones</label>
+<textarea id="pos-observaciones" rows="2" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-slate-50 resize-none"></textarea>
+</div>
+</div>
+<div class="flex justify-end gap-3 pt-4 border-t border-slate-200">
+<button type="button" onclick="closeModal('postulado')" class="px-6 py-2.5 border border-slate-300 rounded-xl text-slate-700 hover:bg-slate-50 transition font-medium">Cancelar</button>
+<button type="button" onclick="contratarPostulado()" id="btn-contratar" class="hidden px-6 py-2.5 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition font-medium shadow-md">Contratar</button>
+<button type="submit" class="px-6 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition font-medium shadow-md">Guardar</button>
+</div>
+</form>
+</div>
+</div>
+
+<!-- MODAL CAMBIO ESTATUS -->
+<div id="modal-cambio" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4 backdrop-blur-sm">
+<div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+<div class="sticky top-0 bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center rounded-t-2xl z-10">
+<h3 id="modal-cambio-title" class="text-xl font-bold text-slate-800">Nuevo Cambio de Estatus</h3>
+<button onclick="closeModal('cambio')" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100 transition"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+</div>
+<form id="form-cambio" class="p-6 space-y-4">
+<input type="hidden" id="cam-id">
+<div class="bg-blue-50 rounded-xl p-4 mb-4 border border-blue-200">
+<label class="block text-sm font-medium text-slate-700 mb-2">Buscar en base de datos de enfermeros</label>
+<div class="flex gap-2">
+<input type="text" id="cam-buscar-cedula" placeholder="Ingrese cedula..." class="flex-1 px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-white text-sm">
+<button type="button" onclick="buscarEnfermeroParaCambio()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl transition font-medium text-sm">Buscar</button>
+</div>
+<p class="text-xs text-slate-500 mt-2">Si no encuentra el registro, puede completar los datos manualmente.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="md:col-span-2">
+<label class="block text-sm font-medium text-slate-700 mb-1.5">Apellidos y Nombres <span class="text-red-500">*</span></label>
+<input type="text" id="cam-nombres" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-slate-50" required>
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-1.5">Cedula <span class="text-red-500">*</span></label>
+<input type="text" id="cam-cedula" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-slate-50" required>
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-1.5">Titulo</label>
+<input type="text" id="cam-titulo" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-slate-50">
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-1.5">Cargo Actual</label>
+<input type="text" id="cam-cargo" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-slate-50">
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-1.5">Cambio <span class="text-red-500">*</span></label>
+<select id="cam-tipo" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-slate-50" required>
+<option value="">Seleccione...</option>
+<option value="Ascenso">Ascenso</option>
+<option value="Traslado">Traslado</option>
+<option value="Renuncia">Renuncia</option>
+<option value="Jubilacion">Jubilacion</option>
+<option value="Reposo">Reposo</option>
+<option value="Otro">Otro</option>
+</select>
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-1.5">Celular</label>
+<input type="text" id="cam-celular" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-slate-50">
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-1.5">Correo Electronico</label>
+<input type="email" id="cam-correo" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-slate-50">
+</div>
+<div class="md:col-span-2">
+<label class="block text-sm font-medium text-slate-700 mb-1.5">Observaciones</label>
+<textarea id="cam-observaciones" rows="2" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-slate-50 resize-none"></textarea>
+</div>
+</div>
+<div class="flex justify-end gap-3 pt-4 border-t border-slate-200">
+<button type="button" onclick="closeModal('cambio')" class="px-6 py-2.5 border border-slate-300 rounded-xl text-slate-700 hover:bg-slate-50 transition font-medium">Cancelar</button>
+<button type="submit" class="px-6 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition font-medium shadow-md">Guardar</button>
+</div>
+</form>
+</div>
+</div>
+
+<!-- MODAL USUARIO -->
+<div id="modal-usuario" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4 backdrop-blur-sm">
+<div class="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+<div class="px-6 py-4 border-b border-slate-200 flex justify-between items-center rounded-t-2xl">
+<h3 class="text-xl font-bold text-slate-800">Crear Usuario</h3>
+<button onclick="closeModal('usuario')" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100 transition"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+</div>
+<form id="form-usuario" class="p-6 space-y-4">
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-1.5">Nombre Completo <span class="text-red-500">*</span></label>
+<input type="text" id="usr-nombre" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-slate-50" required>
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-1.5">Correo Electronico <span class="text-red-500">*</span></label>
+<input type="email" id="usr-email" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-slate-50" required>
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-1.5">Contrasena <span class="text-red-500">*</span></label>
+<input type="password" id="usr-password" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-slate-50" required>
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-1.5">Rol <span class="text-red-500">*</span></label>
+<select id="usr-rol" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-slate-50" required>
+<option value="">Seleccione...</option>
+<option value="superadmin">Super Administrador</option>
+<option value="admin">Administrador</option>
+<option value="usuario">Usuario (Solo Consulta)</option>
+</select>
+</div>
+<div class="flex justify-end gap-3 pt-4 border-t border-slate-200">
+<button type="button" onclick="closeModal('usuario')" class="px-6 py-2.5 border border-slate-300 rounded-xl text-slate-700 hover:bg-slate-50 transition font-medium">Cancelar</button>
+<button type="submit" class="px-6 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition font-medium shadow-md">Crear Usuario</button>
+</div>
+</form>
+</div>
+</div>
+
+<!-- MODAL IMPORT EXCEL -->
+<div id="modal-import" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4 backdrop-blur-sm">
+<div class="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+<div class="px-6 py-4 border-b border-slate-200 flex justify-between items-center rounded-t-2xl">
+<h3 class="text-xl font-bold text-slate-800">Importar Excel</h3>
+<button onclick="closeModal('import')" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100 transition"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+</div>
+<div class="p-6 space-y-4">
+<p class="text-sm text-slate-600">Seleccione un archivo Excel (.xlsx) para importar los datos.</p>
+<input type="file" id="import-file" accept=".xlsx,.xls" class="w-full px-4 py-2 border border-slate-300 rounded-xl text-sm bg-slate-50">
+<input type="hidden" id="import-target">
+<div class="flex justify-end gap-3 pt-4 border-t border-slate-200">
+<button onclick="closeModal('import')" class="px-6 py-2.5 border border-slate-300 rounded-xl text-slate-700 hover:bg-slate-50 transition font-medium">Cancelar</button>
+<button onclick="processImport()" class="px-6 py-2.5 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition font-medium shadow-md">Importar</button>
+</div>
+</div>
+</div>
+</div>
+
+<!-- TOAST -->
+<div id="toast" class="fixed bottom-6 right-6 bg-slate-800 text-white px-6 py-3 rounded-xl shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 z-50 flex items-center gap-2">
+<span id="toast-icon"></span>
+<span id="toast-message"></span>
+</div>
+
+<script>
+// ============================================
+// CONFIGURACION SUPABASE - REEMPLAZAR CON TUS CREDENCIALES
+// ============================================
+const SUPABASE_URL = 'https://tu-proyecto.supabase.co';
+const SUPABASE_KEY = 'tu-anon-key-publica';
+let supabase = null;
+
+try {
+  supabase = supabaseJs.createClient(SUPABASE_URL, SUPABASE_KEY);
+} catch(e) {
+  console.log('Modo offline - datos en localStorage');
+}
+
+// ============================================
+// DATOS Y ESTADO
+// ============================================
+let currentUser = null;
+let enfermeros = [];
+let postulados = [];
+let cambiosEstatus = [];
+let usuarios = [];
+
+const parroquias = {
+  'San Fernando': ['El Recreo', 'Penalver (Arichuna)', 'San Rafael de Atamaica'],
+  'Biruaca': ['Biruaca'],
+  'Pedro Camejo': ['San Juan de Payara', 'Codazzi (Puerto Paez)', 'Cunaviche'],
+  'Achaguas': ['Apurito', 'El Yagual', 'Guachara', 'Mucuritas', 'Queseras del Medio'],
+  'Muñoz': ['Bruzual', 'Mantecal', 'Quintero'],
+  'Paez': ['Guasdualito', 'Aramendi', 'El Amparo', 'San Camilo', 'Urdaneta'],
+  'Romulo Gallegos': ['Elorza', 'La Trinidad']
+};
+
+const cargoColors = {
+  'Profesional': 'bg-emerald-100 text-emerald-700 border-emerald-200',
+  'TSU': 'bg-amber-100 text-amber-700 border-amber-200',
+  'Auxiliar': 'bg-violet-100 text-violet-700 border-violet-200'
+};
+
+const estatusColors = {
+  'Activo': 'bg-emerald-100 text-emerald-700 border-emerald-200',
+  'Inactivo': 'bg-red-100 text-red-700 border-red-200'
+};
+
+const docColors = {
+  'Si': 'bg-emerald-100 text-emerald-700',
+  'No': 'bg-red-100 text-red-700',
+  'En proceso': 'bg-amber-100 text-amber-700'
+};
+
+// ============================================
+// INICIALIZACION
+// ============================================
+document.addEventListener('DOMContentLoaded', () => {
+  loadAllData();
+  checkSession();
+  setupForms();
+});
+
+function loadAllData() {
+  enfermeros = JSON.parse(localStorage.getItem('enf_enfermeros') || '[]');
+  postulados = JSON.parse(localStorage.getItem('enf_postulados') || '[]');
+  cambiosEstatus = JSON.parse(localStorage.getItem('enf_cambios') || '[]');
+  usuarios = JSON.parse(localStorage.getItem('enf_usuarios') || '[]');
+
+  if (usuarios.length === 0) {
+    usuarios = [{
+      id: 'superadmin-1',
+      nombre: 'Super Administrador',
+      email: 'superadmin@apure.gob.ve',
+      password: 'Admin123!',
+      rol: 'superadmin',
+      created_at: new Date().toISOString()
+    }];
+    saveData('usuarios');
+  }
+}
+
+function saveData(key) {
+  const map = { enfermeros: 'enf_enfermeros', postulados: 'enf_postulados', cambios: 'enf_cambios', usuarios: 'enf_usuarios' };
+  const dataMap = { enfermeros, postulados, cambios: cambiosEstatus, usuarios };
+  localStorage.setItem(map[key], JSON.stringify(dataMap[key]));
+}
+
+function checkSession() {
+  const session = localStorage.getItem('enf_session');
+  if (session) {
+    try {
+      currentUser = JSON.parse(session);
+      showApp();
+    } catch(e) {
+      localStorage.removeItem('enf_session');
+    }
+  }
+}
+
+function showApp() {
+  document.getElementById('login-view').classList.add('hidden');
+  document.getElementById('app-view').classList.remove('hidden');
+  document.getElementById('user-name').textContent = currentUser.nombre;
+
+  const rolLabels = { superadmin: 'Super Admin', admin: 'Administrador', usuario: 'Usuario' };
+  const rolColors = { superadmin: 'bg-purple-600', admin: 'bg-blue-600', usuario: 'bg-slate-500' };
+  const badge = document.getElementById('user-role-badge');
+  badge.textContent = rolLabels[currentUser.rol] || currentUser.rol;
+  badge.className = `px-3 py-1 rounded-full text-xs font-medium border text-white ${rolColors[currentUser.rol] || 'bg-slate-500'}`;
+
+  // Permisos
+  const canWrite = currentUser.rol === 'superadmin' || currentUser.rol === 'admin';
+  const isSuper = currentUser.rol === 'superadmin';
+
+  document.getElementById('btn-add-enfermero').style.display = canWrite ? '' : 'none';
+  document.getElementById('btn-add-postulado').style.display = canWrite ? '' : 'none';
+  document.getElementById('btn-add-cambio').style.display = canWrite ? '' : 'none';
+  document.getElementById('btn-usuarios').style.display = isSuper ? '' : 'none';
+
+  showSection('dashboard');
+  updateDashboard();
+}
+
+// ============================================
+// LOGIN
+// ============================================
+document.getElementById('login-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const email = document.getElementById('login-email').value.trim().toLowerCase();
+  const password = document.getElementById('login-password').value;
+  const errorDiv = document.getElementById('login-error');
+
+  const user = usuarios.find(u => u.email.toLowerCase() === email && u.password === password);
+
+  if (user) {
+    currentUser = { id: user.id, nombre: user.nombre, email: user.email, rol: user.rol };
+    localStorage.setItem('enf_session', JSON.stringify(currentUser));
+    errorDiv.classList.add('hidden');
+    showApp();
+    showToast('Bienvenido, ' + user.nombre, 'success');
+  } else {
+    errorDiv.textContent = 'Correo o contrasena incorrectos';
+    errorDiv.classList.remove('hidden');
+  }
+});
+
+function logout() {
+  currentUser = null;
+  localStorage.removeItem('enf_session');
+  document.getElementById('app-view').classList.add('hidden');
+  document.getElementById('login-view').classList.remove('hidden');
+  document.getElementById('login-form').reset();
+  document.getElementById('login-error').classList.add('hidden');
+}
+
+// ============================================
+// NAVEGACION
+// ============================================
+function showSection(section) {
+  document.querySelectorAll('.section-content').forEach(el => el.classList.add('hidden'));
+  document.getElementById('section-' + section).classList.remove('hidden');
+  document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active-nav'));
+  document.querySelector('.nav-btn[data-section="' + section + '"]').classList.add('active-nav');
+
+  if (section === 'dashboard') updateDashboard();
+  if (section === 'enfermeros') renderEnfermeros();
+  if (section === 'postulados') renderPostulados();
+  if (section === 'cambio-estatus') renderCambios();
+  if (section === 'usuarios') renderUsuarios();
+}
+
+// ============================================
+// DASHBOARD
+// ============================================
+function updateDashboard() {
+  const total = enfermeros.length;
+  const profs = enfermeros.filter(e => e.cargo === 'Profesional');
+  const tsus = enfermeros.filter(e => e.cargo === 'TSU');
+  const auxs = enfermeros.filter(e => e.cargo === 'Auxiliar');
+  const activos = enfermeros.filter(e => e.estatus === 'Activo');
+  const inactivos = enfermeros.filter(e => e.estatus === 'Inactivo');
+
+  document.getElementById('dash-total').textContent = total;
+  document.getElementById('dash-prof').textContent = profs.length;
+  document.getElementById('dash-prof-f').textContent = profs.filter(e => e.genero === 'Femenino').length;
+  document.getElementById('dash-prof-m').textContent = profs.filter(e => e.genero === 'Masculino').length;
+  document.getElementById('dash-tsu').textContent = tsus.length;
+  document.getElementById('dash-tsu-f').textContent = tsus.filter(e => e.genero === 'Femenino').length;
+  document.getElementById('dash-tsu-m').textContent = tsus.filter(e => e.genero === 'Masculino').length;
+  document.getElementById('dash-aux').textContent = auxs.length;
+  document.getElementById('dash-aux-f').textContent = auxs.filter(e => e.genero === 'Femenino').length;
+  document.getElementById('dash-aux-m').textContent = auxs.filter(e => e.genero === 'Masculino').length;
+  document.getElementById('dash-postulados').textContent = postulados.length;
+  document.getElementById('dash-cambios').textContent = cambiosEstatus.length;
+  document.getElementById('dash-activos').textContent = activos.length;
+  document.getElementById('dash-inactivos').textContent = inactivos.length;
+
+  // Chart cargos
+  const maxVal = Math.max(profs.length, tsus.length, auxs.length, 1);
+  const chartHTML = `
+    <div class="flex flex-col items-center gap-2">
+      <div class="w-16 bg-emerald-500 rounded-t-lg chart-bar" style="height:${(profs.length/maxVal)*180}px"></div>
+      <span class="text-xs font-medium text-slate-600">Profesional</span>
+      <span class="text-lg font-bold text-emerald-700">${profs.length}</span>
+    </div>
+    <div class="flex flex-col items-center gap-2">
+      <div class="w-16 bg-amber-500 rounded-t-lg chart-bar" style="height:${(tsus.length/maxVal)*180}px"></div>
+      <span class="text-xs font-medium text-slate-600">TSU</span>
+      <span class="text-lg font-bold text-amber-700">${tsus.length}</span>
+    </div>
+    <div class="flex flex-col items-center gap-2">
+      <div class="w-16 bg-violet-500 rounded-t-lg chart-bar" style="height:${(auxs.length/maxVal)*180}px"></div>
+      <span class="text-xs font-medium text-slate-600">Auxiliar</span>
+      <span class="text-lg font-bold text-violet-700">${auxs.length}</span>
+    </div>
+  `;
+  document.getElementById('chart-cargos').innerHTML = chartHTML;
+
+  // Pie chart genero
+  const fem = enfermeros.filter(e => e.genero === 'Femenino').length;
+  const mas = enfermeros.filter(e => e.genero === 'Masculino').length;
+  document.getElementById('pie-total').textContent = total;
+  document.getElementById('pie-f-val').textContent = fem;
+  document.getElementById('pie-m-val').textContent = mas;
+
+  if (total > 0) {
+    const fPct = (fem / total) * 100;
+    const mPct = (mas / total) * 100;
+    document.getElementById('pie-femenino').setAttribute('stroke-dasharray', `${fPct},100`);
+    document.getElementById('pie-masculino').setAttribute('stroke-dasharray', `${mPct},100`);
+    document.getElementById('pie-masculino').setAttribute('stroke-dashoffset', `-${fPct}`);
+  }
+
+  // Municipios
+  const munCounts = {};
+  enfermeros.forEach(e => { munCounts[e.municipio] = (munCounts[e.municipio] || 0) + 1; });
+  const munHTML = Object.entries(munCounts).sort((a,b) => b[1]-a[1]).map(([m,c]) => {
+    const pct = total > 0 ? (c/total)*100 : 0;
+    return `<div class="flex items-center gap-2"><div class="flex-1"><div class="flex justify-between text-sm mb-0.5"><span class="text-slate-700">${m}</span><span class="font-bold text-slate-800">${c}</span></div><div class="h-2 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-indigo-500 rounded-full" style="width:${pct}%"></div></div></div></div>`;
+  }).join('') || '<p class="text-slate-400 text-sm text-center">Sin datos</p>';
+  document.getElementById('chart-municipios').innerHTML = munHTML;
+
+  // Estatus
+  const estHTML = [
+    { label: 'Activo', count: activos.length, color: 'bg-emerald-500', bg: 'bg-emerald-50' },
+    { label: 'Inactivo', count: inactivos.length, color: 'bg-red-500', bg: 'bg-red-50' }
+  ].map(e => {
+    const pct = total > 0 ? (e.count/total)*100 : 0;
+    return `<div class="flex items-center gap-3"><div class="w-10 h-10 ${e.bg} rounded-lg flex items-center justify-center"><span class="font-bold ${e.color.replace('bg-','text-')}">${e.count}</span></div><div class="flex-1"><div class="flex justify-between text-sm mb-0.5"><span class="text-slate-700">${e.label}</span><span class="text-slate-500">${pct.toFixed(0)}%</span></div><div class="h-2 bg-slate-100 rounded-full overflow-hidden"><div class="h-full ${e.color} rounded-full" style="width:${pct}%"></div></div></div></div>`;
+  }).join('');
+  document.getElementById('chart-estatus').innerHTML = estHTML;
+}
+
+// ============================================
+// RENDER TABLAS
+// ============================================
+function renderEnfermeros() {
+  const tbody = document.getElementById('tbody-enfermeros');
+  const empty = document.getElementById('empty-enfermeros');
+  const canWrite = currentUser.rol === 'superadmin' || currentUser.rol === 'admin';
+
+  if (enfermeros.length === 0) {
+    tbody.innerHTML = '';
+    empty.classList.remove('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+
+  const search = document.getElementById('search-enfermeros').value.toLowerCase();
+  const fCargo = document.getElementById('filter-cargo').value;
+  const fEstatus = document.getElementById('filter-estatus').value;
+
+  let filtered = enfermeros.filter(e => {
+    const matchSearch = !search || e.nombres.toLowerCase().includes(search) || e.cedula.includes(search) || e.cargo.toLowerCase().includes(search);
+    const matchCargo = !fCargo || e.cargo === fCargo;
+    const matchEstatus = !fEstatus || e.estatus === fEstatus;
+    return matchSearch && matchCargo && matchEstatus;
+  });
+
+  tbody.innerHTML = filtered.map(e => `
+    <tr class="hover:bg-slate-50 transition">
+      <td class="px-4 py-3 font-medium text-slate-800">${e.nombres}</td>
+      <td class="px-4 py-3 text-slate-600">${e.cedula}</td>
+      <td class="px-4 py-3 text-slate-600">${e.edad || '-'}</td>
+      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-xs font-medium ${e.genero === 'Femenino' ? 'bg-pink-100 text-pink-700' : 'bg-blue-100 text-blue-700'}">${e.genero}</span></td>
+      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-xs font-medium border ${cargoColors[e.cargo] || 'bg-slate-100 text-slate-700'}">${e.cargo}</span></td>
+      <td class="px-4 py-3 text-slate-600">${e.municipio}${e.parroquia ? ', ' + e.parroquia : ''}</td>
+      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-xs font-medium border ${estatusColors[e.estatus] || 'bg-slate-100'}">${e.estatus}</span></td>
+      <td class="px-4 py-3 text-center">
+        <div class="flex items-center justify-center gap-1">
+          <button onclick="verEnfermero('${e.id}')" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition" title="Ver"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button>
+          ${canWrite ? `<button onclick="editarEnfermero('${e.id}')" class="p-1.5 text-amber-600 hover:bg-amber-50 rounded-lg transition" title="Editar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>` : ''}
+          ${canWrite ? `<button onclick="eliminarEnfermero('${e.id}')" class="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition" title="Eliminar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>` : ''}
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function renderPostulados() {
+  const tbody = document.getElementById('tbody-postulados');
+  const empty = document.getElementById('empty-postulados');
+  const canWrite = currentUser.rol === 'superadmin' || currentUser.rol === 'admin';
+
+  if (postulados.length === 0) {
+    tbody.innerHTML = '';
+    empty.classList.remove('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+
+  const search = document.getElementById('search-postulados').value.toLowerCase();
+  let filtered = postulados.filter(p => !search || p.nombres.toLowerCase().includes(search) || p.cedula.includes(search));
+
+  tbody.innerHTML = filtered.map(p => `
+    <tr class="hover:bg-slate-50 transition">
+      <td class="px-4 py-3 font-medium text-slate-800">${p.nombres}</td>
+      <td class="px-4 py-3 text-slate-600">${p.cedula}</td>
+      <td class="px-4 py-3 text-slate-600">${p.edad || '-'}</td>
+      <td class="px-4 py-3 text-slate-600">${p.titulo}</td>
+      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-xs font-medium border ${cargoColors[p.cargo] || 'bg-slate-100'}">${p.cargo}</span></td>
+      <td class="px-4 py-3 text-slate-600">${p.asic || '-'}${p.ubicacion ? ' / ' + p.ubicacion : ''}</td>
+      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-xs font-medium ${docColors[p.documentos] || 'bg-slate-100'}">${p.documentos}</span></td>
+      <td class="px-4 py-3 text-center">
+        <div class="flex items-center justify-center gap-1">
+          <button onclick="verPostulado('${p.id}')" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition" title="Ver"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button>
+          ${canWrite ? `<button onclick="editarPostulado('${p.id}')" class="p-1.5 text-amber-600 hover:bg-amber-50 rounded-lg transition" title="Editar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>` : ''}
+          ${canWrite ? `<button onclick="eliminarPostulado('${p.id}')" class="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition" title="Eliminar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>` : ''}
+          ${canWrite ? `<button onclick="prepararContratar('${p.id}')" class="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition" title="Contratar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></button>` : ''}
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function renderCambios() {
+  const tbody = document.getElementById('tbody-cambio');
+  const empty = document.getElementById('empty-cambio');
+  const canWrite = currentUser.rol === 'superadmin' || currentUser.rol === 'admin';
+
+  if (cambiosEstatus.length === 0) {
+    tbody.innerHTML = '';
+    empty.classList.remove('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+
+  const search = document.getElementById('search-cambio').value.toLowerCase();
+  let filtered = cambiosEstatus.filter(c => !search || c.nombres.toLowerCase().includes(search) || c.cedula.includes(search));
+
+  tbody.innerHTML = filtered.map(c => `
+    <tr class="hover:bg-slate-50 transition">
+      <td class="px-4 py-3 font-medium text-slate-800">${c.nombres}</td>
+      <td class="px-4 py-3 text-slate-600">${c.cedula}</td>
+      <td class="px-4 py-3 text-slate-600">${c.titulo || '-'}</td>
+      <td class="px-4 py-3 text-slate-600">${c.cargo || '-'}</td>
+      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700 border border-amber-200">${c.tipo}</span></td>
+      <td class="px-4 py-3 text-slate-600">${c.celular || '-'}</td>
+      <td class="px-4 py-3 text-slate-600">${c.correo || '-'}</td>
+      <td class="px-4 py-3 text-center">
+        <div class="flex items-center justify-center gap-1">
+          <button onclick="verCambio('${c.id}')" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition" title="Ver"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button>
+          ${canWrite ? `<button onclick="editarCambio('${c.id}')" class="p-1.5 text-amber-600 hover:bg-amber-50 rounded-lg transition" title="Editar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>` : ''}
+          ${canWrite ? `<button onclick="eliminarCambio('${c.id}')" class="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition" title="Eliminar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>` : ''}
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function renderUsuarios() {
+  const tbody = document.getElementById('tbody-usuarios');
+  const rolLabels = { superadmin: 'Super Admin', admin: 'Administrador', usuario: 'Usuario' };
+  const rolBadgeColors = { superadmin: 'bg-purple-100 text-purple-700', admin: 'bg-blue-100 text-blue-700', usuario: 'bg-slate-100 text-slate-700' };
+
+  tbody.innerHTML = usuarios.map(u => `
+    <tr class="hover:bg-slate-50 transition">
+      <td class="px-4 py-3 font-medium text-slate-800">${u.nombre}</td>
+      <td class="px-4 py-3 text-slate-600">${u.email}</td>
+      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-xs font-medium ${rolBadgeColors[u.rol] || 'bg-slate-100'}">${rolLabels[u.rol] || u.rol}</span></td>
+      <td class="px-4 py-3 text-center">
+        <div class="flex items-center justify-center gap-1">
+          <button onclick="eliminarUsuario('${u.id}')" class="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition" title="Eliminar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function searchTable(type) {
+  if (type === 'enfermeros') renderEnfermeros();
+  if (type === 'postulados') renderPostulados();
+  if (type === 'cambio_estatus') renderCambios();
+}
+
+function filterTable(type) {
+  if (type === 'enfermeros') renderEnfermeros();
+}
+
+// ============================================
+// MODALES
+// ============================================
+function openModal(type) {
+  const modal = document.getElementById('modal-' + type);
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+  document.body.style.overflow = 'hidden';
+
+  if (type === 'enfermero') {
+    document.getElementById('modal-enfermero-title').textContent = 'Agregar Personal de Enfermeria';
+    document.getElementById('form-enfermero').reset();
+    document.getElementById('enf-id').value = '';
+    document.getElementById('enf-parroquia').innerHTML = '<option value="">Seleccione municipio primero</option>';
+    document.getElementById('enf-causa-container').classList.add('hidden');
+  }
+  if (type === 'postulado') {
+    document.getElementById('modal-postulado-title').textContent = 'Agregar Postulado';
+    document.getElementById('form-postulado').reset();
+    document.getElementById('pos-id').value = '';
+    document.getElementById('btn-contratar').classList.add('hidden');
+  }
+  if (type === 'cambio') {
+    document.getElementById('modal-cambio-title').textContent = 'Nuevo Cambio de Estatus';
+    document.getElementById('form-cambio').reset();
+    document.getElementById('cam-id').value = '';
+  }
+  if (type === 'usuario') {
+    document.getElementById('form-usuario').reset();
+  }
+}
+
+function closeModal(type) {
+  const modal = document.getElementById('modal-' + type);
+  modal.classList.add('hidden');
+  modal.classList.remove('flex');
+  document.body.style.overflow = '';
+}
+
+function cargarParroquias(prefix) {
+  const municipio = document.getElementById(prefix + '-municipio').value;
+  const select = document.getElementById(prefix + '-parroquia');
+  select.innerHTML = '<option value="">Seleccione...</option>';
+  if (municipio && parroquias[municipio]) {
+    parroquias[municipio].forEach(p => {
+      select.innerHTML += `<option value="${p}">${p}</option>`;
+    });
+  }
+}
+
+function toggleCausa(prefix) {
+  const estatus = document.getElementById(prefix + '-estatus').value;
+  const container = document.getElementById(prefix + '-causa-container');
+  if (estatus === 'Inactivo') container.classList.remove('hidden');
+  else container.classList.add('hidden');
+}
+
+function calcularEdad(prefix) {
+  const fechaNac = document.getElementById(prefix + '-fecha_nac').value;
+  if (fechaNac) {
+    const hoy = new Date();
+    const nac = new Date(fechaNac);
+    let edad = hoy.getFullYear() - nac.getFullYear();
+    const m = hoy.getMonth() - nac.getMonth();
+    if (m < 0 || (m === 0 && hoy.getDate() < nac.getDate())) edad--;
+    document.getElementById(prefix + '-edad').value = edad >= 0 ? edad : 0;
+  }
+}
+
+// ============================================
+// FORMS
+// ============================================
+function setupForms() {
+  // Enfermero
+  document.getElementById('form-enfermero').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const id = document.getElementById('enf-id').value;
+    const data = {
+      id: id || 'enf_' + Date.now(),
+      nombres: document.getElementById('enf-nombres').value,
+      genero: document.getElementById('enf-genero').value,
+      fecha_nac: document.getElementById('enf-fecha_nac').value,
+      edad: document.getElementById('enf-edad').value,
+      cedula: document.getElementById('enf-cedula').value,
+      telefono: document.getElementById('enf-telefono').value,
+      correo: document.getElementById('enf-correo').value,
+      cargo: document.getElementById('enf-cargo').value,
+      municipio: document.getElementById('enf-municipio').value,
+      parroquia: document.getElementById('enf-parroquia').value,
+      ubicacion_admin: document.getElementById('enf-ubicacion_admin').value,
+      ubicacion_fisica: document.getElementById('enf-ubicacion_fisica').value,
+      estatus: document.getElementById('enf-estatus').value,
+      causa: document.getElementById('enf-causa').value,
+      formacion: document.getElementById('enf-formacion').value,
+      observaciones: document.getElementById('enf-observaciones').value,
+      created_at: id ? undefined : new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+
+    if (id) {
+      const idx = enfermeros.findIndex(e => e.id === id);
+      if (idx >= 0) enfermeros[idx] = { ...enfermeros[idx], ...data };
+    } else {
+      enfermeros.push(data);
+    }
+    saveData('enfermeros');
+    closeModal('enfermero');
+    renderEnfermeros();
+    showToast(id ? 'Registro actualizado' : 'Personal agregado', 'success');
+  });
+
+  // Postulado
+  document.getElementById('form-postulado').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const id = document.getElementById('pos-id').value;
+    const data = {
+      id: id || 'pos_' + Date.now(),
+      nombres: document.getElementById('pos-nombres').value,
+      cedula: document.getElementById('pos-cedula').value,
+      fecha_nac: document.getElementById('pos-fecha_nac').value,
+      edad: document.getElementById('pos-edad').value,
+      titulo: document.getElementById('pos-titulo').value,
+      cargo: document.getElementById('pos-cargo').value,
+      asic: document.getElementById('pos-asic').value,
+      ubicacion: document.getElementById('pos-ubicacion').value,
+      celular: document.getElementById('pos-celular').value,
+      correo: document.getElementById('pos-correo').value,
+      documentos: document.getElementById('pos-documentos').value,
+      observaciones: document.getElementById('pos-observaciones').value,
+      created_at: id ? undefined : new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+
+    if (id) {
+      const idx = postulados.findIndex(p => p.id === id);
+      if (idx >= 0) postulados[idx] = { ...postulados[idx], ...data };
+    } else {
+      postulados.push(data);
+    }
+    saveData('postulados');
+    closeModal('postulado');
+    renderPostulados();
+    showToast(id ? 'Postulado actualizado' : 'Postulado agregado', 'success');
+  });
+
+  // Cambio estatus
+  document.getElementById('form-cambio').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const id = document.getElementById('cam-id').value;
+    const data = {
+      id: id || 'cam_' + Date.now(),
+      nombres: document.getElementById('cam-nombres').value,
+      cedula: document.getElementById('cam-cedula').value,
+      titulo: document.getElementById('cam-titulo').value,
+      cargo: document.getElementById('cam-cargo').value,
+      tipo: document.getElementById('cam-tipo').value,
+      celular: document.getElementById('cam-celular').value,
+      correo: document.getElementById('cam-correo').value,
+      observaciones: document.getElementById('cam-observaciones').value,
+      created_at: id ? undefined : new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+
+    if (id) {
+      const idx = cambiosEstatus.findIndex(c => c.id === id);
+      if (idx >= 0) cambiosEstatus[idx] = { ...cambiosEstatus[idx], ...data };
+    } else {
+      cambiosEstatus.push(data);
+    }
+    saveData('cambios');
+    closeModal('cambio');
+    renderCambios();
+    showToast(id ? 'Cambio actualizado' : 'Cambio registrado', 'success');
+  });
+
+  // Usuario
+  document.getElementById('form-usuario').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const data = {
+      id: 'usr_' + Date.now(),
+      nombre: document.getElementById('usr-nombre').value,
+      email: document.getElementById('usr-email').value.toLowerCase(),
+      password: document.getElementById('usr-password').value,
+      rol: document.getElementById('usr-rol').value,
+      created_at: new Date().toISOString()
+    };
+
+    if (usuarios.find(u => u.email === data.email)) {
+      showToast('Ya existe un usuario con ese correo', 'error');
+      return;
+    }
+
+    usuarios.push(data);
+    saveData('usuarios');
+    closeModal('usuario');
+    renderUsuarios();
+    showToast('Usuario creado exitosamente', 'success');
+  });
+}
+
+// ============================================
+// CRUD OPERATIONS
+// ============================================
+function verEnfermero(id) {
+  const e = enfermeros.find(x => x.id === id);
+  if (!e) return;
+  alert(`DETALLES DEL PERSONAL\n\nApellidos y Nombres: ${e.nombres}\nGenero: ${e.genero}\nFecha de Nacimiento: ${e.fecha_nac || '-'}\nEdad: ${e.edad || '-'}\nCedula: ${e.cedula}\nTelefono: ${e.telefono || '-'}\nCorreo: ${e.correo || '-'}\nCargo: ${e.cargo}\nMunicipio: ${e.municipio}\nParroquia: ${e.parroquia || '-'}\nUbicacion Administrativa: ${e.ubicacion_admin || '-'}\nUbicacion Fisica: ${e.ubicacion_fisica || '-'}\nEstatus: ${e.estatus}\nCausa: ${e.causa || '-'}\nFormacion: ${e.formacion || '-'}\nObservaciones: ${e.observaciones || '-'}`);
+}
+
+function editarEnfermero(id) {
+  const e = enfermeros.find(x => x.id === id);
+  if (!e) return;
+  openModal('enfermero');
+  document.getElementById('modal-enfermero-title').textContent = 'Editar Personal de Enfermeria';
+  document.getElementById('enf-id').value = e.id;
+  document.getElementById('enf-nombres').value = e.nombres;
+  document.getElementById('enf-genero').value = e.genero;
+  document.getElementById('enf-fecha_nac').value = e.fecha_nac || '';
+  document.getElementById('enf-edad').value = e.edad || '';
+  document.getElementById('enf-cedula').value = e.cedula;
+  document.getElementById('enf-telefono').value = e.telefono || '';
+  document.getElementById('enf-correo').value = e.correo || '';
+  document.getElementById('enf-cargo').value = e.cargo;
+  document.getElementById('enf-municipio').value = e.municipio;
+  cargarParroquias('enf');
+  document.getElementById('enf-parroquia').value = e.parroquia || '';
+  document.getElementById('enf-ubicacion_admin').value = e.ubicacion_admin || '';
+  document.getElementById('enf-ubicacion_fisica').value = e.ubicacion_fisica || '';
+  document.getElementById('enf-estatus').value = e.estatus;
+  document.getElementById('enf-causa').value = e.causa || '';
+  document.getElementById('enf-formacion').value = e.formacion || '';
+  document.getElementById('enf-observaciones').value = e.observaciones || '';
+  toggleCausa('enf');
+}
+
+function eliminarEnfermero(id) {
+  if (!confirm('Esta seguro de eliminar este registro?')) return;
+  enfermeros = enfermeros.filter(e => e.id !== id);
+  saveData('enfermeros');
+  renderEnfermeros();
+  showToast('Registro eliminado', 'success');
+}
+
+function verPostulado(id) {
+  const p = postulados.find(x => x.id === id);
+  if (!p) return;
+  alert(`DETALLES DEL POSTULADO\n\nApellidos y Nombres: ${p.nombres}\nCedula: ${p.cedula}\nFecha de Nacimiento: ${p.fecha_nac || '-'}\nEdad: ${p.edad || '-'}\nTitulo: ${p.titulo}\nCargo: ${p.cargo}\nASIC: ${p.asic || '-'}\nUbicacion: ${p.ubicacion || '-'}\nCelular: ${p.celular || '-'}\nCorreo: ${p.correo || '-'}\nDocumentos Completos: ${p.documentos}\nObservaciones: ${p.observaciones || '-'}`);
+}
+
+function editarPostulado(id) {
+  const p = postulados.find(x => x.id === id);
+  if (!p) return;
+  openModal('postulado');
+  document.getElementById('modal-postulado-title').textContent = 'Editar Postulado';
+  document.getElementById('pos-id').value = p.id;
+  document.getElementById('pos-nombres').value = p.nombres;
+  document.getElementById('pos-cedula').value = p.cedula;
+  document.getElementById('pos-fecha_nac').value = p.fecha_nac || '';
+  document.getElementById('pos-edad').value = p.edad || '';
+  document.getElementById('pos-titulo').value = p.titulo;
+  document.getElementById('pos-cargo').value = p.cargo;
+  document.getElementById('pos-asic').value = p.asic || '';
+  document.getElementById('pos-ubicacion').value = p.ubicacion || '';
+  document.getElementById('pos-celular').value = p.celular || '';
+  document.getElementById('pos-correo').value = p.correo || '';
+  document.getElementById('pos-documentos').value = p.documentos;
+  document.getElementById('pos-observaciones').value = p.observaciones || '';
+}
+
+function eliminarPostulado(id) {
+  if (!confirm('Esta seguro de eliminar este postulado?')) return;
+  postulados = postulados.filter(p => p.id !== id);
+  saveData('postulados');
+  renderPostulados();
+  showToast('Postulado eliminado', 'success');
+}
+
+function prepararContratar(id) {
+  const p = postulados.find(x => x.id === id);
+  if (!p) return;
+  openModal('postulado');
+  document.getElementById('modal-postulado-title').textContent = 'Contratar Postulado';
+  document.getElementById('pos-id').value = p.id;
+  document.getElementById('pos-nombres').value = p.nombres;
+  document.getElementById('pos-cedula').value = p.cedula;
+  document.getElementById('pos-fecha_nac').value = p.fecha_nac || '';
+  document.getElementById('pos-edad').value = p.edad || '';
+  document.getElementById('pos-titulo').value = p.titulo;
+  document.getElementById('pos-cargo').value = p.cargo;
+  document.getElementById('pos-asic').value = p.asic || '';
+  document.getElementById('pos-ubicacion').value = p.ubicacion || '';
+  document.getElementById('pos-celular').value = p.celular || '';
+  document.getElementById('pos-correo').value = p.correo || '';
+  document.getElementById('pos-documentos').value = p.documentos;
+  document.getElementById('pos-observaciones').value = p.observaciones || '';
+  document.getElementById('btn-contratar').classList.remove('hidden');
+}
+
+function contratarPostulado() {
+  const id = document.getElementById('pos-id').value;
+  const p = postulados.find(x => x.id === id);
+  if (!p) return;
+
+  if (!confirm(`Desea contratar a ${p.nombres} y moverlo a la tabla de personal de enfermeria?`)) return;
+
+  const nuevoEnfermero = {
+    id: 'enf_' + Date.now(),
+    nombres: p.nombres,
+    genero: '',
+    fecha_nac: p.fecha_nac,
+    edad: p.edad,
+    cedula: p.cedula,
+    telefono: p.celular,
+    correo: p.correo,
+    cargo: p.cargo,
+    municipio: '',
+    parroquia: '',
+    ubicacion_admin: p.asic || p.ubicacion || '',
+    ubicacion_fisica: p.ubicacion || '',
+    estatus: 'Activo',
+    causa: '',
+    formacion: p.titulo,
+    observaciones: 'Contratado desde Punto de Cuenta. ' + (p.observaciones || ''),
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  };
+
+  enfermeros.push(nuevoEnfermero);
+  postulados = postulados.filter(x => x.id !== id);
+  saveData('enfermeros');
+  saveData('postulados');
+  closeModal('postulado');
+  renderPostulados();
+  showToast(`${p.nombres} ha sido contratado y agregado al personal`, 'success');
+}
+
+function verCambio(id) {
+  const c = cambiosEstatus.find(x => x.id === id);
+  if (!c) return;
+  alert(`DETALLES DEL CAMBIO DE ESTATUS\n\nApellidos y Nombres: ${c.nombres}\nCedula: ${c.cedula}\nTitulo: ${c.titulo || '-'}\nCargo Actual: ${c.cargo || '-'}\nTipo de Cambio: ${c.tipo}\nCelular: ${c.celular || '-'}\nCorreo: ${c.correo || '-'}\nObservaciones: ${c.observaciones || '-'}`);
+}
+
+function editarCambio(id) {
+  const c = cambiosEstatus.find(x => x.id === id);
+  if (!c) return;
+  openModal('cambio');
+  document.getElementById('modal-cambio-title').textContent = 'Editar Cambio de Estatus';
+  document.getElementById('cam-id').value = c.id;
+  document.getElementById('cam-nombres').value = c.nombres;
+  document.getElementById('cam-cedula').value = c.cedula;
+  document.getElementById('cam-titulo').value = c.titulo || '';
+  document.getElementById('cam-cargo').value = c.cargo || '';
+  document.getElementById('cam-tipo').value = c.tipo;
+  document.getElementById('cam-celular').value = c.celular || '';
+  document.getElementById('cam-correo').value = c.correo || '';
+  document.getElementById('cam-observaciones').value = c.observaciones || '';
+}
+
+function eliminarCambio(id) {
+  if (!confirm('Esta seguro de eliminar este cambio de estatus?')) return;
+  cambiosEstatus = cambiosEstatus.filter(c => c.id !== id);
+  saveData('cambios');
+  renderCambios();
+  showToast('Cambio de estatus eliminado', 'success');
+}
+
+function buscarEnfermeroParaCambio() {
+  const cedula = document.getElementById('cam-buscar-cedula').value.trim();
+  if (!cedula) { showToast('Ingrese una cedula para buscar', 'error'); return; }
+
+  const e = enfermeros.find(x => x.cedula === cedula);
+  if (e) {
+    document.getElementById('cam-nombres').value = e.nombres;
+    document.getElementById('cam-cedula').value = e.cedula;
+    document.getElementById('cam-titulo').value = e.formacion || '';
+    document.getElementById('cam-cargo').value = e.cargo;
+    document.getElementById('cam-celular').value = e.telefono || '';
+    document.getElementById('cam-correo').value = e.correo || '';
+    showToast('Datos cargados desde la base de enfermeros', 'success');
+  } else {
+    showToast('No se encontro el registro. Complete los datos manualmente.', 'warning');
+  }
+}
+
+function eliminarUsuario(id) {
+  if (id === 'superadmin-1') { showToast('No puede eliminar el superadmin por defecto', 'error'); return; }
+  if (!confirm('Esta seguro de eliminar este usuario?')) return;
+  usuarios = usuarios.filter(u => u.id !== id);
+  saveData('usuarios');
+  renderUsuarios();
+  showToast('Usuario eliminado', 'success');
+}
+
+// ============================================
+// IMPORT / EXPORT EXCEL
+// ============================================
+function exportTable(type) {
+  let data, headers, filename;
+
+  if (type === 'enfermeros') {
+    filename = 'personal_enfermeria.xlsx';
+    headers = ['Apellidos y Nombres', 'Genero', 'Fecha de Nacimiento', 'Edad', 'Cedula', 'Telefono', 'Correo', 'Cargo', 'Municipio', 'Parroquia', 'Ubicacion Administrativa', 'Ubicacion Fisica', 'Estatus', 'Causa Inactividad', 'Formacion', 'Observaciones'];
+    data = enfermeros.map(e => [e.nombres, e.genero, e.fecha_nac, e.edad, e.cedula, e.telefono, e.correo, e.cargo, e.municipio, e.parroquia, e.ubicacion_admin, e.ubicacion_fisica, e.estatus, e.causa, e.formacion, e.observaciones]);
+  } else if (type === 'postulados') {
+    filename = 'punto_de_cuenta.xlsx';
+    headers = ['Apellidos y Nombres', 'Cedula', 'Fecha de Nacimiento', 'Edad', 'Titulo', 'Cargo', 'ASIC', 'Ubicacion', 'Celular', 'Correo', 'Documentos Completos', 'Observaciones'];
+    data = postulados.map(p => [p.nombres, p.cedula, p.fecha_nac, p.edad, p.titulo, p.cargo, p.asic, p.ubicacion, p.celular, p.correo, p.documentos, p.observaciones]);
+  } else if (type === 'cambio_estatus') {
+    filename = 'cambio_estatus.xlsx';
+    headers = ['Apellidos y Nombres', 'Cedula', 'Titulo', 'Cargo Actual', 'Cambio', 'Celular', 'Correo', 'Observaciones'];
+    data = cambiosEstatus.map(c => [c.nombres, c.cedula, c.titulo, c.cargo, c.tipo, c.celular, c.correo, c.observaciones]);
+  }
+
+  const ws = XLSX.utils.aoa_to_sheet([headers, ...data]);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Datos');
+  XLSX.writeFile(wb, filename);
+  showToast('Archivo exportado exitosamente', 'success');
+}
+
+function importTable(type) {
+  document.getElementById('import-target').value = type;
+  const modal = document.getElementById('modal-import');
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+}
+
+function processImport() {
+  const fileInput = document.getElementById('import-file');
+  const type = document.getElementById('import-target').value;
+  const file = fileInput.files[0];
+  if (!file) { showToast('Seleccione un archivo', 'error'); return; }
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, { type: 'array' });
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+      if (rows.length < 2) { showToast('El archivo no contiene datos', 'error'); return; }
+
+      let count = 0;
+      for (let i = 1; i < rows.length; i++) {
+        const row = rows[i];
+        if (!row[0]) continue;
+
+        if (type === 'enfermeros') {
+          enfermeros.push({
+            id: 'enf_' + Date.now() + '_' + i,
+            nombres: row[0] || '', genero: row[1] || '', fecha_nac: row[2] || '', edad: row[3] || '',
+            cedula: row[4] || '', telefono: row[5] || '', correo: row[6] || '', cargo: row[7] || '',
+            municipio: row[8] || '', parroquia: row[9] || '', ubicacion_admin: row[10] || '',
+            ubicacion_fisica: row[11] || '', estatus: row[12] || 'Activo', causa: row[13] || '',
+            formacion: row[14] || '', observaciones: row[15] || '',
+            created_at: new Date().toISOString(), updated_at: new Date().toISOString()
+          });
+        } else if (type === 'postulados') {
+          postulados.push({
+            id: 'pos_' + Date.now() + '_' + i,
+            nombres: row[0] || '', cedula: row[1] || '', fecha_nac: row[2] || '', edad: row[3] || '',
+            titulo: row[4] || '', cargo: row[5] || '', asic: row[6] || '', ubicacion: row[7] || '',
+            celular: row[8] || '', correo: row[9] || '', documentos: row[10] || 'No',
+            observaciones: row[11] || '', created_at: new Date().toISOString(), updated_at: new Date().toISOString()
+          });
+        } else if (type === 'cambio_estatus') {
+          cambiosEstatus.push({
+            id: 'cam_' + Date.now() + '_' + i,
+            nombres: row[0] || '', cedula: row[1] || '', titulo: row[2] || '', cargo: row[3] || '',
+            tipo: row[4] || '', celular: row[5] || '', correo: row[6] || '',
+            observaciones: row[7] || '', created_at: new Date().toISOString(), updated_at: new Date().toISOString()
+          });
+        }
+        count++;
+      }
+
+      saveData(type === 'cambio_estatus' ? 'cambios' : type);
+      closeModal('import');
+      fileInput.value = '';
+      if (type === 'enfermeros') renderEnfermeros();
+      if (type === 'postulados') renderPostulados();
+      if (type === 'cambio_estatus') renderCambios();
+      showToast(`${count} registros importados exitosamente`, 'success');
+    } catch(err) {
+      showToast('Error al importar: ' + err.message, 'error');
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function exportAllExcel() {
+  const wb = XLSX.utils.book_new();
+
+  // Enfermeros
+  const enfHeaders = ['Apellidos y Nombres', 'Genero', 'Fecha de Nacimiento', 'Edad', 'Cedula', 'Telefono', 'Correo', 'Cargo', 'Municipio', 'Parroquia', 'Ubicacion Administrativa', 'Ubicacion Fisica', 'Estatus', 'Causa Inactividad', 'Formacion', 'Observaciones'];
+  const enfData = enfermeros.map(e => [e.nombres, e.genero, e.fecha_nac, e.edad, e.cedula, e.telefono, e.correo, e.cargo, e.municipio, e.parroquia, e.ubicacion_admin, e.ubicacion_fisica, e.estatus, e.causa, e.formacion, e.observaciones]);
+  const ws1 = XLSX.utils.aoa_to_sheet([enfHeaders, ...enfData]);
+  XLSX.utils.book_append_sheet(wb, ws1, 'Personal Enfermeria');
+
+  // Postulados
+  const posHeaders = ['Apellidos y Nombres', 'Cedula', 'Fecha de Nacimiento', 'Edad', 'Titulo', 'Cargo', 'ASIC', 'Ubicacion', 'Celular', 'Correo', 'Documentos Completos', 'Observaciones'];
+  const posData = postulados.map(p => [p.nombres, p.cedula, p.fecha_nac, p.edad, p.titulo, p.cargo, p.asic, p.ubicacion, p.celular, p.correo, p.documentos, p.observaciones]);
+  const ws2 = XLSX.utils.aoa_to_sheet([posHeaders, ...posData]);
+  XLSX.utils.book_append_sheet(wb, ws2, 'Punto de Cuenta');
+
+  // Cambios
+  const camHeaders = ['Apellidos y Nombres', 'Cedula', 'Titulo', 'Cargo Actual', 'Cambio', 'Celular', 'Correo', 'Observaciones'];
+  const camData = cambiosEstatus.map(c => [c.nombres, c.cedula, c.titulo, c.cargo, c.tipo, c.celular, c.correo, c.observaciones]);
+  const ws3 = XLSX.utils.aoa_to_sheet([camHeaders, ...camData]);
+  XLSX.utils.book_append_sheet(wb, ws3, 'Cambio de Estatus');
+
+  XLSX.writeFile(wb, 'sistema_enfermeria_completo.xlsx');
+  showToast('Archivo completo exportado', 'success');
+}
+
+function importAllExcel() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.xlsx,.xls';
+  input.onchange = function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      try {
+        const data = new Uint8Array(ev.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+
+        workbook.SheetNames.forEach(sheetName => {
+          const sheet = workbook.Sheets[sheetName];
+          const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+          if (rows.length < 2) return;
+
+          if (sheetName.includes('Personal') || sheetName.includes('enfermeria')) {
+            for (let i = 1; i < rows.length; i++) {
+              const r = rows[i];
+              if (!r[0]) continue;
+              enfermeros.push({ id: 'enf_' + Date.now() + '_' + i, nombres: r[0]||'', genero: r[1]||'', fecha_nac: r[2]||'', edad: r[3]||'', cedula: r[4]||'', telefono: r[5]||'', correo: r[6]||'', cargo: r[7]||'', municipio: r[8]||'', parroquia: r[9]||'', ubicacion_admin: r[10]||'', ubicacion_fisica: r[11]||'', estatus: r[12]||'Activo', causa: r[13]||'', formacion: r[14]||'', observaciones: r[15]||'', created_at: new Date().toISOString(), updated_at: new Date().toISOString() });
+            }
+            saveData('enfermeros');
+          } else if (sheetName.includes('Punto') || sheetName.includes('postulados')) {
+            for (let i = 1; i < rows.length; i++) {
+              const r = rows[i];
+              if (!r[0]) continue;
+              postulados.push({ id: 'pos_' + Date.now() + '_' + i, nombres: r[0]||'', cedula: r[1]||'', fecha_nac: r[2]||'', edad: r[3]||'', titulo: r[4]||'', cargo: r[5]||'', asic: r[6]||'', ubicacion: r[7]||'', celular: r[8]||'', correo: r[9]||'', documentos: r[10]||'No', observaciones: r[11]||'', created_at: new Date().toISOString(), updated_at: new Date().toISOString() });
+            }
+            saveData('postulados');
+          } else if (sheetName.includes('Cambio') || sheetName.includes('estatus')) {
+            for (let i = 1; i < rows.length; i++) {
+              const r = rows[i];
+              if (!r[0]) continue;
+              cambiosEstatus.push({ id: 'cam_' + Date.now() + '_' + i, nombres: r[0]||'', cedula: r[1]||'', titulo: r[2]||'', cargo: r[3]||'', tipo: r[4]||'', celular: r[5]||'', correo: r[6]||'', observaciones: r[7]||'', created_at: new Date().toISOString(), updated_at: new Date().toISOString() });
+            }
+            saveData('cambios');
+          }
+        });
+
+        showToast('Datos importados desde Excel', 'success');
+      } catch(err) {
+        showToast('Error al importar: ' + err.message, 'error');
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  };
+  input.click();
+}
+
+// ============================================
+// BACKUP / RESTORE
+// ============================================
+function exportBackup() {
+  const backup = {
+    version: '1.0.0',
+    fecha: new Date().toISOString(),
+    enfermeros, postulados, cambiosEstatus, usuarios
+  };
+  const json = JSON.stringify(backup);
+  const encrypted = CryptoJS.AES.encrypt(json, 'EnfermeriaApure2025').toString();
+  const blob = new Blob([encrypted], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'backup_enfermeria_' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Backup encriptado descargado', 'success');
+}
+
+function importBackup() {
+  const fileInput = document.getElementById('backup-file');
+  const file = fileInput.files[0];
+  if (!file) { showToast('Seleccione un archivo de backup', 'error'); return; }
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const encrypted = e.target.result;
+      const decrypted = CryptoJS.AES.decrypt(encrypted, 'EnfermeriaApure2025').toString(CryptoJS.enc.Utf8);
+      const backup = JSON.parse(decrypted);
+
+      if (confirm(`Restaurar backup del ${backup.fecha}? Se reemplazaran todos los datos actuales.`)) {
+        enfermeros = backup.enfermeros || [];
+        postulados = backup.postulados || [];
+        cambiosEstatus = backup.cambiosEstatus || [];
+        if (backup.usuarios) usuarios = backup.usuarios;
+        saveData('enfermeros');
+        saveData('postulados');
+        saveData('cambios');
+        saveData('usuarios');
+        fileInput.value = '';
+        showToast('Backup restaurado exitosamente', 'success');
+        updateDashboard();
+      }
+    } catch(err) {
+      showToast('Error al restaurar backup: archivo invalido o contrasena incorrecta', 'error');
+    }
+  };
+  reader.readAsText(file);
+}
+
+// ============================================
+// SUPABASE SYNC
+// ============================================
+async function syncToSupabase() {
+  if (!supabase) { showToast('Supabase no configurado. Configure SUPABASE_URL y SUPABASE_KEY.', 'error'); return; }
+  try {
+    showToast('Sincronizando con Supabase...', 'info');
+    // Tabla enfermeros
+    await supabase.from('enfermeros').upsert(enfermeros, { onConflict: 'id' });
+    await supabase.from('postulados').upsert(postulados, { onConflict: 'id' });
+    await supabase.from('cambios_estatus').upsert(cambiosEstatus, { onConflict: 'id' });
+    showToast('Datos subidos a Supabase', 'success');
+  } catch(err) {
+    showToast('Error de sincronizacion: ' + err.message, 'error');
+  }
+}
+
+async function syncFromSupabase() {
+  if (!supabase) { showToast('Supabase no configurado. Configure SUPABASE_URL y SUPABASE_KEY.', 'error'); return; }
+  try {
+    showToast('Descargando datos de Supabase...', 'info');
+    const { data: enf } = await supabase.from('enfermeros').select('*');
+    const { data: pos } = await supabase.from('postulados').select('*');
+    const { data: cam } = await supabase.from('cambios_estatus').select('*');
+
+    if (enf) { enfermeros = enf; saveData('enfermeros'); }
+    if (pos) { postulados = pos; saveData('postulados'); }
+    if (cam) { cambiosEstatus = cam; saveData('cambios'); }
+
+    showToast('Datos descargados de Supabase', 'success');
+    updateDashboard();
+  } catch(err) {
+    showToast('Error de descarga: ' + err.message, 'error');
+  }
+}
+
+// ============================================
+// TOAST
+// ============================================
+function showToast(message, type) {
+  const toast = document.getElementById('toast');
+  const icon = document.getElementById('toast-icon');
+  const msg = document.getElementById('toast-message');
+
+  const icons = {
+    success: '<svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>',
+    error: '<svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>',
+    warning: '<svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>',
+    info: '<svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'
+  };
+
+  icon.innerHTML = icons[type] || icons.info;
+  msg.textContent = message;
+  toast.classList.remove('translate-y-20', 'opacity-0');
+  toast.classList.add('translate-y-0', 'opacity-100');
+
+  setTimeout(() => {
+    toast.classList.add('translate-y-20', 'opacity-0');
+    toast.classList.remove('translate-y-0', 'opacity-100');
+  }, 3000);
+}
+</script>
+</body>
+</html>
