@@ -1,0 +1,1412 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema de Control de Personal de Enfermería - Estado Apure</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root {
+  --primary: #1a5f2a; --primary-dark: #0d3d18; --accent: #f4a623;
+  --bg: #f0f4f0; --card: #ffffff; --text: #1a1a1a; --text-light: #555;
+  --border: #d0ddd0; --success: #2e7d32; --danger: #c62828; --warning: #f9a825;
+  --sidebar-width: 260px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+body { background: var(--bg); color: var(--text); min-height: 100vh; }
+
+#login-screen {
+  position: fixed; inset: 0; background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+  display: flex; align-items: center; justify-content: center; z-index: 9999;
+}
+.login-box {
+  background: var(--card); padding: 40px; border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3); width: 100%; max-width: 420px; text-align: center;
+}
+.login-box img { width: 100px; height: 100px; object-fit: contain; margin-bottom: 16px; }
+.login-box h1 { font-size: 1.4rem; color: var(--primary-dark); margin-bottom: 8px; }
+.login-box p { color: var(--text-light); margin-bottom: 24px; font-size: 0.9rem; }
+.login-box input {
+  width: 100%; padding: 14px 16px; margin-bottom: 12px; border: 2px solid var(--border);
+  border-radius: 10px; font-size: 1rem; transition: border-color 0.2s;
+}
+.login-box input:focus { outline: none; border-color: var(--primary); }
+.login-box button {
+  width: 100%; padding: 14px; background: var(--primary); color: white;
+  border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer;
+  transition: background 0.2s;
+}
+.login-box button:hover { background: var(--primary-dark); }
+.login-box button:disabled { opacity: 0.6; cursor: not-allowed; }
+.login-error { color: var(--danger); margin-top: 12px; font-size: 0.85rem; display: none; }
+
+#app { display: none; }
+.sidebar {
+  position: fixed; left: 0; top: 0; bottom: 0; width: var(--sidebar-width);
+  background: linear-gradient(180deg, var(--primary-dark), var(--primary));
+  color: white; padding: 20px 0; overflow-y: auto; z-index: 100;
+}
+.sidebar-header { text-align: center; padding: 0 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+.sidebar-header img { width: 70px; height: 70px; object-fit: contain; margin-bottom: 10px; }
+.sidebar-header h2 { font-size: 0.95rem; line-height: 1.3; }
+.sidebar-header small { opacity: 0.7; font-size: 0.75rem; }
+.sidebar-nav { padding: 16px 12px; }
+.nav-item {
+  display: flex; align-items: center; gap: 12px; padding: 12px 16px;
+  border-radius: 10px; cursor: pointer; transition: all 0.2s; margin-bottom: 4px;
+  font-size: 0.9rem; color: rgba(255,255,255,0.85);
+}
+.nav-item:hover, .nav-item.active { background: rgba(255,255,255,0.1); color: white; }
+.nav-item svg { width: 20px; height: 20px; flex-shrink: 0; }
+.sidebar-footer { padding: 16px; border-top: 1px solid rgba(255,255,255,0.1); margin-top: auto; }
+.sidebar-footer .user-info { font-size: 0.8rem; opacity: 0.8; margin-bottom: 8px; }
+.sidebar-footer button {
+  width: 100%; padding: 10px; background: rgba(255,255,255,0.1); color: white;
+  border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; cursor: pointer;
+  font-size: 0.85rem; transition: background 0.2s;
+}
+.sidebar-footer button:hover { background: rgba(255,255,255,0.2); }
+
+.main-content { margin-left: var(--sidebar-width); min-height: 100vh; padding: 24px 28px; }
+.top-bar {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 24px; flex-wrap: wrap; gap: 12px;
+}
+.top-bar h1 { font-size: 1.5rem; color: var(--primary-dark); }
+.top-bar .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn {
+  padding: 10px 18px; border-radius: 8px; border: none; font-size: 0.85rem;
+  font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+  transition: all 0.2s;
+}
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:hover { background: var(--primary-dark); }
+.btn-secondary { background: var(--card); color: var(--text); border: 1px solid var(--border); }
+.btn-secondary:hover { background: var(--bg); }
+.btn-danger { background: var(--danger); color: white; }
+.btn-danger:hover { background: #a02020; }
+.btn-warning { background: var(--warning); color: #333; }
+
+.stats-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px; margin-bottom: 24px;
+}
+.stat-card {
+  background: var(--card); border-radius: 12px; padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-left: 4px solid var(--primary);
+}
+.stat-card .label { font-size: 0.8rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; }
+.stat-card .value { font-size: 2rem; font-weight: 700; color: var(--primary-dark); margin: 4px 0; }
+.stat-card .sub { font-size: 0.8rem; color: var(--text-light); }
+.stat-card.f { border-left-color: #e91e63; }
+.stat-card.m { border-left-color: #2196f3; }
+
+.charts-row {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px; margin-bottom: 24px;
+}
+.chart-card {
+  background: var(--card); border-radius: 12px; padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.chart-card h3 { font-size: 1rem; margin-bottom: 16px; color: var(--primary-dark); }
+
+.table-container {
+  background: var(--card); border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  overflow: hidden; margin-bottom: 24px;
+}
+.table-toolbar {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 16px 20px; border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: 10px;
+}
+.table-toolbar input, .table-toolbar select {
+  padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.85rem;
+}
+.search-box { min-width: 240px; }
+table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+thead { background: var(--bg); }
+th { padding: 12px 16px; text-align: left; font-weight: 600; color: var(--primary-dark); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.3px; }
+td { padding: 12px 16px; border-bottom: 1px solid var(--border); }
+tr:hover { background: rgba(26,95,42,0.03); }
+.badge {
+  display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;
+}
+.badge-success { background: #e8f5e9; color: var(--success); }
+.badge-danger { background: #ffebee; color: var(--danger); }
+.badge-warning { background: #fff8e1; color: #f57f17; }
+.badge-info { background: #e3f2fd; color: #1565c0; }
+
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+  display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px;
+}
+.modal-overlay.active { display: flex; }
+.modal {
+  background: var(--card); border-radius: 16px; width: 100%; max-width: 700px;
+  max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+.modal-header {
+  padding: 20px 24px; border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.modal-header h2 { font-size: 1.2rem; color: var(--primary-dark); }
+.modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-light); }
+.modal-body { padding: 24px; }
+.form-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px;
+}
+.form-group { display: flex; flex-direction: column; }
+.form-group label { font-size: 0.8rem; font-weight: 600; color: var(--text-light); margin-bottom: 6px; text-transform: uppercase; }
+.form-group input, .form-group select, .form-group textarea {
+  padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.9rem;
+  transition: border-color 0.2s;
+}
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+  outline: none; border-color: var(--primary);
+}
+.form-group textarea { resize: vertical; min-height: 80px; }
+.modal-footer {
+  padding: 16px 24px; border-top: 1px solid var(--border);
+  display: flex; justify-content: flex-end; gap: 10px;
+}
+
+.section { display: none; }
+.section.active { display: block; }
+
+@media (max-width: 768px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
+  .main-content { margin-left: 0; padding: 16px; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .charts-row { grid-template-columns: 1fr; }
+}
+
+.toast-container { position: fixed; top: 20px; right: 20px; z-index: 2000; display: flex; flex-direction: column; gap: 8px; }
+.toast {
+  background: var(--card); padding: 14px 20px; border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 10px;
+  animation: slideIn 0.3s ease; min-width: 280px; border-left: 4px solid var(--primary);
+}
+.toast.error { border-left-color: var(--danger); }
+.toast.success { border-left-color: var(--success); }
+@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+.loading-overlay {
+  position: fixed; inset: 0; background: rgba(255,255,255,0.8);
+  display: none; align-items: center; justify-content: center; z-index: 1500;
+}
+.loading-overlay.active { display: flex; }
+.spinner {
+  width: 48px; height: 48px; border: 4px solid var(--border);
+  border-top-color: var(--primary); border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-box">
+    <img src="https://raw.githubusercontent.com/tsucesarherrera-afk/p/main/WhatsApp_Image_2025-06-11_at_10.22.41_AM-removebg-preview-removebg-preview.png" alt="Logo Gobernación de Apure" onerror="this.style.display='none'">
+    <h1>Sistema de Control de Personal de Enfermería</h1>
+    <p>Estado Apure, Venezuela</p>
+    <input type="email" id="login-email" placeholder="Correo electrónico">
+    <input type="password" id="login-password" placeholder="Contraseña">
+    <button onclick="handleLogin()" id="login-btn">Iniciar Sesión</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<div id="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <img src="https://raw.githubusercontent.com/tsucesarherrera-afk/p/main/WhatsApp_Image_2025-06-11_at_10.22.41_AM-removebg-preview-removebg-preview.png" alt="Logo" onerror="this.style.display='none'">
+      <h2>Control de Enfermería</h2>
+      <small>Estado Apure</small>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-item active" onclick="showSection('dashboard')" data-section="dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </div>
+      <div class="nav-item" onclick="showSection('personal')" data-section="personal">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Personal de Enfermería
+      </div>
+      <div class="nav-item" onclick="showSection('postulados')" data-section="postulados">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Punto de Cuenta
+      </div>
+      <div class="nav-item" onclick="showSection('cambios')" data-section="cambios">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        Cambio de Estatus
+      </div>
+      <div class="nav-item superadmin-only hidden" onclick="showSection('usuarios')" data-section="usuarios">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Gestión de Usuarios
+      </div>
+      <div class="nav-item" onclick="showSection('backup')" data-section="backup">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Backup / Sincronización
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info" id="user-info">Cargando...</div>
+      <button onclick="handleLogout()">Cerrar Sesión</button>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <section id="sec-dashboard" class="section active">
+      <div class="top-bar"><h1>Dashboard</h1><div class="actions"><button class="btn btn-secondary" onclick="refreshDashboard()">🔄 Actualizar</button></div></div>
+      <div class="stats-grid" id="stats-grid"></div>
+      <div class="charts-row">
+        <div class="chart-card"><h3>Distribución por Cargo y Género</h3><canvas id="chart-cargo"></canvas></div>
+        <div class="chart-card"><h3>Distribución por Municipio</h3><canvas id="chart-municipio"></canvas></div>
+      </div>
+      <div class="charts-row">
+        <div class="chart-card"><h3>Estatus del Personal</h3><canvas id="chart-estatus"></canvas></div>
+        <div class="chart-card"><h3>Resumen General</h3><div id="resumen-general" style="padding:10px;"></div></div>
+      </div>
+    </section>
+
+    <section id="sec-personal" class="section">
+      <div class="top-bar">
+        <h1>Personal de Enfermería</h1>
+        <div class="actions">
+          <button class="btn btn-primary admin-only hidden" onclick="openModal('personal')">➕ Nuevo</button>
+          <button class="btn btn-secondary" onclick="exportExcel('personal')">📥 Exportar Excel</button>
+          <button class="btn btn-secondary admin-only hidden" onclick="importExcel('personal')">📤 Importar Excel</button>
+        </div>
+      </div>
+      <div class="table-container">
+        <div class="table-toolbar">
+          <input type="text" class="search-box" id="search-personal" placeholder="🔍 Buscar por nombre, cédula, cargo..." oninput="filterTable('personal')">
+          <select id="filter-cargo" onchange="filterTable('personal')"><option value="">Todos los cargos</option><option value="Profesional">Profesional</option><option value="TSU">TSU</option><option value="Auxiliar">Auxiliar</option></select>
+          <select id="filter-estatus" onchange="filterTable('personal')"><option value="">Todos los estatus</option><option value="Activo">Activo</option><option value="Inactivo">Inactivo</option></select>
+        </div>
+        <div style="overflow-x:auto;">
+          <table><thead><tr><th>Nombre</th><th>Cédula</th><th>Género</th><th>Edad</th><th>Cargo</th><th>Municipio</th><th>Parroquia</th><th>Estatus</th><th>Teléfono</th><th class="admin-only hidden">Acciones</th></tr></thead><tbody id="tbody-personal"></tbody></table>
+        </div>
+      </div>
+    </section>
+
+    <section id="sec-postulados" class="section">
+      <div class="top-bar">
+        <h1>Punto de Cuenta (Postulados)</h1>
+        <div class="actions">
+          <button class="btn btn-primary admin-only hidden" onclick="openModal('postulados')">➕ Nuevo Postulado</button>
+          <button class="btn btn-secondary" onclick="exportExcel('postulados')">📥 Exportar Excel</button>
+          <button class="btn btn-secondary admin-only hidden" onclick="importExcel('postulados')">📤 Importar Excel</button>
+        </div>
+      </div>
+      <div class="table-container">
+        <div class="table-toolbar">
+          <input type="text" class="search-box" id="search-postulados" placeholder="🔍 Buscar..." oninput="filterTable('postulados')">
+          <select id="filter-doc" onchange="filterTable('postulados')"><option value="">Documentos</option><option value="Sí">Completos</option><option value="No">Incompletos</option><option value="En proceso">En proceso</option></select>
+        </div>
+        <div style="overflow-x:auto;">
+          <table><thead><tr><th>Nombre</th><th>Cédula</th><th>Edad</th><th>Título</th><th>Cargo</th><th>ASIC</th><th>Celular</th><th>Documentos</th><th>Estatus</th><th class="admin-only hidden">Acciones</th></tr></thead><tbody id="tbody-postulados"></tbody></table>
+        </div>
+      </div>
+    </section>
+
+    <section id="sec-cambios" class="section">
+      <div class="top-bar">
+        <h1>Cambio de Estatus</h1>
+        <div class="actions">
+          <button class="btn btn-primary admin-only hidden" onclick="openModal('cambios')">➕ Nuevo Cambio</button>
+          <button class="btn btn-secondary" onclick="exportExcel('cambios')">📥 Exportar Excel</button>
+          <button class="btn btn-secondary admin-only hidden" onclick="importExcel('cambios')">📤 Importar Excel</button>
+        </div>
+      </div>
+      <div class="table-container">
+        <div class="table-toolbar">
+          <input type="text" class="search-box" id="search-cambios" placeholder="🔍 Buscar por cédula o nombre..." oninput="filterTable('cambios')">
+          <select id="filter-tipo-cambio" onchange="filterTable('cambios')"><option value="">Todos los tipos</option><option value="Ascenso">Ascenso</option><option value="Traslado">Traslado</option><option value="Renuncia">Renuncia</option><option value="Jubilación">Jubilación</option><option value="Reposo">Reposo</option><option value="Otro">Otro</option></select>
+        </div>
+        <div style="overflow-x:auto;">
+          <table><thead><tr><th>Nombre</th><th>Cédula</th><th>Título</th><th>Cargo</th><th>Tipo de Cambio</th><th>Fecha</th><th>Detalle</th><th class="admin-only hidden">Acciones</th></tr></thead><tbody id="tbody-cambios"></tbody></table>
+        </div>
+      </div>
+    </section>
+
+    <section id="sec-usuarios" class="section">
+      <div class="top-bar"><h1>Gestión de Usuarios</h1><div class="actions"><button class="btn btn-primary" onclick="openModal('usuarios')">➕ Nuevo Usuario</button></div></div>
+      <div class="table-container">
+        <div class="table-toolbar"><input type="text" class="search-box" id="search-usuarios" placeholder="🔍 Buscar..." oninput="filterTable('usuarios')"></div>
+        <div style="overflow-x:auto;"><table><thead><tr><th>Nombre</th><th>Correo</th><th>Rol</th><th>Estado</th><th>Acciones</th></tr></thead><tbody id="tbody-usuarios"></tbody></table></div>
+      </div>
+    </section>
+
+    <section id="sec-backup" class="section">
+      <div class="top-bar"><h1>Backup y Sincronización</h1></div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="label">Exportar Backup</div><div class="value" style="font-size:1rem;margin:12px 0;">Descarga todos los datos encriptados</div><button class="btn btn-primary" onclick="createBackup()" style="width:100%">💾 Crear Backup</button></div>
+        <div class="stat-card"><div class="label">Restaurar Backup</div><div class="value" style="font-size:1rem;margin:12px 0;">Restaura desde archivo JSON encriptado</div><input type="file" id="restore-file" accept=".json" style="margin-bottom:8px;width:100%;"><button class="btn btn-warning" onclick="restoreBackup()" style="width:100%">📂 Restaurar</button></div>
+        <div class="stat-card"><div class="label">Sincronizar con Supabase</div><div class="value" style="font-size:1rem;margin:12px 0;">Subir datos locales a la nube</div><button class="btn btn-primary" onclick="syncToSupabase()" style="width:100%">☁️ Subir a Supabase</button></div>
+        <div class="stat-card"><div class="label">Descargar desde Supabase</div><div class="value" style="font-size:1rem;margin:12px 0;">Traer datos de la nube</div><button class="btn btn-secondary" onclick="syncFromSupabase()" style="width:100%">⬇️ Descargar</button></div>
+      </div>
+      <div class="chart-card" style="margin-top:20px;">
+        <h3>Instrucciones</h3>
+        <ul style="padding-left:20px;line-height:2;color:var(--text-light);">
+          <li><b>Backup:</b> Exporta todas las tablas a un archivo JSON encriptado con AES-256.</li>
+          <li><b>Restaurar:</b> Selecciona un archivo de backup previamente generado para restaurar los datos.</li>
+          <li><b>Sincronizar:</b> Sube los datos locales a Supabase o descarga los de la nube.</li>
+          <li><b>Seguridad:</b> La contraseña de encriptación debe ser la misma para backup y restore.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="modal-overlay" id="modal-personal">
+  <div class="modal">
+    <div class="modal-header"><h2 id="title-personal">Nuevo Personal</h2><button class="modal-close" onclick="closeModal('personal')">&times;</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group"><label>Apellidos y Nombres *</label><input type="text" id="p-nombre"></div>
+        <div class="form-group"><label>Género *</label><select id="p-genero"><option value="Femenino">Femenino</option><option value="Masculino">Masculino</option></select></div>
+        <div class="form-group"><label>Fecha de Nacimiento</label><input type="date" id="p-fecha-nac" onchange="calcularEdad('p')"></div>
+        <div class="form-group"><label>Edad</label><input type="number" id="p-edad" placeholder="Auto o manual"></div>
+        <div class="form-group"><label>Cédula *</label><input type="text" id="p-cedula" placeholder="V-12345678"></div>
+        <div class="form-group"><label>Teléfono</label><input type="text" id="p-telefono"></div>
+        <div class="form-group"><label>Correo</label><input type="email" id="p-correo"></div>
+        <div class="form-group"><label>Cargo Nominal *</label><select id="p-cargo"><option value="Profesional">Profesional</option><option value="TSU">TSU</option><option value="Auxiliar">Auxiliar</option></select></div>
+        <div class="form-group"><label>Municipio *</label><select id="p-municipio" onchange="actualizarParroquias('p')"></select></div>
+        <div class="form-group"><label>Parroquia *</label><select id="p-parroquia"></select></div>
+        <div class="form-group"><label>Ubicación Administrativa</label><input type="text" id="p-ubic-admin"></div>
+        <div class="form-group"><label>Ubicación Física</label><input type="text" id="p-ubic-fisica"></div>
+        <div class="form-group"><label>Estatus *</label><select id="p-estatus" onchange="toggleCausa('p')"><option value="Activo">Activo</option><option value="Inactivo">Inactivo</option></select></div>
+        <div class="form-group" id="grp-causa-p"><label>Causa de Inactividad</label><input type="text" id="p-causa"></div>
+        <div class="form-group"><label>Formación (si está estudiando)</label><input type="text" id="p-formacion"></div>
+        <div class="form-group" style="grid-column:1/-1;"><label>Observaciones</label><textarea id="p-obs"></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('personal')">Cancelar</button><button class="btn btn-primary" onclick="savePersonal()">Guardar</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-postulados">
+  <div class="modal">
+    <div class="modal-header"><h2 id="title-postulados">Nuevo Postulado</h2><button class="modal-close" onclick="closeModal('postulados')">&times;</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group"><label>Apellidos y Nombres *</label><input type="text" id="po-nombre"></div>
+        <div class="form-group"><label>Cédula *</label><input type="text" id="po-cedula"></div>
+        <div class="form-group"><label>Fecha de Nacimiento</label><input type="date" id="po-fecha-nac" onchange="calcularEdad('po')"></div>
+        <div class="form-group"><label>Edad</label><input type="number" id="po-edad"></div>
+        <div class="form-group"><label>Título</label><input type="text" id="po-titulo"></div>
+        <div class="form-group"><label>Cargo</label><input type="text" id="po-cargo"></div>
+        <div class="form-group"><label>ASIC</label><input type="text" id="po-asic"></div>
+        <div class="form-group"><label>Ubicación</label><input type="text" id="po-ubicacion"></div>
+        <div class="form-group"><label>Celular</label><input type="text" id="po-celular"></div>
+        <div class="form-group"><label>Correo Electrónico</label><input type="email" id="po-correo"></div>
+        <div class="form-group"><label>Documentos Completos</label><select id="po-docs"><option value="Sí">Sí</option><option value="No">No</option><option value="En proceso">En proceso</option></select></div>
+        <div class="form-group" style="grid-column:1/-1;"><label>Observaciones</label><textarea id="po-obs"></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('postulados')">Cancelar</button><button class="btn btn-primary" onclick="savePostulado()">Guardar</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-cambios">
+  <div class="modal">
+    <div class="modal-header"><h2 id="title-cambios">Nuevo Cambio de Estatus</h2><button class="modal-close" onclick="closeModal('cambios')">&times;</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group" style="grid-column:1/-1;">
+          <label>Buscar por Cédula</label>
+          <div style="display:flex;gap:10px;">
+            <input type="text" id="c-buscar-cedula" placeholder="Ingrese cédula..." style="flex:1" onblur="buscarPersonalCambio()">
+            <button type="button" class="btn btn-secondary" onclick="buscarPersonalCambio()">🔍 Buscar</button>
+          </div>
+          <small style="color:var(--text-light)">Si no encuentra el personal, puede llenar los datos manualmente.</small>
+        </div>
+        <div class="form-group"><label>Apellidos y Nombres *</label><input type="text" id="c-nombre"></div>
+        <div class="form-group"><label>Cédula *</label><input type="text" id="c-cedula"></div>
+        <div class="form-group"><label>Título</label><input type="text" id="c-titulo"></div>
+        <div class="form-group"><label>Cargo</label><input type="text" id="c-cargo"></div>
+        <div class="form-group"><label>Tipo de Cambio *</label><select id="c-tipo"><option value="Ascenso">Ascenso</option><option value="Traslado">Traslado</option><option value="Renuncia">Renuncia</option><option value="Jubilación">Jubilación</option><option value="Reposo">Reposo</option><option value="Otro">Otro</option></select></div>
+        <div class="form-group"><label>Fecha del Cambio</label><input type="date" id="c-fecha"></div>
+        <div class="form-group"><label>Celular</label><input type="text" id="c-celular"></div>
+        <div class="form-group"><label>Correo</label><input type="email" id="c-correo"></div>
+        <div class="form-group" style="grid-column:1/-1;"><label>Detalle</label><textarea id="c-detalle"></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('cambios')">Cancelar</button><button class="btn btn-primary" onclick="saveCambio()">Guardar</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-usuarios">
+  <div class="modal" style="max-width:500px;">
+    <div class="modal-header"><h2>Nuevo Usuario</h2><button class="modal-close" onclick="closeModal('usuarios')">&times;</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group"><label>Nombre Completo *</label><input type="text" id="u-nombre"></div>
+        <div class="form-group"><label>Correo Electrónico *</label><input type="email" id="u-email"></div>
+        <div class="form-group"><label>Contraseña *</label><input type="password" id="u-password" placeholder="Mínimo 6 caracteres"></div>
+        <div class="form-group"><label>Rol *</label><select id="u-rol"><option value="admin">Administrador</option><option value="usuario">Usuario (Solo lectura)</option></select></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('usuarios')">Cancelar</button><button class="btn btn-primary" onclick="saveUsuario()">Crear Usuario</button></div>
+  </div>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+<div class="loading-overlay" id="loading"><div class="spinner"></div></div>
+
+<script>
+// ==========================================
+// CONFIGURACION SUPABASE - REEMPLAZAR
+// ==========================================
+const SUPABASE_URL = 'https://TU-PROJECT.supabase.co';
+const SUPABASE_ANON_KEY = 'TU-ANON-KEY';
+
+// ==========================================
+// MUNICIPIOS Y PARROQUIAS - ESTADO APURE
+// ==========================================
+const MUNICIPIOS_APURE = {
+  'San Fernando': ['El Recreo', 'Peñalver (Arichuna)', 'San Rafael de Atamaica'],
+  'Biruaca': ['Biruaca'],
+  'Pedro Camejo': ['San Juan de Payara', 'Codazzi (Puerto Páez)', 'Cunaviche'],
+  'Achaguas': ['Apurito', 'El Yagual', 'Guachara', 'Mucuritas', 'Queseras del Medio'],
+  'Muñoz': ['Bruzual', 'Mantecal', 'Quintero'],
+  'Páez': ['Guasdualito', 'Aramendi', 'El Amparo', 'San Camilo', 'Urdaneta'],
+  'Rómulo Gallegos': ['Elorza', 'La Trinidad']
+};
+
+// ==========================================
+// ESTADO GLOBAL
+// ==========================================
+let supabase = null;
+let currentUser = null;
+let currentRol = null;
+let editingId = null;
+let editingTable = null;
+let dataCache = { personal: [], postulados: [], cambios: [], usuarios: [] };
+
+// ==========================================
+// INICIALIZACION
+// ==========================================
+document.addEventListener('DOMContentLoaded', () => {
+  // Inicializar cliente Supabase
+  supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  fillMunicipios();
+  document.getElementById('c-fecha').value = new Date().toISOString().split('T')[0];
+
+  // Verificar sesion existente
+  checkSession();
+});
+
+async function checkSession() {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session) {
+    await initUser(session.user);
+  }
+}
+
+function fillMunicipios(prefix = 'p') {
+  const sel = document.getElementById(prefix + '-municipio');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">Seleccione...</option>';
+  Object.keys(MUNICIPIOS_APURE).forEach(m => {
+    sel.innerHTML += `<option value="${m}">${m}</option>`;
+  });
+}
+
+function actualizarParroquias(prefix = 'p') {
+  const mun = document.getElementById(prefix + '-municipio').value;
+  const sel = document.getElementById(prefix + '-parroquia');
+  sel.innerHTML = '<option value="">Seleccione...</option>';
+  if (MUNICIPIOS_APURE[mun]) {
+    MUNICIPIOS_APURE[mun].forEach(p => {
+      sel.innerHTML += `<option value="${p}">${p}</option>`;
+    });
+  }
+}
+
+function toggleCausa(prefix = 'p') {
+  const est = document.getElementById(prefix + '-estatus').value;
+  const grp = document.getElementById('grp-causa-' + prefix);
+  if (grp) grp.style.display = est === 'Inactivo' ? 'block' : 'none';
+}
+
+function calcularEdad(prefix = 'p') {
+  const fecha = document.getElementById(prefix + '-fecha-nac').value;
+  if (!fecha) return;
+  const hoy = new Date();
+  const nac = new Date(fecha);
+  let edad = hoy.getFullYear() - nac.getFullYear();
+  const m = hoy.getMonth() - nac.getMonth();
+  if (m < 0 || (m === 0 && hoy.getDate() < nac.getDate())) edad--;
+  const inp = document.getElementById(prefix + '-edad');
+  if (inp) inp.value = edad;
+}
+
+// ==========================================
+// LOGIN / LOGOUT
+// ==========================================
+async function handleLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const btn = document.getElementById('login-btn');
+  const errDiv = document.getElementById('login-error');
+
+  if (!email || !password) {
+    errDiv.textContent = 'Ingrese correo y contraseña';
+    errDiv.style.display = 'block';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Ingresando...';
+
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+  if (error) {
+    errDiv.textContent = error.message;
+    errDiv.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Iniciar Sesión';
+    return;
+  }
+
+  await initUser(data.user);
+}
+
+async function initUser(user) {
+  currentUser = user;
+  const { data: perfil, error: pErr } = await supabase
+    .from('perfiles')
+    .select('rol, nombre_completo')
+    .eq('id', user.id)
+    .single();
+
+  if (pErr || !perfil) {
+    toast('Error: Perfil no encontrado. Contacte al administrador.', 'error');
+    await supabase.auth.signOut();
+    return;
+  }
+
+  currentRol = perfil.rol;
+
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('user-info').textContent = `${perfil.nombre_completo} (${perfil.rol})`;
+
+  // Mostrar/ocultar segun rol
+  if (currentRol === 'superadmin') {
+    document.querySelectorAll('.superadmin-only').forEach(el => el.classList.remove('hidden'));
+    document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
+  } else if (currentRol === 'admin') {
+    document.querySelectorAll('.superadmin-only').forEach(el => el.classList.add('hidden'));
+    document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
+  } else {
+    document.querySelectorAll('.superadmin-only, .admin-only').forEach(el => el.classList.add('hidden'));
+  }
+
+  await loadAllData();
+  refreshDashboard();
+  renderAllTables();
+}
+
+async function handleLogout() {
+  await supabase.auth.signOut();
+  location.reload();
+}
+
+// ==========================================
+// NAVEGACION
+// ==========================================
+function showSection(name) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('sec-' + name).classList.add('active');
+  document.querySelector(`[data-section="${name}"]`).classList.add('active');
+
+  if (name === 'dashboard') refreshDashboard();
+  if (name === 'personal') renderTable('personal');
+  if (name === 'postulados') renderTable('postulados');
+  if (name === 'cambios') renderTable('cambios');
+  if (name === 'usuarios') renderTable('usuarios');
+}
+
+// ==========================================
+// CARGAR DATOS DESDE SUPABASE
+// ==========================================
+async function loadAllData() {
+  showLoading(true);
+  const tables = [
+    { table: 'personal_enfermeria', key: 'personal', order: 'apellidos_nombres' },
+    { table: 'postulados', key: 'postulados', order: 'apellidos_nombres' },
+    { table: 'cambios_estatus', key: 'cambios', order: 'created_at' },
+    { table: 'perfiles', key: 'usuarios', order: 'nombre_completo' }
+  ];
+
+  for (const t of tables) {
+    const { data, error } = await supabase
+      .from(t.table)
+      .select('*')
+      .order(t.order, { ascending: true });
+    if (!error && data) {
+      dataCache[t.key] = data;
+    }
+  }
+  showLoading(false);
+}
+
+// ==========================================
+// PERSONAL DE ENFERMERIA
+// ==========================================
+function openModal(table, id = null) {
+  editingId = id;
+  editingTable = table;
+  document.getElementById('modal-' + table).classList.add('active');
+  document.getElementById('title-' + table).textContent = id ? 'Editar' : 'Nuevo';
+
+  if (id) {
+    const item = dataCache[table].find(x => x.id === id);
+    if (!item) return;
+    if (table === 'personal') {
+      document.getElementById('p-nombre').value = item.apellidos_nombres || '';
+      document.getElementById('p-genero').value = item.genero || 'Femenino';
+      document.getElementById('p-fecha-nac').value = item.fecha_nacimiento || '';
+      document.getElementById('p-edad').value = item.edad || '';
+      document.getElementById('p-cedula').value = item.cedula || '';
+      document.getElementById('p-telefono').value = item.telefono || '';
+      document.getElementById('p-correo').value = item.correo || '';
+      document.getElementById('p-cargo').value = item.cargo_nominal || 'Profesional';
+      document.getElementById('p-municipio').value = item.municipio || '';
+      actualizarParroquias('p');
+      document.getElementById('p-parroquia').value = item.parroquia || '';
+      document.getElementById('p-ubic-admin').value = item.ubicacion_administrativa || '';
+      document.getElementById('p-ubic-fisica').value = item.ubicacion_fisica || '';
+      document.getElementById('p-estatus').value = item.estatus || 'Activo';
+      document.getElementById('p-causa').value = item.causa_inactividad || '';
+      document.getElementById('p-formacion').value = item.formacion_estudiando || '';
+      document.getElementById('p-obs').value = item.observaciones || '';
+      toggleCausa('p');
+    } else if (table === 'postulados') {
+      document.getElementById('po-nombre').value = item.apellidos_nombres || '';
+      document.getElementById('po-cedula').value = item.cedula || '';
+      document.getElementById('po-fecha-nac').value = item.fecha_nacimiento || '';
+      document.getElementById('po-edad').value = item.edad || '';
+      document.getElementById('po-titulo').value = item.titulo || '';
+      document.getElementById('po-cargo').value = item.cargo || '';
+      document.getElementById('po-asic').value = item.asic || '';
+      document.getElementById('po-ubicacion').value = item.ubicacion || '';
+      document.getElementById('po-celular').value = item.celular || '';
+      document.getElementById('po-correo').value = item.correo || '';
+      document.getElementById('po-docs').value = item.documentos_completos || 'En proceso';
+      document.getElementById('po-obs').value = item.observaciones || '';
+    } else if (table === 'cambios') {
+      document.getElementById('c-nombre').value = item.apellidos_nombres || '';
+      document.getElementById('c-cedula').value = item.cedula || '';
+      document.getElementById('c-titulo').value = item.titulo || '';
+      document.getElementById('c-cargo').value = item.cargo || '';
+      document.getElementById('c-tipo').value = item.tipo_cambio || 'Ascenso';
+      document.getElementById('c-fecha').value = item.fecha_cambio || '';
+      document.getElementById('c-celular').value = item.celular || '';
+      document.getElementById('c-correo').value = item.correo || '';
+      document.getElementById('c-detalle').value = item.detalle || '';
+    }
+  } else {
+    document.querySelectorAll('#modal-' + table + ' input, #modal-' + table + ' select, #modal-' + table + ' textarea').forEach(i => {
+      if (i.type !== 'button') i.value = '';
+    });
+    if (table === 'personal') {
+      document.getElementById('p-genero').value = 'Femenino';
+      document.getElementById('p-cargo').value = 'Profesional';
+      document.getElementById('p-estatus').value = 'Activo';
+      toggleCausa('p');
+    }
+    if (table === 'postulados') document.getElementById('po-docs').value = 'En proceso';
+    if (table === 'cambios') {
+      document.getElementById('c-tipo').value = 'Ascenso';
+      document.getElementById('c-fecha').value = new Date().toISOString().split('T')[0];
+    }
+  }
+}
+
+function closeModal(table) {
+  document.getElementById('modal-' + table).classList.remove('active');
+  editingId = null;
+}
+
+async function savePersonal() {
+  const data = {
+    apellidos_nombres: document.getElementById('p-nombre').value.trim(),
+    genero: document.getElementById('p-genero').value,
+    fecha_nacimiento: document.getElementById('p-fecha-nac').value || null,
+    edad: parseInt(document.getElementById('p-edad').value) || null,
+    cedula: document.getElementById('p-cedula').value.trim(),
+    telefono: document.getElementById('p-telefono').value.trim() || null,
+    correo: document.getElementById('p-correo').value.trim() || null,
+    cargo_nominal: document.getElementById('p-cargo').value,
+    municipio: document.getElementById('p-municipio').value,
+    parroquia: document.getElementById('p-parroquia').value,
+    ubicacion_administrativa: document.getElementById('p-ubic-admin').value.trim() || null,
+    ubicacion_fisica: document.getElementById('p-ubic-fisica').value.trim() || null,
+    estatus: document.getElementById('p-estatus').value,
+    causa_inactividad: document.getElementById('p-causa').value.trim() || null,
+    formacion_estudiando: document.getElementById('p-formacion').value.trim() || null,
+    observaciones: document.getElementById('p-obs').value.trim() || null,
+  };
+
+  if (!data.apellidos_nombres || !data.cedula || !data.municipio || !data.parroquia) {
+    toast('Complete los campos obligatorios (*)', 'error'); return;
+  }
+
+  showLoading(true);
+  if (editingId) {
+    const { error } = await supabase.from('personal_enfermeria').update(data).eq('id', editingId);
+    if (error) { toast(error.message, 'error'); showLoading(false); return; }
+    const idx = dataCache.personal.findIndex(x => x.id === editingId);
+    if (idx >= 0) dataCache.personal[idx] = { ...dataCache.personal[idx], ...data };
+  } else {
+    const { data: newRow, error } = await supabase.from('personal_enfermeria').insert([data]).select().single();
+    if (error) { toast(error.message, 'error'); showLoading(false); return; }
+    dataCache.personal.unshift(newRow);
+  }
+  showLoading(false);
+  closeModal('personal');
+  renderTable('personal');
+  refreshDashboard();
+  toast('Personal guardado correctamente', 'success');
+}
+
+async function deletePersonal(id) {
+  if (!confirm('¿Eliminar este registro?')) return;
+  showLoading(true);
+  const { error } = await supabase.from('personal_enfermeria').delete().eq('id', id);
+  showLoading(false);
+  if (error) { toast(error.message, 'error'); return; }
+  dataCache.personal = dataCache.personal.filter(x => x.id !== id);
+  renderTable('personal');
+  refreshDashboard();
+  toast('Registro eliminado', 'success');
+}
+
+// ==========================================
+// POSTULADOS
+// ==========================================
+async function savePostulado() {
+  const data = {
+    apellidos_nombres: document.getElementById('po-nombre').value.trim(),
+    cedula: document.getElementById('po-cedula').value.trim(),
+    fecha_nacimiento: document.getElementById('po-fecha-nac').value || null,
+    edad: parseInt(document.getElementById('po-edad').value) || null,
+    titulo: document.getElementById('po-titulo').value.trim() || null,
+    cargo: document.getElementById('po-cargo').value.trim() || null,
+    asic: document.getElementById('po-asic').value.trim() || null,
+    ubicacion: document.getElementById('po-ubicacion').value.trim() || null,
+    celular: document.getElementById('po-celular').value.trim() || null,
+    correo: document.getElementById('po-correo').value.trim() || null,
+    documentos_completos: document.getElementById('po-docs').value,
+    observaciones: document.getElementById('po-obs').value.trim() || null,
+    estatus_postulacion: 'Postulado',
+  };
+
+  if (!data.apellidos_nombres || !data.cedula) {
+    toast('Complete los campos obligatorios (*)', 'error'); return;
+  }
+
+  showLoading(true);
+  if (editingId) {
+    const { error } = await supabase.from('postulados').update(data).eq('id', editingId);
+    if (error) { toast(error.message, 'error'); showLoading(false); return; }
+    const idx = dataCache.postulados.findIndex(x => x.id === editingId);
+    if (idx >= 0) dataCache.postulados[idx] = { ...dataCache.postulados[idx], ...data };
+  } else {
+    const { data: newRow, error } = await supabase.from('postulados').insert([data]).select().single();
+    if (error) { toast(error.message, 'error'); showLoading(false); return; }
+    dataCache.postulados.unshift(newRow);
+  }
+  showLoading(false);
+  closeModal('postulados');
+  renderTable('postulados');
+  toast('Postulado guardado correctamente', 'success');
+}
+
+async function deletePostulado(id) {
+  if (!confirm('¿Eliminar este postulado?')) return;
+  showLoading(true);
+  const { error } = await supabase.from('postulados').delete().eq('id', id);
+  showLoading(false);
+  if (error) { toast(error.message, 'error'); return; }
+  dataCache.postulados = dataCache.postulados.filter(x => x.id !== id);
+  renderTable('postulados');
+  toast('Postulado eliminado', 'success');
+}
+
+async function contratarPostulado(id) {
+  if (!confirm('¿Contratar este postulado? Se movera al personal de enfermeria.')) return;
+  showLoading(true);
+  const { data, error } = await supabase.rpc('contratar_postulado', { postulado_id: id });
+  showLoading(false);
+  if (error) { toast(error.message, 'error'); return; }
+  await loadAllData();
+  renderTable('postulados');
+  renderTable('personal');
+  refreshDashboard();
+  toast('Postulado contratado exitosamente', 'success');
+}
+
+// ==========================================
+// CAMBIOS DE ESTATUS
+// ==========================================
+function buscarPersonalCambio() {
+  const cedula = document.getElementById('c-buscar-cedula').value.trim();
+  if (!cedula) return;
+  const found = dataCache.personal.find(p => p.cedula === cedula);
+  if (found) {
+    document.getElementById('c-nombre').value = found.apellidos_nombres || '';
+    document.getElementById('c-cedula').value = found.cedula || '';
+    document.getElementById('c-titulo').value = found.cargo_nominal || '';
+    document.getElementById('c-cargo').value = found.cargo_nominal || '';
+    document.getElementById('c-celular').value = found.telefono || '';
+    document.getElementById('c-correo').value = found.correo || '';
+    toast('Personal encontrado y autocompletado', 'success');
+  } else {
+    toast('Personal no encontrado. Puede ingresar los datos manualmente.', 'warning');
+  }
+}
+
+async function saveCambio() {
+  const cedula = document.getElementById('c-cedula').value.trim();
+  const personal = dataCache.personal.find(p => p.cedula === cedula);
+  const data = {
+    personal_id: personal ? personal.id : null,
+    apellidos_nombres: document.getElementById('c-nombre').value.trim(),
+    cedula: cedula,
+    titulo: document.getElementById('c-titulo').value.trim() || null,
+    cargo: document.getElementById('c-cargo').value.trim() || null,
+    tipo_cambio: document.getElementById('c-tipo').value,
+    fecha_cambio: document.getElementById('c-fecha').value || null,
+    detalle: document.getElementById('c-detalle').value.trim() || null,
+    celular: document.getElementById('c-celular').value.trim() || null,
+    correo: document.getElementById('c-correo').value.trim() || null,
+  };
+
+  if (!data.apellidos_nombres || !data.cedula || !data.tipo_cambio) {
+    toast('Complete los campos obligatorios (*)', 'error'); return;
+  }
+
+  showLoading(true);
+  if (editingId) {
+    const { error } = await supabase.from('cambios_estatus').update(data).eq('id', editingId);
+    if (error) { toast(error.message, 'error'); showLoading(false); return; }
+    const idx = dataCache.cambios.findIndex(x => x.id === editingId);
+    if (idx >= 0) dataCache.cambios[idx] = { ...dataCache.cambios[idx], ...data };
+  } else {
+    const { data: newRow, error } = await supabase.from('cambios_estatus').insert([data]).select().single();
+    if (error) { toast(error.message, 'error'); showLoading(false); return; }
+    dataCache.cambios.unshift(newRow);
+  }
+  showLoading(false);
+  closeModal('cambios');
+  renderTable('cambios');
+  toast('Cambio de estatus registrado', 'success');
+}
+
+async function deleteCambio(id) {
+  if (!confirm('¿Eliminar este registro?')) return;
+  showLoading(true);
+  const { error } = await supabase.from('cambios_estatus').delete().eq('id', id);
+  showLoading(false);
+  if (error) { toast(error.message, 'error'); return; }
+  dataCache.cambios = dataCache.cambios.filter(x => x.id !== id);
+  renderTable('cambios');
+  toast('Registro eliminado', 'success');
+}
+
+// ==========================================
+// USUARIOS (SUPERADMIN)
+// ==========================================
+async function saveUsuario() {
+  const nombre = document.getElementById('u-nombre').value.trim();
+  const email = document.getElementById('u-email').value.trim();
+  const password = document.getElementById('u-password').value;
+  const rol = document.getElementById('u-rol').value;
+
+  if (!nombre || !email || !password || password.length < 6) {
+    toast('Complete todos los campos. La contraseña debe tener al menos 6 caracteres.', 'error');
+    return;
+  }
+
+  showLoading(true);
+  const { data, error } = await supabase.functions.invoke('create-user', {
+    body: { email, password, nombre_completo: nombre, rol }
+  });
+  showLoading(false);
+
+  if (error || !data?.success) {
+    toast((data?.error || error?.message || 'Error creando usuario'), 'error');
+    return;
+  }
+
+  await loadAllData();
+  closeModal('usuarios');
+  renderTable('usuarios');
+  toast('Usuario creado correctamente', 'success');
+}
+
+async function deleteUsuario(userId) {
+  if (!confirm('¿Eliminar este usuario permanentemente?')) return;
+  showLoading(true);
+  const { data, error } = await supabase.functions.invoke('delete-user', {
+    body: { user_id: userId }
+  });
+  showLoading(false);
+  if (error || !data?.success) {
+    toast((data?.error || error?.message || 'Error eliminando usuario'), 'error');
+    return;
+  }
+  dataCache.usuarios = dataCache.usuarios.filter(u => u.id !== userId);
+  renderTable('usuarios');
+  toast('Usuario eliminado', 'success');
+}
+
+// ==========================================
+// RENDER TABLAS
+// ==========================================
+function renderAllTables() {
+  renderTable('personal');
+  renderTable('postulados');
+  renderTable('cambios');
+  renderTable('usuarios');
+}
+
+function renderTable(table) {
+  const tbody = document.getElementById('tbody-' + table);
+  if (!tbody) return;
+  let data = [...dataCache[table]];
+
+  const search = (document.getElementById('search-' + table)?.value || '').toLowerCase();
+  if (search) {
+    data = data.filter(row => JSON.stringify(row).toLowerCase().includes(search));
+  }
+
+  if (table === 'personal') {
+    const cargo = document.getElementById('filter-cargo')?.value;
+    const estatus = document.getElementById('filter-estatus')?.value;
+    if (cargo) data = data.filter(r => r.cargo_nominal === cargo);
+    if (estatus) data = data.filter(r => r.estatus === estatus);
+  }
+  if (table === 'postulados') {
+    const doc = document.getElementById('filter-doc')?.value;
+    if (doc) data = data.filter(r => r.documentos_completos === doc);
+  }
+  if (table === 'cambios') {
+    const tipo = document.getElementById('filter-tipo-cambio')?.value;
+    if (tipo) data = data.filter(r => r.tipo_cambio === tipo);
+  }
+
+  let html = '';
+  if (table === 'personal') {
+    data.forEach(row => {
+      html += `<tr>
+        <td>${esc(row.apellidos_nombres)}</td>
+        <td>${esc(row.cedula)}</td>
+        <td>${esc(row.genero)}</td>
+        <td>${row.edad || '-'}</td>
+        <td><span class="badge badge-info">${esc(row.cargo_nominal)}</span></td>
+        <td>${esc(row.municipio)}</td>
+        <td>${esc(row.parroquia)}</td>
+        <td><span class="badge ${row.estatus==='Activo'?'badge-success':'badge-danger'}">${esc(row.estatus)}</span></td>
+        <td>${esc(row.telefono)}</td>
+        <td class="admin-only hidden">
+          <button class="btn btn-secondary" style="padding:4px 10px;font-size:0.75rem;" onclick="openModal('personal','${row.id}')">✏️</button>
+          <button class="btn btn-danger" style="padding:4px 10px;font-size:0.75rem;" onclick="deletePersonal('${row.id}')">🗑️</button>
+        </td>
+      </tr>`;
+    });
+  } else if (table === 'postulados') {
+    data.forEach(row => {
+      html += `<tr>
+        <td>${esc(row.apellidos_nombres)}</td>
+        <td>${esc(row.cedula)}</td>
+        <td>${row.edad || '-'}</td>
+        <td>${esc(row.titulo)}</td>
+        <td>${esc(row.cargo)}</td>
+        <td>${esc(row.asic)}</td>
+        <td>${esc(row.celular)}</td>
+        <td><span class="badge ${row.documentos_completos==='Sí'?'badge-success':row.documentos_completos==='No'?'badge-danger':'badge-warning'}">${esc(row.documentos_completos)}</span></td>
+        <td><span class="badge ${row.estatus_postulacion==='Contratado'?'badge-success':'badge-info'}">${esc(row.estatus_postulacion)}</span></td>
+        <td class="admin-only hidden">
+          <button class="btn btn-secondary" style="padding:4px 10px;font-size:0.75rem;" onclick="openModal('postulados','${row.id}')">✏️</button>
+          ${row.estatus_postulacion !== 'Contratado' ? `<button class="btn btn-primary" style="padding:4px 10px;font-size:0.75rem;" onclick="contratarPostulado('${row.id}')">👔 Contratar</button>` : ''}
+          <button class="btn btn-danger" style="padding:4px 10px;font-size:0.75rem;" onclick="deletePostulado('${row.id}')">🗑️</button>
+        </td>
+      </tr>`;
+    });
+  } else if (table === 'cambios') {
+    data.forEach(row => {
+      html += `<tr>
+        <td>${esc(row.apellidos_nombres)}</td>
+        <td>${esc(row.cedula)}</td>
+        <td>${esc(row.titulo)}</td>
+        <td>${esc(row.cargo)}</td>
+        <td><span class="badge badge-warning">${esc(row.tipo_cambio)}</span></td>
+        <td>${row.fecha_cambio || '-'}</td>
+        <td>${esc(row.detalle)}</td>
+        <td class="admin-only hidden">
+          <button class="btn btn-secondary" style="padding:4px 10px;font-size:0.75rem;" onclick="openModal('cambios','${row.id}')">✏️</button>
+          <button class="btn btn-danger" style="padding:4px 10px;font-size:0.75rem;" onclick="deleteCambio('${row.id}')">🗑️</button>
+        </td>
+      </tr>`;
+    });
+  } else if (table === 'usuarios') {
+    data.forEach(row => {
+      html += `<tr>
+        <td>${esc(row.nombre_completo)}</td>
+        <td>${esc(row.email)}</td>
+        <td><span class="badge ${row.rol==='superadmin'?'badge-danger':row.rol==='admin'?'badge-warning':'badge-info'}">${esc(row.rol)}</span></td>
+        <td><span class="badge ${row.activo?'badge-success':'badge-danger'}">${row.activo?'Activo':'Inactivo'}</span></td>
+        <td>
+          <button class="btn btn-danger" style="padding:4px 10px;font-size:0.75rem;" onclick="deleteUsuario('${row.id}')">🗑️ Eliminar</button>
+        </td>
+      </tr>`;
+    });
+  }
+
+  tbody.innerHTML = html || '<tr><td colspan="20" style="text-align:center;padding:40px;color:#999;">No hay registros</td></tr>';
+}
+
+function filterTable(table) {
+  renderTable(table);
+}
+
+function esc(str) {
+  if (!str) return '-';
+  const div = document.createElement('div');
+  div.textContent = String(str);
+  return div.innerHTML;
+}
+
+// ==========================================
+// DASHBOARD
+// ==========================================
+async function refreshDashboard() {
+  showLoading(true);
+  const { data, error } = await supabase.rpc('get_dashboard_stats');
+  showLoading(false);
+
+  let stats = data;
+  if (error || !stats) {
+    stats = calcularStatsLocal();
+  }
+
+  const grid = document.getElementById('stats-grid');
+  grid.innerHTML = `
+    <div class="stat-card"><div class="label">Total Enfermeros</div><div class="value">${stats.total_enfermeros || 0}</div></div>
+    <div class="stat-card f"><div class="label">Profesionales F</div><div class="value">${stats.total_profesionales_f || 0}</div><div class="sub">Femenino</div></div>
+    <div class="stat-card m"><div class="label">Profesionales M</div><div class="value">${stats.total_profesionales_m || 0}</div><div class="sub">Masculino</div></div>
+    <div class="stat-card f"><div class="label">TSU F</div><div class="value">${stats.total_tsu_f || 0}</div><div class="sub">Femenino</div></div>
+    <div class="stat-card m"><div class="label">TSU M</div><div class="value">${stats.total_tsu_m || 0}</div><div class="sub">Masculino</div></div>
+    <div class="stat-card f"><div class="label">Auxiliares F</div><div class="value">${stats.total_auxiliares_f || 0}</div><div class="sub">Femenino</div></div>
+    <div class="stat-card m"><div class="label">Auxiliares M</div><div class="value">${stats.total_auxiliares_m || 0}</div><div class="sub">Masculino</div></div>
+    <div class="stat-card"><div class="label">Activos</div><div class="value" style="color:var(--success)">${stats.activos || 0}</div></div>
+    <div class="stat-card"><div class="label">Inactivos</div><div class="value" style="color:var(--danger)">${stats.inactivos || 0}</div></div>
+    <div class="stat-card"><div class="label">Postulados</div><div class="value">${stats.total_postulados || 0}</div></div>
+    <div class="stat-card"><div class="label">Cambios de Estatus</div><div class="value">${stats.total_cambios || 0}</div></div>
+  `;
+
+  renderCharts();
+
+  document.getElementById('resumen-general').innerHTML = `
+    <p><b>Total personal:</b> ${stats.total_enfermeros || 0}</p>
+    <p><b>Profesionales:</b> ${(stats.total_profesionales_f||0)+(stats.total_profesionales_m||0)}</p>
+    <p><b>TSU:</b> ${(stats.total_tsu_f||0)+(stats.total_tsu_m||0)}</p>
+    <p><b>Auxiliares:</b> ${(stats.total_auxiliares_f||0)+(stats.total_auxiliares_m||0)}</p>
+    <p><b>Postulados activos:</b> ${stats.total_postulados || 0}</p>
+  `;
+}
+
+function calcularStatsLocal() {
+  const p = dataCache.personal;
+  return {
+    total_enfermeros: p.length,
+    total_profesionales_f: p.filter(x => x.cargo_nominal === 'Profesional' && x.genero === 'Femenino').length,
+    total_profesionales_m: p.filter(x => x.cargo_nominal === 'Profesional' && x.genero === 'Masculino').length,
+    total_tsu_f: p.filter(x => x.cargo_nominal === 'TSU' && x.genero === 'Femenino').length,
+    total_tsu_m: p.filter(x => x.cargo_nominal === 'TSU' && x.genero === 'Masculino').length,
+    total_auxiliares_f: p.filter(x => x.cargo_nominal === 'Auxiliar' && x.genero === 'Femenino').length,
+    total_auxiliares_m: p.filter(x => x.cargo_nominal === 'Auxiliar' && x.genero === 'Masculino').length,
+    activos: p.filter(x => x.estatus === 'Activo').length,
+    inactivos: p.filter(x => x.estatus === 'Inactivo').length,
+    total_postulados: dataCache.postulados.filter(x => x.estatus_postulacion === 'Postulado').length,
+    total_cambios: dataCache.cambios.length,
+  };
+}
+
+function renderCharts() {
+  const p = dataCache.personal;
+
+  const ctx1 = document.getElementById('chart-cargo');
+  if (ctx1) {
+    if (window.chartCargo) window.chartCargo.destroy();
+    window.chartCargo = new Chart(ctx1, {
+      type: 'bar',
+      data: {
+        labels: ['Profesional', 'TSU', 'Auxiliar'],
+        datasets: [
+          { label: 'Femenino', data: [
+            p.filter(x=>x.cargo_nominal==='Profesional'&&x.genero==='Femenino').length,
+            p.filter(x=>x.cargo_nominal==='TSU'&&x.genero==='Femenino').length,
+            p.filter(x=>x.cargo_nominal==='Auxiliar'&&x.genero==='Femenino').length
+          ], backgroundColor: '#e91e63' },
+          { label: 'Masculino', data: [
+            p.filter(x=>x.cargo_nominal==='Profesional'&&x.genero==='Masculino').length,
+            p.filter(x=>x.cargo_nominal==='TSU'&&x.genero==='Masculino').length,
+            p.filter(x=>x.cargo_nominal==='Auxiliar'&&x.genero==='Masculino').length
+          ], backgroundColor: '#2196f3' }
+        ]
+      },
+      options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+    });
+  }
+
+  const ctx2 = document.getElementById('chart-municipio');
+  if (ctx2) {
+    if (window.chartMun) window.chartMun.destroy();
+    const munCounts = {};
+    p.forEach(x => { munCounts[x.municipio] = (munCounts[x.municipio] || 0) + 1; });
+    window.chartMun = new Chart(ctx2, {
+      type: 'doughnut',
+      data: {
+        labels: Object.keys(munCounts),
+        datasets: [{ data: Object.values(munCounts), backgroundColor: ['#1a5f2a','#e74c3c','#f39c12','#3498db','#9b59b6','#1abc9c','#e67e22'] }]
+      },
+      options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+    });
+  }
+
+  const ctx3 = document.getElementById('chart-estatus');
+  if (ctx3) {
+    if (window.chartEst) window.chartEst.destroy();
+    window.chartEst = new Chart(ctx3, {
+      type: 'pie',
+      data: {
+        labels: ['Activos', 'Inactivos'],
+        datasets: [{ data: [
+          p.filter(x=>x.estatus==='Activo').length,
+          p.filter(x=>x.estatus==='Inactivo').length
+        ], backgroundColor: ['#2e7d32','#c62828'] }]
+      },
+      options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+    });
+  }
+}
+
+// ==========================================
+// EXPORT / IMPORT EXCEL
+// ==========================================
+function exportExcel(table) {
+  let data, headers, filename;
+  if (table === 'personal') {
+    data = dataCache.personal;
+    headers = ['Apellidos y Nombres','Género','Fecha Nacimiento','Edad','Cédula','Teléfono','Correo','Cargo','Municipio','Parroquia','Ubicación Admin','Ubicación Física','Estatus','Causa Inactividad','Formación','Observaciones'];
+    filename = 'Personal_Enfermeria_Apure.xlsx';
+  } else if (table === 'postulados') {
+    data = dataCache.postulados;
+    headers = ['Apellidos y Nombres','Cédula','Fecha Nacimiento','Edad','Título','Cargo','ASIC','Ubicación','Celular','Correo','Documentos Completos','Observaciones','Estatus'];
+    filename = 'Postulados_Punto_Cuenta.xlsx';
+  } else if (table === 'cambios') {
+    data = dataCache.cambios;
+    headers = ['Apellidos y Nombres','Cédula','Título','Cargo','Tipo Cambio','Fecha Cambio','Detalle','Celular','Correo'];
+    filename = 'Cambios_Estatus.xlsx';
+  }
+
+  const wsData = [headers];
+  data.forEach(row => {
+    if (table === 'personal') {
+      wsData.push([row.apellidos_nombres,row.genero,row.fecha_nacimiento,row.edad,row.cedula,row.telefono,row.correo,row.cargo_nominal,row.municipio,row.parroquia,row.ubicacion_administrativa,row.ubicacion_fisica,row.estatus,row.causa_inactividad,row.formacion_estudiando,row.observaciones]);
+    } else if (table === 'postulados') {
+      wsData.push([row.apellidos_nombres,row.cedula,row.fecha_nacimiento,row.edad,row.titulo,row.cargo,row.asic,row.ubicacion,row.celular,row.correo,row.documentos_completos,row.observaciones,row.estatus_postulacion]);
+    } else if (table === 'cambios') {
+      wsData.push([row.apellidos_nombres,row.cedula,row.titulo,row.cargo,row.tipo_cambio,row.fecha_cambio,row.detalle,row.celular,row.correo]);
+    }
+  });
+
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet(wsData);
+  XLSX.utils.book_append_sheet(wb, ws, table);
+  XLSX.writeFile(wb, filename);
+  toast('Excel exportado correctamente', 'success');
+}
+
+function importExcel(table) {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.xlsx,.xls';
+  input.onchange = async (e) => {
+    const file = e.target.files[0];
+    const data = await file.arrayBuffer();
+    const workbook = XLSX.read(data);
+    const ws = workbook.Sheets[workbook.SheetNames[0]];
+    const json = XLSX.utils.sheet_to_json(ws, { header: 1 });
+    if (json.length < 2) { toast('Archivo vacío o inválido', 'error'); return; }
+
+    const rows = json.slice(1);
+    let imported = 0;
+    showLoading(true);
+
+    for (const row of rows) {
+      try {
+        if (table === 'personal') {
+          const obj = {
+            apellidos_nombres: row[0], genero: row[1], fecha_nacimiento: row[2] || null,
+            edad: row[3] || null, cedula: String(row[4]), telefono: row[5] || null,
+            correo: row[6] || null, cargo_nominal: row[7], municipio: row[8],
+            parroquia: row[9], ubicacion_administrativa: row[10] || null,
+            ubicacion_fisica: row[11] || null, estatus: row[12] || 'Activo',
+            causa_inactividad: row[13] || null, formacion_estudiando: row[14] || null,
+            observaciones: row[15] || null,
+          };
+          const { data: newRow } = await supabase.from('personal_enfermeria').insert([obj]).select().single();
+          if (newRow) { dataCache.personal.unshift(newRow); imported++; }
+        } else if (table === 'postulados') {
+          const obj = {
+            apellidos_nombres: row[0], cedula: String(row[1]), fecha_nacimiento: row[2] || null,
+            edad: row[3] || null, titulo: row[4] || null, cargo: row[5] || null,
+            asic: row[6] || null, ubicacion: row[7] || null, celular: row[8] || null,
+            correo: row[9] || null, documentos_completos: row[10] || 'En proceso',
+            observaciones: row[11] || null, estatus_postulacion: row[12] || 'Postulado',
+          };
+          const { data: newRow } = await supabase.from('postulados').insert([obj]).select().single();
+          if (newRow) { dataCache.postulados.unshift(newRow); imported++; }
+        } else if (table === 'cambios') {
+          const obj = {
+            apellidos_nombres: row[0], cedula: String(row[1]), titulo: row[2] || null,
+            cargo: row[3] || null, tipo_cambio: row[4], fecha_cambio: row[5] || null,
+            detalle: row[6] || null, celular: row[7] || null, correo: row[8] || null,
+          };
+          const { data: newRow } = await supabase.from('cambios_estatus').insert([obj]).select().single();
+          if (newRow) { dataCache.cambios.unshift(newRow); imported++; }
+        }
+      } catch(err) { console.error(err); }
+    }
+
+    showLoading(false);
+    renderTable(table);
+    refreshDashboard();
+    toast(`${imported} registros importados`, 'success');
+  };
+  input.click();
+}
+
+// ==========================================
+// BACKUP / RESTORE
+// ==========================================
+function createBackup() {
+  const password = prompt('Ingrese contraseña para encriptar el backup:');
+  if (!password) return;
+  const data = JSON.stringify(dataCache);
+  const encrypted = CryptoJS.AES.encrypt(data, password).toString();
+  const blob = new Blob([JSON.stringify({ version: '1.0', fecha: new Date().toISOString(), data: encrypted })], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `backup_enfermeria_apure_${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('Backup creado y descargado', 'success');
+}
+
+function restoreBackup() {
+  const fileInput = document.getElementById('restore-file');
+  const file = fileInput.files[0];
+  if (!file) { toast('Seleccione un archivo de backup', 'error'); return; }
+
+  const password = prompt('Ingrese la contraseña del backup:');
+  if (!password) return;
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const backup = JSON.parse(e.target.result);
+      const decrypted = CryptoJS.AES.decrypt(backup.data, password).toString(CryptoJS.enc.Utf8);
+      if (!decrypted) throw new Error('Contraseña incorrecta');
+      const data = JSON.parse(decrypted);
+      dataCache = data;
+      renderAllTables();
+      refreshDashboard();
+      toast('Backup restaurado correctamente', 'success');
+    } catch(err) {
+      toast('Error al restaurar: ' + err.message, 'error');
+    }
+  };
+  reader.readAsText(file);
+}
+
+// ==========================================
+// SINCRONIZACION
+// ==========================================
+async function syncToSupabase() {
+  showLoading(true);
+  if (dataCache.personal.length > 0) {
+    await supabase.from('personal_enfermeria').upsert(dataCache.personal, { onConflict: 'cedula' });
+  }
+  if (dataCache.postulados.length > 0) {
+    await supabase.from('postulados').upsert(dataCache.postulados, { onConflict: 'cedula' });
+  }
+  if (dataCache.cambios.length > 0) {
+    await supabase.from('cambios_estatus').upsert(dataCache.cambios);
+  }
+  showLoading(false);
+  toast('Datos sincronizados a Supabase', 'success');
+}
+
+async function syncFromSupabase() {
+  showLoading(true);
+  const tables = [
+    { table: 'personal_enfermeria', key: 'personal', order: 'apellidos_nombres' },
+    { table: 'postulados', key: 'postulados', order: 'apellidos_nombres' },
+    { table: 'cambios_estatus', key: 'cambios', order: 'created_at' },
+    { table: 'perfiles', key: 'usuarios', order: 'nombre_completo' }
+  ];
+
+  for (const t of tables) {
+    const { data, error } = await supabase
+      .from(t.table)
+      .select('*')
+      .order(t.order, { ascending: true });
+    if (!error && data) {
+      dataCache[t.key] = data;
+    }
+  }
+  showLoading(false);
+  toast('Datos sincronizados desde Supabase', 'success');
+}
+
+// ==========================================
+// UTILIDADES
+// ==========================================
+function showLoading(show) {
+  document.getElementById('loading').classList.toggle('active', show);
+}
+
+function toast(message, type = 'info') {
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.textContent = message;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 4000);
+}
+
+// Enter en login
+ document.getElementById('login-password')?.addEventListener('keypress', (e) => {
+   if (e.key === 'Enter') handleLogin();
+ });
+</script>
+</body>
+</html>
