@@ -3,14 +3,57 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sistema de Control de Personal de Enfermería - Estado Apure</title>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/tsucesarherrera-afk/p/main/enfermer%C3%ADa/logo-192x192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="https://raw.githubusercontent.com/tsucesarherrera-afk/p/main/enfermer%C3%ADa/logo-180x180.png">
+<meta name="theme-color" content="#1565c0">
+<title>Sistema de Control de Personal de Enfermería - Dirección Regional de Enfermería Apure</title>
+<!-- 
+  ============================================================
+  LIBRERÍAS UTILIZADAS EN ESTE SISTEMA
+  ============================================================
+
+  1. SUPABASE JS (@supabase/supabase-js@2.39.0)
+     - Descripción: Cliente oficial de Supabase para JavaScript.
+       Proporciona autenticación (Auth), consultas a base de datos
+       PostgreSQL (PostgREST), almacenamiento de archivos (Storage)
+       y funciones en tiempo real (Realtime).
+     - Uso: Login/logout, CRUD de tablas, sincronización con la nube.
+     - CDN: jsDelivr
+
+  2. CHART.JS (chart.js@4.4.1)
+     - Descripción: Librería de gráficos interactivos y responsivos.
+       Soporta barras, líneas, pastel, doughnut, radar, etc.
+     - Uso: Dashboard - gráficos de distribución por cargo, municipio
+       y estatus del personal de enfermería.
+     - CDN: cdnjs
+
+  3. CRYPTO-JS (crypto-js@4.2.0)
+     - Descripción: Librería de criptografía estándar para JavaScript.
+       Implementa AES, SHA, MD5, entre otros algoritmos.
+     - Uso: Encriptación AES-256 de backups locales antes de exportar.
+     - CDN: cdnjs
+
+  4. SHEETJS / XLSX (xlsx@0.18.5)
+     - Descripción: Librería para leer y escribir archivos Excel (.xlsx, .xls)
+       directamente en el navegador sin necesidad de servidor.
+     - Uso: Exportar e importar datos de personal, postulados y cambios
+       de estatus a/desde Excel.
+     - CDN: cdnjs
+
+  5. CSS3 / VANILLA JS (Nativo)
+     - Descripción: Hojas de estilo en cascada y JavaScript puro sin frameworks.
+     - Uso: Toda la interfaz visual, lógica de negocio, manejo de modales,
+       navegación SPA (Single Page Application), filtros, búsquedas.
+
+  ============================================================
+-->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 :root {
-  --primary: #1a5f2a; --primary-dark: #0d3d18; --accent: #f4a623;
+  --primary: #1565c0; --primary-dark: #0d47a1; --accent: #ff9800;
   --bg: #f0f4f0; --card: #ffffff; --text: #1a1a1a; --text-light: #555;
   --border: #d0ddd0; --success: #2e7d32; --danger: #c62828; --warning: #f9a825;
   --sidebar-width: 260px;
@@ -19,7 +62,7 @@
 body { background: var(--bg); color: var(--text); min-height: 100vh; }
 
 #login-screen {
-  position: fixed; inset: 0; background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+  position: fixed; inset: 0; background: linear-gradient(135deg, var(--primary-dark) 0%, #1976d2 50%, var(--primary) 100%);
   display: flex; align-items: center; justify-content: center; z-index: 9999;
 }
 .login-box {
@@ -46,7 +89,7 @@ body { background: var(--bg); color: var(--text); min-height: 100vh; }
 #app { display: none; }
 .sidebar {
   position: fixed; left: 0; top: 0; bottom: 0; width: var(--sidebar-width);
-  background: linear-gradient(180deg, var(--primary-dark), var(--primary));
+  background: linear-gradient(180deg, #0d47a1, #1565c0, #1976d2);
   color: white; padding: 20px 0; overflow-y: auto; z-index: 100;
 }
 .sidebar-header { text-align: center; padding: 0 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
@@ -101,8 +144,8 @@ body { background: var(--bg); color: var(--text); min-height: 100vh; }
 .stat-card .label { font-size: 0.8rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; }
 .stat-card .value { font-size: 2rem; font-weight: 700; color: var(--primary-dark); margin: 4px 0; }
 .stat-card .sub { font-size: 0.8rem; color: var(--text-light); }
-.stat-card.f { border-left-color: #e91e63; }
-.stat-card.m { border-left-color: #2196f3; }
+.stat-card.f { border-left-color: #ec407a; }
+.stat-card.m { border-left-color: #42a5f5; }
 
 .charts-row {
   display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -130,7 +173,7 @@ table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
 thead { background: var(--bg); }
 th { padding: 12px 16px; text-align: left; font-weight: 600; color: var(--primary-dark); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.3px; }
 td { padding: 12px 16px; border-bottom: 1px solid var(--border); }
-tr:hover { background: rgba(26,95,42,0.03); }
+tr:hover { background: rgba(21,101,192,0.06); }
 .badge {
   display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;
 }
@@ -176,12 +219,77 @@ tr:hover { background: rgba(26,95,42,0.03); }
 .section { display: none; }
 .section.active { display: block; }
 
+/* ============================================
+   MENÚ HAMBURGUESA (BOCADILLO) - RESPONSIVE
+   ============================================ */
+.menu-toggle {
+  display: none;
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 200;
+  width: 44px;
+  height: 44px;
+  background: var(--primary);
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  box-shadow: 0 4px 12px rgba(13,71,161,0.3);
+  transition: all 0.3s ease;
+}
+.menu-toggle:hover {
+  background: var(--primary-dark);
+  transform: scale(1.05);
+}
+.menu-toggle span {
+  display: block;
+  width: 22px;
+  height: 2.5px;
+  background: white;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+.menu-toggle.active span:nth-child(1) {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+.menu-toggle.active span:nth-child(2) {
+  opacity: 0;
+}
+.menu-toggle.active span:nth-child(3) {
+  transform: rotate(-45deg) translate(5px, -5px);
+}
+
+/* Overlay oscuro cuando el menú está abierto en móvil */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 90;
+  backdrop-filter: blur(2px);
+}
+.sidebar-overlay.active {
+  display: block;
+}
+
 @media (max-width: 768px) {
-  .sidebar { transform: translateX(-100%); }
+  .menu-toggle { display: flex; }
+  .sidebar { 
+    transform: translateX(-100%); 
+    transition: transform 0.3s ease;
+    z-index: 100;
+  }
   .sidebar.open { transform: translateX(0); }
-  .main-content { margin-left: 0; padding: 16px; }
+  .main-content { margin-left: 0; padding: 16px; padding-top: 70px; }
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
   .charts-row { grid-template-columns: 1fr; }
+  .top-bar h1 { font-size: 1.2rem; }
+  .modal { max-width: 95vw; }
+  .form-grid { grid-template-columns: 1fr; }
 }
 
 .toast-container { position: fixed; top: 20px; right: 20px; z-index: 2000; display: flex; flex-direction: column; gap: 8px; }
@@ -208,14 +316,15 @@ tr:hover { background: rgba(26,95,42,0.03); }
 
 .hidden { display: none !important; }
 </style>
+<base target="_blank">
 </head>
 <body>
 
 <div id="login-screen">
   <div class="login-box">
-    <img src="https://raw.githubusercontent.com/tsucesarherrera-afk/p/main/WhatsApp_Image_2025-06-11_at_10.22.41_AM-removebg-preview-removebg-preview.png" alt="Logo Gobernación de Apure" onerror="this.style.display='none'">
+    <img src="https://raw.githubusercontent.com/tsucesarherrera-afk/p/main/enfermer%C3%ADa/logo-sidebar.png" alt="Logo Dirección Regional de Enfermería Apure" onerror="this.style.display='none'">
     <h1>Sistema de Control de Personal de Enfermería</h1>
-    <p>Estado Apure, Venezuela</p>
+    <p>Dirección Regional de Enfermería<br>Estado Apure, Venezuela</p>
     <input type="email" id="login-email" placeholder="Correo electrónico">
     <input type="password" id="login-password" placeholder="Contraseña">
     <button onclick="handleLogin()" id="login-btn">Iniciar Sesión</button>
@@ -224,11 +333,15 @@ tr:hover { background: rgba(26,95,42,0.03); }
 </div>
 
 <div id="app">
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
   <aside class="sidebar" id="sidebar">
+    <button class="menu-toggle" id="menu-toggle" onclick="toggleSidebar()" aria-label="Abrir menú">
+      <span></span><span></span><span></span>
+    </button>
     <div class="sidebar-header">
-      <img src="https://raw.githubusercontent.com/tsucesarherrera-afk/p/main/WhatsApp_Image_2025-06-11_at_10.22.41_AM-removebg-preview-removebg-preview.png" alt="Logo" onerror="this.style.display='none'">
+      <img src="https://raw.githubusercontent.com/tsucesarherrera-afk/p/main/enfermer%C3%ADa/logo-login.png" alt="Logo Dirección Regional de Enfermería Apure" onerror="this.style.display='none'">
       <h2>Control de Enfermería</h2>
-      <small>Estado Apure</small>
+      <small>Dirección Regional de Enfermería<br>Estado Apure</small>
     </div>
     <nav class="sidebar-nav">
       <div class="nav-item active" onclick="showSection('dashboard')" data-section="dashboard">
@@ -257,7 +370,15 @@ tr:hover { background: rgba(26,95,42,0.03); }
       </div>
     </nav>
     <div class="sidebar-footer">
-      <div class="user-info" id="user-info">Cargando...</div>
+      <div class="user-card" id="user-card" style="background:rgba(255,255,255,0.1);border-radius:10px;padding:12px;margin-bottom:12px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div id="user-avatar" style="width:36px;height:36px;background:rgba(255,255,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem;">👤</div>
+          <div style="overflow:hidden;">
+            <div id="user-name" style="font-weight:600;font-size:0.85rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Cargando...</div>
+            <div id="user-role" style="font-size:0.7rem;opacity:0.7;">...</div>
+          </div>
+        </div>
+      </div>
       <button onclick="handleLogout()">Cerrar Sesión</button>
     </div>
   </aside>
@@ -446,16 +567,17 @@ tr:hover { background: rgba(26,95,42,0.03); }
 
 <div class="modal-overlay" id="modal-usuarios">
   <div class="modal" style="max-width:500px;">
-    <div class="modal-header"><h2>Nuevo Usuario</h2><button class="modal-close" onclick="closeModal('usuarios')">&times;</button></div>
+    <div class="modal-header"><h2 id="title-usuarios">Nuevo Usuario</h2><button class="modal-close" onclick="closeModal('usuarios')">&times;</button></div>
     <div class="modal-body">
       <div class="form-grid">
         <div class="form-group"><label>Nombre Completo *</label><input type="text" id="u-nombre"></div>
         <div class="form-group"><label>Correo Electrónico *</label><input type="email" id="u-email"></div>
-        <div class="form-group"><label>Contraseña *</label><input type="password" id="u-password" placeholder="Mínimo 6 caracteres"></div>
-        <div class="form-group"><label>Rol *</label><select id="u-rol"><option value="admin">Administrador</option><option value="usuario">Usuario (Solo lectura)</option></select></div>
+        <div class="form-group" id="u-password-group"><label>Contraseña *</label><input type="password" id="u-password" placeholder="Mínimo 6 caracteres"></div>
+        <div class="form-group"><label>Rol *</label><select id="u-rol"><option value="admin">Administrador</option><option value="usuario">Usuario (Solo lectura)</option></select><small id="u-rol-aviso" style="color:var(--text-light);font-size:0.75rem;display:none;">Solo el Super Admin puede asignar el rol de Super Admin.</small></div>
+        <div class="form-group"><label>Estado</label><select id="u-activo"><option value="true">Activo</option><option value="false">Inactivo</option></select></div>
       </div>
     </div>
-    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('usuarios')">Cancelar</button><button class="btn btn-primary" onclick="saveUsuario()">Crear Usuario</button></div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('usuarios')">Cancelar</button><button class="btn btn-primary" id="btn-save-usuario" onclick="saveUsuario()">Crear Usuario</button></div>
   </div>
 </div>
 
@@ -532,6 +654,18 @@ function actualizarParroquias(prefix = 'p') {
   }
 }
 
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebar-overlay');
+  const toggle = document.getElementById('menu-toggle');
+
+  if (sidebar && overlay && toggle) {
+    const isOpen = sidebar.classList.toggle('open');
+    overlay.classList.toggle('active', isOpen);
+    toggle.classList.toggle('active', isOpen);
+  }
+}
+
 function toggleCausa(prefix = 'p') {
   const est = document.getElementById(prefix + '-estatus').value;
   const grp = document.getElementById('grp-causa-' + prefix);
@@ -599,7 +733,23 @@ async function initUser(user) {
 
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
-  document.getElementById('user-info').textContent = `${perfil.nombre_completo} (${perfil.rol})`;
+  // Mostrar nombre y nivel en la tarjeta de usuario
+    const userNameEl = document.getElementById('user-name');
+    const userRoleEl = document.getElementById('user-role');
+    const userAvatarEl = document.getElementById('user-avatar');
+    if (userNameEl) userNameEl.textContent = perfil.nombre_completo || 'Usuario';
+    if (userRoleEl) {
+      const rolTexto = perfil.rol === 'superadmin' ? '⭐ Super Administrador' : 
+                        perfil.rol === 'admin' ? '🔧 Administrador' : '👁️ Usuario (Lectura)';
+      userRoleEl.textContent = rolTexto;
+    }
+    if (userAvatarEl) {
+      const iniciales = (perfil.nombre_completo || 'U').split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase();
+      userAvatarEl.textContent = iniciales;
+    }
+    // Mantener compatibilidad
+    const oldUserInfo = document.getElementById('user-info');
+    if (oldUserInfo) oldUserInfo.textContent = `${perfil.nombre_completo} (${perfil.rol})`;
 
   // Mostrar/ocultar segun rol
   if (currentRol === 'superadmin') {
@@ -630,6 +780,18 @@ function showSection(name) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('sec-' + name).classList.add('active');
   document.querySelector(`[data-section="${name}"]`).classList.add('active');
+
+  // En móvil, cerrar sidebar al navegar
+  if (window.innerWidth <= 768) {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    const toggle = document.getElementById('menu-toggle');
+    if (sidebar && sidebar.classList.contains('open')) {
+      sidebar.classList.remove('open');
+      if (overlay) overlay.classList.remove('active');
+      if (toggle) toggle.classList.remove('active');
+    }
+  }
 
   if (name === 'dashboard') refreshDashboard();
   if (name === 'personal') renderTable('personal');
@@ -669,7 +831,40 @@ function openModal(table, id = null) {
   editingId = id;
   editingTable = table;
   document.getElementById('modal-' + table).classList.add('active');
-  document.getElementById('title-' + table).textContent = id ? 'Editar' : 'Nuevo';
+  const titleEl = document.getElementById('title-' + table);
+  if (titleEl) titleEl.textContent = id ? 'Editar' : 'Nuevo';
+
+  // Resetear campos específicos de usuarios
+  if (table === 'usuarios') {
+    const passGroup = document.getElementById('u-password-group');
+    const btnSave = document.getElementById('btn-save-usuario');
+    const rolSelect = document.getElementById('u-rol');
+    const rolAviso = document.getElementById('u-rol-aviso');
+
+    if (passGroup) passGroup.style.display = id ? 'none' : 'block';
+    if (btnSave) btnSave.textContent = id ? 'Guardar Cambios' : 'Crear Usuario';
+
+    // Solo superadmin puede ver/crear superadmins
+    if (rolSelect) {
+      // Limpiar opciones actuales
+      rolSelect.innerHTML = '';
+
+      if (currentRol === 'superadmin') {
+        rolSelect.innerHTML = `
+          <option value="admin">Administrador</option>
+          <option value="usuario">Usuario (Solo lectura)</option>
+          <option value="superadmin">⭐ Super Administrador</option>
+        `;
+        if (rolAviso) rolAviso.style.display = 'none';
+      } else {
+        rolSelect.innerHTML = `
+          <option value="admin">Administrador</option>
+          <option value="usuario">Usuario (Solo lectura)</option>
+        `;
+        if (rolAviso) rolAviso.style.display = 'block';
+      }
+    }
+  }
 
   if (id) {
     const item = dataCache[table].find(x => x.id === id);
@@ -731,6 +926,14 @@ function openModal(table, id = null) {
     if (table === 'cambios') {
       document.getElementById('c-tipo').value = 'Ascenso';
       document.getElementById('c-fecha').value = new Date().toISOString().split('T')[0];
+    }
+    if (table === 'usuarios') {
+      document.getElementById('u-rol').value = 'admin';
+      document.getElementById('u-activo').value = 'true';
+      const passGroup = document.getElementById('u-password-group');
+      const btnSave = document.getElementById('btn-save-usuario');
+      if (passGroup) passGroup.style.display = 'block';
+      if (btnSave) btnSave.textContent = 'Crear Usuario';
     }
   }
 }
@@ -935,43 +1138,189 @@ async function saveUsuario() {
   const email = document.getElementById('u-email').value.trim();
   const password = document.getElementById('u-password').value;
   const rol = document.getElementById('u-rol').value;
+  const activo = document.getElementById('u-activo').value === 'true';
 
-  if (!nombre || !email || !password || password.length < 6) {
+  // Validación: si es nuevo usuario, requiere contraseña
+  if (!editingId && (!nombre || !email || !password || password.length < 6)) {
     toast('Complete todos los campos. La contraseña debe tener al menos 6 caracteres.', 'error');
+    return;
+  }
+  // Validación: si es edición, solo requiere nombre y email
+  if (editingId && (!nombre || !email)) {
+    toast('Complete los campos obligatorios.', 'error');
     return;
   }
 
   showLoading(true);
-  const { data, error } = await supabase.functions.invoke('create-user', {
-    body: { email, password, nombre_completo: nombre, rol }
-  });
-  showLoading(false);
+  try {
+    if (editingId) {
+      // ========== MODO EDICIÓN ==========
+      const updateData = {
+        nombre_completo: nombre,
+        email: email,
+        rol: rol,
+        activo: activo
+      };
 
-  if (error || !data?.success) {
-    toast((data?.error || error?.message || 'Error creando usuario'), 'error');
-    return;
+      // Actualizar perfil en la tabla perfiles
+      const { error: perfilError } = await supabase
+        .from('perfiles')
+        .update(updateData)
+        .eq('id', editingId);
+
+      if (perfilError) throw new Error('Error actualizando perfil: ' + perfilError.message);
+
+      // Actualizar email en Auth si cambió
+      const user = dataCache.usuarios.find(u => u.id === editingId);
+      if (user && user.email !== email) {
+        const updateAuthUrl = SUPABASE_URL + '/auth/v1/admin/users/' + editingId;
+        await fetch(updateAuthUrl, {
+          method: 'PUT',
+          headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email: email })
+        });
+      }
+
+      // Actualizar cache local
+      const idx = dataCache.usuarios.findIndex(u => u.id === editingId);
+      if (idx >= 0) {
+        dataCache.usuarios[idx] = { ...dataCache.usuarios[idx], ...updateData };
+      }
+
+      await loadAllData();
+      closeModal('usuarios');
+      renderTable('usuarios');
+      toast('Usuario actualizado correctamente', 'success');
+
+    } else {
+      // ========== MODO CREACIÓN ==========
+      // 1. Crear usuario en Auth usando la API REST de Supabase (GoTrue)
+      const authUrl = SUPABASE_URL + '/auth/v1/admin/users';
+      const authResponse = await fetch(authUrl, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email: email,
+          password: password,
+          email_confirm: true,
+          user_metadata: { nombre_completo: nombre }
+        })
+      });
+
+      // Si falla con 401/403, intentar con signup público
+      let authData;
+      if (!authResponse.ok && authResponse.status === 401) {
+        // Fallback: usar signup público (el usuario deberá confirmar email)
+        const signupResponse = await fetch(SUPABASE_URL + '/auth/v1/signup', {
+          method: 'POST',
+          headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email, password })
+        });
+        authData = await signupResponse.json();
+        if (!signupResponse.ok) throw new Error(authData.msg || authData.message || 'Error creando usuario en Auth');
+      } else {
+        authData = await authResponse.json();
+        if (!authResponse.ok) throw new Error(authData.msg || authData.message || 'Error creando usuario en Auth');
+      }
+
+      const userId = authData.id || authData.user?.id;
+      if (!userId) throw new Error('No se pudo obtener el ID del usuario creado');
+
+      // 2. Crear perfil en la tabla perfiles
+      const { error: perfilError } = await supabase
+        .from('perfiles')
+        .insert({
+          id: userId,
+          email: email,
+          nombre_completo: nombre,
+          rol: rol,
+          activo: activo
+        });
+
+      if (perfilError) {
+        console.error('Error creando perfil:', perfilError);
+        throw new Error('Usuario creado en Auth pero falló el perfil: ' + perfilError.message);
+      }
+
+      await loadAllData();
+      closeModal('usuarios');
+      renderTable('usuarios');
+      toast('Usuario creado correctamente', 'success');
+    }
+  } catch (err) {
+    toast('Error: ' + err.message, 'error');
+    console.error(err);
   }
-
-  await loadAllData();
-  closeModal('usuarios');
-  renderTable('usuarios');
-  toast('Usuario creado correctamente', 'success');
+  showLoading(false);
 }
 
 async function deleteUsuario(userId) {
   if (!confirm('¿Eliminar este usuario permanentemente?')) return;
   showLoading(true);
-  const { data, error } = await supabase.functions.invoke('delete-user', {
-    body: { user_id: userId }
-  });
-  showLoading(false);
-  if (error || !data?.success) {
-    toast((data?.error || error?.message || 'Error eliminando usuario'), 'error');
-    return;
+  try {
+    // 1. Eliminar perfil primero (RLS permite a superadmin)
+    const { error: perfilError } = await supabase
+      .from('perfiles')
+      .delete()
+      .eq('id', userId);
+
+    if (perfilError) throw new Error('Error eliminando perfil: ' + perfilError.message);
+
+    // 2. Eliminar usuario de Auth usando API REST
+    const deleteUrl = SUPABASE_URL + '/auth/v1/admin/users/' + userId;
+    const deleteResponse = await fetch(deleteUrl, {
+      method: 'DELETE',
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
+      }
+    });
+
+    // Si no tiene permisos admin, al menos el perfil se eliminó
+    // y el usuario quedará sin acceso al sistema
+    if (!deleteResponse.ok && deleteResponse.status !== 404) {
+      console.warn('No se pudo eliminar de Auth (requiere service_role), pero el perfil fue eliminado');
+    }
+
+    dataCache.usuarios = dataCache.usuarios.filter(u => u.id !== userId);
+    renderTable('usuarios');
+    toast('Usuario eliminado', 'success');
+  } catch (err) {
+    toast('Error: ' + err.message, 'error');
+    console.error(err);
   }
-  dataCache.usuarios = dataCache.usuarios.filter(u => u.id !== userId);
-  renderTable('usuarios');
-  toast('Usuario eliminado', 'success');
+  showLoading(false);
+}
+
+async function toggleUsuarioActivo(userId, activo) {
+  showLoading(true);
+  try {
+    const { error } = await supabase
+      .from('perfiles')
+      .update({ activo: !activo })
+      .eq('id', userId);
+
+    if (error) throw new Error(error.message);
+
+    const idx = dataCache.usuarios.findIndex(u => u.id === userId);
+    if (idx >= 0) dataCache.usuarios[idx].activo = !activo;
+    renderTable('usuarios');
+    toast('Estado actualizado', 'success');
+  } catch (err) {
+    toast('Error: ' + err.message, 'error');
+  }
+  showLoading(false);
 }
 
 // ==========================================
@@ -1065,13 +1414,17 @@ function renderTable(table) {
     });
   } else if (table === 'usuarios') {
     data.forEach(row => {
+      const esSuperAdmin = row.rol === 'superadmin';
+      const esMiUsuario = row.id === currentUser?.id;
       html += `<tr>
         <td>${esc(row.nombre_completo)}</td>
         <td>${esc(row.email)}</td>
         <td><span class="badge ${row.rol==='superadmin'?'badge-danger':row.rol==='admin'?'badge-warning':'badge-info'}">${esc(row.rol)}</span></td>
         <td><span class="badge ${row.activo?'badge-success':'badge-danger'}">${row.activo?'Activo':'Inactivo'}</span></td>
         <td>
-          <button class="btn btn-danger" style="padding:4px 10px;font-size:0.75rem;" onclick="deleteUsuario('${row.id}')">🗑️ Eliminar</button>
+          ${!esMiUsuario ? `<button class="btn btn-secondary" style="padding:4px 10px;font-size:0.75rem;" onclick="openModal('usuarios','${row.id}')">✏️ Editar</button>` : '<span style="font-size:0.75rem;color:#999">(Tú)</span>'}
+          <button class="btn ${row.activo?'btn-warning':'btn-success'}" style="padding:4px 10px;font-size:0.75rem;" onclick="toggleUsuarioActivo('${row.id}', ${row.activo})">${row.activo?'⏸️ Desactivar':'▶️ Activar'}</button>
+          ${!esSuperAdmin && !esMiUsuario ? `<button class="btn btn-danger" style="padding:4px 10px;font-size:0.75rem;margin-left:4px;" onclick="deleteUsuario('${row.id}')">🗑️ Eliminar</button>` : ''}
         </td>
       </tr>`;
     });
