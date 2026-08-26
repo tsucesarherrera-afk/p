@@ -223,44 +223,59 @@ tr:hover { background: rgba(21,101,192,0.06); }
    MENÚ HAMBURGUESA (BOCADILLO) - RESPONSIVE
    ============================================ */
 .menu-toggle {
-  display: none;
-  position: fixed;
-  top: 12px;
-  left: 12px;
-  z-index: 1000;
-  width: 48px;
-  height: 48px;
-  background: linear-gradient(135deg, var(--primary-dark), var(--primary));
-  border: 2px solid rgba(255,255,255,0.3);
-  border-radius: 12px;
-  cursor: pointer;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  box-shadow: 0 4px 15px rgba(13,71,161,0.4), 0 0 0 4px rgba(21,101,192,0.15);
-  transition: all 0.3s ease;
+  display: none; /* Oculto en escritorio */
 }
-.menu-toggle:active {
-  transform: scale(0.95);
-}
-.menu-toggle .hamburger-line {
-  display: block;
-  width: 24px;
-  height: 2.5px;
-  background: white;
-  border-radius: 2px;
-  transition: all 0.3s ease;
-}
-.menu-toggle.active .hamburger-line:nth-child(1) {
-  transform: rotate(45deg) translate(5px, 5px);
-}
-.menu-toggle.active .hamburger-line:nth-child(2) {
-  opacity: 0;
-  transform: scaleX(0);
-}
-.menu-toggle.active .hamburger-line:nth-child(3) {
-  transform: rotate(-45deg) translate(5px, -5px);
+
+@media (max-width: 768px) {
+  .menu-toggle {
+    display: flex !important; /* FORZAR visibilidad en móvil */
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 9999;
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #0d47a1, #1565c0);
+    border: 2px solid rgba(255,255,255,0.4);
+    border-radius: 12px;
+    cursor: pointer;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    box-shadow: 0 4px 15px rgba(13,71,161,0.5), 0 0 0 4px rgba(21,101,192,0.2);
+    transition: all 0.3s ease;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  .menu-toggle:active {
+    transform: scale(0.92);
+    background: linear-gradient(135deg, #0a357a, #0d47a1);
+  }
+
+  .menu-toggle .hamburger-line {
+    display: block;
+    width: 24px;
+    height: 3px;
+    background: white;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+    pointer-events: none;
+  }
+
+  .menu-toggle.active .hamburger-line:nth-child(1) {
+    transform: rotate(45deg) translate(6px, 6px);
+  }
+
+  .menu-toggle.active .hamburger-line:nth-child(2) {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+
+  .menu-toggle.active .hamburger-line:nth-child(3) {
+    transform: rotate(-45deg) translate(6px, -6px);
+  }
 }
 .menu-toggle:hover {
   background: var(--primary-dark);
@@ -268,17 +283,23 @@ tr:hover { background: rgba(21,101,192,0.06); }
 }
 
 
-/* Overlay oscuro cuando el menú está abierto en móvil */
+/* ============================================
+   OVERLAY DEL SIDEBAR (móvil)
+   ============================================ */
 .sidebar-overlay {
   display: none;
   position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.5);
-  z-index: 90;
-  backdrop-filter: blur(2px);
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 9998;
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
 }
 .sidebar-overlay.active {
-  display: block;
+  display: block !important;
 }
 
 
@@ -438,14 +459,15 @@ tr:hover { background: rgba(21,101,192,0.06); }
   </div>
 </div>
 
-<div id="app">
-  <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
-  <aside class="sidebar" id="sidebar">
-    <button class="menu-toggle" id="menu-toggle" onclick="toggleSidebar()" aria-label="Abrir menú">
+<button class="menu-toggle" id="menu-toggle" onclick="toggleSidebar()" aria-label="Abrir menú">
       <span class="hamburger-line"></span>
       <span class="hamburger-line"></span>
       <span class="hamburger-line"></span>
     </button>
+  <div id="app">
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+  <aside class="sidebar" id="sidebar">
+    
     <div class="sidebar-header">
       <img src="https://raw.githubusercontent.com/tsucesarherrera-afk/p/main/enfermer%C3%ADa/logo-login.png" alt="Logo Dirección Regional de Enfermería Apure" onerror="this.style.display='none'">
       <h2>Control de Enfermería</h2>
@@ -809,64 +831,8 @@ tr:hover { background: rgba(21,101,192,0.06); }
 // ==========================================
 // CONFIGURACION SUPABASE - OFUSCADA
 // ==========================================
-// INSTRUCCIONES PARA CONFIGURAR TUS CREDENCIALES:
-//
-// 1. Ve a https://www.base64encode.org (o similar)
-// 2. Encripta tu URL con XOR usando la clave "DRA_2024_SECURE"
-//    (o usa la herramienta que te proporcionamos)
-// 3. Codifica el resultado en Base64
-// 4. Reemplaza el valor de _e en cada bloque
-//
-// HERRAMIENTA RAPIDA (consola del navegador):
-// --------------------------------------------------
-// function ofuscar(texto) {
-//   var k = "LCY1L0EKHRsqISApJj0wNDkwJ1dZWlo5JyotLHw2MSIgPVNDVxo8PA==";
-//   var e = "NzAeL0dSXl0sOyQhOTcafSYmEkpRbWYXKSx1YwJwLD8WDQpfRWs9KSwXIiYTLQ==";
-//   for(var i=0; i<texto.length; i++){
-//     e += String.fromCharCode(texto.charCodeAt(i) ^ k.charCodeAt(i%k.length));
-//   }
-//   return btoa(e);
-// }
-// // Ejemplo: ofuscar("https://tu-proyecto.supabase.co")
-// // Ejemplo: ofuscar("tu-anon-key-aqui")
-// --------------------------------------------------
-//
-// NOTA: Esta ofuscacion NO es criptografia fuerte.
-// Solo dificulta la lectura casual. Para seguridad real,
-// use variables de entorno en el servidor.
-// ==========================================
-
-// === OFUSCADOR DE CREDENCIALES ===
-// Funcion utilitaria para desofuscar (ofuscada)
-var _0x3a2f=function(n,t){for(var r=[],e=0;e<n.length;e++)r.push(String.fromCharCode(n.charCodeAt(e)^t.charCodeAt(e%t.length)));return r.join("")},_0x5b1c=function(n){return atob(n)};
-
-// === SUPABASE URL (ofuscada) ===
-(function(){
-  var _k="DRA_2024_SECURE";
-  var _e="LCY1L0EKHRsLBmgTBx0PAREVcUFFQlU9MjYmezEq";
-  var _d=_0x5b1c(_e);
-  var _r="";
-  for(var i=0;i<_d.length;i++){_r+=String.fromCharCode(_d.charCodeAt(i)^_k.charCodeAt(i%_k.length));}
-  window._SUPABASE_URL=_r;
-})();
-
-// === SUPABASE ANON KEY (ofuscada) ===
-(function(){
-  var _k="DRA_2024_SECURE";
-  var _e="EAdsHnx/fBkUFhw=";
-  var _d=_0x5b1c(_e);
-  var _r="";
-  for(var i=0;i<_d.length;i++){_r+=String.fromCharCode(_d.charCodeAt(i)^_k.charCodeAt(i%_k.length));}
-  window._SUPABASE_ANON_KEY=_r;
-})();
-
-// === EXPONER COMO VARIABLES ORIGINALES ===
-const SUPABASE_URL = window._SUPABASE_URL;
-const SUPABASE_ANON_KEY = window._SUPABASE_ANON_KEY;
-
-// === LIMPIAR VARIABLES GLOBALES TEMPORALES ===
-// (opcional, descomentar para mayor seguridad)
-// setTimeout(function(){ delete window._SUPABASE_URL; delete window._SUPABASE_ANON_KEY; }, 100);
+const SUPABASE_URL = 'https://urejsoupkqxeihnftony.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_9tgMxa_RHzi66P5hmWR8ow_bziTwtVi';
 
 // ==========================================
 // MUNICIPIOS Y PARROQUIAS - ESTADO APURE
@@ -913,6 +879,31 @@ let dataCache = { personal: [], postulados: [], cambios: [], usuarios: [] };
   };
 })();
 
+// ==========================================
+// PROTECCIÓN ANTI-AUTOLOGIN AL CERRAR SESIÓN
+// ==========================================
+(function(){
+  // Verificar si la URL tiene parámetro de logout
+  if (location.search.includes('logout=')) {
+    // Limpiar cualquier token residual
+    localStorage.removeItem('supabase.auth.token');
+    sessionStorage.clear();
+    // Limpiar la URL
+    history.replaceState(null, '', location.pathname);
+  }
+
+  // Verificar si hay un intento de autologin sospechoso
+  var _lastLogout = localStorage.getItem('_lastLogout');
+  if (_lastLogout) {
+    var _timeSince = Date.now() - parseInt(_lastLogout);
+    if (_timeSince < 5000) { // Si cerró sesión hace menos de 5 segundos
+      localStorage.clear();
+      sessionStorage.clear();
+    }
+    localStorage.removeItem('_lastLogout');
+  }
+})();
+
 document.addEventListener('DOMContentLoaded', () => {
   // Inicializar cliente Supabase
   supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -955,10 +946,31 @@ function toggleSidebar() {
   const overlay = document.getElementById('sidebar-overlay');
   const toggle = document.getElementById('menu-toggle');
 
-  if (sidebar && overlay && toggle) {
-    const isOpen = sidebar.classList.toggle('open');
-    overlay.classList.toggle('active', isOpen);
-    toggle.classList.toggle('active', isOpen);
+  if (!sidebar) return;
+
+  const isOpen = sidebar.classList.toggle('open');
+
+  if (overlay) {
+    if (isOpen) {
+      overlay.classList.add('active');
+    } else {
+      overlay.classList.remove('active');
+    }
+  }
+
+  if (toggle) {
+    if (isOpen) {
+      toggle.classList.add('active');
+    } else {
+      toggle.classList.remove('active');
+    }
+  }
+
+  // Prevenir scroll del body cuando el menú está abierto
+  if (isOpen) {
+    document.body.style.overflow = 'hidden';
+  } else {
+    document.body.style.overflow = '';
   }
 }
 
@@ -1087,12 +1099,26 @@ function cancelarCerrarSesion() {
 
 function ejecutarCerrarSesion() {
   cancelarCerrarSesion();
+  // Marcar que el usuario cerró sesión intencionalmente
+  localStorage.setItem('_lastLogout', Date.now().toString());
   handleLogout();
 }
 
 async function handleLogout() {
+  // Limpiar TODO el almacenamiento local y de sesión
+  localStorage.clear();
+  sessionStorage.clear();
+
+  // Limpiar cookies del dominio
+  document.cookie.split(";").forEach(function(c) {
+    document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+  });
+
+  // Cerrar sesión en Supabase
   await supabase.auth.signOut();
-  location.reload();
+
+  // Forzar recarga completa sin caché
+  location.href = location.pathname + '?logout=' + Date.now();
 }
 
 // ==========================================
@@ -1111,6 +1137,7 @@ function showSection(name) {
     const toggle = document.getElementById('menu-toggle');
     if (sidebar && sidebar.classList.contains('open')) {
       sidebar.classList.remove('open');
+      document.body.style.overflow = '';
       if (overlay) overlay.classList.remove('active');
       if (toggle) toggle.classList.remove('active');
     }
