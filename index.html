@@ -829,8 +829,9 @@ tr:hover { background: rgba(21,101,192,0.06); }
 
 <script>
 // ==========================================
-// CONFIGURACION SUPABASE - OFUSCADA
+// CONFIGURACION BASE DE DATOS
 // ==========================================
+
 const SUPABASE_URL = 'https://urejsoupkqxeihnftony.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_9tgMxa_RHzi66P5hmWR8ow_bziTwtVi';
 
@@ -877,31 +878,6 @@ let dataCache = { personal: [], postulados: [], cambios: [], usuarios: [] };
     if(/supabase|anon|project\.supabase|password|token/i.test(_args)) return;
     _orig.apply(console, arguments);
   };
-})();
-
-// ==========================================
-// PROTECCIÓN ANTI-AUTOLOGIN AL CERRAR SESIÓN
-// ==========================================
-(function(){
-  // Verificar si la URL tiene parámetro de logout
-  if (location.search.includes('logout=')) {
-    // Limpiar cualquier token residual
-    localStorage.removeItem('supabase.auth.token');
-    sessionStorage.clear();
-    // Limpiar la URL
-    history.replaceState(null, '', location.pathname);
-  }
-
-  // Verificar si hay un intento de autologin sospechoso
-  var _lastLogout = localStorage.getItem('_lastLogout');
-  if (_lastLogout) {
-    var _timeSince = Date.now() - parseInt(_lastLogout);
-    if (_timeSince < 5000) { // Si cerró sesión hace menos de 5 segundos
-      localStorage.clear();
-      sessionStorage.clear();
-    }
-    localStorage.removeItem('_lastLogout');
-  }
 })();
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -1099,26 +1075,12 @@ function cancelarCerrarSesion() {
 
 function ejecutarCerrarSesion() {
   cancelarCerrarSesion();
-  // Marcar que el usuario cerró sesión intencionalmente
-  localStorage.setItem('_lastLogout', Date.now().toString());
   handleLogout();
 }
 
 async function handleLogout() {
-  // Limpiar TODO el almacenamiento local y de sesión
-  localStorage.clear();
-  sessionStorage.clear();
-
-  // Limpiar cookies del dominio
-  document.cookie.split(";").forEach(function(c) {
-    document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
-  });
-
-  // Cerrar sesión en Supabase
   await supabase.auth.signOut();
-
-  // Forzar recarga completa sin caché
-  location.href = location.pathname + '?logout=' + Date.now();
+  location.reload();
 }
 
 // ==========================================
