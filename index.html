@@ -225,43 +225,48 @@ tr:hover { background: rgba(21,101,192,0.06); }
 .menu-toggle {
   display: none;
   position: fixed;
-  top: 16px;
-  left: 16px;
-  z-index: 200;
-  width: 44px;
-  height: 44px;
-  background: var(--primary);
-  border: none;
-  border-radius: 10px;
+  top: 12px;
+  left: 12px;
+  z-index: 1000;
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+  border: 2px solid rgba(255,255,255,0.3);
+  border-radius: 12px;
   cursor: pointer;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 5px;
-  box-shadow: 0 4px 12px rgba(13,71,161,0.3);
+  box-shadow: 0 4px 15px rgba(13,71,161,0.4), 0 0 0 4px rgba(21,101,192,0.15);
   transition: all 0.3s ease;
 }
-.menu-toggle:hover {
-  background: var(--primary-dark);
-  transform: scale(1.05);
+.menu-toggle:active {
+  transform: scale(0.95);
 }
-.menu-toggle span {
+.menu-toggle .hamburger-line {
   display: block;
-  width: 22px;
+  width: 24px;
   height: 2.5px;
   background: white;
   border-radius: 2px;
   transition: all 0.3s ease;
 }
-.menu-toggle.active span:nth-child(1) {
+.menu-toggle.active .hamburger-line:nth-child(1) {
   transform: rotate(45deg) translate(5px, 5px);
 }
-.menu-toggle.active span:nth-child(2) {
+.menu-toggle.active .hamburger-line:nth-child(2) {
   opacity: 0;
+  transform: scaleX(0);
 }
-.menu-toggle.active span:nth-child(3) {
+.menu-toggle.active .hamburger-line:nth-child(3) {
   transform: rotate(-45deg) translate(5px, -5px);
 }
+.menu-toggle:hover {
+  background: var(--primary-dark);
+  transform: scale(1.05);
+}
+
 
 /* Overlay oscuro cuando el menú está abierto en móvil */
 .sidebar-overlay {
@@ -274,6 +279,117 @@ tr:hover { background: rgba(21,101,192,0.06); }
 }
 .sidebar-overlay.active {
   display: block;
+}
+
+/* ============================================
+   BOTÓN CERRAR SESIÓN - PARTE SUPERIOR DERECHA
+   ============================================ */
+.btn-logout-top {
+  position: fixed;
+  top: 16px;
+  right: 20px;
+  z-index: 50;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(13,71,161,0.3);
+  transition: all 0.2s ease;
+}
+.btn-logout-top:hover {
+  background: linear-gradient(135deg, #0a357a, #1565c0);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(13,71,161,0.4);
+}
+.btn-logout-top:active {
+  transform: translateY(0);
+}
+
+/* ============================================
+   MODAL DE CONFIRMACIÓN - CERRAR SESIÓN
+   ============================================ */
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 3000;
+  backdrop-filter: blur(4px);
+}
+.confirm-overlay.active {
+  display: flex;
+}
+.confirm-box {
+  background: var(--card);
+  border-radius: 20px;
+  padding: 32px 28px;
+  width: 90%;
+  max-width: 380px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  animation: confirmPop 0.3s ease;
+}
+@keyframes confirmPop {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+.confirm-box .confirm-icon {
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, #ff9800, #f57c00);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  font-size: 1.8rem;
+}
+.confirm-box h3 {
+  color: var(--primary-dark);
+  font-size: 1.2rem;
+  margin-bottom: 8px;
+}
+.confirm-box p {
+  color: var(--text-light);
+  font-size: 0.9rem;
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+.confirm-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+.confirm-buttons .btn {
+  padding: 12px 24px;
+  font-size: 0.9rem;
+  border-radius: 10px;
+  min-width: 100px;
+}
+.confirm-buttons .btn-confirm-yes {
+  background: var(--danger);
+  color: white;
+  border: none;
+}
+.confirm-buttons .btn-confirm-yes:hover {
+  background: #a02020;
+}
+.confirm-buttons .btn-confirm-no {
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.confirm-buttons .btn-confirm-no:hover {
+  background: var(--border);
 }
 
 @media (max-width: 768px) {
@@ -290,6 +406,14 @@ tr:hover { background: rgba(21,101,192,0.06); }
   .top-bar h1 { font-size: 1.2rem; }
   .modal { max-width: 95vw; }
   .form-grid { grid-template-columns: 1fr; }
+  .btn-logout-top {
+    top: 12px;
+    right: 12px;
+    padding: 8px 12px;
+  }
+  .btn-logout-text {
+    display: none;
+  }
 }
 
 .toast-container { position: fixed; top: 20px; right: 20px; z-index: 2000; display: flex; flex-direction: column; gap: 8px; }
@@ -336,7 +460,9 @@ tr:hover { background: rgba(21,101,192,0.06); }
   <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
   <aside class="sidebar" id="sidebar">
     <button class="menu-toggle" id="menu-toggle" onclick="toggleSidebar()" aria-label="Abrir menú">
-      <span></span><span></span><span></span>
+      <span class="hamburger-line"></span>
+      <span class="hamburger-line"></span>
+      <span class="hamburger-line"></span>
     </button>
     <div class="sidebar-header">
       <img src="https://raw.githubusercontent.com/tsucesarherrera-afk/p/main/enfermer%C3%ADa/logo-login.png" alt="Logo Dirección Regional de Enfermería Apure" onerror="this.style.display='none'">
@@ -379,11 +505,14 @@ tr:hover { background: rgba(21,101,192,0.06); }
           </div>
         </div>
       </div>
-      <button onclick="handleLogout()">Cerrar Sesión</button>
     </div>
   </aside>
 
   <main class="main-content">
+    <button class="btn-logout-top" onclick="confirmarCerrarSesion()" title="Cerrar Sesión">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      <span class="btn-logout-text">Salir</span>
+    </button>
     <section id="sec-dashboard" class="section active">
       <div class="top-bar"><h1>Dashboard</h1><div class="actions"><button class="btn btn-secondary" onclick="refreshDashboard()">🔄 Actualizar</button></div></div>
       <div class="stats-grid" id="stats-grid"></div>
@@ -584,13 +713,28 @@ tr:hover { background: rgba(21,101,192,0.06); }
 <div class="toast-container" id="toast-container"></div>
 <div class="loading-overlay" id="loading"><div class="spinner"></div></div>
 
+<!-- ============================================
+     MODAL DE CONFIRMACIÓN - CERRAR SESIÓN
+     ============================================ -->
+<div class="confirm-overlay" id="confirm-logout-overlay">
+  <div class="confirm-box">
+    <div class="confirm-icon">🚪</div>
+    <h3>¿Cerrar Sesión?</h3>
+    <p>¿Está seguro que desea salir del sistema?<br>Se perderán los cambios no guardados.</p>
+    <div class="confirm-buttons">
+      <button class="btn btn-confirm-no" onclick="cancelarCerrarSesion()">No, continuar</button>
+      <button class="btn btn-confirm-yes" onclick="ejecutarCerrarSesion()">Sí, salir</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ==========================================
 // CONFIGURACION SUPABASE - REEMPLAZAR
 // ==========================================
 const SUPABASE_URL = 'https://urejsoupkqxeihnftony.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_9tgMxa_RHzi66P5hmWR8ow_bziTwtVi';
-
+  
 // ==========================================
 // MUNICIPIOS Y PARROQUIAS - ESTADO APURE
 // ==========================================
@@ -765,6 +909,24 @@ async function initUser(user) {
   await loadAllData();
   refreshDashboard();
   renderAllTables();
+}
+
+/* ============================================
+   CONFIRMACIÓN DE CERRAR SESIÓN
+   ============================================ */
+function confirmarCerrarSesion() {
+  const overlay = document.getElementById('confirm-logout-overlay');
+  if (overlay) overlay.classList.add('active');
+}
+
+function cancelarCerrarSesion() {
+  const overlay = document.getElementById('confirm-logout-overlay');
+  if (overlay) overlay.classList.remove('active');
+}
+
+function ejecutarCerrarSesion() {
+  cancelarCerrarSesion();
+  handleLogout();
 }
 
 async function handleLogout() {
@@ -1759,6 +1921,24 @@ function toast(message, type = 'info') {
 // Enter en login
  document.getElementById('login-password')?.addEventListener('keypress', (e) => {
    if (e.key === 'Enter') handleLogin();
+ });
+
+// Cerrar modal de confirmación con ESC
+ document.addEventListener('keydown', (e) => {
+   if (e.key === 'Escape') {
+     cancelarCerrarSesion();
+     // También cerrar sidebar en móvil
+     if (window.innerWidth <= 768) {
+       const sidebar = document.getElementById('sidebar');
+       const overlay = document.getElementById('sidebar-overlay');
+       const toggle = document.getElementById('menu-toggle');
+       if (sidebar && sidebar.classList.contains('open')) {
+         sidebar.classList.remove('open');
+         if (overlay) overlay.classList.remove('active');
+         if (toggle) toggle.classList.remove('active');
+       }
+     }
+   }
  });
 </script>
 </body>
