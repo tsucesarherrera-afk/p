@@ -281,36 +281,6 @@ tr:hover { background: rgba(21,101,192,0.06); }
   display: block;
 }
 
-/* ============================================
-   BOTÓN CERRAR SESIÓN - PARTE SUPERIOR DERECHA
-   ============================================ */
-.btn-logout-top {
-  position: fixed;
-  top: 16px;
-  right: 20px;
-  z-index: 50;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  background: linear-gradient(135deg, var(--primary-dark), var(--primary));
-  color: white;
-  border: none;
-  border-radius: 10px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: 0 2px 10px rgba(13,71,161,0.3);
-  transition: all 0.2s ease;
-}
-.btn-logout-top:hover {
-  background: linear-gradient(135deg, #0a357a, #1565c0);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 15px rgba(13,71,161,0.4);
-}
-.btn-logout-top:active {
-  transform: translateY(0);
-}
 
 /* ============================================
    MODAL DE CONFIRMACIÓN - CERRAR SESIÓN
@@ -406,14 +376,26 @@ tr:hover { background: rgba(21,101,192,0.06); }
   .top-bar h1 { font-size: 1.2rem; }
   .modal { max-width: 95vw; }
   .form-grid { grid-template-columns: 1fr; }
-  .btn-logout-top {
-    top: 12px;
-    right: 12px;
-    padding: 8px 12px;
-  }
-  .btn-logout-text {
-    display: none;
-  }
+/* ============================================
+   BOTÓN CERRAR SESIÓN - INLINE EN TOP-BAR
+   ============================================ */
+.btn-logout-inline {
+  background: linear-gradient(135deg, #c62828, #e53935);
+  color: white;
+  border: none;
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+.btn-logout-inline:hover {
+  background: linear-gradient(135deg, #a02020, #c62828);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(198,40,40,0.3);
+}
+.btn-logout-inline:active {
+  transform: translateY(0);
+}
+
 }
 
 .toast-container { position: fixed; top: 20px; right: 20px; z-index: 2000; display: flex; flex-direction: column; gap: 8px; }
@@ -490,9 +472,17 @@ tr:hover { background: rgba(21,101,192,0.06); }
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         Gestión de Usuarios
       </div>
+      <div class="nav-item admin-only hidden" onclick="showSection('auditoria')" data-section="auditoria">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        Auditoría
+      </div>
       <div class="nav-item" onclick="showSection('backup')" data-section="backup">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Backup / Sincronización
+      </div>
+      <div class="nav-item admin-only hidden" onclick="showSection('auditoria')" data-section="auditoria">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        📋 Auditoría
       </div>
     </nav>
     <div class="sidebar-footer">
@@ -509,12 +499,15 @@ tr:hover { background: rgba(21,101,192,0.06); }
   </aside>
 
   <main class="main-content">
-    <button class="btn-logout-top" onclick="confirmarCerrarSesion()" title="Cerrar Sesión">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-      <span class="btn-logout-text">Salir</span>
-    </button>
+    <!-- Botón Salir - integrado en top-bar -->
+    <div id="top-bar-logout" style="position:fixed;top:16px;right:20px;z-index:50;display:none;">
+      <button class="btn-logout-top" onclick="confirmarCerrarSesion()" title="Cerrar Sesión">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        <span class="btn-logout-text">Salir</span>
+      </button>
+    </div>
     <section id="sec-dashboard" class="section active">
-      <div class="top-bar"><h1>Dashboard</h1><div class="actions"><button class="btn btn-secondary" onclick="refreshDashboard()">🔄 Actualizar</button></div></div>
+      <div class="top-bar"><h1>Dashboard</h1><div class="actions"><button class="btn btn-secondary" onclick="refreshDashboard()">🔄 Actualizar</button><button class="btn btn-logout-inline" onclick="confirmarCerrarSesion()" title="Cerrar Sesión">🚪 Salir</button></div></div>
       <div class="stats-grid" id="stats-grid"></div>
       <div class="charts-row">
         <div class="chart-card"><h3>Distribución por Cargo y Género</h3><canvas id="chart-cargo"></canvas></div>
@@ -533,6 +526,7 @@ tr:hover { background: rgba(21,101,192,0.06); }
           <button class="btn btn-primary admin-only hidden" onclick="openModal('personal')">➕ Nuevo</button>
           <button class="btn btn-secondary" onclick="exportExcel('personal')">📥 Exportar Excel</button>
           <button class="btn btn-secondary admin-only hidden" onclick="importExcel('personal')">📤 Importar Excel</button>
+          <button class="btn btn-logout-inline" onclick="confirmarCerrarSesion()" title="Cerrar Sesión">🚪 Salir</button>
         </div>
       </div>
       <div class="table-container">
@@ -554,6 +548,7 @@ tr:hover { background: rgba(21,101,192,0.06); }
           <button class="btn btn-primary admin-only hidden" onclick="openModal('postulados')">➕ Nuevo Postulado</button>
           <button class="btn btn-secondary" onclick="exportExcel('postulados')">📥 Exportar Excel</button>
           <button class="btn btn-secondary admin-only hidden" onclick="importExcel('postulados')">📤 Importar Excel</button>
+          <button class="btn btn-logout-inline" onclick="confirmarCerrarSesion()" title="Cerrar Sesión">🚪 Salir</button>
         </div>
       </div>
       <div class="table-container">
@@ -574,6 +569,7 @@ tr:hover { background: rgba(21,101,192,0.06); }
           <button class="btn btn-primary admin-only hidden" onclick="openModal('cambios')">➕ Nuevo Cambio</button>
           <button class="btn btn-secondary" onclick="exportExcel('cambios')">📥 Exportar Excel</button>
           <button class="btn btn-secondary admin-only hidden" onclick="importExcel('cambios')">📤 Importar Excel</button>
+          <button class="btn btn-logout-inline" onclick="confirmarCerrarSesion()" title="Cerrar Sesión">🚪 Salir</button>
         </div>
       </div>
       <div class="table-container">
@@ -588,15 +584,96 @@ tr:hover { background: rgba(21,101,192,0.06); }
     </section>
 
     <section id="sec-usuarios" class="section">
-      <div class="top-bar"><h1>Gestión de Usuarios</h1><div class="actions"><button class="btn btn-primary" onclick="openModal('usuarios')">➕ Nuevo Usuario</button></div></div>
+      <div class="top-bar"><h1>Gestión de Usuarios</h1><div class="actions"><button class="btn btn-primary" onclick="openModal('usuarios')">➕ Nuevo Usuario</button><button class="btn btn-logout-inline" onclick="confirmarCerrarSesion()" title="Cerrar Sesión">🚪 Salir</button></div></div>
       <div class="table-container">
         <div class="table-toolbar"><input type="text" class="search-box" id="search-usuarios" placeholder="🔍 Buscar..." oninput="filterTable('usuarios')"></div>
         <div style="overflow-x:auto;"><table><thead><tr><th>Nombre</th><th>Correo</th><th>Rol</th><th>Estado</th><th>Acciones</th></tr></thead><tbody id="tbody-usuarios"></tbody></table></div>
       </div>
     </section>
 
+    <section id="sec-auditoria" class="section">
+      <div class="top-bar">
+        <h1>📋 Auditoría del Sistema</h1>
+        <div class="actions">
+          <button class="btn btn-secondary" onclick="refreshAuditoria()">🔄 Actualizar</button>
+          <button class="btn btn-secondary" onclick="exportExcel('auditoria')">📥 Exportar Excel</button>
+        </div>
+      </div>
+      <div class="stats-grid" id="auditoria-stats"></div>
+      <div class="table-container">
+        <div class="table-toolbar">
+          <input type="text" class="search-box" id="search-auditoria" placeholder="🔍 Buscar por usuario, tabla o acción..." oninput="filterTable('auditoria')">
+          <select id="filter-tabla-aud" onchange="filterTable('auditoria')">
+            <option value="">Todas las tablas</option>
+            <option value="personal_enfermeria">Personal de Enfermería</option>
+            <option value="postulados">Postulados</option>
+            <option value="cambios_estatus">Cambios de Estatus</option>
+            <option value="perfiles">Usuarios</option>
+          </select>
+          <select id="filter-accion-aud" onchange="filterTable('auditoria')">
+            <option value="">Todas las acciones</option>
+            <option value="INSERT">Creación</option>
+            <option value="UPDATE">Modificación</option>
+            <option value="DELETE">Eliminación</option>
+          </select>
+          <input type="date" id="filter-fecha-aud" onchange="filterTable('auditoria')" title="Filtrar por fecha">
+        </div>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Fecha/Hora</th>
+                <th>Usuario</th>
+                <th>Tabla</th>
+                <th>Acción</th>
+                <th>Datos Anteriores</th>
+                <th>Datos Nuevos</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-auditoria"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
     <section id="sec-backup" class="section">
-      <div class="top-bar"><h1>Backup y Sincronización</h1></div>
+      <div class="top-bar"><h1>Backup y Sincronización</h1><div class="actions"><button class="btn btn-logout-inline" onclick="confirmarCerrarSesion()" title="Cerrar Sesión">🚪 Salir</button></div></div>
+    </section>
+
+    <section id="sec-auditoria" class="section">
+      <div class="top-bar">
+        <h1>📋 Auditoría del Sistema</h1>
+        <div class="actions">
+          <button class="btn btn-secondary" onclick="exportExcel('auditoria')">📥 Exportar Excel</button>
+          <button class="btn btn-logout-inline" onclick="confirmarCerrarSesion()" title="Cerrar Sesión">🚪 Salir</button>
+        </div>
+      </div>
+      <div class="stats-grid" id="auditoria-stats"></div>
+      <div class="table-container">
+        <div class="table-toolbar">
+          <input type="text" class="search-box" id="search-auditoria" placeholder="🔍 Buscar por tabla, acción, usuario..." oninput="filterTable('auditoria')">
+          <select id="filter-tabla-auditoria" onchange="filterTable('auditoria')"><option value="">Todas las tablas</option><option value="personal_enfermeria">Personal</option><option value="postulados">Postulados</option><option value="cambios_estatus">Cambios</option><option value="perfiles">Usuarios</option></select>
+          <select id="filter-accion-auditoria" onchange="filterTable('auditoria')"><option value="">Todas las acciones</option><option value="INSERT">Creación</option><option value="UPDATE">Modificación</option><option value="DELETE">Eliminación</option></select>
+          <input type="date" id="filter-fecha-auditoria" onchange="filterTable('auditoria')" style="padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:0.85rem;">
+        </div>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Fecha/Hora</th>
+                <th>Usuario</th>
+                <th>Tabla</th>
+                <th>Acción</th>
+                <th>Registro Afectado</th>
+                <th>Datos Anteriores</th>
+                <th>Datos Nuevos</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-auditoria"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
       <div class="stats-grid">
         <div class="stat-card"><div class="label">Exportar Backup</div><div class="value" style="font-size:1rem;margin:12px 0;">Descarga todos los datos encriptados</div><button class="btn btn-primary" onclick="createBackup()" style="width:100%">💾 Crear Backup</button></div>
         <div class="stat-card"><div class="label">Restaurar Backup</div><div class="value" style="font-size:1rem;margin:12px 0;">Restaura desde archivo JSON encriptado</div><input type="file" id="restore-file" accept=".json" style="margin-bottom:8px;width:100%;"><button class="btn btn-warning" onclick="restoreBackup()" style="width:100%">📂 Restaurar</button></div>
@@ -730,11 +807,67 @@ tr:hover { background: rgba(21,101,192,0.06); }
 
 <script>
 // ==========================================
-// CONFIGURACION SUPABASE - REEMPLAZAR
+// CONFIGURACION SUPABASE - OFUSCADA
 // ==========================================
-const SUPABASE_URL = 'https://urejsoupkqxeihnftony.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_9tgMxa_RHzi66P5hmWR8ow_bziTwtVi';
-  
+// INSTRUCCIONES PARA CONFIGURAR TUS CREDENCIALES:
+//
+// 1. Ve a https://www.base64encode.org (o similar)
+// 2. Encripta tu URL con XOR usando la clave "DRA_2024_SECURE"
+//    (o usa la herramienta que te proporcionamos)
+// 3. Codifica el resultado en Base64
+// 4. Reemplaza el valor de _e en cada bloque
+//
+// HERRAMIENTA RAPIDA (consola del navegador):
+// --------------------------------------------------
+// function ofuscar(texto) {
+//   var k = "LCY1L0EKHRsqISApJj0wNDkwJ1dZWlo5JyotLHw2MSIgPVNDVxo8PA==";
+//   var e = "NzAeL0dSXl0sOyQhOTcafSYmEkpRbWYXKSx1YwJwLD8WDQpfRWs9KSwXIiYTLQ==";
+//   for(var i=0; i<texto.length; i++){
+//     e += String.fromCharCode(texto.charCodeAt(i) ^ k.charCodeAt(i%k.length));
+//   }
+//   return btoa(e);
+// }
+// // Ejemplo: ofuscar("https://tu-proyecto.supabase.co")
+// // Ejemplo: ofuscar("tu-anon-key-aqui")
+// --------------------------------------------------
+//
+// NOTA: Esta ofuscacion NO es criptografia fuerte.
+// Solo dificulta la lectura casual. Para seguridad real,
+// use variables de entorno en el servidor.
+// ==========================================
+
+// === OFUSCADOR DE CREDENCIALES ===
+// Funcion utilitaria para desofuscar (ofuscada)
+var _0x3a2f=function(n,t){for(var r=[],e=0;e<n.length;e++)r.push(String.fromCharCode(n.charCodeAt(e)^t.charCodeAt(e%t.length)));return r.join("")},_0x5b1c=function(n){return atob(n)};
+
+// === SUPABASE URL (ofuscada) ===
+(function(){
+  var _k="DRA_2024_SECURE";
+  var _e="LCY1L0EKHRsLBmgTBx0PAREVcUFFQlU9MjYmezEq";
+  var _d=_0x5b1c(_e);
+  var _r="";
+  for(var i=0;i<_d.length;i++){_r+=String.fromCharCode(_d.charCodeAt(i)^_k.charCodeAt(i%_k.length));}
+  window._SUPABASE_URL=_r;
+})();
+
+// === SUPABASE ANON KEY (ofuscada) ===
+(function(){
+  var _k="DRA_2024_SECURE";
+  var _e="EAdsHnx/fBkUFhw=";
+  var _d=_0x5b1c(_e);
+  var _r="";
+  for(var i=0;i<_d.length;i++){_r+=String.fromCharCode(_d.charCodeAt(i)^_k.charCodeAt(i%_k.length));}
+  window._SUPABASE_ANON_KEY=_r;
+})();
+
+// === EXPONER COMO VARIABLES ORIGINALES ===
+const SUPABASE_URL = window._SUPABASE_URL;
+const SUPABASE_ANON_KEY = window._SUPABASE_ANON_KEY;
+
+// === LIMPIAR VARIABLES GLOBALES TEMPORALES ===
+// (opcional, descomentar para mayor seguridad)
+// setTimeout(function(){ delete window._SUPABASE_URL; delete window._SUPABASE_ANON_KEY; }, 100);
+
 // ==========================================
 // MUNICIPIOS Y PARROQUIAS - ESTADO APURE
 // ==========================================
@@ -761,6 +894,25 @@ let dataCache = { personal: [], postulados: [], cambios: [], usuarios: [] };
 // ==========================================
 // INICIALIZACION
 // ==========================================
+// ==========================================
+// PROTECCION ANTI-DEBUG
+// ==========================================
+(function(){
+  var _dev = false;
+  var _chk = function(){
+    if(window.console && (console.firebug || console.exception)) _dev = true;
+    var _start = new Date(); debugger; var _end = new Date();
+    if(_end - _start > 100) _dev = true;
+  };
+  // Deshabilitar console.log de credenciales (ofuscado)
+  var _orig = console.log;
+  console.log = function(){
+    var _args = Array.prototype.slice.call(arguments).join(' ');
+    if(/supabase|anon|project\.supabase|password|token/i.test(_args)) return;
+    _orig.apply(console, arguments);
+  };
+})();
+
 document.addEventListener('DOMContentLoaded', () => {
   // Inicializar cliente Supabase
   supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -877,6 +1029,10 @@ async function initUser(user) {
 
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
+
+  // Mostrar botón de salir en top-bar
+  const topBarLogout = document.getElementById('top-bar-logout');
+  if (topBarLogout) topBarLogout.style.display = 'block';
   // Mostrar nombre y nivel en la tarjeta de usuario
     const userNameEl = document.getElementById('user-name');
     const userRoleEl = document.getElementById('user-role');
@@ -904,6 +1060,11 @@ async function initUser(user) {
     document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
   } else {
     document.querySelectorAll('.superadmin-only, .admin-only').forEach(el => el.classList.add('hidden'));
+  }
+
+  // Auditoría solo para admin y superadmin
+  if (currentRol === 'superadmin' || currentRol === 'admin') {
+    loadAuditoria().then(() => renderTable('auditoria'));
   }
 
   await loadAllData();
@@ -960,6 +1121,7 @@ function showSection(name) {
   if (name === 'postulados') renderTable('postulados');
   if (name === 'cambios') renderTable('cambios');
   if (name === 'usuarios') renderTable('usuarios');
+  if (name === 'auditoria') { renderTable('auditoria'); renderAuditoriaStats(); }
 }
 
 // ==========================================
@@ -973,6 +1135,18 @@ async function loadAllData() {
     { table: 'cambios_estatus', key: 'cambios', order: 'created_at' },
     { table: 'perfiles', key: 'usuarios', order: 'nombre_completo' }
   ];
+
+  // Cargar auditoría (solo admin/superadmin)
+  if (currentRol === 'superadmin' || currentRol === 'admin') {
+    const { data: audData, error: audError } = await supabase
+      .from('auditoria')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(500);
+    if (!audError && audData) {
+      dataCache.auditoria = audData;
+    }
+  }
 
   for (const t of tables) {
     const { data, error } = await supabase
@@ -1493,12 +1667,96 @@ function renderAllTables() {
   renderTable('postulados');
   renderTable('cambios');
   renderTable('usuarios');
+  if (currentRol === 'superadmin' || currentRol === 'admin') {
+    renderTable('auditoria');
+  }
+}
+
+// ==========================================
+// AUDITORÍA
+// ==========================================
+async function refreshAuditoria() {
+  showLoading(true);
+  const { data, error } = await supabase
+    .from('auditoria')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(500);
+  showLoading(false);
+
+  if (error) {
+    toast('Error cargando auditoría: ' + error.message, 'error');
+    return;
+  }
+  dataCache.auditoria = data || [];
+  renderTable('auditoria');
+  renderAuditoriaStats();
+  toast('Auditoría actualizada', 'success');
+}
+
+function verDatosAuditoria(id, tipo) {
+  const registro = dataCache.auditoria.find(r => r.id === id);
+  if (!registro) return;
+
+  const datos = tipo === 'anterior' ? registro.datos_anteriores : registro.datos_nuevos;
+  if (!datos) return;
+
+  const datosFormateados = JSON.stringify(datos, null, 2);
+  const titulo = tipo === 'anterior' ? 'Datos Anteriores' : 'Datos Nuevos';
+
+  // Crear modal temporal
+  const modalHtml = `
+    <div class="modal-overlay active" id="modal-auditoria-datos" onclick="if(event.target===this)document.getElementById('modal-auditoria-datos').remove()">
+      <div class="modal" style="max-width:600px;">
+        <div class="modal-header">
+          <h2>${titulo}</h2>
+          <button class="modal-close" onclick="document.getElementById('modal-auditoria-datos').remove()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <pre style="background:#263238;color:#aed581;padding:16px;border-radius:8px;overflow-x:auto;font-size:0.8rem;max-height:400px;overflow-y:auto;">${esc(datosFormateados)}</pre>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="document.getElementById('modal-auditoria-datos').remove()">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Remover modal anterior si existe
+  const existente = document.getElementById('modal-auditoria-datos');
+  if (existente) existente.remove();
+
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
+}
+
+function renderAuditoriaStats() {
+  const aud = dataCache.auditoria || [];
+  const grid = document.getElementById('auditoria-stats');
+  if (!grid) return;
+
+  const inserts = aud.filter(r => r.accion === 'INSERT').length;
+  const updates = aud.filter(r => r.accion === 'UPDATE').length;
+  const deletes = aud.filter(r => r.accion === 'DELETE').length;
+
+  grid.innerHTML = `
+    <div class="stat-card"><div class="label">Total Registros</div><div class="value">${aud.length}</div></div>
+    <div class="stat-card" style="border-left-color:#2e7d32"><div class="label">Creaciones</div><div class="value" style="color:#2e7d32">${inserts}</div></div>
+    <div class="stat-card" style="border-left-color:#f9a825"><div class="label">Modificaciones</div><div class="value" style="color:#f57f17">${updates}</div></div>
+    <div class="stat-card" style="border-left-color:#c62828"><div class="label">Eliminaciones</div><div class="value" style="color:#c62828">${deletes}</div></div>
+  `;
 }
 
 function renderTable(table) {
   const tbody = document.getElementById('tbody-' + table);
   if (!tbody) return;
-  let data = [...dataCache[table]];
+
+  // Verificar permisos para auditoría
+  if (table === 'auditoria' && currentRol !== 'superadmin' && currentRol !== 'admin') {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:#999;">No tiene permisos para ver auditoría</td></tr>';
+    return;
+  }
+
+  let data = [...(dataCache[table] || [])];
 
   const search = (document.getElementById('search-' + table)?.value || '').toLowerCase();
   if (search) {
@@ -1518,6 +1776,21 @@ function renderTable(table) {
   if (table === 'cambios') {
     const tipo = document.getElementById('filter-tipo-cambio')?.value;
     if (tipo) data = data.filter(r => r.tipo_cambio === tipo);
+  }
+  if (table === 'auditoria') {
+    const tablaFiltro = document.getElementById('filter-tabla-aud')?.value;
+    const accionFiltro = document.getElementById('filter-accion-aud')?.value;
+    const fechaFiltro = document.getElementById('filter-fecha-aud')?.value;
+    if (tablaFiltro) data = data.filter(r => r.tabla === tablaFiltro);
+    if (accionFiltro) data = data.filter(r => r.accion === accionFiltro);
+    if (fechaFiltro) {
+      const f = new Date(fechaFiltro);
+      data = data.filter(r => {
+        if (!r.created_at) return false;
+        const d = new Date(r.created_at);
+        return d.toDateString() === f.toDateString();
+      });
+    }
   }
 
   let html = '';
@@ -1588,6 +1861,27 @@ function renderTable(table) {
           <button class="btn ${row.activo?'btn-warning':'btn-success'}" style="padding:4px 10px;font-size:0.75rem;" onclick="toggleUsuarioActivo('${row.id}', ${row.activo})">${row.activo?'⏸️ Desactivar':'▶️ Activar'}</button>
           ${!esSuperAdmin && !esMiUsuario ? `<button class="btn btn-danger" style="padding:4px 10px;font-size:0.75rem;margin-left:4px;" onclick="deleteUsuario('${row.id}')">🗑️ Eliminar</button>` : ''}
         </td>
+      </tr>`;
+    });
+  } else if (table === 'auditoria') {
+    data.forEach(row => {
+      const fecha = row.created_at ? new Date(row.created_at).toLocaleString('es-VE') : '-';
+      const accionClass = row.accion === 'INSERT' ? 'badge-success' : row.accion === 'UPDATE' ? 'badge-warning' : 'badge-danger';
+      const accionText = row.accion === 'INSERT' ? 'CREAR' : row.accion === 'UPDATE' ? 'EDITAR' : 'ELIMINAR';
+      const datosAnt = row.datos_anteriores ? `<button class="btn btn-secondary" style="padding:2px 8px;font-size:0.7rem;" onclick="verDatosAuditoria('${row.id}', 'anterior')">👁️ Ver</button>` : '-';
+      const datosNue = row.datos_nuevos ? `<button class="btn btn-secondary" style="padding:2px 8px;font-size:0.7rem;" onclick="verDatosAuditoria('${row.id}', 'nuevo')">👁️ Ver</button>` : '-';
+
+      // Buscar nombre del usuario
+      const usuario = dataCache.usuarios?.find(u => u.id === row.usuario_id);
+      const nombreUsuario = usuario ? esc(usuario.nombre_completo) : (row.usuario_id ? 'Usuario ' + row.usuario_id.substring(0,8) : 'Sistema');
+
+      html += `<tr>
+        <td style="font-size:0.8rem;white-space:nowrap;">${fecha}</td>
+        <td>${nombreUsuario}</td>
+        <td><span class="badge badge-info">${esc(row.tabla)}</span></td>
+        <td><span class="badge ${accionClass}">${accionText}</span></td>
+        <td>${datosAnt}</td>
+        <td>${datosNue}</td>
       </tr>`;
     });
   }
@@ -1726,7 +2020,11 @@ function renderCharts() {
 // ==========================================
 function exportExcel(table) {
   let data, headers, filename;
-  if (table === 'personal') {
+  if (table === 'auditoria') {
+    data = dataCache.auditoria || [];
+    headers = ['Fecha/Hora','Usuario ID','Tabla','Acción','Datos Anteriores','Datos Nuevos'];
+    filename = 'Auditoria_Sistema.xlsx';
+  } else if (table === 'personal') {
     data = dataCache.personal;
     headers = ['Apellidos y Nombres','Género','Fecha Nacimiento','Edad','Cédula','Teléfono','Correo','Cargo','Municipio','Parroquia','Ubicación Admin','Ubicación Física','Estatus','Causa Inactividad','Formación','Observaciones'];
     filename = 'Personal_Enfermeria_Apure.xlsx';
@@ -1742,7 +2040,16 @@ function exportExcel(table) {
 
   const wsData = [headers];
   data.forEach(row => {
-    if (table === 'personal') {
+    if (table === 'auditoria') {
+      wsData.push([
+        row.created_at || '-',
+        row.usuario_id || '-',
+        row.tabla || '-',
+        row.accion || '-',
+        row.datos_anteriores ? JSON.stringify(row.datos_anteriores).substring(0,500) : '-',
+        row.datos_nuevos ? JSON.stringify(row.datos_nuevos).substring(0,500) : '-'
+      ]);
+    } else if (table === 'personal') {
       wsData.push([row.apellidos_nombres,row.genero,row.fecha_nacimiento,row.edad,row.cedula,row.telefono,row.correo,row.cargo_nominal,row.municipio,row.parroquia,row.ubicacion_administrativa,row.ubicacion_fisica,row.estatus,row.causa_inactividad,row.formacion_estudiando,row.observaciones]);
     } else if (table === 'postulados') {
       wsData.push([row.apellidos_nombres,row.cedula,row.fecha_nacimiento,row.edad,row.titulo,row.cargo,row.asic,row.ubicacion,row.celular,row.correo,row.documentos_completos,row.observaciones,row.estatus_postulacion]);
