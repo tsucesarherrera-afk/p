@@ -1095,24 +1095,24 @@ async function initUser(user) {
   // Mostrar botón de salir en top-bar
   const topBarLogout = document.getElementById('top-bar-logout');
   if (topBarLogout) topBarLogout.style.display = 'block';
-  // Actualizar header con nombre del usuario
-    const iniciales = (perfil.nombre_completo || 'U').split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase();
-    const rolTexto = perfil.rol === 'superadmin' ? 'Super Administrador' : 
-                      perfil.rol === 'admin' ? 'Administrador' : 'Usuario';
-
-    // Header
-    const headerName = document.getElementById('user-name-header');
-    const headerAvatar = document.getElementById('user-avatar-header');
-    if (headerName) headerName.textContent = perfil.nombre_completo || 'Usuario';
-    if (headerAvatar) headerAvatar.textContent = iniciales;
-
-    // Dropdown
-    const dropName = document.getElementById('profile-dropdown-name');
-    const dropRole = document.getElementById('profile-dropdown-role');
-    const dropAvatar = document.getElementById('profile-dropdown-avatar');
-    if (dropName) dropName.textContent = perfil.nombre_completo || 'Usuario';
-    if (dropRole) dropRole.textContent = rolTexto;
-    if (dropAvatar) dropAvatar.textContent = iniciales;
+    // Actualizar header con nombre del usuario
+  const iniciales = (perfil.nombre_completo || 'U').split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase();
+  const rolTexto = perfil.rol === 'superadmin' ? 'Super Administrador' : 
+                    perfil.rol === 'admin' ? 'Administrador' : 'Usuario';
+  
+  // Header
+  const headerName = document.getElementById('user-name-header');
+  const headerAvatar = document.getElementById('user-avatar-header');
+  if (headerName) headerName.textContent = perfil.nombre_completo || 'Usuario';
+  if (headerAvatar) headerAvatar.textContent = iniciales;
+  
+  // Dropdown
+  const dropName = document.getElementById('profile-dropdown-name');
+  const dropRole = document.getElementById('profile-dropdown-role');
+  const dropAvatar = document.getElementById('profile-dropdown-avatar');
+  if (dropName) dropName.textContent = perfil.nombre_completo || 'Usuario';
+  if (dropRole) dropRole.textContent = rolTexto;
+  if (dropAvatar) dropAvatar.textContent = iniciales;
 
   // Mostrar/ocultar segun rol
   if (currentRol === 'superadmin') {
@@ -1124,11 +1124,16 @@ async function initUser(user) {
   } else {
     document.querySelectorAll('.superadmin-only, .admin-only').forEach(el => el.classList.add('hidden'));
   }
-
+  
   // Auditoría solo para admin y superadmin
   if (currentRol === 'superadmin' || currentRol === 'admin') {
     loadAuditoria().then(() => renderTable('auditoria'));
   }
+
+  await loadAllData();
+  refreshDashboard();
+  showSection('dashboard');
+}
 
   await loadAllData();
   refreshDashboard();
