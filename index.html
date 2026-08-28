@@ -1095,12 +1095,12 @@ async function initUser(user) {
   // Mostrar botón de salir en top-bar
   const topBarLogout = document.getElementById('top-bar-logout');
   if (topBarLogout) topBarLogout.style.display = 'block';
-    // Actualizar header con nombre del usuario
+    
+   // Actualizar header con nombre del usuario
   const iniciales = (perfil.nombre_completo || 'U').split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase();
   const rolTexto = perfil.rol === 'superadmin' ? 'Super Administrador' : 
                     perfil.rol === 'admin' ? 'Administrador' : 'Usuario';
-  
-  // Header
+    // Header
   const headerName = document.getElementById('user-name-header');
   const headerAvatar = document.getElementById('user-avatar-header');
   if (headerName) headerName.textContent = perfil.nombre_completo || 'Usuario';
