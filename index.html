@@ -137,7 +137,12 @@ tr:hover{background:rgba(0,71,171,0.02)}
 .hidden{display:none!important}
 .section{display:none}
 .section.active{display:block}
+
+@media(min-width:769px){
+  .menu-toggle-header{display:none!important;}
+}
 </style>
+<base target="_blank">
 <base target="_blank">
 <base target="_blank">
 </head>
@@ -159,15 +164,15 @@ tr:hover{background:rgba(0,71,171,0.02)}
   <header class="top-header">
     <div class="top-header-left">
       <button class="menu-toggle-header" id="menu-toggle" onclick="toggleSidebar()" type="button"><span></span><span></span><span></span></button>
-      <div class="logo-header">
-        <img src="https://raw.githubusercontent.com/tsucesarherrera-afk/p/main/enfermer%C3%ADa/logo-sidebar.png" alt="Logo" onerror="this.style.display='none'">
-        <span>Control de Enfermería</span>
+      <div class="logo-header" style="display:flex;align-items:center;">
+        <img src="https://raw.githubusercontent.com/tsucesarherrera-afk/p/main/imagenes/nuevo%20membrete.png" alt="Membrete Dirección Regional de Enfermería Apure" style="height:44px;width:auto;max-width:280px;object-fit:contain;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <span style="display:none;">Control de Enfermería</span>
       </div>
     </div>
     <div class="top-header-right">
       <button class="header-btn" title="Notificaciones"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button>
       <div class="user-profile-header" id="user-profile-header" onclick="toggleProfileDropdown()">
-        <div class="user-avatar-header" id="user-avatar-header">👤</div>
+        <div class="user-avatar-header" id="user-avatar-header" style="overflow:hidden;background-size:cover;background-position:center;">👤</div>
         <span class="user-name-header" id="user-name-header">Usuario</span>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
       </div>
@@ -176,12 +181,13 @@ tr:hover{background:rgba(0,71,171,0.02)}
 
   <div class="profile-dropdown" id="profile-dropdown">
     <div class="profile-dropdown-header">
-      <div class="profile-dropdown-avatar" id="profile-dropdown-avatar">👤</div>
+      <div class="profile-dropdown-avatar" id="profile-dropdown-avatar" style="overflow:hidden;background-size:cover;background-position:center;">👤</div>
       <div class="profile-dropdown-name" id="profile-dropdown-name">Cargando...</div>
       <div class="profile-dropdown-role" id="profile-dropdown-role">...</div>
     </div>
     <div class="profile-dropdown-body">
-      <button class="profile-dropdown-item" onclick="showSection('backup');toggleProfileDropdown();"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Backup / Sincronización</button>
+      <button class="profile-dropdown-item" onclick="document.getElementById('avatar-upload-input').click();toggleProfileDropdown();"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Cambiar Foto de Perfil</button>
+      <input type="file" id="avatar-upload-input" accept="image/*" style="display:none;" onchange="subirAvatarUsuario(event)">
       <div class="sidebar-divider"></div>
       <button class="profile-dropdown-item danger" onclick="confirmarCerrarSesion();toggleProfileDropdown();"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Cerrar Sesión</button>
     </div>
@@ -342,10 +348,10 @@ async function initUser(user){
   try{
     currentUser=user;
     let perfil=null,pErr=null;
-    try{const result=await supabase.from('perfiles').select('rol,nombre_completo,activo').eq('id',user.id).single();perfil=result.data;pErr=result.error;}catch(e){pErr=e;}
+    try{const result=await supabase.from('perfiles').select('rol,nombre_completo,activo,avatar_url').eq('id',user.id).single();perfil=result.data;pErr=result.error;}catch(e){pErr=e;}
     if(pErr||!perfil){
       console.warn('Perfil no encontrado, creando uno automáticamente...');
-      const nuevoPerfil={id:user.id,email:user.email,nombre_completo:user.user_metadata?.nombre_completo||user.email.split('@')[0],rol:'usuario',activo:true};
+      const nuevoPerfil={id:user.id,email:user.email,nombre_completo:user.user_metadata?.nombre_completo||user.email.split('@')[0],rol:'usuario',activo:true,avatar_url:null};
       const{data:newPerfil,error:insertErr}=await supabase.from('perfiles').insert([nuevoPerfil]).select().single();
       if(insertErr){console.error('Error creando perfil:',insertErr);toast('Error: No se pudo crear el perfil. '+insertErr.message,'error');await supabase.auth.signOut();return;}
       perfil=newPerfil;toast('Perfil creado automáticamente con rol Usuario','success');
@@ -357,13 +363,14 @@ async function initUser(user){
     if(app)app.classList.remove('hidden');
     const iniciales=(perfil.nombre_completo||'U').split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
     const rolTexto=perfil.rol==='superadmin'?'Super Administrador':perfil.rol==='admin'?'Administrador':'Usuario';
-    const headerName=document.getElementById('user-name-header'),headerAvatar=document.getElementById('user-avatar-header');
+    const headerName=document.getElementById('user-name-header');
     if(headerName)headerName.textContent=perfil.nombre_completo||'Usuario';
-    if(headerAvatar)headerAvatar.textContent=iniciales;
     const dropName=document.getElementById('profile-dropdown-name'),dropRole=document.getElementById('profile-dropdown-role'),dropAvatar=document.getElementById('profile-dropdown-avatar');
     if(dropName)dropName.textContent=perfil.nombre_completo||'Usuario';
     if(dropRole)dropRole.textContent=rolTexto;
-    if(dropAvatar)dropAvatar.textContent=iniciales;
+    if(dropAvatar){if(perfil.avatar_url){dropAvatar.textContent='';dropAvatar.style.backgroundImage='url('+perfil.avatar_url+')';}else{dropAvatar.textContent=iniciales;dropAvatar.style.backgroundImage='';}}
+    const headerAvatar=document.getElementById('user-avatar-header');
+    if(headerAvatar){if(perfil.avatar_url){headerAvatar.textContent='';headerAvatar.style.backgroundImage='url('+perfil.avatar_url+')';}else{headerAvatar.textContent=iniciales;headerAvatar.style.backgroundImage='';}}
     if(currentRol==='superadmin'){document.querySelectorAll('.superadmin-only').forEach(el=>el.classList.remove('hidden'));document.querySelectorAll('.admin-only').forEach(el=>el.classList.remove('hidden'));}
     else if(currentRol==='admin'){document.querySelectorAll('.superadmin-only').forEach(el=>el.classList.add('hidden'));document.querySelectorAll('.admin-only').forEach(el=>el.classList.remove('hidden'));}
     else{document.querySelectorAll('.superadmin-only,.admin-only').forEach(el=>el.classList.add('hidden'));}
@@ -377,6 +384,45 @@ async function initUser(user){
   }
 }
 
+
+function redimensionarImagen(file,maxWidth,maxHeight,callback){
+  const reader=new FileReader();
+  reader.onload=function(e){
+    const img=new Image();
+    img.onload=function(){
+      let w=img.width,h=img.height;
+      if(w>h){if(w>maxWidth){h*=maxWidth/w;w=maxWidth;}}else{if(h>maxHeight){w*=maxHeight/h;h=maxHeight;}}
+      const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;
+      const ctx=canvas.getContext('2d');ctx.drawImage(img,0,0,w,h);
+      callback(canvas.toDataURL('image/jpeg',0.75));
+    };img.src=e.target.result;
+  };reader.readAsDataURL(file);
+}
+async function subirAvatarUsuario(event){
+  const file=event.target.files[0];if(!file)return;
+  if(!file.type.startsWith('image/')){toast('Seleccione una imagen válida','error');return;}
+  showLoading(true);
+  try{
+    redimensionarImagen(file,300,300,async function(base64){
+      try{
+        const{error}=await supabase.from('perfiles').update({avatar_url:base64}).eq('id',currentUser.id);
+        if(error)throw error;
+        const perfilResult=await supabase.from('perfiles').select('avatar_url,nombre_completo').eq('id',currentUser.id).single();
+        if(perfilResult.data&&perfilResult.data.avatar_url){
+          const iniciales=(perfilResult.data.nombre_completo||'U').split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
+          const headerAvatar=document.getElementById('user-avatar-header');
+          const dropAvatar=document.getElementById('profile-dropdown-avatar');
+          if(headerAvatar){headerAvatar.textContent='';headerAvatar.style.backgroundImage='url('+perfilResult.data.avatar_url+')';}
+          if(dropAvatar){dropAvatar.textContent='';dropAvatar.style.backgroundImage='url('+perfilResult.data.avatar_url+')';}
+          const idx=dataCache.usuarios.findIndex(u=>u.id===currentUser.id);
+          if(idx>=0)dataCache.usuarios[idx].avatar_url=perfilResult.data.avatar_url;
+        }
+        toast('Foto de perfil actualizada','success');
+      }catch(err){toast('Error: '+err.message,'error');}
+      showLoading(false);
+    });
+  }catch(err){toast('Error: '+err.message,'error');showLoading(false);}
+}
 function confirmarCerrarSesion(){const overlay=document.getElementById('confirm-logout-overlay');if(overlay)overlay.classList.add('active');}
 function cancelarCerrarSesion(){const overlay=document.getElementById('confirm-logout-overlay');if(overlay)overlay.classList.remove('active');}
 function ejecutarCerrarSesion(){cancelarCerrarSesion();handleLogout();}
@@ -409,13 +455,14 @@ function showSection(name){
 
 async function loadAllData(){
   showLoading(true);
-  const tables=[{table:'personal_enfermeria',key:'personal',order:'apellidos_nombres'},{table:'postulados',key:'postulados',order:'apellidos_nombres'},{table:'cambios_estatus',key:'cambios',order:'created_at'},{table:'perfiles',key:'usuarios',order:'nombre_completo'}];
+  const tables=[{table:'personal_enfermeria',key:'personal',order:'apellidos_nombres'},{table:'postulados',key:'postulados',order:'apellidos_nombres'},{table:'cambios_estatus',key:'cambios',order:'created_at'},{table:'perfiles',key:'usuarios',order:'nombre_completo',select:'id,email,nombre_completo,rol,activo,avatar_url,created_at'}];
   if(currentRol==='superadmin'||currentRol==='admin'){
     const{data:audData,error:audError}=await supabase.from('auditoria').select('*').order('created_at',{ascending:false}).limit(500);
     if(!audError&&audData)dataCache.auditoria=audData;
   }
   for(const t of tables){
-    const{data,error}=await supabase.from(t.table).select('*').order(t.order,{ascending:true});
+    const sel=t.select||'*';
+    const{data,error}=await supabase.from(t.table).select(sel).order(t.order,{ascending:true});
     if(!error&&data)dataCache[t.key]=data;
   }
   showLoading(false);
@@ -746,7 +793,7 @@ function renderTable(table){
   }else if(table==='cambios'){
     data.forEach(row=>{html+=`<tr><td>${esc(row.apellidos_nombres)}</td><td>${esc(row.cedula)}</td><td><span class="badge badge-warning">${esc(row.tipo_cambio)}</span></td><td>${row.fecha_cambio||'-'}</td><td>${esc(row.detalle)}</td><td class="admin-only hidden"><button class="btn btn-secondary" style="padding:4px 10px;font-size:0.75rem;" onclick="openModal('cambios','${row.id}')">✏️</button><button class="btn btn-danger" style="padding:4px 10px;font-size:0.75rem;" onclick="deleteCambio('${row.id}')">🗑️</button></td></tr>`;});
   }else if(table==='usuarios'){
-    data.forEach(row=>{const esSuperAdmin=row.rol==='superadmin',esMiUsuario=row.id===currentUser?.id;html+=`<tr><td>${esc(row.nombre_completo)}</td><td>${esc(row.email)}</td><td><span class="badge ${row.rol==='superadmin'?'badge-danger':row.rol==='admin'?'badge-warning':'badge-info'}">${esc(row.rol)}</span></td><td><span class="badge ${row.activo?'badge-success':'badge-danger'}">${row.activo?'Activo':'Inactivo'}</span></td><td>${!esMiUsuario?`<button class="btn btn-secondary" style="padding:4px 10px;font-size:0.75rem;" onclick="openModal('usuarios','${row.id}')">✏️ Editar</button>`:'<span style="font-size:0.75rem;color:#999">(Tú)</span>'}<button class="btn ${row.activo?'btn-warning':'btn-success'}" style="padding:4px 10px;font-size:0.75rem;" onclick="toggleUsuarioActivo('${row.id}',${row.activo})">${row.activo?'⏸️ Desactivar':'▶️ Activar'}</button>${!esSuperAdmin&&!esMiUsuario?`<button class="btn btn-danger" style="padding:4px 10px;font-size:0.75rem;margin-left:4px;" onclick="deleteUsuario('${row.id}')">🗑️ Eliminar</button>`:''}</td></tr>`;});
+    data.forEach(row=>{const esSuperAdmin=row.rol==='superadmin',esMiUsuario=row.id===currentUser?.id;const avatarImg=row.avatar_url?`<img src="${row.avatar_url}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;margin-right:8px;vertical-align:middle;">`:`<span style="display:inline-flex;width:32px;height:32px;border-radius:50%;background:var(--primary);color:white;align-items:center;justify-content:center;margin-right:8px;font-size:0.75rem;font-weight:600;">${(row.nombre_completo||'U').split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase()}</span>`;html+=`<tr><td>${avatarImg}${esc(row.nombre_completo)}</td><td>${esc(row.email)}</td><td><span class="badge ${row.rol==='superadmin'?'badge-danger':row.rol==='admin'?'badge-warning':'badge-info'}">${esc(row.rol)}</span></td><td><span class="badge ${row.activo?'badge-success':'badge-danger'}">${row.activo?'Activo':'Inactivo'}</span></td><td>${!esMiUsuario?`<button class="btn btn-secondary" style="padding:4px 10px;font-size:0.75rem;" onclick="openModal('usuarios','${row.id}')">✏️ Editar</button>`:'<span style="font-size:0.75rem;color:#999">(Tú)</span>'}<button class="btn ${row.activo?'btn-warning':'btn-success'}" style="padding:4px 10px;font-size:0.75rem;" onclick="toggleUsuarioActivo('${row.id}',${row.activo})">${row.activo?'⏸️ Desactivar':'▶️ Activar'}</button>${!esSuperAdmin&&!esMiUsuario?`<button class="btn btn-danger" style="padding:4px 10px;font-size:0.75rem;margin-left:4px;" onclick="deleteUsuario('${row.id}')">🗑️ Eliminar</button>`:''}</td></tr>`;});
   }else if(table==='auditoria'){
     data.forEach(row=>{const fecha=row.created_at?new Date(row.created_at).toLocaleString('es-VE'):'-',accionClass=row.accion==='INSERT'?'badge-success':row.accion==='UPDATE'?'badge-warning':'badge-danger',accionText=row.accion==='INSERT'?'CREAR':row.accion==='UPDATE'?'EDITAR':'ELIMINAR',datosAnt=row.datos_anteriores?`<button class="btn btn-secondary" style="padding:2px 8px;font-size:0.7rem;" onclick="verDatosAuditoria('${row.id}','anterior')">👁️ Ver</button>`:'-',datosNue=row.datos_nuevos?`<button class="btn btn-secondary" style="padding:2px 8px;font-size:0.7rem;" onclick="verDatosAuditoria('${row.id}','nuevo')">👁️ Ver</button>`:'-';const usuario=dataCache.usuarios?.find(u=>u.id===row.usuario_id);const nombreUsuario=usuario?esc(usuario.nombre_completo):(row.usuario_id?'Usuario '+row.usuario_id.substring(0,8):'Sistema');html+=`<tr><td style="font-size:0.8rem;white-space:nowrap;">${fecha}</td><td>${nombreUsuario}</td><td><span class="badge badge-info">${esc(row.tabla)}</span></td><td><span class="badge ${accionClass}">${accionText}</span></td><td>${datosAnt}</td><td>${datosNue}</td></tr>`;});
   }
@@ -865,7 +912,7 @@ async function syncToSupabase(){
 }
 async function syncFromSupabase(){
   showLoading(true);
-  const tables=[{table:'personal_enfermeria',key:'personal',order:'apellidos_nombres'},{table:'postulados',key:'postulados',order:'apellidos_nombres'},{table:'cambios_estatus',key:'cambios',order:'created_at'},{table:'perfiles',key:'usuarios',order:'nombre_completo'}];
+  const tables=[{table:'personal_enfermeria',key:'personal',order:'apellidos_nombres'},{table:'postulados',key:'postulados',order:'apellidos_nombres'},{table:'cambios_estatus',key:'cambios',order:'created_at'},{table:'perfiles',key:'usuarios',order:'nombre_completo',select:'id,email,nombre_completo,rol,activo,avatar_url,created_at'}];
   for(const t of tables){const{data,error}=await supabase.from(t.table).select('*').order(t.order,{ascending:true});if(!error&&data)dataCache[t.key]=data;}
   showLoading(false);toast('Datos sincronizados desde Supabase','success');
 }
