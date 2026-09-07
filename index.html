@@ -12,7 +12,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-/* ===== ESTILOS EXISTENTES (sin cambios) ===== */
+/* ========== ESTILOS (sin cambios) ========== */
 #login-screen{position:fixed;inset:0;background:linear-gradient(135deg,#0d47a1 0%,#1565c0 50%,#1976d2 100%);display:flex;align-items:center;justify-content:center;z-index:3000;padding:20px}
 #login-screen.hidden{display:none!important}
 .login-box{background:rgba(255,255,255,0.98);padding:48px 40px;border-radius:20px;width:100%;max-width:440px;box-shadow:0 25px 80px rgba(0,0,0,0.4),0 0 0 1px rgba(255,255,255,0.1);text-align:center;backdrop-filter:blur(10px)}
@@ -141,12 +141,13 @@ tr:hover{background:rgba(0,71,171,0.02)}
 .section{display:none}
 .section.active{display:block}
 @media(min-width:769px){.menu-toggle-header{display:none!important;}}
+mark{background:#ffeb3b;padding:0 2px;border-radius:2px;}
 </style>
 <base target="_blank">
 </head>
 <body>
 
-<!-- ======== PANTALLA DE LOGIN ======== -->
+<!-- ======== LOGIN ======== -->
 <div id="login-screen">
   <div class="login-box">
     <img src="https://raw.githubusercontent.com/tsucesarherrera-afk/p/main/enfermer%C3%ADa/logo-login.png" alt="Logo" onerror="this.style.display='none'">
@@ -159,24 +160,20 @@ tr:hover{background:rgba(0,71,171,0.02)}
   </div>
 </div>
 
-<!-- ======== APLICACIÓN ======== -->
+<!-- ======== APP ======== -->
 <div id="app" class="hidden">
 
   <!-- HEADER -->
   <header class="top-header">
     <div class="top-header-left">
-      <button class="menu-toggle-header" id="menu-toggle" onclick="toggleSidebar()" type="button">
-        <span></span><span></span><span></span>
-      </button>
+      <button class="menu-toggle-header" id="menu-toggle" onclick="toggleSidebar()" type="button"><span></span><span></span><span></span></button>
       <div class="logo-header" style="display:flex;align-items:center;">
-        <img src="https://raw.githubusercontent.com/tsucesarherrera-afk/p/main/imagenes/nuevo%20membrete.png" alt="Membrete Dirección Regional de Enfermería Apure" style="height:44px;width:auto;max-width:280px;object-fit:contain;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <img src="https://raw.githubusercontent.com/tsucesarherrera-afk/p/main/imagenes/nuevo%20membrete.png" alt="Membrete" style="height:44px;width:auto;max-width:280px;object-fit:contain;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
         <span style="display:none;">Control de Enfermería</span>
       </div>
     </div>
     <div class="top-header-right">
-      <button class="header-btn" title="Notificaciones">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-      </button>
+      <button class="header-btn" title="Notificaciones"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button>
       <div class="user-profile-header" id="user-profile-header" onclick="toggleProfileDropdown()">
         <div class="user-avatar-header" id="user-avatar-header" style="overflow:hidden;background-size:cover;background-position:center;">👤</div>
         <span class="user-name-header" id="user-name-header">Usuario</span>
@@ -193,14 +190,10 @@ tr:hover{background:rgba(0,71,171,0.02)}
       <div class="profile-dropdown-role" id="profile-dropdown-role">...</div>
     </div>
     <div class="profile-dropdown-body">
-      <button class="profile-dropdown-item" onclick="document.getElementById('avatar-upload-input').click();toggleProfileDropdown();">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Cambiar Foto de Perfil
-      </button>
+      <button class="profile-dropdown-item" onclick="document.getElementById('avatar-upload-input').click();toggleProfileDropdown();"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Cambiar Foto de Perfil</button>
       <input type="file" id="avatar-upload-input" accept="image/*" style="display:none;" onchange="subirAvatarUsuario(event)">
       <div class="sidebar-divider"></div>
-      <button class="profile-dropdown-item danger" onclick="confirmarCerrarSesion();toggleProfileDropdown();">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Cerrar Sesión
-      </button>
+      <button class="profile-dropdown-item danger" onclick="confirmarCerrarSesion();toggleProfileDropdown();"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Cerrar Sesión</button>
     </div>
   </div>
 
@@ -211,46 +204,25 @@ tr:hover{background:rgba(0,71,171,0.02)}
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-brand">
       <img src="https://raw.githubusercontent.com/tsucesarherrera-afk/p/main/enfermer%C3%ADa/logo-sidebar.png" alt="Logo" onerror="this.style.display='none'">
-      <div>
-        <div class="sidebar-brand-title">Control de Enfermería</div>
-        <div class="sidebar-brand-subtitle">Dirección Regional de Enfermería Apure</div>
-      </div>
+      <div><div class="sidebar-brand-title">Control de Enfermería</div><div class="sidebar-brand-subtitle">Dirección Regional de Enfermería Apure</div></div>
     </div>
     <nav class="sidebar-nav">
-      <div class="nav-item active" onclick="showSection('dashboard')" data-section="dashboard">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Inicio
-      </div>
-      <div class="nav-item" onclick="showSection('personal')" data-section="personal">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Personal de Enfermería
-      </div>
-      <div class="nav-item" onclick="showSection('postulados')" data-section="postulados">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>Punto de Cuenta
-      </div>
-      <div class="nav-item" onclick="showSection('cambios')" data-section="cambios">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>Cambio de Estatus
-      </div>
-      <div class="nav-item admin-only hidden" onclick="showSection('usuarios')" data-section="usuarios">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Usuarios
-      </div>
-      <div class="nav-item admin-only hidden" onclick="showSection('auditoria')" data-section="auditoria">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>Auditoría
-      </div>
+      <div class="nav-item active" onclick="showSection('dashboard')" data-section="dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Inicio</div>
+      <div class="nav-item" onclick="showSection('personal')" data-section="personal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Personal de Enfermería</div>
+      <div class="nav-item" onclick="showSection('postulados')" data-section="postulados"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>Punto de Cuenta</div>
+      <div class="nav-item" onclick="showSection('cambios')" data-section="cambios"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>Cambio de Estatus</div>
+      <div class="nav-item admin-only hidden" onclick="showSection('usuarios')" data-section="usuarios"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Usuarios</div>
+      <div class="nav-item admin-only hidden" onclick="showSection('auditoria')" data-section="auditoria"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>Auditoría</div>
       <div class="sidebar-divider"></div>
-      <div class="nav-item" onclick="showSection('backup')" data-section="backup">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Backup / Sincronización
-      </div>
+      <div class="nav-item" onclick="showSection('backup')" data-section="backup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Backup / Sincronización</div>
     </nav>
-    <div class="sidebar-footer-info">
-      <div>Dirección Regional de Enfermería</div>
-      <div>Estado Apure, Venezuela</div>
-      <div style="margin-top:4px;opacity:0.7;">© 2026</div>
-    </div>
+    <div class="sidebar-footer-info"><div>Dirección Regional de Enfermería</div><div>Estado Apure, Venezuela</div><div style="margin-top:4px;opacity:0.7;">© 2026</div></div>
   </aside>
 
-  <!-- MAIN CONTENT -->
+  <!-- MAIN -->
   <main class="main-content">
 
-    <!-- ===== SECCIÓN DASHBOARD ===== -->
+    <!-- DASHBOARD -->
     <section id="sec-dashboard" class="section active">
       <div class="top-bar"><h1>Inicio</h1><div class="actions"><button class="btn btn-secondary" onclick="refreshDashboard()">🔄 Actualizar</button></div></div>
       <div class="stats-grid" id="dashboard-stats"></div>
@@ -261,7 +233,7 @@ tr:hover{background:rgba(0,71,171,0.02)}
       </div>
     </section>
 
-    <!-- ===== SECCIÓN PERSONAL ===== -->
+    <!-- PERSONAL -->
     <section id="sec-personal" class="section">
       <div class="top-bar"><h1>Personal de Enfermería</h1><div class="actions"><button class="btn btn-primary admin-only hidden" onclick="openModal('personal')">➕ Nuevo</button><button class="btn btn-secondary" onclick="exportExcel('personal')">📥 Exportar</button><button class="btn btn-secondary admin-only hidden" onclick="importExcel('personal')">📤 Importar</button></div></div>
       <div class="content-card">
@@ -270,17 +242,12 @@ tr:hover{background:rgba(0,71,171,0.02)}
           <div class="table-toolbar">
             <input type="text" class="search-box" id="search-personal" placeholder="🔍 Buscar personal..." oninput="filterTable('personal')">
           </div>
-          <div style="overflow-x:auto;">
-            <table>
-              <thead><tr><th>Apellidos y Nombres</th><th>Cédula</th><th>Cargo</th><th>Estatus</th><th>Municipio</th><th>Acciones</th></tr></thead>
-              <tbody id="tbody-personal"></tbody>
-            </table>
-          </div>
+          <div style="overflow-x:auto;"><table><thead><tr><th>Apellidos y Nombres</th><th>Cédula</th><th>Cargo</th><th>Estatus</th><th>Municipio</th><th>Acciones</th></tr></thead><tbody id="tbody-personal"></tbody></table></div>
         </div>
       </div>
     </section>
 
-    <!-- ===== SECCIÓN POSTULADOS ===== -->
+    <!-- POSTULADOS -->
     <section id="sec-postulados" class="section">
       <div class="top-bar"><h1>Punto de Cuenta (Postulados)</h1><div class="actions"><button class="btn btn-primary admin-only hidden" onclick="openModal('postulados')">➕ Nuevo</button><button class="btn btn-secondary" onclick="exportExcel('postulados')">📥 Exportar</button><button class="btn btn-secondary admin-only hidden" onclick="importExcel('postulados')">📤 Importar</button></div></div>
       <div class="content-card">
@@ -289,17 +256,12 @@ tr:hover{background:rgba(0,71,171,0.02)}
           <div class="table-toolbar">
             <input type="text" class="search-box" id="search-postulados" placeholder="🔍 Buscar postulado..." oninput="filterTable('postulados')">
           </div>
-          <div style="overflow-x:auto;">
-            <table>
-              <thead><tr><th>Nombre</th><th>Cédula</th><th>Cargo</th><th>Documentos</th><th>Estatus</th><th>Acciones</th></tr></thead>
-              <tbody id="tbody-postulados"></tbody>
-            </table>
-          </div>
+          <div style="overflow-x:auto;"><table><thead><tr><th>Nombre</th><th>Cédula</th><th>Cargo</th><th>Documentos</th><th>Estatus</th><th>Acciones</th></tr></thead><tbody id="tbody-postulados"></tbody></table></div>
         </div>
       </div>
     </section>
 
-    <!-- ===== SECCIÓN CAMBIOS ===== -->
+    <!-- CAMBIOS -->
     <section id="sec-cambios" class="section">
       <div class="top-bar"><h1>Cambio de Estatus</h1><div class="actions"><button class="btn btn-primary admin-only hidden" onclick="openModal('cambios')">➕ Nuevo</button><button class="btn btn-secondary" onclick="exportExcel('cambios')">📥 Exportar</button><button class="btn btn-secondary admin-only hidden" onclick="importExcel('cambios')">📤 Importar</button></div></div>
       <div class="content-card">
@@ -308,17 +270,12 @@ tr:hover{background:rgba(0,71,171,0.02)}
           <div class="table-toolbar">
             <input type="text" class="search-box" id="search-cambios" placeholder="🔍 Buscar..." oninput="filterTable('cambios')">
           </div>
-          <div style="overflow-x:auto;">
-            <table>
-              <thead><tr><th>Nombre</th><th>Cédula</th><th>Tipo</th><th>Fecha</th><th>Detalle</th><th>Acciones</th></tr></thead>
-              <tbody id="tbody-cambios"></tbody>
-            </table>
-          </div>
+          <div style="overflow-x:auto;"><table><thead><tr><th>Nombre</th><th>Cédula</th><th>Tipo</th><th>Fecha</th><th>Detalle</th><th>Acciones</th></tr></thead><tbody id="tbody-cambios"></tbody></table></div>
         </div>
       </div>
     </section>
 
-    <!-- ===== SECCIÓN USUARIOS ===== -->
+    <!-- USUARIOS -->
     <section id="sec-usuarios" class="section">
       <div class="top-bar"><h1>Gestión de Usuarios</h1><div class="actions"><button class="btn btn-primary" onclick="openModal('usuarios')">➕ Nuevo Usuario</button></div></div>
       <div class="content-card">
@@ -327,17 +284,12 @@ tr:hover{background:rgba(0,71,171,0.02)}
           <div class="table-toolbar">
             <input type="text" class="search-box" id="search-usuarios" placeholder="🔍 Buscar usuario..." oninput="filterTable('usuarios')">
           </div>
-          <div style="overflow-x:auto;">
-            <table>
-              <thead><tr><th>Nombre</th><th>Email</th><th>Rol</th><th>Estado</th><th>Acciones</th></tr></thead>
-              <tbody id="tbody-usuarios"></tbody>
-            </table>
-          </div>
+          <div style="overflow-x:auto;"><table><thead><tr><th>Nombre</th><th>Email</th><th>Rol</th><th>Estado</th><th>Acciones</th></tr></thead><tbody id="tbody-usuarios"></tbody></table></div>
         </div>
       </div>
     </section>
 
-    <!-- ===== SECCIÓN BACKUP ===== -->
+    <!-- BACKUP -->
     <section id="sec-backup" class="section">
       <div class="top-bar"><h1>Backup y Sincronización</h1></div>
       <div class="content-card">
@@ -362,7 +314,7 @@ tr:hover{background:rgba(0,71,171,0.02)}
       </div>
     </section>
 
-    <!-- ===== SECCIÓN AUDITORÍA ===== -->
+    <!-- AUDITORIA -->
     <section id="sec-auditoria" class="section">
       <div class="top-bar"><h1>📋 Auditoría del Sistema</h1><div class="actions"><button class="btn btn-secondary" onclick="exportExcel('auditoria')">📥 Exportar</button></div></div>
       <div class="stats-grid" id="auditoria-stats"></div>
@@ -371,26 +323,10 @@ tr:hover{background:rgba(0,71,171,0.02)}
         <div class="card-body">
           <div class="table-toolbar">
             <input type="text" class="search-box" id="search-auditoria" placeholder="🔍 Buscar..." oninput="filterTable('auditoria')">
-            <select id="filter-tabla-auditoria" onchange="filterTable('auditoria')">
-              <option value="">Todas las tablas</option>
-              <option value="personal_enfermeria">Personal</option>
-              <option value="postulados">Postulados</option>
-              <option value="cambios_estatus">Cambios</option>
-              <option value="perfiles">Usuarios</option>
-            </select>
-            <select id="filter-accion-auditoria" onchange="filterTable('auditoria')">
-              <option value="">Todas las acciones</option>
-              <option value="INSERT">Creación</option>
-              <option value="UPDATE">Modificación</option>
-              <option value="DELETE">Eliminación</option>
-            </select>
+            <select id="filter-tabla-auditoria" onchange="filterTable('auditoria')"><option value="">Todas las tablas</option><option value="personal_enfermeria">Personal</option><option value="postulados">Postulados</option><option value="cambios_estatus">Cambios</option><option value="perfiles">Usuarios</option></select>
+            <select id="filter-accion-auditoria" onchange="filterTable('auditoria')"><option value="">Todas las acciones</option><option value="INSERT">Creación</option><option value="UPDATE">Modificación</option><option value="DELETE">Eliminación</option></select>
           </div>
-          <div style="overflow-x:auto;">
-            <table>
-              <thead><tr><th>Fecha/Hora</th><th>Usuario</th><th>Tabla</th><th>Acción</th><th>Datos Anteriores</th><th>Datos Nuevos</th></tr></thead>
-              <tbody id="tbody-auditoria"></tbody>
-            </table>
-          </div>
+          <div style="overflow-x:auto;"><table><thead><tr><th>Fecha/Hora</th><th>Usuario</th><th>Tabla</th><th>Acción</th><th>Datos Anteriores</th><th>Datos Nuevos</th></tr></thead><tbody id="tbody-auditoria"></tbody></table></div>
         </div>
       </div>
     </section>
@@ -424,10 +360,7 @@ tr:hover{background:rgba(0,71,171,0.02)}
         <div class="form-group" style="grid-column:1/-1;"><label>Observaciones</label><textarea id="p-obs" rows="3"></textarea></div>
       </div>
     </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal('personal')">Cancelar</button>
-      <button class="btn btn-primary" onclick="saveRecord('personal')">Guardar</button>
-    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('personal')">Cancelar</button><button class="btn btn-primary" onclick="saveRecord('personal')">Guardar</button></div>
   </div>
 </div>
 
@@ -451,10 +384,7 @@ tr:hover{background:rgba(0,71,171,0.02)}
         <div class="form-group" style="grid-column:1/-1;"><label>Observaciones</label><textarea id="po-obs" rows="3"></textarea></div>
       </div>
     </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal('postulados')">Cancelar</button>
-      <button class="btn btn-primary" onclick="saveRecord('postulados')">Guardar</button>
-    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('postulados')">Cancelar</button><button class="btn btn-primary" onclick="saveRecord('postulados')">Guardar</button></div>
   </div>
 </div>
 
@@ -475,10 +405,7 @@ tr:hover{background:rgba(0,71,171,0.02)}
         <div class="form-group"><label>Correo</label><input type="email" id="c-correo"></div>
       </div>
     </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal('cambios')">Cancelar</button>
-      <button class="btn btn-primary" onclick="saveRecord('cambios')">Guardar</button>
-    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('cambios')">Cancelar</button><button class="btn btn-primary" onclick="saveRecord('cambios')">Guardar</button></div>
   </div>
 </div>
 
@@ -496,36 +423,26 @@ tr:hover{background:rgba(0,71,171,0.02)}
         <div class="form-group"><label>Estado</label><select id="u-activo"><option value="true">Activo</option><option value="false">Inactivo</option></select></div>
       </div>
     </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal('usuarios')">Cancelar</button>
-      <button class="btn btn-primary" id="btn-save-usuario" onclick="saveUsuario()">Crear Usuario</button>
-    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('usuarios')">Cancelar</button><button class="btn btn-primary" id="btn-save-usuario" onclick="saveUsuario()">Crear Usuario</button></div>
   </div>
 </div>
 
-<!-- TOASTS -->
+<!-- TOASTS, LOADING, CONFIRM -->
 <div class="toast-container" id="toast-container"></div>
-
-<!-- LOADING -->
 <div class="loading-overlay" id="loading"><div class="spinner"></div></div>
-
-<!-- CONFIRM LOGOUT -->
 <div class="confirm-overlay" id="confirm-logout-overlay">
   <div class="confirm-box">
     <div class="confirm-icon">🚪</div>
     <h3>¿Cerrar Sesión?</h3>
     <p>¿Está seguro que desea salir del sistema?</p>
-    <div class="confirm-buttons">
-      <button class="btn btn-secondary" onclick="cancelarCerrarSesion()">No, continuar</button>
-      <button class="btn btn-danger" onclick="ejecutarCerrarSesion()">Sí, salir</button>
-    </div>
+    <div class="confirm-buttons"><button class="btn btn-secondary" onclick="cancelarCerrarSesion()">No, continuar</button><button class="btn btn-danger" onclick="ejecutarCerrarSesion()">Sí, salir</button></div>
   </div>
 </div>
 
 <!-- ======== JAVASCRIPT ======== -->
 <script>
-const SUPABASE_URL = 'https://urejsoupkqxeihnftony.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_9tgMxa_RHzi66P5hmWR8ow_bziTwtVi';
+const SUPABASE_URL = 'https://TU-PROJECT.supabase.co';
+const SUPABASE_ANON_KEY = 'TU-ANON-KEY';
 
 const MUNICIPIOS_APURE = {
   'San Fernando': ['El Recreo', 'Peñalver (Arichuna)', 'San Rafael de Atamaica'],
@@ -551,6 +468,7 @@ document.addEventListener('DOMContentLoaded', () => {
   } catch (err) { console.error('Error inicializando:', err); toast('Error al iniciar el sistema: ' + err.message, 'error'); }
 });
 
+// ========== FUNCIONES DE AUTENTICACIÓN ==========
 async function checkSession() {
   try {
     const { data: { session }, error } = await supabase.auth.getSession();
@@ -714,6 +632,7 @@ async function handleLogout() {
   currentUser = null; currentRol = null;
 }
 
+// ========== NAVEGACIÓN Y MODALES ==========
 function showSection(name) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -729,33 +648,6 @@ function showSection(name) {
   if (name === 'cambios') renderTable('cambios');
   if (name === 'usuarios') renderTable('usuarios');
   if (name === 'auditoria') { renderTable('auditoria'); renderAuditoriaStats(); }
-}
-
-async function loadAllData() {
-  showLoading(true);
-  const tables = [
-    { table: 'personal_enfermeria', key: 'personal', order: 'apellidos_nombres' },
-    { table: 'postulados', key: 'postulados', order: 'apellidos_nombres' },
-    { table: 'cambios_estatus', key: 'cambios', order: 'created_at' },
-    { table: 'perfiles', key: 'usuarios', order: 'nombre_completo', select: 'id,email,nombre_completo,rol,activo,avatar_url,created_at' }
-  ];
-  if (currentRol === 'superadmin' || currentRol === 'admin') {
-    const { data: audData, error: audError } = await supabase.from('auditoria').select('*').order('created_at', { ascending: false }).limit(500);
-    if (!audError && audData) dataCache.auditoria = audData;
-  }
-  for (const t of tables) {
-    const sel = t.select || '*';
-    const { data, error } = await supabase.from(t.table).select(sel).order(t.order, { ascending: true });
-    if (!error && data) dataCache[t.key] = data;
-  }
-  showLoading(false);
-}
-
-function saveRecord(table) {
-  if (table === 'personal') savePersonal();
-  else if (table === 'postulados') savePostulado();
-  else if (table === 'cambios') saveCambio();
-  else if (table === 'usuarios') saveUsuario();
 }
 
 function openModal(table, id = null) {
@@ -827,7 +719,7 @@ function openModal(table, id = null) {
   } else {
     document.querySelectorAll('#modal-' + table + ' input,#modal-' + table + ' select,#modal-' + table + ' textarea').forEach(i => { if (i.type !== 'button') i.value = ''; });
     if (table === 'personal') { document.getElementById('p-genero').value = 'Femenino'; document.getElementById('p-cargo').value = 'Profesional'; document.getElementById('p-estatus').value = 'Activo'; toggleCausa('p'); }
-    if (table === 'postulados') document.getElementById('po-docs').value = 'En proceso';
+    if (table === 'postulados') { document.getElementById('po-docs').value = 'En proceso'; }
     if (table === 'cambios') { document.getElementById('c-tipo').value = 'Ascenso'; document.getElementById('c-fecha').value = new Date().toISOString().split('T')[0]; }
     if (table === 'usuarios') { document.getElementById('u-rol').value = 'admin'; document.getElementById('u-activo').value = 'true'; const passGroup = document.getElementById('u-password-group'), btnSave = document.getElementById('btn-save-usuario'); if (passGroup) passGroup.style.display = 'block'; if (btnSave) btnSave.textContent = 'Crear Usuario'; }
   }
@@ -835,6 +727,7 @@ function openModal(table, id = null) {
 
 function closeModal(table) { document.getElementById('modal-' + table).classList.remove('active'); editingId = null; }
 
+// ========== CRUD PERSONAL ==========
 async function savePersonal() {
   const data = {
     apellidos_nombres: document.getElementById('p-nombre').value.trim(),
@@ -879,30 +772,7 @@ async function deletePersonal(id) {
   renderTable('personal'); refreshDashboard(); toast('Registro eliminado', 'success');
 }
 
-// ===== NUEVA FUNCIÓN: VALIDAR CÉDULA EN POSTULADOS =====
-async function validarCedulaPostulacion(cedula) {
-  // Buscar en personal activo
-  const { data: personalData, error: errorPersonal } = await supabase
-    .from('personal_enfermeria')
-    .select('cedula')
-    .eq('cedula', cedula)
-    .maybeSingle();
-  if (errorPersonal) throw errorPersonal;
-  if (personalData) return { existe: true, tabla: 'personal_enfermeria' };
-
-  // Buscar en retirados
-  const { data: retiradoData, error: errorRetirado } = await supabase
-    .from('personal_retirado')
-    .select('cedula')
-    .eq('cedula', cedula)
-    .maybeSingle();
-  if (errorRetirado) throw errorRetirado;
-  if (retiradoData) return { existe: true, tabla: 'personal_retirado' };
-
-  return { existe: false };
-}
-
-// ===== FUNCIÓN PARA RETIRAR PERSONAL (mover a retirados) =====
+// ========== RETIRAR PERSONAL ==========
 async function retirarPersonal(id, cedula) {
   const motivo = prompt('Motivo del retiro (Renuncia / Jubilación):');
   if (!motivo || (motivo.toLowerCase() !== 'renuncia' && motivo.toLowerCase() !== 'jubilación')) {
@@ -912,15 +782,8 @@ async function retirarPersonal(id, cedula) {
   if (!confirm(`¿Retirar a la persona con cédula ${cedula}?`)) return;
   showLoading(true);
   try {
-    // Obtener todos los datos del personal
-    const { data: personal, error: fetchError } = await supabase
-      .from('personal_enfermeria')
-      .select('*')
-      .eq('id', id)
-      .single();
+    const { data: personal, error: fetchError } = await supabase.from('personal_enfermeria').select('*').eq('id', id).single();
     if (fetchError) throw fetchError;
-
-    // Insertar en personal_retirado
     const retirado = {
       apellidos_nombres: personal.apellidos_nombres,
       cedula: personal.cedula,
@@ -939,19 +802,10 @@ async function retirarPersonal(id, cedula) {
       motivo_retiro: motivo,
       fecha_retiro: new Date().toISOString().split('T')[0]
     };
-    const { error: insertError } = await supabase
-      .from('personal_retirado')
-      .insert([retirado]);
+    const { error: insertError } = await supabase.from('personal_retirado').insert([retirado]);
     if (insertError) throw insertError;
-
-    // Eliminar de personal_enfermeria
-    const { error: deleteError } = await supabase
-      .from('personal_enfermeria')
-      .delete()
-      .eq('id', id);
+    const { error: deleteError } = await supabase.from('personal_enfermeria').delete().eq('id', id);
     if (deleteError) throw deleteError;
-
-    // Actualizar caché y UI
     dataCache.personal = dataCache.personal.filter(p => p.id !== id);
     await loadAllData();
     renderTable('personal');
@@ -964,12 +818,21 @@ async function retirarPersonal(id, cedula) {
   showLoading(false);
 }
 
-// ===== MODIFICACIÓN DE savePostulado para incluir validación =====
+// ========== VALIDACIÓN DE CÉDULA PARA POSTULADOS ==========
+async function validarCedulaPostulacion(cedula) {
+  const { data: personalData, error: errorPersonal } = await supabase.from('personal_enfermeria').select('cedula').eq('cedula', cedula).maybeSingle();
+  if (errorPersonal) throw errorPersonal;
+  if (personalData) return { existe: true, tabla: 'personal_enfermeria' };
+  const { data: retiradoData, error: errorRetirado } = await supabase.from('personal_retirado').select('cedula').eq('cedula', cedula).maybeSingle();
+  if (errorRetirado) throw errorRetirado;
+  if (retiradoData) return { existe: true, tabla: 'personal_retirado' };
+  return { existe: false };
+}
+
+// ========== CRUD POSTULADOS (con estado "Esperando aprobación") ==========
 async function savePostulado() {
   const cedula = document.getElementById('po-cedula').value.trim();
   if (!cedula) { toast('La cédula es obligatoria', 'error'); return; }
-
-  // Validar duplicados
   try {
     const validacion = await validarCedulaPostulacion(cedula);
     if (validacion.existe) {
@@ -983,7 +846,6 @@ async function savePostulado() {
     toast('Error al validar cédula: ' + err.message, 'error');
     return;
   }
-
   const data = {
     apellidos_nombres: document.getElementById('po-nombre').value.trim(),
     cedula: cedula,
@@ -997,10 +859,9 @@ async function savePostulado() {
     correo: document.getElementById('po-correo').value.trim() || null,
     documentos_completos: document.getElementById('po-docs').value,
     observaciones: document.getElementById('po-obs').value.trim() || null,
-    estatus_postulacion: 'Postulado',
+    estatus_postulacion: 'Esperando aprobación',
   };
   if (!data.apellidos_nombres || !data.cedula) { toast('Complete los campos obligatorios (*)', 'error'); return; }
-
   showLoading(true);
   if (editingId) {
     const { error } = await supabase.from('postulados').update(data).eq('id', editingId);
@@ -1015,7 +876,6 @@ async function savePostulado() {
   showLoading(false); closeModal('postulados'); renderTable('postulados'); toast('Postulado guardado correctamente', 'success');
 }
 
-// ===== RESTO DE FUNCIONES (sin cambios significativos) =====
 async function deletePostulado(id) {
   if (!confirm('¿Eliminar este postulado?')) return;
   showLoading(true);
@@ -1026,16 +886,35 @@ async function deletePostulado(id) {
   renderTable('postulados'); toast('Postulado eliminado', 'success');
 }
 
-async function contratarPostulado(id) {
-  if (!confirm('¿Contratar este postulado? Se moverá al personal de enfermería.')) return;
+// ========== APROBAR POSTULADO ==========
+async function aprobarPostulado(id) {
+  const postulado = dataCache.postulados.find(p => p.id === id);
+  if (!postulado) return toast('Postulado no encontrado', 'error');
+  if (postulado.estatus_postulacion !== 'Esperando aprobación') {
+    return toast('Solo se pueden aprobar postulados en espera', 'error');
+  }
+  if (!confirm(`¿Aprobar al postulado ${postulado.apellidos_nombres}? Pasara a ser parte del personal de enfermería.`)) return;
   showLoading(true);
-  const { data, error } = await supabase.rpc('contratar_postulado', { postulado_id: id });
+  try {
+    const { error: updateError } = await supabase
+      .from('postulados')
+      .update({ estatus_postulacion: 'Aprobado' })
+      .eq('id', id);
+    if (updateError) throw updateError;
+    const { error: rpcError } = await supabase.rpc('contratar_postulado', { postulado_id: id });
+    if (rpcError) throw rpcError;
+    await loadAllData();
+    renderTable('postulados');
+    renderTable('personal');
+    refreshDashboard();
+    toast('Postulado aprobado y agregado al personal', 'success');
+  } catch (error) {
+    toast('Error al aprobar: ' + error.message, 'error');
+  }
   showLoading(false);
-  if (error) { toast(error.message, 'error'); return; }
-  await loadAllData(); renderTable('postulados'); renderTable('personal'); refreshDashboard();
-  toast('Postulado contratado exitosamente', 'success');
 }
 
+// ========== CRUD CAMBIOS ==========
 async function saveCambio() {
   const cedula = document.getElementById('c-cedula').value.trim();
   const personal = dataCache.personal.find(p => p.cedula === cedula);
@@ -1076,6 +955,7 @@ async function deleteCambio(id) {
   renderTable('cambios'); toast('Registro eliminado', 'success');
 }
 
+// ========== CRUD USUARIOS ==========
 async function saveUsuario() {
   const nombre = document.getElementById('u-nombre').value.trim(), email = document.getElementById('u-email').value.trim(), password = document.getElementById('u-password').value, rol = document.getElementById('u-rol').value, activo = document.getElementById('u-activo').value === 'true';
   if (!editingId && (!nombre || !email || !password || password.length < 6)) { toast('Complete todos los campos. La contraseña debe tener al menos 6 caracteres.', 'error'); return; }
@@ -1156,6 +1036,27 @@ async function toggleUsuarioActivo(userId, activo) {
   showLoading(false);
 }
 
+// ========== CARGA Y RENDERIZADO ==========
+async function loadAllData() {
+  showLoading(true);
+  const tables = [
+    { table: 'personal_enfermeria', key: 'personal', order: 'apellidos_nombres' },
+    { table: 'postulados', key: 'postulados', order: 'apellidos_nombres' },
+    { table: 'cambios_estatus', key: 'cambios', order: 'created_at' },
+    { table: 'perfiles', key: 'usuarios', order: 'nombre_completo', select: 'id,email,nombre_completo,rol,activo,avatar_url,created_at' }
+  ];
+  if (currentRol === 'superadmin' || currentRol === 'admin') {
+    const { data: audData, error: audError } = await supabase.from('auditoria').select('*').order('created_at', { ascending: false }).limit(500);
+    if (!audError && audData) dataCache.auditoria = audData;
+  }
+  for (const t of tables) {
+    const sel = t.select || '*';
+    const { data, error } = await supabase.from(t.table).select(sel).order(t.order, { ascending: true });
+    if (!error && data) dataCache[t.key] = data;
+  }
+  showLoading(false);
+}
+
 function renderAllTables() {
   renderTable('personal');
   renderTable('postulados');
@@ -1164,6 +1065,194 @@ function renderAllTables() {
   if (currentRol === 'superadmin' || currentRol === 'admin') renderTable('auditoria');
 }
 
+// ========== RESALTAR TEXTO EN BÚSQUEDA ==========
+function resaltarTexto(texto, busqueda) {
+  if (!busqueda || !texto) return esc(texto);
+  const regex = new RegExp(`(${busqueda.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+  return esc(texto).replace(regex, '<mark>$1</mark>');
+}
+
+// ========== RENDER DE TABLAS CON ACCIONES SEGÚN ROL Y RESALTADO ==========
+function renderTable(table) {
+  const tbody = document.getElementById('tbody-' + table);
+  if (!tbody) return;
+  if (table === 'auditoria' && currentRol !== 'superadmin' && currentRol !== 'admin') { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:#999;">No tiene permisos para ver auditoría</td></tr>'; return; }
+  let data = [...(dataCache[table] || [])];
+  const search = (document.getElementById('search-' + table)?.value || '').toLowerCase();
+  if (search) {
+    data = data.filter(row => {
+      const texto = JSON.stringify(row).toLowerCase();
+      return texto.includes(search);
+    });
+  }
+  if (table === 'personal') { const cargo = document.getElementById('filter-cargo')?.value, estatus = document.getElementById('filter-estatus')?.value; if (cargo) data = data.filter(r => r.cargo_nominal === cargo); if (estatus) data = data.filter(r => r.estatus === estatus); }
+  if (table === 'postulados') { const doc = document.getElementById('filter-doc')?.value; if (doc) data = data.filter(r => r.documentos_completos === doc); }
+  if (table === 'cambios') { const tipo = document.getElementById('filter-tipo-cambio')?.value; if (tipo) data = data.filter(r => r.tipo_cambio === tipo); }
+  if (table === 'auditoria') { const tablaFiltro = document.getElementById('filter-tabla-auditoria')?.value, accionFiltro = document.getElementById('filter-accion-auditoria')?.value; if (tablaFiltro) data = data.filter(r => r.tabla === tablaFiltro); if (accionFiltro) data = data.filter(r => r.accion === accionFiltro); }
+
+  const esAdmin = currentRol === 'admin' || currentRol === 'superadmin';
+  let html = '';
+
+  if (table === 'personal') {
+    data.forEach(row => {
+      const nombreResaltado = resaltarTexto(row.apellidos_nombres, search);
+      const cedulaResaltada = resaltarTexto(row.cedula, search);
+      const municipioResaltado = resaltarTexto(row.municipio, search);
+      html += `<tr>
+        <td>${nombreResaltado}</td>
+        <td>${cedulaResaltada}</td>
+        <td><span class="badge badge-info">${resaltarTexto(row.cargo_nominal, search)}</span></td>
+        <td><span class="badge ${row.estatus === 'Activo' ? 'badge-success' : 'badge-danger'}">${resaltarTexto(row.estatus, search)}</span></td>
+        <td>${municipioResaltado}</td>
+        <td>${esAdmin ? `
+          <button class="btn btn-secondary" style="padding:4px 10px;font-size:0.75rem;" onclick="openModal('personal','${row.id}')">✏️</button>
+          <button class="btn btn-danger" style="padding:4px 10px;font-size:0.75rem;" onclick="deletePersonal('${row.id}')">🗑️</button>
+          <button class="btn btn-danger" style="padding:4px 10px;font-size:0.75rem;" onclick="retirarPersonal('${row.id}','${row.cedula}')">🚫 Retirar</button>
+        ` : ''}</td>
+      </tr>`;
+    });
+  } else if (table === 'postulados') {
+    data.forEach(row => {
+      const nombreResaltado = resaltarTexto(row.apellidos_nombres, search);
+      const cedulaResaltada = resaltarTexto(row.cedula, search);
+      const cargoResaltado = resaltarTexto(row.cargo, search);
+      let estadoBadge = 'badge-info';
+      let estadoTexto = row.estatus_postulacion;
+      if (row.estatus_postulacion === 'Esperando aprobación') { estadoBadge = 'badge-warning'; }
+      else if (row.estatus_postulacion === 'Aprobado') { estadoBadge = 'badge-success'; }
+      if (row.estatus_postulacion === 'Contratado') { estadoBadge = 'badge-success'; estadoTexto = 'Aprobado'; }
+      const acciones = esAdmin ? `
+        <button class="btn btn-secondary" style="padding:4px 10px;font-size:0.75rem;" onclick="openModal('postulados','${row.id}')">✏️</button>
+        ${row.estatus_postulacion === 'Esperando aprobación' ? `<button class="btn btn-success" style="padding:4px 10px;font-size:0.75rem;" onclick="aprobarPostulado('${row.id}')">✅ Aprobar</button>` : ''}
+        ${row.estatus_postulacion !== 'Aprobado' && row.estatus_postulacion !== 'Contratado' ? `<button class="btn btn-danger" style="padding:4px 10px;font-size:0.75rem;" onclick="deletePostulado('${row.id}')">🗑️</button>` : ''}
+      ` : '';
+      html += `<tr>
+        <td>${nombreResaltado}</td>
+        <td>${cedulaResaltada}</td>
+        <td>${cargoResaltado}</td>
+        <td><span class="badge ${row.documentos_completos === 'Sí' ? 'badge-success' : row.documentos_completos === 'No' ? 'badge-danger' : 'badge-warning'}">${resaltarTexto(row.documentos_completos, search)}</span></td>
+        <td><span class="badge ${estadoBadge}">${resaltarTexto(estadoTexto, search)}</span></td>
+        <td>${acciones}</td>
+      </tr>`;
+    });
+  } else if (table === 'cambios') {
+    data.forEach(row => {
+      const nombreResaltado = resaltarTexto(row.apellidos_nombres, search);
+      const cedulaResaltada = resaltarTexto(row.cedula, search);
+      const detalleResaltado = resaltarTexto(row.detalle, search);
+      html += `<tr>
+        <td>${nombreResaltado}</td>
+        <td>${cedulaResaltada}</td>
+        <td><span class="badge badge-warning">${resaltarTexto(row.tipo_cambio, search)}</span></td>
+        <td>${row.fecha_cambio || '-'}</td>
+        <td>${detalleResaltado}</td>
+        <td>${esAdmin ? `
+          <button class="btn btn-secondary" style="padding:4px 10px;font-size:0.75rem;" onclick="openModal('cambios','${row.id}')">✏️</button>
+          <button class="btn btn-danger" style="padding:4px 10px;font-size:0.75rem;" onclick="deleteCambio('${row.id}')">🗑️</button>
+        ` : ''}</td>
+      </tr>`;
+    });
+  } else if (table === 'usuarios') {
+    data.forEach(row => {
+      const esSuperAdmin = row.rol === 'superadmin', esMiUsuario = row.id === currentUser?.id;
+      const avatarImg = row.avatar_url ? `<img src="${row.avatar_url}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;margin-right:8px;vertical-align:middle;">` : `<span style="display:inline-flex;width:32px;height:32px;border-radius:50%;background:var(--primary);color:white;align-items:center;justify-content:center;margin-right:8px;font-size:0.75rem;font-weight:600;">${(row.nombre_completo || 'U').split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase()}</span>`;
+      html += `<tr>
+        <td>${avatarImg}${resaltarTexto(row.nombre_completo, search)}</td>
+        <td>${resaltarTexto(row.email, search)}</td>
+        <td><span class="badge ${row.rol === 'superadmin' ? 'badge-danger' : row.rol === 'admin' ? 'badge-warning' : 'badge-info'}">${resaltarTexto(row.rol, search)}</span></td>
+        <td><span class="badge ${row.activo ? 'badge-success' : 'badge-danger'}">${row.activo ? 'Activo' : 'Inactivo'}</span></td>
+        <td>
+          ${!esMiUsuario ? `<button class="btn btn-secondary" style="padding:4px 10px;font-size:0.75rem;" onclick="openModal('usuarios','${row.id}')">✏️ Editar</button>` : '<span style="font-size:0.75rem;color:#999">(Tú)</span>'}
+          <button class="btn ${row.activo ? 'btn-warning' : 'btn-success'}" style="padding:4px 10px;font-size:0.75rem;" onclick="toggleUsuarioActivo('${row.id}',${row.activo})">${row.activo ? '⏸️ Desactivar' : '▶️ Activar'}</button>
+          ${!esSuperAdmin && !esMiUsuario ? `<button class="btn btn-danger" style="padding:4px 10px;font-size:0.75rem;margin-left:4px;" onclick="deleteUsuario('${row.id}')">🗑️ Eliminar</button>` : ''}
+        </td>
+      </tr>`;
+    });
+  } else if (table === 'auditoria') {
+    data.forEach(row => {
+      const fecha = row.created_at ? new Date(row.created_at).toLocaleString('es-VE') : '-';
+      const accionClass = row.accion === 'INSERT' ? 'badge-success' : row.accion === 'UPDATE' ? 'badge-warning' : 'badge-danger';
+      const accionText = row.accion === 'INSERT' ? 'CREAR' : row.accion === 'UPDATE' ? 'EDITAR' : 'ELIMINAR';
+      const datosAnt = row.datos_anteriores ? `<button class="btn btn-secondary" style="padding:2px 8px;font-size:0.7rem;" onclick="verDatosAuditoria('${row.id}','anterior')">👁️ Ver</button>` : '-';
+      const datosNue = row.datos_nuevos ? `<button class="btn btn-secondary" style="padding:2px 8px;font-size:0.7rem;" onclick="verDatosAuditoria('${row.id}','nuevo')">👁️ Ver</button>` : '-';
+      const usuario = dataCache.usuarios?.find(u => u.id === row.usuario_id);
+      const nombreUsuario = usuario ? resaltarTexto(usuario.nombre_completo, search) : (row.usuario_id ? 'Usuario ' + row.usuario_id.substring(0,8) : 'Sistema');
+      html += `<tr>
+        <td style="font-size:0.8rem;white-space:nowrap;">${fecha}</td>
+        <td>${nombreUsuario}</td>
+        <td><span class="badge badge-info">${resaltarTexto(row.tabla, search)}</span></td>
+        <td><span class="badge ${accionClass}">${accionText}</span></td>
+        <td>${datosAnt}</td>
+        <td>${datosNue}</td>
+      </tr>`;
+    });
+  }
+
+  tbody.innerHTML = html || '<tr><td colspan="20" style="text-align:center;padding:40px;color:#999;">No hay registros</td></tr>';
+}
+
+function filterTable(table) { renderTable(table); }
+
+function esc(str) { if (!str) return '-'; const div = document.createElement('div'); div.textContent = String(str); return div.innerHTML; }
+
+// ========== DASHBOARD ==========
+async function refreshDashboard() {
+  showLoading(true);
+  const { data, error } = await supabase.rpc('get_dashboard_stats');
+  showLoading(false);
+  let stats = data;
+  if (error || !stats) stats = calcularStatsLocal();
+  const grid = document.getElementById('dashboard-stats');
+  if (grid) {
+    grid.innerHTML = `
+      <div class="stat-card"><div class="label">Total Enfermeros</div><div class="value">${stats.total_enfermeros || 0}</div></div>
+      <div class="stat-card"><div class="label">Profesionales F</div><div class="value">${stats.total_profesionales_f || 0}</div></div>
+      <div class="stat-card"><div class="label">Profesionales M</div><div class="value">${stats.total_profesionales_m || 0}</div></div>
+      <div class="stat-card"><div class="label">TSU F</div><div class="value">${stats.total_tsu_f || 0}</div></div>
+      <div class="stat-card"><div class="label">TSU M</div><div class="value">${stats.total_tsu_m || 0}</div></div>
+      <div class="stat-card"><div class="label">Auxiliares F</div><div class="value">${stats.total_auxiliares_f || 0}</div></div>
+      <div class="stat-card"><div class="label">Auxiliares M</div><div class="value">${stats.total_auxiliares_m || 0}</div></div>
+      <div class="stat-card"><div class="label">Activos</div><div class="value" style="color:#2e7d32">${stats.activos || 0}</div></div>
+      <div class="stat-card"><div class="label">Inactivos</div><div class="value" style="color:#c62828">${stats.inactivos || 0}</div></div>
+      <div class="stat-card"><div class="label">Postulados en espera</div><div class="value" style="color:#f9a825">${stats.postulados_espera || 0}</div></div>
+      <div class="stat-card"><div class="label">Postulados aprobados</div><div class="value" style="color:#2e7d32">${stats.postulados_aprobados || 0}</div></div>
+      <div class="stat-card"><div class="label">Cambios de Estatus</div><div class="value">${stats.total_cambios || 0}</div></div>
+    `;
+  }
+  renderCharts();
+}
+
+function calcularStatsLocal() {
+  const p = dataCache.personal;
+  const post = dataCache.postulados;
+  return {
+    total_enfermeros: p.length,
+    total_profesionales_f: p.filter(x => x.cargo_nominal === 'Profesional' && x.genero === 'Femenino').length,
+    total_profesionales_m: p.filter(x => x.cargo_nominal === 'Profesional' && x.genero === 'Masculino').length,
+    total_tsu_f: p.filter(x => x.cargo_nominal === 'TSU' && x.genero === 'Femenino').length,
+    total_tsu_m: p.filter(x => x.cargo_nominal === 'TSU' && x.genero === 'Masculino').length,
+    total_auxiliares_f: p.filter(x => x.cargo_nominal === 'Auxiliar' && x.genero === 'Femenino').length,
+    total_auxiliares_m: p.filter(x => x.cargo_nominal === 'Auxiliar' && x.genero === 'Masculino').length,
+    activos: p.filter(x => x.estatus === 'Activo').length,
+    inactivos: p.filter(x => x.estatus === 'Inactivo').length,
+    postulados_espera: post.filter(x => x.estatus_postulacion === 'Esperando aprobación').length,
+    postulados_aprobados: post.filter(x => x.estatus_postulacion === 'Aprobado' || x.estatus_postulacion === 'Contratado').length,
+    total_cambios: dataCache.cambios.length,
+  };
+}
+
+// ========== GRÁFICOS ==========
+function renderCharts() {
+  const p = dataCache.personal;
+  const ctx1 = document.getElementById('chart-cargo');
+  if (ctx1) { if (window.chartCargo) window.chartCargo.destroy(); window.chartCargo = new Chart(ctx1, { type: 'bar', data: { labels: ['Profesional', 'TSU', 'Auxiliar'], datasets: [{ label: 'Femenino', data: [p.filter(x => x.cargo_nominal === 'Profesional' && x.genero === 'Femenino').length, p.filter(x => x.cargo_nominal === 'TSU' && x.genero === 'Femenino').length, p.filter(x => x.cargo_nominal === 'Auxiliar' && x.genero === 'Femenino').length], backgroundColor: '#e91e63' }, { label: 'Masculino', data: [p.filter(x => x.cargo_nominal === 'Profesional' && x.genero === 'Masculino').length, p.filter(x => x.cargo_nominal === 'TSU' && x.genero === 'Masculino').length, p.filter(x => x.cargo_nominal === 'Auxiliar' && x.genero === 'Masculino').length], backgroundColor: '#2196f3' }] }, options: { responsive: true, plugins: { legend: { position: 'bottom' } } } }); }
+  const ctx2 = document.getElementById('chart-municipio');
+  if (ctx2) { if (window.chartMun) window.chartMun.destroy(); const munCounts = {}; p.forEach(x => { munCounts[x.municipio] = (munCounts[x.municipio] || 0) + 1; }); window.chartMun = new Chart(ctx2, { type: 'doughnut', data: { labels: Object.keys(munCounts), datasets: [{ data: Object.values(munCounts), backgroundColor: ['#1a5f2a', '#e74c3c', '#f39c12', '#3498db', '#9b59b6', '#1abc9c', '#e67e22'] }] }, options: { responsive: true, plugins: { legend: { position: 'bottom' } } } }); }
+  const ctx3 = document.getElementById('chart-estatus');
+  if (ctx3) { if (window.chartEst) window.chartEst.destroy(); window.chartEst = new Chart(ctx3, { type: 'pie', data: { labels: ['Activos', 'Inactivos'], datasets: [{ data: [p.filter(x => x.estatus === 'Activo').length, p.filter(x => x.estatus === 'Inactivo').length], backgroundColor: ['#2e7d32', '#c62828'] }] }, options: { responsive: true, plugins: { legend: { position: 'bottom' } } } }); }
+}
+
+// ========== AUDITORÍA ==========
 async function refreshAuditoria() {
   showLoading(true);
   const { data, error } = await supabase.from('auditoria').select('*').order('created_at', { ascending: false }).limit(500);
@@ -1191,157 +1280,7 @@ function renderAuditoriaStats() {
   grid.innerHTML = `<div class="stat-card"><div class="label">Total Registros</div><div class="value">${aud.length}</div></div><div class="stat-card" style="border-left-color:#2e7d32"><div class="label">Creaciones</div><div class="value" style="color:#2e7d32">${inserts}</div></div><div class="stat-card" style="border-left-color:#f9a825"><div class="label">Modificaciones</div><div class="value" style="color:#f57f17">${updates}</div></div><div class="stat-card" style="border-left-color:#c62828"><div class="label">Eliminaciones</div><div class="value" style="color:#c62828">${deletes}</div></div>`;
 }
 
-function renderTable(table) {
-  const tbody = document.getElementById('tbody-' + table);
-  if (!tbody) return;
-  if (table === 'auditoria' && currentRol !== 'superadmin' && currentRol !== 'admin') { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:#999;">No tiene permisos para ver auditoría</td></tr>'; return; }
-  let data = [...(dataCache[table] || [])];
-  const search = (document.getElementById('search-' + table)?.value || '').toLowerCase();
-  if (search) data = data.filter(row => JSON.stringify(row).toLowerCase().includes(search));
-  if (table === 'personal') { const cargo = document.getElementById('filter-cargo')?.value, estatus = document.getElementById('filter-estatus')?.value; if (cargo) data = data.filter(r => r.cargo_nominal === cargo); if (estatus) data = data.filter(r => r.estatus === estatus); }
-  if (table === 'postulados') { const doc = document.getElementById('filter-doc')?.value; if (doc) data = data.filter(r => r.documentos_completos === doc); }
-  if (table === 'cambios') { const tipo = document.getElementById('filter-tipo-cambio')?.value; if (tipo) data = data.filter(r => r.tipo_cambio === tipo); }
-  if (table === 'auditoria') { const tablaFiltro = document.getElementById('filter-tabla-auditoria')?.value, accionFiltro = document.getElementById('filter-accion-auditoria')?.value; if (tablaFiltro) data = data.filter(r => r.tabla === tablaFiltro); if (accionFiltro) data = data.filter(r => r.accion === accionFiltro); }
-
-  let html = '';
-  if (table === 'personal') {
-    data.forEach(row => {
-      html += `<tr>
-        <td>${esc(row.apellidos_nombres)}</td>
-        <td>${esc(row.cedula)}</td>
-        <td><span class="badge badge-info">${esc(row.cargo_nominal)}</span></td>
-        <td><span class="badge ${row.estatus === 'Activo' ? 'badge-success' : 'badge-danger'}">${esc(row.estatus)}</span></td>
-        <td>${esc(row.municipio)}</td>
-        <td class="admin-only hidden">
-          <button class="btn btn-secondary" style="padding:4px 10px;font-size:0.75rem;" onclick="openModal('personal','${row.id}')">✏️</button>
-          <button class="btn btn-danger" style="padding:4px 10px;font-size:0.75rem;" onclick="deletePersonal('${row.id}')">🗑️</button>
-          <button class="btn btn-danger" style="padding:4px 10px;font-size:0.75rem;" onclick="retirarPersonal('${row.id}','${row.cedula}')">🚫 Retirar</button>
-        </td>
-      </tr>`;
-    });
-  } else if (table === 'postulados') {
-    data.forEach(row => {
-      html += `<tr>
-        <td>${esc(row.apellidos_nombres)}</td>
-        <td>${esc(row.cedula)}</td>
-        <td>${esc(row.cargo)}</td>
-        <td><span class="badge ${row.documentos_completos === 'Sí' ? 'badge-success' : row.documentos_completos === 'No' ? 'badge-danger' : 'badge-warning'}">${esc(row.documentos_completos)}</span></td>
-        <td><span class="badge ${row.estatus_postulacion === 'Contratado' ? 'badge-success' : 'badge-info'}">${esc(row.estatus_postulacion)}</span></td>
-        <td class="admin-only hidden">
-          <button class="btn btn-secondary" style="padding:4px 10px;font-size:0.75rem;" onclick="openModal('postulados','${row.id}')">✏️</button>
-          ${row.estatus_postulacion !== 'Contratado' ? `<button class="btn btn-primary" style="padding:4px 10px;font-size:0.75rem;" onclick="contratarPostulado('${row.id}')">👔 Contratar</button>` : ''}
-          <button class="btn btn-danger" style="padding:4px 10px;font-size:0.75rem;" onclick="deletePostulado('${row.id}')">🗑️</button>
-        </td>
-      </tr>`;
-    });
-  } else if (table === 'cambios') {
-    data.forEach(row => {
-      html += `<tr>
-        <td>${esc(row.apellidos_nombres)}</td>
-        <td>${esc(row.cedula)}</td>
-        <td><span class="badge badge-warning">${esc(row.tipo_cambio)}</span></td>
-        <td>${row.fecha_cambio || '-'}</td>
-        <td>${esc(row.detalle)}</td>
-        <td class="admin-only hidden">
-          <button class="btn btn-secondary" style="padding:4px 10px;font-size:0.75rem;" onclick="openModal('cambios','${row.id}')">✏️</button>
-          <button class="btn btn-danger" style="padding:4px 10px;font-size:0.75rem;" onclick="deleteCambio('${row.id}')">🗑️</button>
-        </td>
-      </tr>`;
-    });
-  } else if (table === 'usuarios') {
-    data.forEach(row => {
-      const esSuperAdmin = row.rol === 'superadmin', esMiUsuario = row.id === currentUser?.id;
-      const avatarImg = row.avatar_url ? `<img src="${row.avatar_url}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;margin-right:8px;vertical-align:middle;">` : `<span style="display:inline-flex;width:32px;height:32px;border-radius:50%;background:var(--primary);color:white;align-items:center;justify-content:center;margin-right:8px;font-size:0.75rem;font-weight:600;">${(row.nombre_completo || 'U').split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase()}</span>`;
-      html += `<tr>
-        <td>${avatarImg}${esc(row.nombre_completo)}</td>
-        <td>${esc(row.email)}</td>
-        <td><span class="badge ${row.rol === 'superadmin' ? 'badge-danger' : row.rol === 'admin' ? 'badge-warning' : 'badge-info'}">${esc(row.rol)}</span></td>
-        <td><span class="badge ${row.activo ? 'badge-success' : 'badge-danger'}">${row.activo ? 'Activo' : 'Inactivo'}</span></td>
-        <td>
-          ${!esMiUsuario ? `<button class="btn btn-secondary" style="padding:4px 10px;font-size:0.75rem;" onclick="openModal('usuarios','${row.id}')">✏️ Editar</button>` : '<span style="font-size:0.75rem;color:#999">(Tú)</span>'}
-          <button class="btn ${row.activo ? 'btn-warning' : 'btn-success'}" style="padding:4px 10px;font-size:0.75rem;" onclick="toggleUsuarioActivo('${row.id}',${row.activo})">${row.activo ? '⏸️ Desactivar' : '▶️ Activar'}</button>
-          ${!esSuperAdmin && !esMiUsuario ? `<button class="btn btn-danger" style="padding:4px 10px;font-size:0.75rem;margin-left:4px;" onclick="deleteUsuario('${row.id}')">🗑️ Eliminar</button>` : ''}
-        </td>
-      </tr>`;
-    });
-  } else if (table === 'auditoria') {
-    data.forEach(row => {
-      const fecha = row.created_at ? new Date(row.created_at).toLocaleString('es-VE') : '-';
-      const accionClass = row.accion === 'INSERT' ? 'badge-success' : row.accion === 'UPDATE' ? 'badge-warning' : 'badge-danger';
-      const accionText = row.accion === 'INSERT' ? 'CREAR' : row.accion === 'UPDATE' ? 'EDITAR' : 'ELIMINAR';
-      const datosAnt = row.datos_anteriores ? `<button class="btn btn-secondary" style="padding:2px 8px;font-size:0.7rem;" onclick="verDatosAuditoria('${row.id}','anterior')">👁️ Ver</button>` : '-';
-      const datosNue = row.datos_nuevos ? `<button class="btn btn-secondary" style="padding:2px 8px;font-size:0.7rem;" onclick="verDatosAuditoria('${row.id}','nuevo')">👁️ Ver</button>` : '-';
-      const usuario = dataCache.usuarios?.find(u => u.id === row.usuario_id);
-      const nombreUsuario = usuario ? esc(usuario.nombre_completo) : (row.usuario_id ? 'Usuario ' + row.usuario_id.substring(0,8) : 'Sistema');
-      html += `<tr>
-        <td style="font-size:0.8rem;white-space:nowrap;">${fecha}</td>
-        <td>${nombreUsuario}</td>
-        <td><span class="badge badge-info">${esc(row.tabla)}</span></td>
-        <td><span class="badge ${accionClass}">${accionText}</span></td>
-        <td>${datosAnt}</td>
-        <td>${datosNue}</td>
-      </tr>`;
-    });
-  }
-  tbody.innerHTML = html || '<tr><td colspan="20" style="text-align:center;padding:40px;color:#999;">No hay registros</td></tr>';
-}
-
-function filterTable(table) { renderTable(table); }
-
-function esc(str) { if (!str) return '-'; const div = document.createElement('div'); div.textContent = String(str); return div.innerHTML; }
-
-async function refreshDashboard() {
-  showLoading(true);
-  const { data, error } = await supabase.rpc('get_dashboard_stats');
-  showLoading(false);
-  let stats = data;
-  if (error || !stats) stats = calcularStatsLocal();
-  const grid = document.getElementById('dashboard-stats');
-  if (grid) {
-    grid.innerHTML = `
-      <div class="stat-card"><div class="label">Total Enfermeros</div><div class="value">${stats.total_enfermeros || 0}</div></div>
-      <div class="stat-card"><div class="label">Profesionales F</div><div class="value">${stats.total_profesionales_f || 0}</div></div>
-      <div class="stat-card"><div class="label">Profesionales M</div><div class="value">${stats.total_profesionales_m || 0}</div></div>
-      <div class="stat-card"><div class="label">TSU F</div><div class="value">${stats.total_tsu_f || 0}</div></div>
-      <div class="stat-card"><div class="label">TSU M</div><div class="value">${stats.total_tsu_m || 0}</div></div>
-      <div class="stat-card"><div class="label">Auxiliares F</div><div class="value">${stats.total_auxiliares_f || 0}</div></div>
-      <div class="stat-card"><div class="label">Auxiliares M</div><div class="value">${stats.total_auxiliares_m || 0}</div></div>
-      <div class="stat-card"><div class="label">Activos</div><div class="value" style="color:#2e7d32">${stats.activos || 0}</div></div>
-      <div class="stat-card"><div class="label">Inactivos</div><div class="value" style="color:#c62828">${stats.inactivos || 0}</div></div>
-      <div class="stat-card"><div class="label">Postulados</div><div class="value">${stats.total_postulados || 0}</div></div>
-      <div class="stat-card"><div class="label">Cambios de Estatus</div><div class="value">${stats.total_cambios || 0}</div></div>
-    `;
-  }
-  renderCharts();
-}
-
-function calcularStatsLocal() {
-  const p = dataCache.personal;
-  return {
-    total_enfermeros: p.length,
-    total_profesionales_f: p.filter(x => x.cargo_nominal === 'Profesional' && x.genero === 'Femenino').length,
-    total_profesionales_m: p.filter(x => x.cargo_nominal === 'Profesional' && x.genero === 'Masculino').length,
-    total_tsu_f: p.filter(x => x.cargo_nominal === 'TSU' && x.genero === 'Femenino').length,
-    total_tsu_m: p.filter(x => x.cargo_nominal === 'TSU' && x.genero === 'Masculino').length,
-    total_auxiliares_f: p.filter(x => x.cargo_nominal === 'Auxiliar' && x.genero === 'Femenino').length,
-    total_auxiliares_m: p.filter(x => x.cargo_nominal === 'Auxiliar' && x.genero === 'Masculino').length,
-    activos: p.filter(x => x.estatus === 'Activo').length,
-    inactivos: p.filter(x => x.estatus === 'Inactivo').length,
-    total_postulados: dataCache.postulados.filter(x => x.estatus_postulacion === 'Postulado').length,
-    total_cambios: dataCache.cambios.length,
-  };
-}
-
-function renderCharts() {
-  const p = dataCache.personal;
-  const ctx1 = document.getElementById('chart-cargo');
-  if (ctx1) { if (window.chartCargo) window.chartCargo.destroy(); window.chartCargo = new Chart(ctx1, { type: 'bar', data: { labels: ['Profesional', 'TSU', 'Auxiliar'], datasets: [{ label: 'Femenino', data: [p.filter(x => x.cargo_nominal === 'Profesional' && x.genero === 'Femenino').length, p.filter(x => x.cargo_nominal === 'TSU' && x.genero === 'Femenino').length, p.filter(x => x.cargo_nominal === 'Auxiliar' && x.genero === 'Femenino').length], backgroundColor: '#e91e63' }, { label: 'Masculino', data: [p.filter(x => x.cargo_nominal === 'Profesional' && x.genero === 'Masculino').length, p.filter(x => x.cargo_nominal === 'TSU' && x.genero === 'Masculino').length, p.filter(x => x.cargo_nominal === 'Auxiliar' && x.genero === 'Masculino').length], backgroundColor: '#2196f3' }] }, options: { responsive: true, plugins: { legend: { position: 'bottom' } } } }); }
-  const ctx2 = document.getElementById('chart-municipio');
-  if (ctx2) { if (window.chartMun) window.chartMun.destroy(); const munCounts = {}; p.forEach(x => { munCounts[x.municipio] = (munCounts[x.municipio] || 0) + 1; }); window.chartMun = new Chart(ctx2, { type: 'doughnut', data: { labels: Object.keys(munCounts), datasets: [{ data: Object.values(munCounts), backgroundColor: ['#1a5f2a', '#e74c3c', '#f39c12', '#3498db', '#9b59b6', '#1abc9c', '#e67e22'] }] }, options: { responsive: true, plugins: { legend: { position: 'bottom' } } } }); }
-  const ctx3 = document.getElementById('chart-estatus');
-  if (ctx3) { if (window.chartEst) window.chartEst.destroy(); window.chartEst = new Chart(ctx3, { type: 'pie', data: { labels: ['Activos', 'Inactivos'], datasets: [{ data: [p.filter(x => x.estatus === 'Activo').length, p.filter(x => x.estatus === 'Inactivo').length], backgroundColor: ['#2e7d32', '#c62828'] }] }, options: { responsive: true, plugins: { legend: { position: 'bottom' } } } }); }
-}
-
+// ========== EXPORTAR / IMPORTAR / BACKUP ==========
 function exportExcel(table) {
   let data, headers, filename;
   if (table === 'auditoria') { data = dataCache.auditoria || []; headers = ['Fecha/Hora', 'Usuario ID', 'Tabla', 'Acción', 'Datos Anteriores', 'Datos Nuevos']; filename = 'Auditoria_Sistema.xlsx'; }
@@ -1372,7 +1311,7 @@ function importExcel(table) {
           const obj = { apellidos_nombres: row[0], genero: row[1], fecha_nacimiento: row[2] || null, edad: row[3] || null, cedula: String(row[4]), telefono: row[5] || null, correo: row[6] || null, cargo_nominal: row[7], municipio: row[8], parroquia: row[9], ubicacion_administrativa: row[10] || null, ubicacion_fisica: row[11] || null, estatus: row[12] || 'Activo', causa_inactividad: row[13] || null, formacion_estudiando: row[14] || null, observaciones: row[15] || null };
           const { data: newRow } = await supabase.from('personal_enfermeria').insert([obj]).select().single(); if (newRow) { dataCache.personal.unshift(newRow); imported++; }
         } else if (table === 'postulados') {
-          const obj = { apellidos_nombres: row[0], cedula: String(row[1]), fecha_nacimiento: row[2] || null, edad: row[3] || null, titulo: row[4] || null, cargo: row[5] || null, asic: row[6] || null, ubicacion: row[7] || null, celular: row[8] || null, correo: row[9] || null, documentos_completos: row[10] || 'En proceso', observaciones: row[11] || null, estatus_postulacion: row[12] || 'Postulado' };
+          const obj = { apellidos_nombres: row[0], cedula: String(row[1]), fecha_nacimiento: row[2] || null, edad: row[3] || null, titulo: row[4] || null, cargo: row[5] || null, asic: row[6] || null, ubicacion: row[7] || null, celular: row[8] || null, correo: row[9] || null, documentos_completos: row[10] || 'En proceso', observaciones: row[11] || null, estatus_postulacion: 'Esperando aprobación' };
           const { data: newRow } = await supabase.from('postulados').insert([obj]).select().single(); if (newRow) { dataCache.postulados.unshift(newRow); imported++; }
         } else if (table === 'cambios') {
           const obj = { apellidos_nombres: row[0], cedula: String(row[1]), titulo: row[2] || null, cargo: row[3] || null, tipo_cambio: row[4], fecha_cambio: row[5] || null, detalle: row[6] || null, celular: row[7] || null, correo: row[8] || null };
@@ -1407,28 +1346,8 @@ function restoreBackup() {
   }; reader.readAsText(file);
 }
 
-async function syncToSupabase() {
-  showLoading(true);
-  if (dataCache.personal.length > 0) await supabase.from('personal_enfermeria').upsert(dataCache.personal, { onConflict: 'cedula' });
-  if (dataCache.postulados.length > 0) await supabase.from('postulados').upsert(dataCache.postulados, { onConflict: 'cedula' });
-  if (dataCache.cambios.length > 0) await supabase.from('cambios_estatus').upsert(dataCache.cambios);
-  showLoading(false); toast('Datos sincronizados a Supabase', 'success');
-}
-
-async function syncFromSupabase() {
-  showLoading(true);
-  const tables = [
-    { table: 'personal_enfermeria', key: 'personal', order: 'apellidos_nombres' },
-    { table: 'postulados', key: 'postulados', order: 'apellidos_nombres' },
-    { table: 'cambios_estatus', key: 'cambios', order: 'created_at' },
-    { table: 'perfiles', key: 'usuarios', order: 'nombre_completo', select: 'id,email,nombre_completo,rol,activo,avatar_url,created_at' }
-  ];
-  for (const t of tables) { const { data, error } = await supabase.from(t.table).select('*').order(t.order, { ascending: true }); if (!error && data) dataCache[t.key] = data; }
-  showLoading(false); toast('Datos sincronizados desde Supabase', 'success');
-}
-
+// ========== UTILIDADES ==========
 function showLoading(show) { document.getElementById('loading').classList.toggle('active', show); }
-
 function toast(message, type = 'info') {
   const container = document.getElementById('toast-container'); if (!container) return;
   const t = document.createElement('div'); t.className = `toast ${type}`; t.textContent = message; container.appendChild(t); setTimeout(() => t.remove(), 4000);
@@ -1444,53 +1363,8 @@ document.addEventListener('keydown', (e) => {
     }
   }
 });
+
 </script>
-
-<!-- ======== SCRIPT SQL PARA SUPABASE (ejecutar en SQL Editor) ======== -->
-<details style="margin:20px;padding:16px;background:#f5f5f5;border-radius:8px;cursor:pointer;">
-  <summary style="font-weight:bold;color:var(--primary);">📋 Script SQL para crear tabla <code>personal_retirado</code> y restricciones</summary>
-  <pre style="background:#263238;color:#aed581;padding:16px;border-radius:8px;overflow-x:auto;font-size:0.85rem;white-space:pre-wrap;">
--- Crear tabla para personal retirado (renuncias / jubilaciones)
-CREATE TABLE IF NOT EXISTS personal_retirado (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    apellidos_nombres TEXT NOT NULL,
-    cedula TEXT NOT NULL UNIQUE,
-    genero TEXT,
-    fecha_nacimiento DATE,
-    edad INTEGER,
-    telefono TEXT,
-    correo TEXT,
-    cargo_nominal TEXT,
-    municipio TEXT,
-    parroquia TEXT,
-    ubicacion_administrativa TEXT,
-    ubicacion_fisica TEXT,
-    formacion_estudiando TEXT,
-    observaciones TEXT,
-    motivo_retiro TEXT NOT NULL,
-    fecha_retiro DATE DEFAULT CURRENT_DATE,
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-CREATE INDEX IF NOT EXISTS idx_personal_retirado_cedula ON personal_retirado(cedula);
-
--- Agregar restricción UNIQUE a la cédula en personal_enfermeria (si no existe)
-DO $$
-BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'personal_enfermeria_cedula_key') THEN
-        ALTER TABLE personal_enfermeria ADD CONSTRAINT personal_enfermeria_cedula_key UNIQUE (cedula);
-    END IF;
-END $$;
-
--- También asegurar UNIQUE en postulados (opcional pero recomendable)
-DO $$
-BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'postulados_cedula_key') THEN
-        ALTER TABLE postulados ADD CONSTRAINT postulados_cedula_key UNIQUE (cedula);
-    END IF;
-END $$;
-  </pre>
-</details>
 
 </body>
 </html>
