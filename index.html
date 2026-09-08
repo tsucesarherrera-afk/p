@@ -132,7 +132,8 @@ tr:hover{background:rgba(0,71,171,0.02)}
 .confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:3000;padding:20px}
 .confirm-overlay.active{display:flex}
 .confirm-box{background:white;border-radius:var(--radius-lg);padding:32px;width:100%;max-width:400px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.3)}
-.confirm-icon{width:64px;height:64px;background:linear-gradient(135deg,#ff9800,#f57c00);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:1.8rem}
+.confirm-icon{width:64px;height:64px;background:transparent;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:1.8rem}
+.confirm-icon img{width:64px;height:64px;object-fit:contain;border-radius:50%;}
 .confirm-box h3{color:var(--primary-dark);margin-bottom:8px}
 .confirm-box p{color:var(--text-light);margin-bottom:24px}
 .confirm-buttons{display:flex;gap:12px;justify-content:center}
@@ -448,7 +449,10 @@ mark{background:#ffeb3b;padding:0 2px;border-radius:2px;}
 <div class="loading-overlay" id="loading"><div class="spinner"></div></div>
 <div class="confirm-overlay" id="confirm-logout-overlay">
   <div class="confirm-box">
-    <div class="confirm-icon"></div>
+    <!-- ===== NUEVO ICONO CON IMAGEN ===== -->
+    <div class="confirm-icon">
+      <img src="https://github.com/tsucesarherrera-afk/p/blob/main/enfermer%C3%ADa/logo-180x180.png?raw=true" alt="Logo" style="width:64px; height:64px; object-fit:contain;">
+    </div>
     <h3>¿Cerrar Sesión?</h3>
     <p>¿Está seguro que desea salir del sistema?</p>
     <div class="confirm-buttons"><button class="btn btn-secondary" onclick="cancelarCerrarSesion()">No, continuar</button><button class="btn btn-danger" onclick="ejecutarCerrarSesion()">Sí, salir</button></div>
@@ -457,7 +461,7 @@ mark{background:#ffeb3b;padding:0 2px;border-radius:2px;}
 
 <!-- ======== JAVASCRIPT ======== -->
 <script>
-const SUPABASE_URL = 'https://urejsoupkqxeihnftony.supabase.co';
+const _URL = 'https://urejsoupkqxeihnftony.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_9tgMxa_RHzi66P5hmWR8ow_bziTwtVi';
 
 const MUNICIPIOS_APURE = {
@@ -1406,6 +1410,28 @@ function restoreBackup() {
     } catch (err) { toast('Error al restaurar: ' + err.message, 'error'); }
   }; reader.readAsText(file);
 }
+
+// ========== AUTOCOMPLETAR DATOS EN CAMBIO DE ESTATUS ==========
+document.addEventListener('DOMContentLoaded', function() {
+    const cedulaInput = document.getElementById('c-cedula');
+    if (cedulaInput) {
+        cedulaInput.addEventListener('blur', function() {
+            const cedula = this.value.trim();
+            if (cedula === '') return;
+
+            // Buscar en el caché de personal
+            const personal = dataCache.personal.find(p => p.cedula === cedula);
+            if (personal) {
+                document.getElementById('c-nombre').value = personal.apellidos_nombres || '';
+                document.getElementById('c-titulo').value = personal.titulo || '';
+                document.getElementById('c-cargo').value = personal.cargo || '';
+                toast('Datos del personal cargados automáticamente', 'success');
+            } else {
+                toast('Cédula no encontrada en el personal de enfermería', 'error');
+            }
+        });
+    }
+});
 
 // ========== UTILIDADES ==========
 function showLoading(show) { document.getElementById('loading').classList.toggle('active', show); }
