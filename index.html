@@ -12,7 +12,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-/* ========== ESTILOS BASE ========== */
+/* ========== ESTILOS (sin cambios relevantes) ========== */
 #login-screen{position:fixed;inset:0;background:linear-gradient(135deg,#0d47a1 0%,#1565c0 50%,#1976d2 100%);display:flex;align-items:center;justify-content:center;z-index:3000;padding:20px}
 #login-screen.hidden{display:none!important}
 .login-box{background:rgba(255,255,255,0.98);padding:48px 40px;border-radius:20px;width:100%;max-width:440px;box-shadow:0 25px 80px rgba(0,0,0,0.4),0 0 0 1px rgba(255,255,255,0.1);text-align:center;backdrop-filter:blur(10px)}
@@ -499,7 +499,7 @@ mark{background:#ffeb3b;padding:0 2px;border-radius:2px}
 // ============================================================
 // ¡IMPORTANTE! Reemplaza los valores de abajo con los de tu proyecto en Supabase
 // ============================================================
-const SUPABASE_URL = 'https://urejsoupkqxeihnftony.supabase.co';  // Ejemplo: 'https://urejsoupkqxeihnftony.supabase.co'
+const SUPABASE_URL = 'https://urejsoupkqxeihnftony.supabase.co';  // Ejemplo: 'https://xxxxxxxxxxxxx.supabase.co'
 const SUPABASE_ANON_KEY = 'sb_publishable_9tgMxa_RHzi66P5hmWR8ow_bziTwtVi'; // Ejemplo: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
 // ============================================================
 
@@ -515,6 +515,12 @@ const MUNICIPIOS_APURE = {
 
 let supabase = null, currentUser = null, currentRol = null, editingId = null, editingTable = null;
 let dataCache = { personal: [], postulados: [], cambios: [], usuarios: [], auditoria: [], retirados: [] };
+
+// ========== FUNCIÓN AUXILIAR PARA CONVERTIR A MAYÚSCULAS (excepto email y contraseña) ==========
+function mayus(str) {
+  if (typeof str !== 'string') return str;
+  return str.toUpperCase();
+}
 
 document.addEventListener('DOMContentLoaded', () => {
   try {
@@ -787,7 +793,7 @@ function openModal(table, id = null) {
 
 function closeModal(table) { document.getElementById('modal-' + table).classList.remove('active'); editingId = null; }
 
-// ========== CRUD PERSONAL (con validación de cédula contra retirados) ==========
+// ========== CRUD PERSONAL (con validación de cédula contra retirados y conversión a mayúsculas) ==========
 async function savePersonal() {
   const cedula = document.getElementById('p-cedula').value.trim();
   if (!cedula) { toast('La cédula es obligatoria', 'error'); return; }
@@ -809,23 +815,24 @@ async function savePersonal() {
     return;
   }
 
+  // Convertir a mayúsculas todos los campos de texto
   const data = {
-    apellidos_nombres: document.getElementById('p-nombre').value.trim(),
-    genero: document.getElementById('p-genero').value,
+    apellidos_nombres: mayus(document.getElementById('p-nombre').value.trim()),
+    genero: document.getElementById('p-genero').value, // select, no se convierte
     fecha_nacimiento: document.getElementById('p-fecha-nac').value || null,
     edad: parseInt(document.getElementById('p-edad').value) || null,
-    cedula: cedula,
-    telefono: document.getElementById('p-telefono').value.trim() || null,
-    correo: document.getElementById('p-correo').value.trim() || null,
-    cargo_nominal: document.getElementById('p-cargo').value,
-    municipio: document.getElementById('p-municipio').value,
-    parroquia: document.getElementById('p-parroquia').value,
-    ubicacion_administrativa: document.getElementById('p-ubic-admin').value.trim() || null,
-    ubicacion_fisica: document.getElementById('p-ubic-fisica').value.trim() || null,
-    estatus: document.getElementById('p-estatus').value,
-    causa_inactividad: document.getElementById('p-causa').value.trim() || null,
-    formacion_estudiando: document.getElementById('p-formacion').value.trim() || null,
-    observaciones: document.getElementById('p-obs').value.trim() || null,
+    cedula: mayus(cedula),
+    telefono: mayus(document.getElementById('p-telefono').value.trim()) || null,
+    correo: document.getElementById('p-correo').value.trim().toLowerCase() || null, // email en minúsculas
+    cargo_nominal: document.getElementById('p-cargo').value, // select
+    municipio: document.getElementById('p-municipio').value, // select
+    parroquia: document.getElementById('p-parroquia').value, // select
+    ubicacion_administrativa: mayus(document.getElementById('p-ubic-admin').value.trim()) || null,
+    ubicacion_fisica: mayus(document.getElementById('p-ubic-fisica').value.trim()) || null,
+    estatus: document.getElementById('p-estatus').value, // select
+    causa_inactividad: mayus(document.getElementById('p-causa').value.trim()) || null,
+    formacion_estudiando: mayus(document.getElementById('p-formacion').value.trim()) || null,
+    observaciones: mayus(document.getElementById('p-obs').value.trim()) || null,
   };
   if (!data.apellidos_nombres || !data.cedula || !data.municipio || !data.parroquia) { toast('Complete los campos obligatorios (*)', 'error'); return; }
   showLoading(true);
@@ -879,7 +886,7 @@ async function retirarPersonal(id, cedula) {
       ubicacion_fisica: personal.ubicacion_fisica,
       formacion_estudiando: personal.formacion_estudiando,
       observaciones: personal.observaciones,
-      motivo_retiro: motivo,
+      motivo_retiro: mayus(motivo),
       fecha_retiro: new Date().toISOString().split('T')[0]
     };
     const { error: insertError } = await supabase.from('personal_retirado').insert([retirado]);
@@ -910,7 +917,7 @@ async function validarCedulaPostulacion(cedula) {
   return { existe: false };
 }
 
-// ========== CRUD POSTULADOS (con estado "Esperando aprobación") ==========
+// ========== CRUD POSTULADOS (con estado "Esperando aprobación" y conversión a mayúsculas) ==========
 async function savePostulado() {
   const cedula = document.getElementById('po-cedula').value.trim();
   if (!cedula) { toast('La cédula es obligatoria', 'error'); return; }
@@ -928,18 +935,18 @@ async function savePostulado() {
     return;
   }
   const data = {
-    apellidos_nombres: document.getElementById('po-nombre').value.trim(),
-    cedula: cedula,
+    apellidos_nombres: mayus(document.getElementById('po-nombre').value.trim()),
+    cedula: mayus(cedula),
     fecha_nacimiento: document.getElementById('po-fecha-nac').value || null,
     edad: parseInt(document.getElementById('po-edad').value) || null,
-    titulo: document.getElementById('po-titulo').value.trim() || null,
-    cargo: document.getElementById('po-cargo').value.trim() || null,
-    asic: document.getElementById('po-asic').value.trim() || null,
-    ubicacion: document.getElementById('po-ubicacion').value.trim() || null,
-    celular: document.getElementById('po-celular').value.trim() || null,
-    correo: document.getElementById('po-correo').value.trim() || null,
-    documentos_completos: document.getElementById('po-docs').value,
-    observaciones: document.getElementById('po-obs').value.trim() || null,
+    titulo: mayus(document.getElementById('po-titulo').value.trim()) || null,
+    cargo: mayus(document.getElementById('po-cargo').value.trim()) || null,
+    asic: mayus(document.getElementById('po-asic').value.trim()) || null,
+    ubicacion: mayus(document.getElementById('po-ubicacion').value.trim()) || null,
+    celular: mayus(document.getElementById('po-celular').value.trim()) || null,
+    correo: document.getElementById('po-correo').value.trim().toLowerCase() || null,
+    documentos_completos: document.getElementById('po-docs').value, // select
+    observaciones: mayus(document.getElementById('po-obs').value.trim()) || null,
     estatus_postulacion: 'Esperando aprobación',
   };
   if (!data.apellidos_nombres || !data.cedula) { toast('Complete los campos obligatorios (*)', 'error'); return; }
@@ -995,21 +1002,21 @@ async function aprobarPostulado(id) {
   showLoading(false);
 }
 
-// ========== CRUD CAMBIOS ==========
+// ========== CRUD CAMBIOS (con conversión a mayúsculas) ==========
 async function saveCambio() {
   const cedula = document.getElementById('c-cedula').value.trim();
   const personal = dataCache.personal.find(p => p.cedula === cedula);
   const data = {
     personal_id: personal ? personal.id : null,
-    apellidos_nombres: document.getElementById('c-nombre').value.trim(),
-    cedula: cedula,
-    titulo: document.getElementById('c-titulo').value.trim() || null,
-    cargo: document.getElementById('c-cargo').value.trim() || null,
-    tipo_cambio: document.getElementById('c-tipo').value,
+    apellidos_nombres: mayus(document.getElementById('c-nombre').value.trim()),
+    cedula: mayus(cedula),
+    titulo: mayus(document.getElementById('c-titulo').value.trim()) || null,
+    cargo: mayus(document.getElementById('c-cargo').value.trim()) || null,
+    tipo_cambio: document.getElementById('c-tipo').value, // select
     fecha_cambio: document.getElementById('c-fecha').value || null,
-    detalle: document.getElementById('c-detalle').value.trim() || null,
-    celular: document.getElementById('c-celular').value.trim() || null,
-    correo: document.getElementById('c-correo').value.trim() || null,
+    detalle: mayus(document.getElementById('c-detalle').value.trim()) || null,
+    celular: mayus(document.getElementById('c-celular').value.trim()) || null,
+    correo: document.getElementById('c-correo').value.trim().toLowerCase() || null,
   };
   if (!data.apellidos_nombres || !data.cedula || !data.tipo_cambio) { toast('Complete los campos obligatorios (*)', 'error'); return; }
   showLoading(true);
@@ -1036,9 +1043,14 @@ async function deleteCambio(id) {
   renderTable('cambios'); toast('Registro eliminado', 'success');
 }
 
-// ========== CRUD USUARIOS ==========
+// ========== CRUD USUARIOS (conversión a mayúsculas solo en nombre) ==========
 async function saveUsuario() {
-  const nombre = document.getElementById('u-nombre').value.trim(), email = document.getElementById('u-email').value.trim(), password = document.getElementById('u-password').value, rol = document.getElementById('u-rol').value, activo = document.getElementById('u-activo').value === 'true';
+  const nombre = mayus(document.getElementById('u-nombre').value.trim());
+  const email = document.getElementById('u-email').value.trim().toLowerCase();
+  const password = document.getElementById('u-password').value;
+  const rol = document.getElementById('u-rol').value;
+  const activo = document.getElementById('u-activo').value === 'true';
+
   if (!editingId && (!nombre || !email || !password || password.length < 6)) { toast('Complete todos los campos. La contraseña debe tener al menos 6 caracteres.', 'error'); return; }
   if (editingId && (!nombre || !email)) { toast('Complete los campos obligatorios.', 'error'); return; }
   showLoading(true);
@@ -1412,13 +1424,13 @@ function importExcel(table) {
     for (const row of rows) {
       try {
         if (table === 'personal') {
-          const obj = { apellidos_nombres: row[0], genero: row[1], fecha_nacimiento: row[2] || null, edad: row[3] || null, cedula: String(row[4]), telefono: row[5] || null, correo: row[6] || null, cargo_nominal: row[7], municipio: row[8], parroquia: row[9], ubicacion_administrativa: row[10] || null, ubicacion_fisica: row[11] || null, estatus: row[12] || 'Activo', causa_inactividad: row[13] || null, formacion_estudiando: row[14] || null, observaciones: row[15] || null };
+          const obj = { apellidos_nombres: mayus(row[0] || ''), genero: row[1] || 'Femenino', fecha_nacimiento: row[2] || null, edad: row[3] || null, cedula: mayus(String(row[4])), telefono: mayus(row[5] || ''), correo: (row[6] || '').toLowerCase(), cargo_nominal: row[7] || 'Profesional', municipio: row[8] || '', parroquia: row[9] || '', ubicacion_administrativa: mayus(row[10] || ''), ubicacion_fisica: mayus(row[11] || ''), estatus: row[12] || 'Activo', causa_inactividad: mayus(row[13] || ''), formacion_estudiando: mayus(row[14] || ''), observaciones: mayus(row[15] || '') };
           const { data: newRow } = await supabase.from('personal_enfermeria').insert([obj]).select().single(); if (newRow) { dataCache.personal.unshift(newRow); imported++; }
         } else if (table === 'postulados') {
-          const obj = { apellidos_nombres: row[0], cedula: String(row[1]), fecha_nacimiento: row[2] || null, edad: row[3] || null, titulo: row[4] || null, cargo: row[5] || null, asic: row[6] || null, ubicacion: row[7] || null, celular: row[8] || null, correo: row[9] || null, documentos_completos: row[10] || 'En proceso', observaciones: row[11] || null, estatus_postulacion: 'Esperando aprobación' };
+          const obj = { apellidos_nombres: mayus(row[0] || ''), cedula: mayus(String(row[1])), fecha_nacimiento: row[2] || null, edad: row[3] || null, titulo: mayus(row[4] || ''), cargo: mayus(row[5] || ''), asic: mayus(row[6] || ''), ubicacion: mayus(row[7] || ''), celular: mayus(row[8] || ''), correo: (row[9] || '').toLowerCase(), documentos_completos: row[10] || 'En proceso', observaciones: mayus(row[11] || ''), estatus_postulacion: 'Esperando aprobación' };
           const { data: newRow } = await supabase.from('postulados').insert([obj]).select().single(); if (newRow) { dataCache.postulados.unshift(newRow); imported++; }
         } else if (table === 'cambios') {
-          const obj = { apellidos_nombres: row[0], cedula: String(row[1]), titulo: row[2] || null, cargo: row[3] || null, tipo_cambio: row[4], fecha_cambio: row[5] || null, detalle: row[6] || null, celular: row[7] || null, correo: row[8] || null };
+          const obj = { apellidos_nombres: mayus(row[0] || ''), cedula: mayus(String(row[1])), titulo: mayus(row[2] || ''), cargo: mayus(row[3] || ''), tipo_cambio: row[4] || 'Ascenso', fecha_cambio: row[5] || null, detalle: mayus(row[6] || ''), celular: mayus(row[7] || ''), correo: (row[8] || '').toLowerCase() };
           const { data: newRow } = await supabase.from('cambios_estatus').insert([obj]).select().single(); if (newRow) { dataCache.cambios.unshift(newRow); imported++; }
         }
       } catch (err) { console.error(err); }
