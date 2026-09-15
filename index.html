@@ -12,7 +12,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-/* ═══════════════ LOGIN ═══════════════ */
 #login-screen{position:fixed;inset:0;background:linear-gradient(135deg,#0d47a1 0%,#1565c0 50%,#1976d2 100%);display:flex;align-items:center;justify-content:center;z-index:3000;padding:16px;overflow-y:auto}
 #login-screen.hidden{display:none!important}
 .login-box{background:rgba(255,255,255,0.98);padding:32px 24px;border-radius:20px;width:100%;max-width:440px;box-shadow:0 25px 80px rgba(0,0,0,0.4);text-align:center;margin:auto}
@@ -24,16 +23,12 @@
 .login-btn{width:100%;padding:14px;background:linear-gradient(135deg,#0d47a1,#1565c0);color:white;border:none;border-radius:10px;font-size:1rem;font-weight:600;cursor:pointer;transition:all .2s}
 .login-btn:disabled{opacity:.6;cursor:not-allowed}
 .login-error{color:#c62828;font-size:.85rem;margin-top:12px;min-height:20px}
-
-/* ═══════════════ VARIABLES Y BASE ═══════════════ */
 :root{--primary:#0047AB;--primary-dark:#003380;--primary-light:#1565c0;--bg:#f5f6fa;--text:#2c3e50;--text-light:#7f8c8d;--border:#e0e6ed;--shadow:0 2px 12px rgba(0,0,0,0.08);--radius:8px;--radius-lg:12px}
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{overflow-x:hidden;max-width:100vw;-webkit-text-size-adjust:100%}
 body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;min-height:100vh}
 .uppercase{text-transform:uppercase}
 img{max-width:100%;height:auto}
-
-/* ═══════════════ HEADER ═══════════════ */
 .top-header{position:fixed;top:0;left:0;right:0;height:60px;background:var(--primary);display:flex;align-items:center;justify-content:space-between;padding:0 16px;z-index:1000;box-shadow:0 2px 8px rgba(0,0,0,0.15)}
 .top-header-left{display:flex;align-items:center;gap:12px;min-width:0;flex:1}
 .menu-toggle-header{width:40px;height:40px;background:transparent;border:none;color:white;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;border-radius:8px;flex-shrink:0}
@@ -47,8 +42,6 @@ img{max-width:100%;height:auto}
 .user-profile-header{display:flex;align-items:center;gap:8px;color:white;cursor:pointer;padding:6px 10px;border-radius:20px;transition:background .2s}
 .user-avatar-header{width:32px;height:32px;background:rgba(255,255,255,0.25);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:.8rem;overflow:hidden;background-size:cover;background-position:center;flex-shrink:0}
 .user-name-header{font-size:.85rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px}
-
-/* ═══════════════ DROPDOWN PERFIL ═══════════════ */
 .profile-dropdown{position:fixed;top:60px;right:12px;width:min(280px,calc(100vw - 24px));background:white;border-radius:var(--radius-lg);box-shadow:0 10px 40px rgba(0,0,0,0.2);z-index:1001;display:none;overflow:hidden}
 .profile-dropdown.active{display:block}
 .profile-dropdown-header{background:linear-gradient(135deg,var(--primary),var(--primary-light));padding:20px;text-align:center;color:white}
@@ -60,8 +53,6 @@ img{max-width:100%;height:auto}
 .profile-dropdown-item:hover{background:var(--bg)}
 .profile-dropdown-item.danger{color:#c62828}
 .profile-dropdown-item svg{width:20px;height:20px;flex-shrink:0}
-
-/* ═══════════════ SIDEBAR ═══════════════ */
 .sidebar{position:fixed;top:60px;left:0;width:260px;max-width:85vw;height:calc(100vh - 60px);background:white;border-right:1px solid var(--border);z-index:900;transition:transform .3s ease;overflow-y:auto;overflow-x:hidden;transform:translateX(-100%)}
 .sidebar.open{transform:translateX(0)}
 .sidebar-overlay{display:none;position:fixed;top:60px;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:899}
@@ -77,8 +68,6 @@ img{max-width:100%;height:auto}
 .nav-item svg{width:22px;height:22px;flex-shrink:0}
 .sidebar-divider{height:1px;background:var(--border);margin:8px 16px}
 .sidebar-footer-info{padding:16px;font-size:.75rem;color:var(--text-light);text-align:center;border-top:1px solid var(--border);word-wrap:break-word}
-
-/* ═══════════════ MAIN ═══════════════ */
 .main-content{margin-left:260px;margin-top:60px;padding:24px;min-height:calc(100vh - 60px);width:calc(100% - 260px);max-width:100%}
 .content-card{background:white;border-radius:var(--radius-lg);box-shadow:var(--shadow);margin-bottom:20px;overflow:hidden;width:100%}
 .card-header{background:var(--primary);color:white;padding:14px 20px;font-size:1.05rem;font-weight:600;word-wrap:break-word}
@@ -86,8 +75,6 @@ img{max-width:100%;height:auto}
 .top-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px}
 .top-bar h1{font-size:clamp(1.1rem,3.5vw,1.4rem);color:var(--primary-dark);font-weight:700;word-wrap:break-word}
 .actions{display:flex;gap:8px;flex-wrap:wrap}
-
-/* ═══════════════ BOTONES ═══════════════ */
 .btn{padding:10px 16px;border-radius:var(--radius);border:none;font-size:.85rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;transition:all .2s;min-height:40px;white-space:nowrap;max-width:100%;flex-shrink:0}
 .btn:hover{transform:translateY(-1px)}
 .btn-primary{background:var(--primary);color:white}
@@ -97,14 +84,10 @@ img{max-width:100%;height:auto}
 .btn-danger{background:#c62828;color:white}
 .btn-warning{background:#f9a825;color:white}
 .btn-success{background:#2e7d32;color:white}
-
-/* ═══════════════ STATS ═══════════════ */
 .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px}
 .stat-card{background:white;border-radius:var(--radius-lg);padding:16px;box-shadow:var(--shadow);border-left:4px solid var(--primary);min-width:0;overflow:hidden}
 .stat-card .label{font-size:.75rem;color:var(--text-light);margin-bottom:4px;text-transform:uppercase;word-wrap:break-word;line-height:1.2}
 .stat-card .value{font-size:clamp(1.3rem,4vw,1.8rem);font-weight:700;color:var(--primary);word-wrap:break-word;line-height:1.1}
-
-/* ═══════════════ TABLAS ═══════════════ */
 .table-wrapper{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:0 0 var(--radius-lg) var(--radius-lg)}
 .table-wrapper table{width:100%;min-width:600px}
 table{width:100%;border-collapse:collapse;font-size:.85rem}
@@ -119,15 +102,11 @@ tr:hover{background:rgba(0,71,171,0.02)}
 .badge-warning{background:#fff8e1;color:#f9a825}
 .badge-info{background:#e3f2fd;color:var(--primary)}
 mark{background:#ffeb3b;padding:0 2px;border-radius:2px}
-
-/* ═══════════════ TOOLBAR / SEARCH ═══════════════ */
 .table-toolbar{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .search-box{padding:10px 14px;border:1px solid var(--border);border-radius:var(--radius);font-size:.9rem;min-width:200px;flex:1 1 200px;width:100%}
 .search-box:focus{outline:none;border-color:var(--primary)}
 .search-btn{padding:10px 16px;background:var(--primary);color:white;border:none;border-radius:var(--radius);cursor:pointer;font-weight:600;flex-shrink:0;min-height:40px}
 .search-btn:hover{background:var(--primary-dark)}
-
-/* ═══════════════ MODALES ═══════════════ */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:2000;padding:16px;overflow-y:auto}
 .modal-overlay.active{display:flex}
 .modal{background:white;border-radius:var(--radius-lg);width:100%;max-width:700px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3);display:flex;flex-direction:column}
@@ -144,8 +123,6 @@ mark{background:#ffeb3b;padding:0 2px;border-radius:2px}
 .form-group input,.form-group select,.form-group textarea{padding:11px 14px;border:1px solid var(--border);border-radius:var(--radius);font-size:16px;width:100%;box-sizing:border-box;max-width:100%}
 .form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--primary)}
 .form-group textarea{resize:vertical;min-height:80px}
-
-/* ═══════════════ TOASTS / LOADING / CONFIRM ═══════════════ */
 .toast-container{position:fixed;top:70px;right:12px;left:12px;z-index:3000;display:flex;flex-direction:column;gap:10px;pointer-events:none;align-items:flex-end}
 .toast{padding:12px 16px;border-radius:var(--radius);color:white;font-size:.9rem;box-shadow:0 4px 12px rgba(0,0,0,0.15);animation:toastSlide .3s ease;max-width:min(400px,100%);word-wrap:break-word;pointer-events:auto}
 @keyframes toastSlide{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
@@ -165,8 +142,6 @@ mark{background:#ffeb3b;padding:0 2px;border-radius:2px}
 .confirm-box p{color:var(--text-light);margin-bottom:20px;font-size:.9rem}
 .confirm-buttons{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 .confirm-buttons .btn{flex:1 1 auto;min-width:110px}
-
-/* ═══════════════ UTILS ═══════════════ */
 .hidden{display:none!important}
 .section{display:none}
 .section.active{display:block}
@@ -174,8 +149,9 @@ canvas{max-width:100%!important;height:auto!important}
 #diag-banner{position:fixed;top:0;left:0;right:0;background:#c62828;color:#fff;padding:10px 16px;text-align:center;font-weight:600;z-index:9999;display:none;font-size:.85rem}
 #diag-banner.active{display:block}
 #diag-banner button{background:#fff;color:#c62828;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;font-weight:600;margin-left:8px;font-size:.85rem}
-
-/* ═══════════════ RESPONSIVE ═══════════════ */
+/* Autocompletar info */
+.autocomplete-info{background:#e3f2fd;color:var(--primary);padding:8px 12px;border-radius:var(--radius);font-size:.8rem;margin-bottom:10px;border-left:3px solid var(--primary);display:none}
+.autocomplete-info.active{display:block}
 @media(max-width:992px){
   .main-content{margin-left:0;width:100%;padding:16px}
   .sidebar{transform:translateX(-100%);z-index:950}
@@ -250,7 +226,6 @@ canvas{max-width:100%!important;height:auto!important}
   <button onclick="document.getElementById('diag-banner').classList.remove('active')">Ocultar</button>
 </div>
 
-<!-- LOGIN -->
 <div id="login-screen">
   <div class="login-box">
     <img src="https://raw.githubusercontent.com/tsucesarherrera-afk/p/main/enfermer%C3%ADa/logo-login.png" alt="Logo" onerror="this.style.display='none'">
@@ -263,7 +238,6 @@ canvas{max-width:100%!important;height:auto!important}
   </div>
 </div>
 
-<!-- APP -->
 <div id="app" class="hidden">
   <header class="top-header">
     <div class="top-header-left">
@@ -319,7 +293,6 @@ canvas{max-width:100%!important;height:auto!important}
   </aside>
 
   <main class="main-content">
-    <!-- DASHBOARD -->
     <section id="sec-dashboard" class="section active">
       <div class="top-bar"><h1>Inicio</h1><div class="actions"><button class="btn btn-secondary" onclick="refreshDashboard()">🔄 Actualizar</button></div></div>
       <div class="stats-grid" id="dashboard-stats"></div>
@@ -330,7 +303,6 @@ canvas{max-width:100%!important;height:auto!important}
       </div>
     </section>
 
-    <!-- PERSONAL -->
     <section id="sec-personal" class="section">
       <div class="top-bar"><h1>Personal de Enfermería</h1><div class="actions"><button class="btn btn-primary admin-only hidden" onclick="openModal('personal')">➕ Nuevo</button><button class="btn btn-secondary" onclick="exportExcel('personal')">📥 Exportar</button></div></div>
       <div class="content-card">
@@ -345,7 +317,6 @@ canvas{max-width:100%!important;height:auto!important}
       </div>
     </section>
 
-    <!-- POSTULADOS -->
     <section id="sec-postulados" class="section">
       <div class="top-bar"><h1>Punto de Cuenta (Postulados)</h1><div class="actions"><button class="btn btn-primary admin-only hidden" onclick="openModal('postulados')">➕ Nuevo</button><button class="btn btn-secondary" onclick="exportExcel('postulados')">📥 Exportar</button></div></div>
       <div class="content-card">
@@ -360,7 +331,6 @@ canvas{max-width:100%!important;height:auto!important}
       </div>
     </section>
 
-    <!-- CAMBIOS -->
     <section id="sec-cambios" class="section">
       <div class="top-bar"><h1>Cambio de Estatus</h1><div class="actions"><button class="btn btn-primary admin-only hidden" onclick="openModal('cambios')">➕ Nuevo</button><button class="btn btn-secondary" onclick="exportExcel('cambios')">📥 Exportar</button></div></div>
       <div class="content-card">
@@ -375,7 +345,6 @@ canvas{max-width:100%!important;height:auto!important}
       </div>
     </section>
 
-    <!-- RETIRADOS -->
     <section id="sec-retirados" class="section">
       <div class="top-bar"><h1>👤 Personal Retirado</h1><div class="actions"><button class="btn btn-secondary" onclick="exportExcel('retirados')">📥 Exportar</button></div></div>
       <div class="content-card">
@@ -390,7 +359,6 @@ canvas{max-width:100%!important;height:auto!important}
       </div>
     </section>
 
-    <!-- USUARIOS -->
     <section id="sec-usuarios" class="section">
       <div class="top-bar"><h1>Gestión de Usuarios</h1><div class="actions"><button class="btn btn-primary" onclick="openModal('usuarios')">➕ Nuevo Usuario</button></div></div>
       <div class="content-card">
@@ -405,7 +373,6 @@ canvas{max-width:100%!important;height:auto!important}
       </div>
     </section>
 
-    <!-- BACKUP -->
     <section id="sec-backup" class="section">
       <div class="top-bar"><h1>Backup y Sincronización</h1></div>
       <div class="content-card">
@@ -489,10 +456,17 @@ canvas{max-width:100%!important;height:auto!important}
   <div class="modal">
     <div class="modal-header"><h2 id="title-cambios">Nuevo Cambio</h2><button class="modal-close" onclick="closeModal('cambios')">&times;</button></div>
     <div class="modal-body">
+      <div class="autocomplete-info" id="info-autocompletado-cambios">
+        ✅ <strong>Datos cargados automáticamente</strong> desde el Personal de Enfermería. Puede modificarlos si es necesario.
+      </div>
       <div class="form-grid">
+        <div class="form-group" style="grid-column:1/-1;">
+          <label>Seleccione Personal (búsqueda por cédula o nombre)</label>
+          <input type="text" id="c-cedula" class="uppercase" list="lista-personal" placeholder="Escriba cédula o seleccione de la lista..." autocomplete="off">
+          <datalist id="lista-personal"></datalist>
+        </div>
         <div class="form-group"><label>Apellidos y Nombres *</label><input type="text" id="c-nombre" class="uppercase"></div>
-        <div class="form-group"><label>Cédula *</label><input type="text" id="c-cedula" class="uppercase"></div>
-        <div class="form-group"><label>Título</label><input type="text" id="c-titulo" class="uppercase"></div>
+        <div class="form-group"><label>Título / Formación</label><input type="text" id="c-titulo" class="uppercase"></div>
         <div class="form-group"><label>Cargo</label><input type="text" id="c-cargo" class="uppercase"></div>
         <div class="form-group"><label>Tipo de Cambio *</label><select id="c-tipo"><option value="ASCENSO">ASCENSO</option><option value="TRASLADO">TRASLADO</option><option value="RENUNCIA">RENUNCIA</option><option value="JUBILACIÓN">JUBILACIÓN</option><option value="REPOSO">REPOSO</option><option value="OTRO">OTRO</option></select></div>
         <div class="form-group"><label>Fecha del Cambio</label><input type="date" id="c-fecha"></div>
@@ -505,7 +479,7 @@ canvas{max-width:100%!important;height:auto!important}
   </div>
 </div>
 
-<!-- MODAL RETIRADOS (solo superadmin) -->
+<!-- MODAL RETIRADOS -->
 <div class="modal-overlay" id="modal-retirados">
   <div class="modal">
     <div class="modal-header"><h2 id="title-retirados">Editar Retirado</h2><button class="modal-close" onclick="closeModal('retirados')">&times;</button></div>
@@ -583,27 +557,17 @@ const MUNICIPIOS_APURE = {
 let supabase = null, currentUser = null, currentRol = null, editingId = null, editingTable = null;
 let dataCache = { personal: [], postulados: [], cambios: [], usuarios: [], retirados: [] };
 
-// ═══════════════════════════════════════════════════════════════
-// UTILIDADES
-// ═══════════════════════════════════════════════════════════════
+// ✅ Flag para evitar auto-login después de cerrar sesión
+window.__logoutInProgress = false;
+
 function mayus(str) {
   if (str === null || str === undefined) return '';
   return String(str).trim().toUpperCase();
 }
 
-// Normalizar el rol para comparaciones seguras
-function rolNorm() {
-  return String(currentRol || '').trim().toLowerCase();
-}
-
-function esSuperAdmin() {
-  return rolNorm() === 'superadmin';
-}
-
-function esAdminOSuper() {
-  const r = rolNorm();
-  return r === 'admin' || r === 'superadmin';
-}
+function rolNorm() { return String(currentRol || '').trim().toLowerCase(); }
+function esSuperAdmin() { return rolNorm() === 'superadmin'; }
+function esAdminOSuper() { const r = rolNorm(); return r === 'admin' || r === 'superadmin'; }
 
 function mostrarDiagnostico(msg) {
   const b = document.getElementById('diag-banner');
@@ -614,6 +578,8 @@ function mostrarDiagnostico(msg) {
 
 function forzarMayusculasEnInputs() {
   document.querySelectorAll('input.uppercase, textarea.uppercase').forEach(el => {
+    if (el.dataset.uppercaseBound === '1') return;
+    el.dataset.uppercaseBound = '1';
     el.addEventListener('input', function() {
       const pos = this.selectionStart;
       this.value = this.value.toUpperCase();
@@ -625,7 +591,6 @@ function forzarMayusculasEnInputs() {
       this.value = (this.value + texto).toUpperCase();
     });
   });
-  console.log('✅ Mayúsculas activadas en', document.querySelectorAll('input.uppercase, textarea.uppercase').length, 'campos');
 }
 
 async function verificarConexion() {
@@ -658,13 +623,23 @@ async function verificarConexion() {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════
-// INICIALIZACIÓN
-// ═══════════════════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', async () => {
   try {
     if (!window.supabase) { mostrarDiagnostico('❌ No se pudo cargar la librería de Supabase.'); return; }
     supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // ✅ Listener de cambios de auth — solo actúa si NO estamos cerrando sesión
+    supabase.auth.onAuthStateChange((event, session) => {
+      console.log('🔐 Auth event:', event);
+      if (event === 'SIGNED_OUT') {
+        // El usuario cerró sesión — limpiar todo y NO re-login
+        window.__logoutInProgress = true;
+        document.getElementById('app')?.classList.add('hidden');
+        document.getElementById('login-screen')?.classList.remove('hidden');
+        setTimeout(() => { window.__logoutInProgress = false; }, 3000);
+      }
+    });
+
     forzarMayusculasEnInputs();
     fillMunicipios('p');
     const cf = document.getElementById('c-fecha');
@@ -672,25 +647,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     await verificarConexion();
 
-    // Autocompletar cédula en Cambio de Estatus
-    const cedulaInput = document.getElementById('c-cedula');
-    if (cedulaInput) {
-      cedulaInput.addEventListener('blur', function() {
-        const cedula = mayus(this.value);
-        if (cedula === '') return;
-        const personal = dataCache.personal.find(p => p.cedula === cedula);
-        if (personal) {
-          document.getElementById('c-nombre').value = personal.apellidos_nombres || '';
-          document.getElementById('c-titulo').value = personal.titulo || '';
-          document.getElementById('c-cargo').value = personal.cargo_nominal || '';
-          toast('Datos del personal cargados automáticamente', 'success');
-        } else {
-          toast('Cédula no encontrada en el personal de enfermería', 'error');
-        }
-      });
-    }
+    // Autocompletado de cédula en Cambio de Estatus
+    setupAutocompletadoCambios();
 
-    checkSession();
+    // ✅ Solo verificar sesión al inicio si NO estamos cerrando sesión
+    if (!window.__logoutInProgress) {
+      checkSession();
+    }
   } catch (err) {
     console.error(err);
     mostrarDiagnostico('❌ Error al iniciar: ' + err.message);
@@ -698,12 +661,70 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // ═══════════════════════════════════════════════════════════════
-// AUTENTICACIÓN
+// AUTOCOMPLETADO CAMBIO DE ESTATUS
 // ═══════════════════════════════════════════════════════════════
+function setupAutocompletadoCambios() {
+  const cedulaInput = document.getElementById('c-cedula');
+  if (!cedulaInput) return;
+
+  // Cuando el usuario escribe o selecciona una cédula
+  const autocompletar = function() {
+    const valor = mayus(this.value || '');
+    if (!valor) return;
+
+    // Buscar por cédula exacta o por nombre parcial
+    let personal = dataCache.personal.find(p => mayus(p.cedula) === valor);
+    if (!personal) {
+      personal = dataCache.personal.find(p => 
+        mayus(p.apellidos_nombres || '').includes(valor) || 
+        mayus(p.cedula || '').includes(valor)
+      );
+    }
+
+    if (personal) {
+      document.getElementById('c-nombre').value = personal.apellidos_nombres || '';
+      document.getElementById('c-titulo').value = personal.formacion_estudiando || '';
+      document.getElementById('c-cargo').value = personal.cargo_nominal || '';
+      document.getElementById('c-celular').value = personal.telefono || '';
+      document.getElementById('c-correo').value = personal.correo || '';
+      document.getElementById('c-cedula').value = personal.cedula || '';
+
+      const info = document.getElementById('info-autocompletado-cambios');
+      if (info) info.classList.add('active');
+
+      toast('✅ Datos cargados desde Personal de Enfermería', 'success');
+    } else {
+      const info = document.getElementById('info-autocompletado-cambios');
+      if (info) info.classList.remove('active');
+    }
+  };
+
+  cedulaInput.addEventListener('change', autocompletar);
+  cedulaInput.addEventListener('blur', autocompletar);
+}
+
+function actualizarListaPersonal() {
+  const datalist = document.getElementById('lista-personal');
+  if (!datalist) return;
+  datalist.innerHTML = '';
+  (dataCache.personal || []).forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.cedula || '';
+    opt.label = `${p.cedula || ''} — ${p.apellidos_nombres || ''} (${p.cargo_nominal || ''})`;
+    datalist.appendChild(opt);
+  });
+  console.log('📋 Lista de personal actualizada:', dataCache.personal.length, 'registros');
+}
+
 async function checkSession() {
+  if (window.__logoutInProgress) {
+    console.log('⏸️ checkSession bloqueado por logout en progreso');
+    return;
+  }
   try {
     const { data: { session }, error } = await supabase.auth.getSession();
     if (error) throw error;
+    if (window.__logoutInProgress) return;
     if (session) await initUser(session.user);
   } catch (err) { console.error('Error verificando sesión:', err); }
 }
@@ -716,6 +737,7 @@ async function handleLogin() {
   if (!email || !password) { errDiv.textContent = 'Ingrese correo y contraseña'; return; }
   btn.disabled = true; btn.textContent = 'Ingresando...';
   errDiv.textContent = '';
+  window.__logoutInProgress = false;
   try {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) { errDiv.textContent = error.message; btn.disabled = false; btn.textContent = 'Iniciar Sesión'; return; }
@@ -754,7 +776,6 @@ async function initUser(user) {
         return;
       }
       perfil = np;
-      toast('Perfil creado con rol Usuario', 'success');
     }
 
     if (perfil.activo === false) {
@@ -763,7 +784,6 @@ async function initUser(user) {
       return;
     }
 
-    // ✅ Normalizar el rol (evita problemas con mayúsculas/espacios)
     currentRol = String(perfil.rol || '').trim().toLowerCase();
     console.log('🎭 Rol detectado:', currentRol, '| rol original:', perfil.rol);
 
@@ -788,10 +808,8 @@ async function initUser(user) {
       dropAvatar.textContent = iniciales; dropAvatar.style.backgroundImage = '';
     }
 
-    // Ocultar todo primero
     document.querySelectorAll('.admin-only, .superadmin-only').forEach(el => el.classList.add('hidden'));
 
-    // Mostrar según el rol
     if (currentRol === 'superadmin') {
       document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
       document.querySelectorAll('.superadmin-only').forEach(el => el.classList.remove('hidden'));
@@ -802,6 +820,8 @@ async function initUser(user) {
     await loadAllData();
     refreshDashboard();
     renderAllTables();
+    // ✅ Actualizar lista de autocompletar
+    actualizarListaPersonal();
     toast('Bienvenido, ' + (perfil.nombre_completo || 'Usuario'), 'success');
   } catch (err) {
     console.error('Error en initUser:', err);
@@ -814,15 +834,54 @@ function confirmarCerrarSesion() { document.getElementById('confirm-logout-overl
 function cancelarCerrarSesion() { document.getElementById('confirm-logout-overlay').classList.remove('active'); }
 function ejecutarCerrarSesion() { cancelarCerrarSesion(); handleLogout(); }
 
+// ✅ LOGOUT CORREGIDO — evita auto-relogin
 async function handleLogout() {
-  await supabase.auth.signOut();
+  console.log('🚪 Cerrando sesión...');
+  
+  // 1. Activar flag ANTES de todo
+  window.__logoutInProgress = true;
+
+  // 2. Ocultar app y mostrar login inmediatamente
   document.getElementById('app').classList.add('hidden');
   document.getElementById('login-screen').classList.remove('hidden');
   document.getElementById('login-screen').style.display = '';
   document.getElementById('login-email').value = '';
   document.getElementById('login-password').value = '';
   document.getElementById('login-error').textContent = '';
-  currentUser = null; currentRol = null;
+  document.getElementById('login-btn').disabled = false;
+  document.getElementById('login-btn').textContent = 'Iniciar Sesión';
+
+  // 3. Limpiar datos en memoria
+  currentUser = null;
+  currentRol = null;
+  dataCache = { personal: [], postulados: [], cambios: [], usuarios: [], retirados: [] };
+
+  // 4. Cerrar sesión en Supabase
+  try {
+    await supabase.auth.signOut({ scope: 'global' });
+    console.log('✅ signOut completado');
+  } catch (e) {
+    console.warn('Error en signOut:', e);
+  }
+
+  // 5. Limpiar storage para eliminar cualquier residuo de sesión
+  try {
+    // Solo eliminar keys de Supabase, preservar otras
+    Object.keys(localStorage).forEach(k => {
+      if (k.startsWith('sb-') || k.includes('supabase')) localStorage.removeItem(k);
+    });
+    Object.keys(sessionStorage).forEach(k => {
+      if (k.startsWith('sb-') || k.includes('supabase')) sessionStorage.removeItem(k);
+    });
+  } catch (e) { console.warn('Error limpiando storage:', e); }
+
+  // 6. Mantener el flag activo por 3 segundos para evitar auto-login
+  setTimeout(() => {
+    window.__logoutInProgress = false;
+    console.log('🔓 Flag de logout liberado');
+  }, 3000);
+
+  toast('Sesión cerrada correctamente', 'success');
 }
 
 async function subirAvatarUsuario(event) {
@@ -855,9 +914,6 @@ async function subirAvatarUsuario(event) {
   reader.readAsDataURL(file);
 }
 
-// ═══════════════════════════════════════════════════════════════
-// NAVEGACIÓN
-// ═══════════════════════════════════════════════════════════════
 function toggleSidebar() {
   const s = document.getElementById('sidebar');
   const o = document.getElementById('sidebar-overlay');
@@ -927,13 +983,9 @@ function calcularEdad(prefix) {
   if (inp) inp.value = edad;
 }
 
-// ═══════════════════════════════════════════════════════════════
-// MODALES
-// ═══════════════════════════════════════════════════════════════
 function openModal(table, id = null) {
   editingId = id; editingTable = table;
 
-  // Bloquear acceso al modal de retirados si no es superadmin
   if (table === 'retirados' && !esSuperAdmin()) {
     toast('⛔ No tiene permiso para editar retirados', 'error');
     return;
@@ -958,6 +1010,13 @@ function openModal(table, id = null) {
         if (rolAviso) rolAviso.style.display = 'block';
       }
     }
+  }
+
+  // Actualizar datalist cuando se abre el modal de cambios
+  if (table === 'cambios') {
+    actualizarListaPersonal();
+    const info = document.getElementById('info-autocompletado-cambios');
+    if (info) info.classList.remove('active');
   }
 
   if (id) {
@@ -996,8 +1055,8 @@ function openModal(table, id = null) {
       document.getElementById('po-docs').value = item.documentos_completos || 'EN PROCESO';
       document.getElementById('po-obs').value = item.observaciones || '';
     } else if (table === 'cambios') {
-      document.getElementById('c-nombre').value = item.apellidos_nombres || '';
       document.getElementById('c-cedula').value = item.cedula || '';
+      document.getElementById('c-nombre').value = item.apellidos_nombres || '';
       document.getElementById('c-titulo').value = item.titulo || '';
       document.getElementById('c-cargo').value = item.cargo || '';
       document.getElementById('c-tipo').value = item.tipo_cambio || 'ASCENSO';
@@ -1061,9 +1120,6 @@ function closeModal(table) {
   editingId = null; editingTable = null;
 }
 
-// ═══════════════════════════════════════════════════════════════
-// DISPATCHER DE BOTONES GUARDAR
-// ═══════════════════════════════════════════════════════════════
 function saveRecord(table) {
   console.log('🔵 saveRecord llamado:', table, '| editingId:', editingId);
   if (table === 'personal') savePersonal();
@@ -1074,39 +1130,22 @@ function saveRecord(table) {
   else toast('Tipo no reconocido: ' + table, 'error');
 }
 
-// ═══════════════════════════════════════════════════════════════
-// VALIDACIÓN DE CÉDULA VÍA RPC
-// ═══════════════════════════════════════════════════════════════
 async function validarCedulaDisponible(cedula) {
   try {
-    console.log('🔎 Verificando cédula:', cedula);
     const { data, error } = await supabase.rpc('verificar_cedula_disponible', { p_cedula: cedula });
-    if (error) {
-      console.warn('⚠️ RPC falló:', error.message);
-      return { disponible: true, error: error.message };
-    }
-    console.log('📋 Resultado:', data);
+    if (error) { console.warn('⚠️ RPC falló:', error.message); return { disponible: true, error: error.message }; }
     return data;
-  } catch (err) {
-    console.warn('⚠️ Excepción:', err);
-    return { disponible: true, error: err.message };
-  }
+  } catch (err) { console.warn('⚠️ Excepción:', err); return { disponible: true, error: err.message }; }
 }
 
-// ═══════════════════════════════════════════════════════════════
-// CRUD PERSONAL
-// ═══════════════════════════════════════════════════════════════
 async function savePersonal() {
-  console.log('💾 Guardando Personal...');
   const cedula = mayus(document.getElementById('p-cedula').value);
   if (!cedula) { toast('La cédula es obligatoria', 'error'); return; }
-
   if (!editingId) {
     const r = await validarCedulaDisponible(cedula);
     if (r && r.en_retirado) { toast('Cédula pertenece a un retirado. No se puede agregar.', 'error'); return; }
     if (r && r.en_personal) { toast('Esta cédula ya existe en Personal de Enfermería.', 'error'); return; }
   }
-
   const data = {
     apellidos_nombres: mayus(document.getElementById('p-nombre').value),
     genero: document.getElementById('p-genero').value,
@@ -1125,29 +1164,23 @@ async function savePersonal() {
     formacion_estudiando: mayus(document.getElementById('p-formacion').value) || null,
     observaciones: mayus(document.getElementById('p-obs').value) || null,
   };
-
   if (!data.apellidos_nombres || !data.cedula || !data.municipio || !data.parroquia) {
     toast('Complete los campos obligatorios (*)', 'error'); return;
   }
   showLoading(true);
   try {
     let result;
-    if (editingId) {
-      result = await supabase.from('personal_enfermeria').update(data).eq('id', editingId).select().single();
-    } else {
-      result = await supabase.from('personal_enfermeria').insert([data]).select().single();
-    }
-    console.log('📡 Respuesta:', result);
+    if (editingId) result = await supabase.from('personal_enfermeria').update(data).eq('id', editingId).select().single();
+    else result = await supabase.from('personal_enfermeria').insert([data]).select().single();
     if (result.error) { toast('Error: ' + result.error.message, 'error'); showLoading(false); return; }
     if (editingId) {
       const idx = dataCache.personal.findIndex(x => x.id === editingId);
       if (idx >= 0) dataCache.personal[idx] = result.data;
-    } else { dataCache.personal.unshift(result.data); }
+    } else dataCache.personal.unshift(result.data);
     toast('✅ Personal guardado', 'success');
     showLoading(false); closeModal('personal'); renderTable('personal'); refreshDashboard();
-  } catch (err) {
-    console.error(err); toast('Error inesperado: ' + err.message, 'error'); showLoading(false);
-  }
+    actualizarListaPersonal();
+  } catch (err) { console.error(err); toast('Error: ' + err.message, 'error'); showLoading(false); }
 }
 
 async function deletePersonal(id) {
@@ -1157,7 +1190,7 @@ async function deletePersonal(id) {
   showLoading(false);
   if (error) { toast('Error: ' + error.message, 'error'); return; }
   dataCache.personal = dataCache.personal.filter(x => x.id !== id);
-  renderTable('personal'); refreshDashboard(); toast('Eliminado', 'success');
+  renderTable('personal'); refreshDashboard(); actualizarListaPersonal(); toast('Eliminado', 'success');
 }
 
 async function retirarPersonal(id, cedula) {
@@ -1173,19 +1206,11 @@ async function retirarPersonal(id, cedula) {
     const { data: personal, error: fe } = await supabase.from('personal_enfermeria').select('*').eq('id', id).single();
     if (fe) throw fe;
     const retirado = {
-      apellidos_nombres: personal.apellidos_nombres,
-      cedula: personal.cedula,
-      genero: personal.genero,
-      fecha_nacimiento: personal.fecha_nacimiento,
-      edad: personal.edad,
-      telefono: personal.telefono,
-      correo: personal.correo,
-      cargo_nominal: personal.cargo_nominal,
-      municipio: personal.municipio,
-      parroquia: personal.parroquia,
-      ubicacion_administrativa: personal.ubicacion_administrativa,
-      ubicacion_fisica: personal.ubicacion_fisica,
-      formacion_estudiando: personal.formacion_estudiando,
+      apellidos_nombres: personal.apellidos_nombres, cedula: personal.cedula, genero: personal.genero,
+      fecha_nacimiento: personal.fecha_nacimiento, edad: personal.edad, telefono: personal.telefono,
+      correo: personal.correo, cargo_nominal: personal.cargo_nominal, municipio: personal.municipio,
+      parroquia: personal.parroquia, ubicacion_administrativa: personal.ubicacion_administrativa,
+      ubicacion_fisica: personal.ubicacion_fisica, formacion_estudiando: personal.formacion_estudiando,
       observaciones: personal.observaciones,
       motivo_retiro: motivoUp === 'JUBILACION' ? 'JUBILACIÓN' : motivoUp,
       fecha_retiro: new Date().toISOString().split('T')[0]
@@ -1196,26 +1221,20 @@ async function retirarPersonal(id, cedula) {
     if (de) throw de;
     dataCache.personal = dataCache.personal.filter(p => p.id !== id);
     await loadAllData();
-    renderTable('personal'); renderTable('retirados'); refreshDashboard();
+    renderTable('personal'); renderTable('retirados'); refreshDashboard(); actualizarListaPersonal();
     toast(`Personal retirado (${motivoUp})`, 'success');
   } catch (err) { toast('Error al retirar: ' + err.message, 'error'); }
   showLoading(false);
 }
 
-// ═══════════════════════════════════════════════════════════════
-// CRUD POSTULADOS
-// ═══════════════════════════════════════════════════════════════
 async function savePostulado() {
-  console.log('💾 Guardando Postulado...');
   const cedula = mayus(document.getElementById('po-cedula').value);
   if (!cedula) { toast('La cédula es obligatoria', 'error'); return; }
-
   if (!editingId) {
     const r = await validarCedulaDisponible(cedula);
     if (r && r.en_personal) { toast('Esta cédula ya está registrada como Personal de Enfermería.', 'error'); return; }
     if (r && r.en_retirado) { toast('Esta cédula pertenece a un retirado.', 'error'); return; }
   }
-
   const data = {
     apellidos_nombres: mayus(document.getElementById('po-nombre').value),
     cedula: cedula,
@@ -1231,25 +1250,20 @@ async function savePostulado() {
     observaciones: mayus(document.getElementById('po-obs').value) || null,
     estatus_postulacion: 'ESPERANDO APROBACIÓN',
   };
-
   if (!data.apellidos_nombres || !data.cedula) { toast('Complete los campos obligatorios (*)', 'error'); return; }
   showLoading(true);
   try {
     let result;
-    if (editingId) {
-      result = await supabase.from('postulados').update(data).eq('id', editingId).select().single();
-    } else {
-      result = await supabase.from('postulados').insert([data]).select().single();
-    }
-    console.log('📡 Respuesta:', result);
+    if (editingId) result = await supabase.from('postulados').update(data).eq('id', editingId).select().single();
+    else result = await supabase.from('postulados').insert([data]).select().single();
     if (result.error) { toast('Error: ' + result.error.message, 'error'); showLoading(false); return; }
     if (editingId) {
       const idx = dataCache.postulados.findIndex(x => x.id === editingId);
       if (idx >= 0) dataCache.postulados[idx] = result.data;
-    } else { dataCache.postulados.unshift(result.data); }
+    } else dataCache.postulados.unshift(result.data);
     toast('✅ Postulado guardado', 'success');
     showLoading(false); closeModal('postulados'); renderTable('postulados');
-  } catch (err) { console.error(err); toast('Error: ' + err.message, 'error'); showLoading(false); }
+  } catch (err) { toast('Error: ' + err.message, 'error'); showLoading(false); }
 }
 
 async function deletePostulado(id) {
@@ -1274,17 +1288,13 @@ async function aprobarPostulado(id) {
     const { error: re } = await supabase.rpc('contratar_postulado', { postulado_id: id });
     if (re) console.warn('RPC falló:', re.message);
     await loadAllData();
-    renderTable('postulados'); renderTable('personal'); refreshDashboard();
+    renderTable('postulados'); renderTable('personal'); refreshDashboard(); actualizarListaPersonal();
     toast('Postulado aprobado', 'success');
   } catch (err) { toast('Error: ' + err.message, 'error'); }
   showLoading(false);
 }
 
-// ═══════════════════════════════════════════════════════════════
-// CRUD CAMBIOS
-// ═══════════════════════════════════════════════════════════════
 async function saveCambio() {
-  console.log('💾 Guardando Cambio...');
   const cedula = mayus(document.getElementById('c-cedula').value);
   const personal = dataCache.personal.find(p => p.cedula === cedula);
   const data = {
@@ -1303,16 +1313,13 @@ async function saveCambio() {
   showLoading(true);
   try {
     let result;
-    if (editingId) {
-      result = await supabase.from('cambios_estatus').update(data).eq('id', editingId).select().single();
-    } else {
-      result = await supabase.from('cambios_estatus').insert([data]).select().single();
-    }
+    if (editingId) result = await supabase.from('cambios_estatus').update(data).eq('id', editingId).select().single();
+    else result = await supabase.from('cambios_estatus').insert([data]).select().single();
     if (result.error) { toast('Error: ' + result.error.message, 'error'); showLoading(false); return; }
     if (editingId) {
       const idx = dataCache.cambios.findIndex(x => x.id === editingId);
       if (idx >= 0) dataCache.cambios[idx] = result.data;
-    } else { dataCache.cambios.unshift(result.data); }
+    } else dataCache.cambios.unshift(result.data);
     toast('✅ Cambio registrado', 'success');
     showLoading(false); closeModal('cambios'); renderTable('cambios');
   } catch (err) { toast('Error: ' + err.message, 'error'); showLoading(false); }
@@ -1328,21 +1335,10 @@ async function deleteCambio(id) {
   renderTable('cambios'); toast('Eliminado', 'success');
 }
 
-// ═══════════════════════════════════════════════════════════════
-// CRUD RETIRADOS (solo Super Administrador)
-// ═══════════════════════════════════════════════════════════════
 async function saveRetirado() {
-  console.log('💾 Guardando Retirado...');
-
-  // ✅ Verificación robusta de rol
-  if (!esSuperAdmin()) {
-    toast('⛔ Solo el Super Administrador puede modificar retirados', 'error');
-    return;
-  }
-
+  if (!esSuperAdmin()) { toast('⛔ Solo el Super Administrador puede modificar retirados', 'error'); return; }
   const cedula = mayus(document.getElementById('r-cedula').value);
   if (!cedula) { toast('La cédula es obligatoria', 'error'); return; }
-
   const data = {
     apellidos_nombres: mayus(document.getElementById('r-nombre').value),
     cedula: cedula,
@@ -1361,33 +1357,24 @@ async function saveRetirado() {
     fecha_retiro: document.getElementById('r-fecha-retiro').value || null,
     observaciones: mayus(document.getElementById('r-obs').value) || null,
   };
-
   if (!data.apellidos_nombres || !data.cedula) { toast('Complete los campos obligatorios (*)', 'error'); return; }
   showLoading(true);
   try {
     let result;
-    if (editingId) {
-      result = await supabase.from('personal_retirado').update(data).eq('id', editingId).select().single();
-    } else {
-      result = await supabase.from('personal_retirado').insert([data]).select().single();
-    }
-    console.log('📡 Respuesta:', result);
+    if (editingId) result = await supabase.from('personal_retirado').update(data).eq('id', editingId).select().single();
+    else result = await supabase.from('personal_retirado').insert([data]).select().single();
     if (result.error) { toast('Error: ' + result.error.message, 'error'); showLoading(false); return; }
     if (editingId) {
       const idx = dataCache.retirados.findIndex(x => x.id === editingId);
       if (idx >= 0) dataCache.retirados[idx] = result.data;
-    } else { dataCache.retirados.unshift(result.data); }
+    } else dataCache.retirados.unshift(result.data);
     toast('✅ Retirado guardado', 'success');
     showLoading(false); closeModal('retirados'); renderTable('retirados');
   } catch (err) { toast('Error: ' + err.message, 'error'); showLoading(false); }
 }
 
 async function deleteRetirado(id) {
-  // ✅ Verificación robusta de rol
-  if (!esSuperAdmin()) {
-    toast('⛔ Solo el Super Administrador puede eliminar retirados', 'error');
-    return;
-  }
+  if (!esSuperAdmin()) { toast('⛔ Solo el Super Administrador puede eliminar retirados', 'error'); return; }
   const item = dataCache.retirados.find(x => x.id === id);
   const nombre = item ? item.apellidos_nombres : '';
   if (!confirm(`¿Eliminar permanentemente el registro de "${nombre}"?\n\nEsta acción no se puede deshacer.`)) return;
@@ -1396,29 +1383,20 @@ async function deleteRetirado(id) {
     const { error } = await supabase.from('personal_retirado').delete().eq('id', id);
     if (error) throw error;
     dataCache.retirados = dataCache.retirados.filter(x => x.id !== id);
-    renderTable('retirados');
-    refreshDashboard();
+    renderTable('retirados'); refreshDashboard();
     toast('Retirado eliminado', 'success');
   } catch (err) { toast('Error: ' + err.message, 'error'); }
   showLoading(false);
 }
 
-// ═══════════════════════════════════════════════════════════════
-// CRUD USUARIOS (usa Edge Functions)
-// ═══════════════════════════════════════════════════════════════
 async function saveUsuario() {
-  console.log('💾 Guardando Usuario...');
   const nombre = mayus(document.getElementById('u-nombre').value);
   const email = document.getElementById('u-email').value.trim().toLowerCase();
   const password = document.getElementById('u-password').value;
   const rol = document.getElementById('u-rol').value;
   const activo = document.getElementById('u-activo').value === 'true';
-
-  if (!editingId && (!nombre || !email || !password || password.length < 6)) {
-    toast('Complete todos los campos. Contraseña mínimo 6 caracteres.', 'error'); return;
-  }
+  if (!editingId && (!nombre || !email || !password || password.length < 6)) { toast('Complete todos los campos. Contraseña mínimo 6 caracteres.', 'error'); return; }
   if (editingId && (!nombre || !email)) { toast('Complete los campos', 'error'); return; }
-
   showLoading(true);
   try {
     if (editingId) {
@@ -1432,10 +1410,7 @@ async function saveUsuario() {
       const { data: { session } } = await supabase.auth.getSession();
       const response = await fetch(SUPABASE_URL + '/functions/v1/crear-usuario', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + (session?.access_token || SUPABASE_ANON_KEY)
-        },
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (session?.access_token || SUPABASE_ANON_KEY) },
         body: JSON.stringify({ email, password, nombre_completo: nombre, rol })
       });
       const result = await response.json();
@@ -1444,7 +1419,7 @@ async function saveUsuario() {
     }
     await loadAllData();
     closeModal('usuarios'); renderTable('usuarios');
-  } catch (err) { console.error(err); toast('Error: ' + err.message, 'error'); }
+  } catch (err) { toast('Error: ' + err.message, 'error'); }
   showLoading(false);
 }
 
@@ -1455,17 +1430,13 @@ async function deleteUsuario(userId) {
     const { data: { session } } = await supabase.auth.getSession();
     const response = await fetch(SUPABASE_URL + '/functions/v1/eliminar-usuario', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + (session?.access_token || SUPABASE_ANON_KEY)
-      },
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (session?.access_token || SUPABASE_ANON_KEY) },
       body: JSON.stringify({ user_id: userId })
     });
     const result = await response.json();
     if (!response.ok || !result.success) throw new Error(result.error || 'Error eliminando');
     dataCache.usuarios = dataCache.usuarios.filter(u => u.id !== userId);
-    renderTable('usuarios');
-    toast('Usuario eliminado', 'success');
+    renderTable('usuarios'); toast('Usuario eliminado', 'success');
   } catch (err) { toast('Error: ' + err.message, 'error'); }
   showLoading(false);
 }
@@ -1480,9 +1451,6 @@ async function toggleUsuarioActivo(userId, activo) {
   renderTable('usuarios'); toast('Estado actualizado', 'success');
 }
 
-// ═══════════════════════════════════════════════════════════════
-// CARGA DE DATOS
-// ═══════════════════════════════════════════════════════════════
 async function loadAllData() {
   showLoading(true);
   const tablas = [
@@ -1503,11 +1471,8 @@ async function loadAllData() {
 }
 
 function renderAllTables() {
-  renderTable('personal');
-  renderTable('postulados');
-  renderTable('cambios');
-  renderTable('retirados');
-  renderTable('usuarios');
+  renderTable('personal'); renderTable('postulados'); renderTable('cambios');
+  renderTable('retirados'); renderTable('usuarios');
 }
 
 function resaltar(texto, busqueda) {
@@ -1581,12 +1546,8 @@ function renderTable(table) {
       </tr>`;
     });
   } else if (table === 'retirados') {
-    console.log('🔍 Render retirados | currentRol:', currentRol, '| esSuper:', superAdmin);
-
-    // ✅ Ocultar/mostrar la columna completa "Acciones" de retirados
     const thAcciones = document.getElementById('th-acciones-retirados');
     if (thAcciones) thAcciones.style.display = superAdmin ? '' : 'none';
-
     data.forEach(r => {
       html += `<tr>
         <td>${resaltar(r.apellidos_nombres, search)}</td>
@@ -1625,9 +1586,6 @@ function renderTable(table) {
 
 function filterTable(table) { renderTable(table); }
 
-// ═══════════════════════════════════════════════════════════════
-// DASHBOARD
-// ═══════════════════════════════════════════════════════════════
 async function refreshDashboard() {
   const p = dataCache.personal;
   const post = dataCache.postulados;
@@ -1678,16 +1636,8 @@ function renderCharts() {
       data: {
         labels: ['Profesional', 'TSU', 'Auxiliar'],
         datasets: [
-          { label: 'Femenino', data: [
-            p.filter(x => x.cargo_nominal === 'PROFESIONAL' && x.genero === 'FEMENINO').length,
-            p.filter(x => x.cargo_nominal === 'TSU' && x.genero === 'FEMENINO').length,
-            p.filter(x => x.cargo_nominal === 'AUXILIAR' && x.genero === 'FEMENINO').length
-          ], backgroundColor: '#e91e63' },
-          { label: 'Masculino', data: [
-            p.filter(x => x.cargo_nominal === 'PROFESIONAL' && x.genero === 'MASCULINO').length,
-            p.filter(x => x.cargo_nominal === 'TSU' && x.genero === 'MASCULINO').length,
-            p.filter(x => x.cargo_nominal === 'AUXILIAR' && x.genero === 'MASCULINO').length
-          ], backgroundColor: '#2196f3' }
+          { label: 'Femenino', data: [p.filter(x => x.cargo_nominal === 'PROFESIONAL' && x.genero === 'FEMENINO').length, p.filter(x => x.cargo_nominal === 'TSU' && x.genero === 'FEMENINO').length, p.filter(x => x.cargo_nominal === 'AUXILIAR' && x.genero === 'FEMENINO').length], backgroundColor: '#e91e63' },
+          { label: 'Masculino', data: [p.filter(x => x.cargo_nominal === 'PROFESIONAL' && x.genero === 'MASCULINO').length, p.filter(x => x.cargo_nominal === 'TSU' && x.genero === 'MASCULINO').length, p.filter(x => x.cargo_nominal === 'AUXILIAR' && x.genero === 'MASCULINO').length], backgroundColor: '#2196f3' }
         ]
       },
       options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
@@ -1715,9 +1665,6 @@ function renderCharts() {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════
-// EXPORTAR / BACKUP
-// ═══════════════════════════════════════════════════════════════
 function exportExcel(table) {
   let data, headers, filename;
   if (table === 'personal') { data = dataCache.personal; headers = ['Apellidos y Nombres', 'Género', 'Fecha Nacimiento', 'Edad', 'Cédula', 'Teléfono', 'Correo', 'Cargo', 'Municipio', 'Parroquia', 'Ubicación Admin', 'Ubicación Física', 'Estatus', 'Causa Inactividad', 'Formación', 'Observaciones']; filename = 'Personal_Enfermeria.xlsx'; }
@@ -1763,16 +1710,13 @@ function restoreBackup() {
       const decrypted = CryptoJS.AES.decrypt(backup.data, password).toString(CryptoJS.enc.Utf8);
       if (!decrypted) throw new Error('Contraseña incorrecta');
       dataCache = JSON.parse(decrypted);
-      renderAllTables(); refreshDashboard();
+      renderAllTables(); refreshDashboard(); actualizarListaPersonal();
       toast('Backup restaurado', 'success');
     } catch (err) { toast('Error: ' + err.message, 'error'); }
   };
   reader.readAsText(file);
 }
 
-// ═══════════════════════════════════════════════════════════════
-// UTILIDADES
-// ═══════════════════════════════════════════════════════════════
 function showLoading(show) {
   const el = document.getElementById('loading');
   if (el) el.classList.toggle('active', show);
