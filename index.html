@@ -385,7 +385,7 @@ canvas{max-width:100%!important;height:auto!important}
             <input type="text" class="search-box" id="search-retirados" placeholder="🔍 Buscar retirado..." oninput="filterTable('retirados')">
             <button class="search-btn" onclick="filterTable('retirados')">🔍 Buscar</button>
           </div>
-          <div class="table-wrapper"><table><thead><tr><th>Nombre</th><th>Cédula</th><th>Cargo</th><th>Motivo</th><th>Fecha Retiro</th><th>Municipio</th><th>Acciones</th></tr></thead><tbody id="tbody-retirados"></tbody></table></div>
+          <div class="table-wrapper"><table><thead><tr><th>Nombre</th><th>Cédula</th><th>Cargo</th><th>Motivo</th><th>Fecha Retiro</th><th>Municipio</th><th id="th-acciones-retirados">Acciones</th></tr></thead><tbody id="tbody-retirados"></tbody></table></div>
         </div>
       </div>
     </section>
@@ -591,6 +591,20 @@ function mayus(str) {
   return String(str).trim().toUpperCase();
 }
 
+// Normalizar el rol para comparaciones seguras
+function rolNorm() {
+  return String(currentRol || '').trim().toLowerCase();
+}
+
+function esSuperAdmin() {
+  return rolNorm() === 'superadmin';
+}
+
+function esAdminOSuper() {
+  const r = rolNorm();
+  return r === 'admin' || r === 'superadmin';
+}
+
 function mostrarDiagnostico(msg) {
   const b = document.getElementById('diag-banner');
   const m = document.getElementById('diag-msg');
@@ -749,13 +763,16 @@ async function initUser(user) {
       return;
     }
 
-    currentRol = perfil.rol;
+    // ✅ Normalizar el rol (evita problemas con mayúsculas/espacios)
+    currentRol = String(perfil.rol || '').trim().toLowerCase();
+    console.log('🎭 Rol detectado:', currentRol, '| rol original:', perfil.rol);
+
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('login-screen').classList.add('hidden');
     document.getElementById('app').classList.remove('hidden');
 
     const iniciales = (perfil.nombre_completo || 'U').split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-    const rolTexto = perfil.rol === 'superadmin' ? 'Super Administrador' : perfil.rol === 'admin' ? 'Administrador' : 'Usuario';
+    const rolTexto = currentRol === 'superadmin' ? 'Super Administrador' : currentRol === 'admin' ? 'Administrador' : 'Usuario';
 
     document.getElementById('user-name-header').textContent = perfil.nombre_completo || 'Usuario';
     document.getElementById('profile-dropdown-name').textContent = perfil.nombre_completo || 'Usuario';
@@ -915,6 +932,13 @@ function calcularEdad(prefix) {
 // ═══════════════════════════════════════════════════════════════
 function openModal(table, id = null) {
   editingId = id; editingTable = table;
+
+  // Bloquear acceso al modal de retirados si no es superadmin
+  if (table === 'retirados' && !esSuperAdmin()) {
+    toast('⛔ No tiene permiso para editar retirados', 'error');
+    return;
+  }
+
   document.getElementById('modal-' + table).classList.add('active');
   const titleEl = document.getElementById('title-' + table);
   if (titleEl) titleEl.textContent = id ? 'Editar' : 'Nuevo';
@@ -926,7 +950,7 @@ function openModal(table, id = null) {
     const rolAviso = document.getElementById('u-rol-aviso');
     if (rolSelect) {
       rolSelect.innerHTML = '';
-      if (currentRol === 'superadmin') {
+      if (esSuperAdmin()) {
         rolSelect.innerHTML = '<option value="admin">ADMINISTRADOR</option><option value="usuario">USUARIO</option><option value="superadmin">⭐ SUPER ADMIN</option>';
         if (rolAviso) rolAviso.style.display = 'none';
       } else {
@@ -1309,8 +1333,10 @@ async function deleteCambio(id) {
 // ═══════════════════════════════════════════════════════════════
 async function saveRetirado() {
   console.log('💾 Guardando Retirado...');
-  if (currentRol !== 'superadmin') {
-    toast('Solo el Super Administrador puede modificar retirados', 'error');
+
+  // ✅ Verificación robusta de rol
+  if (!esSuperAdmin()) {
+    toast('⛔ Solo el Super Administrador puede modificar retirados', 'error');
     return;
   }
 
@@ -1357,8 +1383,9 @@ async function saveRetirado() {
 }
 
 async function deleteRetirado(id) {
-  if (currentRol !== 'superadmin') {
-    toast('Solo el Super Administrador puede eliminar retirados', 'error');
+  // ✅ Verificación robusta de rol
+  if (!esSuperAdmin()) {
+    toast('⛔ Solo el Super Administrador puede eliminar retirados', 'error');
     return;
   }
   const item = dataCache.retirados.find(x => x.id === id);
@@ -1502,8 +1529,8 @@ function renderTable(table) {
   let data = [...(dataCache[table] || [])];
   const search = (document.getElementById('search-' + table)?.value || '').toLowerCase();
   if (search) data = data.filter(r => JSON.stringify(r).toLowerCase().includes(search));
-  const esAdmin = currentRol === 'admin' || currentRol === 'superadmin';
-  const esSuper = currentRol === 'superadmin';
+  const adminOSuper = esAdminOSuper();
+  const superAdmin = esSuperAdmin();
   let html = '';
 
   if (table === 'personal') {
@@ -1514,7 +1541,7 @@ function renderTable(table) {
         <td><span class="badge badge-info">${resaltar(r.cargo_nominal, search)}</span></td>
         <td><span class="badge ${r.estatus === 'ACTIVO' ? 'badge-success' : 'badge-danger'}">${resaltar(r.estatus, search)}</span></td>
         <td>${resaltar(r.municipio, search)}</td>
-        <td>${esAdmin ? `
+        <td>${adminOSuper ? `
           <button class="btn btn-secondary" style="padding:4px 8px;font-size:.75rem" onclick="openModal('personal','${r.id}')">✏️</button>
           <button class="btn btn-danger" style="padding:4px 8px;font-size:.75rem" onclick="deletePersonal('${r.id}')">🗑️</button>
           <button class="btn btn-danger" style="padding:4px 8px;font-size:.75rem" onclick="retirarPersonal('${r.id}','${r.cedula}')">🚫</button>
@@ -1532,7 +1559,7 @@ function renderTable(table) {
         <td>${resaltar(r.cargo, search)}</td>
         <td><span class="badge ${r.documentos_completos === 'SÍ' ? 'badge-success' : r.documentos_completos === 'NO' ? 'badge-danger' : 'badge-warning'}">${resaltar(r.documentos_completos, search)}</span></td>
         <td><span class="badge ${badge}">${resaltar(txt, search)}</span></td>
-        <td>${esAdmin ? `
+        <td>${adminOSuper ? `
           <button class="btn btn-secondary" style="padding:4px 8px;font-size:.75rem" onclick="openModal('postulados','${r.id}')">✏️</button>
           ${r.estatus_postulacion === 'ESPERANDO APROBACIÓN' ? `<button class="btn btn-success" style="padding:4px 8px;font-size:.75rem" onclick="aprobarPostulado('${r.id}')">✅</button>` : ''}
           ${r.estatus_postulacion !== 'APROBADO' && r.estatus_postulacion !== 'CONTRATADO' ? `<button class="btn btn-danger" style="padding:4px 8px;font-size:.75rem" onclick="deletePostulado('${r.id}')">🗑️</button>` : ''}
@@ -1547,13 +1574,19 @@ function renderTable(table) {
         <td><span class="badge badge-warning">${resaltar(r.tipo_cambio, search)}</span></td>
         <td>${r.fecha_cambio || '-'}</td>
         <td>${resaltar(r.detalle, search)}</td>
-        <td>${esAdmin ? `
+        <td>${adminOSuper ? `
           <button class="btn btn-secondary" style="padding:4px 8px;font-size:.75rem" onclick="openModal('cambios','${r.id}')">✏️</button>
           <button class="btn btn-danger" style="padding:4px 8px;font-size:.75rem" onclick="deleteCambio('${r.id}')">🗑️</button>
         ` : ''}</td>
       </tr>`;
     });
   } else if (table === 'retirados') {
+    console.log('🔍 Render retirados | currentRol:', currentRol, '| esSuper:', superAdmin);
+
+    // ✅ Ocultar/mostrar la columna completa "Acciones" de retirados
+    const thAcciones = document.getElementById('th-acciones-retirados');
+    if (thAcciones) thAcciones.style.display = superAdmin ? '' : 'none';
+
     data.forEach(r => {
       html += `<tr>
         <td>${resaltar(r.apellidos_nombres, search)}</td>
@@ -1562,10 +1595,10 @@ function renderTable(table) {
         <td><span class="badge ${r.motivo_retiro === 'RENUNCIA' ? 'badge-warning' : 'badge-danger'}">${resaltar(r.motivo_retiro, search)}</span></td>
         <td>${r.fecha_retiro || '-'}</td>
         <td>${resaltar(r.municipio, search)}</td>
-        <td>${esSuper ? `
+        <td style="display:${superAdmin ? '' : 'none'};">${superAdmin ? `
           <button class="btn btn-secondary" style="padding:4px 8px;font-size:.75rem" onclick="openModal('retirados','${r.id}')">✏️</button>
           <button class="btn btn-danger" style="padding:4px 8px;font-size:.75rem" onclick="deleteRetirado('${r.id}')">🗑️</button>
-        ` : '<span style="color:#999;font-size:.75rem">—</span>'}</td>
+        ` : ''}</td>
       </tr>`;
     });
   } else if (table === 'usuarios') {
