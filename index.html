@@ -286,7 +286,8 @@ canvas{max-width:100%!important;height:auto!important}
       <div class="nav-item" onclick="showSection('cambios')" data-section="cambios"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>Cambio de Estatus</div>
       <div class="nav-item admin-only hidden" onclick="showSection('retirados')" data-section="retirados"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Personal Retirado</div>
       <div class="nav-item admin-only hidden" onclick="showSection('usuarios')" data-section="usuarios"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Usuarios</div>
-      <div class="nav-item admin-only hidden" onclick="showSection('auditoria')" data-section="auditoria"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>Auditoría</div>
+      <!-- AUDITORÍA: solo visible para Super Administrador -->
+      <div class="nav-item superadmin-only hidden" onclick="showSection('auditoria')" data-section="auditoria"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Auditoría</div>
       <div class="sidebar-divider"></div>
       <div class="nav-item" onclick="showSection('backup')" data-section="backup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Backup / Sincronización</div>
     </nav>
@@ -374,7 +375,6 @@ canvas{max-width:100%!important;height:auto!important}
       </div>
     </section>
 
-    <!-- ═══════════════ AUDITORÍA ═══════════════ -->
     <section id="sec-auditoria" class="section">
       <div class="top-bar">
         <h1>📋 Auditoría del Sistema</h1>
@@ -673,7 +673,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     supabase.auth.onAuthStateChange((event, session) => {
-      console.log('🔐 Auth event:', event);
       if (event === 'SIGNED_OUT') {
         window.__logoutInProgress = true;
         document.getElementById('app')?.classList.add('hidden');
@@ -803,7 +802,9 @@ async function initUser(user) {
       return;
     }
 
+    // ✅ Normalizar el rol
     currentRol = String(perfil.rol || '').trim().toLowerCase();
+    console.log('🎭 Rol detectado:', currentRol, '| rol original:', perfil.rol);
 
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('login-screen').classList.add('hidden');
@@ -826,14 +827,27 @@ async function initUser(user) {
       dropAvatar.textContent = iniciales; dropAvatar.style.backgroundImage = '';
     }
 
+    // ═══════════════════════════════════════════════════════════════
+    // MOSTRAR/OCULTAR ELEMENTOS SEGÚN ROL (CON LOGS)
+    // ═══════════════════════════════════════════════════════════════
+    console.log('🎭 Aplicando permisos. currentRol =', JSON.stringify(currentRol));
+
     document.querySelectorAll('.admin-only, .superadmin-only').forEach(el => el.classList.add('hidden'));
 
     if (currentRol === 'superadmin') {
       document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
       document.querySelectorAll('.superadmin-only').forEach(el => el.classList.remove('hidden'));
+      console.log('✅ Modo SUPERADMIN: todos los menús visibles');
     } else if (currentRol === 'admin') {
       document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
+      console.log('✅ Modo ADMIN: solo menús de admin (sin auditoría)');
+    } else {
+      console.log('👤 Modo USUARIO: solo menús básicos');
     }
+
+    // Verificar que el menú de auditoría esté visible
+    const navAuditoria = document.querySelector('[data-section="auditoria"]');
+    console.log('📋 Menú Auditoría:', navAuditoria ? (navAuditoria.classList.contains('hidden') ? '❌ OCULTO' : '✅ VISIBLE') : '❌ NO EXISTE');
 
     await loadAllData();
     refreshDashboard();
@@ -923,6 +937,12 @@ document.addEventListener('click', function(e) {
 });
 
 function showSection(name) {
+  // Verificar permiso para auditoría
+  if (name === 'auditoria' && !esSuperAdmin()) {
+    toast('⛔ No tiene permiso para ver la auditoría', 'error');
+    return;
+  }
+
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   const sec = document.getElementById('sec-' + name);
@@ -975,8 +995,8 @@ function calcularEdad(prefix) {
 }
 
 function openModal(table, id = null) {
-  editingId = id; editingTable = table;
   if (table === 'retirados' && !esSuperAdmin()) { toast('⛔ No tiene permiso para editar retirados', 'error'); return; }
+  editingId = id; editingTable = table;
   document.getElementById('modal-' + table).classList.add('active');
   const titleEl = document.getElementById('title-' + table);
   if (titleEl) titleEl.textContent = id ? 'Editar' : 'Nuevo';
@@ -1445,7 +1465,6 @@ async function loadAllData() {
       if (data) dataCache[x.k] = data;
     } catch (e) { console.warn('Excepción cargando', x.t, e); }
   }
-  // Cargar auditoría si es admin o superadmin
   if (esAdminOSuper()) {
     try {
       const { data, error } = await supabase
@@ -1491,7 +1510,6 @@ function renderTable(table) {
   const search = (document.getElementById('search-' + table)?.value || '').toLowerCase();
   if (search) data = data.filter(r => JSON.stringify(r).toLowerCase().includes(search));
 
-  // Filtros específicos de auditoría
   if (table === 'auditoria') {
     const tablaFiltro = document.getElementById('filter-tabla-auditoria')?.value || '';
     const accionFiltro = document.getElementById('filter-accion-auditoria')?.value || '';
@@ -1585,12 +1603,8 @@ function renderTable(table) {
       </tr>`;
     });
   } else if (table === 'auditoria') {
-    // ═══════════════════════════════════════════════════════════════
-    // AUDITORÍA MEJORADA
-    // ═══════════════════════════════════════════════════════════════
     data.forEach(r => {
       const fecha = r.created_at ? new Date(r.created_at).toLocaleString('es-VE') : '-';
-      
       let accionClass = 'badge-info', accionText = r.accion;
       if (r.accion === 'INSERT') { accionClass = 'badge-success'; accionText = 'CREAR'; }
       else if (r.accion === 'UPDATE') { accionClass = 'badge-warning'; accionText = 'EDITAR'; }
@@ -1634,9 +1648,6 @@ function renderTable(table) {
 
 function filterTable(table) { renderTable(table); }
 
-// ═══════════════════════════════════════════════════════════════
-// FUNCIONES DE AUDITORÍA
-// ═══════════════════════════════════════════════════════════════
 async function recargarAuditoria() {
   showLoading(true);
   try {
