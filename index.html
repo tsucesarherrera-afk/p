@@ -107,6 +107,7 @@ mark{background:#ffeb3b;padding:0 2px;border-radius:2px}
 .search-box:focus{outline:none;border-color:var(--primary)}
 .search-btn{padding:10px 16px;background:var(--primary);color:white;border:none;border-radius:var(--radius);cursor:pointer;font-weight:600;flex-shrink:0;min-height:40px}
 .search-btn:hover{background:var(--primary-dark)}
+select{padding:10px 14px;border:1px solid var(--border);border-radius:var(--radius);font-size:.9rem;background:white;max-width:100%}
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:2000;padding:16px;overflow-y:auto}
 .modal-overlay.active{display:flex}
 .modal{background:white;border-radius:var(--radius-lg);width:100%;max-width:700px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3);display:flex;flex-direction:column}
@@ -149,7 +150,6 @@ canvas{max-width:100%!important;height:auto!important}
 #diag-banner{position:fixed;top:0;left:0;right:0;background:#c62828;color:#fff;padding:10px 16px;text-align:center;font-weight:600;z-index:9999;display:none;font-size:.85rem}
 #diag-banner.active{display:block}
 #diag-banner button{background:#fff;color:#c62828;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;font-weight:600;margin-left:8px;font-size:.85rem}
-/* Autocompletar info */
 .autocomplete-info{background:#e3f2fd;color:var(--primary);padding:8px 12px;border-radius:var(--radius);font-size:.8rem;margin-bottom:10px;border-left:3px solid var(--primary);display:none}
 .autocomplete-info.active{display:block}
 @media(max-width:992px){
@@ -286,6 +286,7 @@ canvas{max-width:100%!important;height:auto!important}
       <div class="nav-item" onclick="showSection('cambios')" data-section="cambios"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>Cambio de Estatus</div>
       <div class="nav-item admin-only hidden" onclick="showSection('retirados')" data-section="retirados"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Personal Retirado</div>
       <div class="nav-item admin-only hidden" onclick="showSection('usuarios')" data-section="usuarios"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Usuarios</div>
+      <div class="nav-item admin-only hidden" onclick="showSection('auditoria')" data-section="auditoria"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>Auditoría</div>
       <div class="sidebar-divider"></div>
       <div class="nav-item" onclick="showSection('backup')" data-section="backup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Backup / Sincronización</div>
     </nav>
@@ -373,6 +374,56 @@ canvas{max-width:100%!important;height:auto!important}
       </div>
     </section>
 
+    <!-- ═══════════════ AUDITORÍA ═══════════════ -->
+    <section id="sec-auditoria" class="section">
+      <div class="top-bar">
+        <h1>📋 Auditoría del Sistema</h1>
+        <div class="actions">
+          <button class="btn btn-secondary" onclick="recargarAuditoria()">🔄 Actualizar</button>
+          <button class="btn btn-secondary" onclick="exportExcel('auditoria')">📥 Exportar</button>
+        </div>
+      </div>
+      <div class="stats-grid" id="auditoria-stats"></div>
+      <div class="content-card">
+        <div class="card-header">Registro de Actividades</div>
+        <div class="card-body" style="padding:0">
+          <div class="table-toolbar">
+            <input type="text" class="search-box" id="search-auditoria" placeholder="🔍 Buscar..." oninput="filterTable('auditoria')">
+            <button class="search-btn" onclick="filterTable('auditoria')">🔍 Buscar</button>
+            <select id="filter-tabla-auditoria" onchange="filterTable('auditoria')">
+              <option value="">Todas las tablas</option>
+              <option value="personal_enfermeria">Personal</option>
+              <option value="postulados">Postulados</option>
+              <option value="cambios_estatus">Cambios</option>
+              <option value="personal_retirado">Retirados</option>
+              <option value="perfiles">Usuarios</option>
+            </select>
+            <select id="filter-accion-auditoria" onchange="filterTable('auditoria')">
+              <option value="">Todas las acciones</option>
+              <option value="INSERT">Creación</option>
+              <option value="UPDATE">Modificación</option>
+              <option value="DELETE">Eliminación</option>
+            </select>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Fecha/Hora</th>
+                  <th>Usuario</th>
+                  <th>Tabla</th>
+                  <th>Acción</th>
+                  <th>Datos Anteriores</th>
+                  <th>Datos Nuevos</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-auditoria"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section id="sec-backup" class="section">
       <div class="top-bar"><h1>Backup y Sincronización</h1></div>
       <div class="content-card">
@@ -399,7 +450,7 @@ canvas{max-width:100%!important;height:auto!important}
   </main>
 </div>
 
-<!-- MODAL PERSONAL -->
+<!-- MODALES -->
 <div class="modal-overlay" id="modal-personal">
   <div class="modal">
     <div class="modal-header"><h2 id="title-personal">Nuevo Personal</h2><button class="modal-close" onclick="closeModal('personal')">&times;</button></div>
@@ -427,7 +478,6 @@ canvas{max-width:100%!important;height:auto!important}
   </div>
 </div>
 
-<!-- MODAL POSTULADOS -->
 <div class="modal-overlay" id="modal-postulados">
   <div class="modal">
     <div class="modal-header"><h2 id="title-postulados">Nuevo Postulado</h2><button class="modal-close" onclick="closeModal('postulados')">&times;</button></div>
@@ -451,14 +501,11 @@ canvas{max-width:100%!important;height:auto!important}
   </div>
 </div>
 
-<!-- MODAL CAMBIOS -->
 <div class="modal-overlay" id="modal-cambios">
   <div class="modal">
     <div class="modal-header"><h2 id="title-cambios">Nuevo Cambio</h2><button class="modal-close" onclick="closeModal('cambios')">&times;</button></div>
     <div class="modal-body">
-      <div class="autocomplete-info" id="info-autocompletado-cambios">
-        ✅ <strong>Datos cargados automáticamente</strong> desde el Personal de Enfermería. Puede modificarlos si es necesario.
-      </div>
+      <div class="autocomplete-info" id="info-autocompletado-cambios">✅ <strong>Datos cargados automáticamente</strong> desde el Personal de Enfermería.</div>
       <div class="form-grid">
         <div class="form-group" style="grid-column:1/-1;">
           <label>Seleccione Personal (búsqueda por cédula o nombre)</label>
@@ -479,7 +526,6 @@ canvas{max-width:100%!important;height:auto!important}
   </div>
 </div>
 
-<!-- MODAL RETIRADOS -->
 <div class="modal-overlay" id="modal-retirados">
   <div class="modal">
     <div class="modal-header"><h2 id="title-retirados">Editar Retirado</h2><button class="modal-close" onclick="closeModal('retirados')">&times;</button></div>
@@ -507,7 +553,6 @@ canvas{max-width:100%!important;height:auto!important}
   </div>
 </div>
 
-<!-- MODAL USUARIOS -->
 <div class="modal-overlay" id="modal-usuarios">
   <div class="modal" style="max-width:500px;">
     <div class="modal-header"><h2 id="title-usuarios">Nuevo Usuario</h2><button class="modal-close" onclick="closeModal('usuarios')">&times;</button></div>
@@ -555,9 +600,8 @@ const MUNICIPIOS_APURE = {
 };
 
 let supabase = null, currentUser = null, currentRol = null, editingId = null, editingTable = null;
-let dataCache = { personal: [], postulados: [], cambios: [], usuarios: [], retirados: [] };
+let dataCache = { personal: [], postulados: [], cambios: [], usuarios: [], retirados: [], auditoria: [] };
 
-// ✅ Flag para evitar auto-login después de cerrar sesión
 window.__logoutInProgress = false;
 
 function mayus(str) {
@@ -607,7 +651,7 @@ async function verificarConexion() {
     return false;
   }
   try {
-    const tablas = ['personal_enfermeria', 'postulados', 'cambios_estatus', 'perfiles', 'personal_retirado'];
+    const tablas = ['personal_enfermeria', 'postulados', 'cambios_estatus', 'perfiles', 'personal_retirado', 'auditoria'];
     for (const t of tablas) {
       const { error } = await supabase.from(t).select('*').limit(1);
       if (error) {
@@ -628,11 +672,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!window.supabase) { mostrarDiagnostico('❌ No se pudo cargar la librería de Supabase.'); return; }
     supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // ✅ Listener de cambios de auth — solo actúa si NO estamos cerrando sesión
     supabase.auth.onAuthStateChange((event, session) => {
       console.log('🔐 Auth event:', event);
       if (event === 'SIGNED_OUT') {
-        // El usuario cerró sesión — limpiar todo y NO re-login
         window.__logoutInProgress = true;
         document.getElementById('app')?.classList.add('hidden');
         document.getElementById('login-screen')?.classList.remove('hidden');
@@ -646,33 +688,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (cf) cf.value = new Date().toISOString().split('T')[0];
 
     await verificarConexion();
-
-    // Autocompletado de cédula en Cambio de Estatus
     setupAutocompletadoCambios();
 
-    // ✅ Solo verificar sesión al inicio si NO estamos cerrando sesión
-    if (!window.__logoutInProgress) {
-      checkSession();
-    }
+    if (!window.__logoutInProgress) checkSession();
   } catch (err) {
     console.error(err);
     mostrarDiagnostico('❌ Error al iniciar: ' + err.message);
   }
 });
 
-// ═══════════════════════════════════════════════════════════════
-// AUTOCOMPLETADO CAMBIO DE ESTATUS
-// ═══════════════════════════════════════════════════════════════
 function setupAutocompletadoCambios() {
   const cedulaInput = document.getElementById('c-cedula');
   if (!cedulaInput) return;
 
-  // Cuando el usuario escribe o selecciona una cédula
   const autocompletar = function() {
     const valor = mayus(this.value || '');
     if (!valor) return;
 
-    // Buscar por cédula exacta o por nombre parcial
     let personal = dataCache.personal.find(p => mayus(p.cedula) === valor);
     if (!personal) {
       personal = dataCache.personal.find(p => 
@@ -688,14 +720,10 @@ function setupAutocompletadoCambios() {
       document.getElementById('c-celular').value = personal.telefono || '';
       document.getElementById('c-correo').value = personal.correo || '';
       document.getElementById('c-cedula').value = personal.cedula || '';
-
-      const info = document.getElementById('info-autocompletado-cambios');
-      if (info) info.classList.add('active');
-
+      document.getElementById('info-autocompletado-cambios')?.classList.add('active');
       toast('✅ Datos cargados desde Personal de Enfermería', 'success');
     } else {
-      const info = document.getElementById('info-autocompletado-cambios');
-      if (info) info.classList.remove('active');
+      document.getElementById('info-autocompletado-cambios')?.classList.remove('active');
     }
   };
 
@@ -713,14 +741,10 @@ function actualizarListaPersonal() {
     opt.label = `${p.cedula || ''} — ${p.apellidos_nombres || ''} (${p.cargo_nominal || ''})`;
     datalist.appendChild(opt);
   });
-  console.log('📋 Lista de personal actualizada:', dataCache.personal.length, 'registros');
 }
 
 async function checkSession() {
-  if (window.__logoutInProgress) {
-    console.log('⏸️ checkSession bloqueado por logout en progreso');
-    return;
-  }
+  if (window.__logoutInProgress) return;
   try {
     const { data: { session }, error } = await supabase.auth.getSession();
     if (error) throw error;
@@ -769,12 +793,7 @@ async function initUser(user) {
         rol: 'usuario', activo: true, avatar_url: null
       };
       const { data: np, error: ie } = await supabase.from('perfiles').insert([nuevo]).select().single();
-      if (ie) {
-        console.error('Error creando perfil:', ie);
-        toast('Error: ' + ie.message, 'error');
-        await supabase.auth.signOut();
-        return;
-      }
+      if (ie) { console.error('Error creando perfil:', ie); toast('Error: ' + ie.message, 'error'); await supabase.auth.signOut(); return; }
       perfil = np;
     }
 
@@ -785,7 +804,6 @@ async function initUser(user) {
     }
 
     currentRol = String(perfil.rol || '').trim().toLowerCase();
-    console.log('🎭 Rol detectado:', currentRol, '| rol original:', perfil.rol);
 
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('login-screen').classList.add('hidden');
@@ -820,7 +838,6 @@ async function initUser(user) {
     await loadAllData();
     refreshDashboard();
     renderAllTables();
-    // ✅ Actualizar lista de autocompletar
     actualizarListaPersonal();
     toast('Bienvenido, ' + (perfil.nombre_completo || 'Usuario'), 'success');
   } catch (err) {
@@ -834,14 +851,8 @@ function confirmarCerrarSesion() { document.getElementById('confirm-logout-overl
 function cancelarCerrarSesion() { document.getElementById('confirm-logout-overlay').classList.remove('active'); }
 function ejecutarCerrarSesion() { cancelarCerrarSesion(); handleLogout(); }
 
-// ✅ LOGOUT CORREGIDO — evita auto-relogin
 async function handleLogout() {
-  console.log('🚪 Cerrando sesión...');
-  
-  // 1. Activar flag ANTES de todo
   window.__logoutInProgress = true;
-
-  // 2. Ocultar app y mostrar login inmediatamente
   document.getElementById('app').classList.add('hidden');
   document.getElementById('login-screen').classList.remove('hidden');
   document.getElementById('login-screen').style.display = '';
@@ -851,36 +862,17 @@ async function handleLogout() {
   document.getElementById('login-btn').disabled = false;
   document.getElementById('login-btn').textContent = 'Iniciar Sesión';
 
-  // 3. Limpiar datos en memoria
-  currentUser = null;
-  currentRol = null;
-  dataCache = { personal: [], postulados: [], cambios: [], usuarios: [], retirados: [] };
+  currentUser = null; currentRol = null;
+  dataCache = { personal: [], postulados: [], cambios: [], usuarios: [], retirados: [], auditoria: [] };
 
-  // 4. Cerrar sesión en Supabase
+  try { await supabase.auth.signOut({ scope: 'global' }); } catch (e) { console.warn(e); }
+
   try {
-    await supabase.auth.signOut({ scope: 'global' });
-    console.log('✅ signOut completado');
-  } catch (e) {
-    console.warn('Error en signOut:', e);
-  }
+    Object.keys(localStorage).forEach(k => { if (k.startsWith('sb-') || k.includes('supabase')) localStorage.removeItem(k); });
+    Object.keys(sessionStorage).forEach(k => { if (k.startsWith('sb-') || k.includes('supabase')) sessionStorage.removeItem(k); });
+  } catch (e) { console.warn(e); }
 
-  // 5. Limpiar storage para eliminar cualquier residuo de sesión
-  try {
-    // Solo eliminar keys de Supabase, preservar otras
-    Object.keys(localStorage).forEach(k => {
-      if (k.startsWith('sb-') || k.includes('supabase')) localStorage.removeItem(k);
-    });
-    Object.keys(sessionStorage).forEach(k => {
-      if (k.startsWith('sb-') || k.includes('supabase')) sessionStorage.removeItem(k);
-    });
-  } catch (e) { console.warn('Error limpiando storage:', e); }
-
-  // 6. Mantener el flag activo por 3 segundos para evitar auto-login
-  setTimeout(() => {
-    window.__logoutInProgress = false;
-    console.log('🔓 Flag de logout liberado');
-  }, 3000);
-
+  setTimeout(() => { window.__logoutInProgress = false; }, 3000);
   toast('Sesión cerrada correctamente', 'success');
 }
 
@@ -923,9 +915,7 @@ function toggleSidebar() {
   if (t) t.classList.toggle('active', isOpen);
 }
 
-function toggleProfileDropdown() {
-  document.getElementById('profile-dropdown').classList.toggle('active');
-}
+function toggleProfileDropdown() { document.getElementById('profile-dropdown').classList.toggle('active'); }
 document.addEventListener('click', function(e) {
   const d = document.getElementById('profile-dropdown');
   const p = document.getElementById('user-profile-header');
@@ -949,6 +939,7 @@ function showSection(name) {
   else if (name === 'cambios') renderTable('cambios');
   else if (name === 'retirados') renderTable('retirados');
   else if (name === 'usuarios') renderTable('usuarios');
+  else if (name === 'auditoria') { renderTable('auditoria'); renderAuditoriaStats(); }
 }
 
 function fillMunicipios(prefix) {
@@ -985,12 +976,7 @@ function calcularEdad(prefix) {
 
 function openModal(table, id = null) {
   editingId = id; editingTable = table;
-
-  if (table === 'retirados' && !esSuperAdmin()) {
-    toast('⛔ No tiene permiso para editar retirados', 'error');
-    return;
-  }
-
+  if (table === 'retirados' && !esSuperAdmin()) { toast('⛔ No tiene permiso para editar retirados', 'error'); return; }
   document.getElementById('modal-' + table).classList.add('active');
   const titleEl = document.getElementById('title-' + table);
   if (titleEl) titleEl.textContent = id ? 'Editar' : 'Nuevo';
@@ -1012,11 +998,9 @@ function openModal(table, id = null) {
     }
   }
 
-  // Actualizar datalist cuando se abre el modal de cambios
   if (table === 'cambios') {
     actualizarListaPersonal();
-    const info = document.getElementById('info-autocompletado-cambios');
-    if (info) info.classList.remove('active');
+    document.getElementById('info-autocompletado-cambios')?.classList.remove('active');
   }
 
   if (id) {
@@ -1121,7 +1105,6 @@ function closeModal(table) {
 }
 
 function saveRecord(table) {
-  console.log('🔵 saveRecord llamado:', table, '| editingId:', editingId);
   if (table === 'personal') savePersonal();
   else if (table === 'postulados') savePostulado();
   else if (table === 'cambios') saveCambio();
@@ -1133,9 +1116,9 @@ function saveRecord(table) {
 async function validarCedulaDisponible(cedula) {
   try {
     const { data, error } = await supabase.rpc('verificar_cedula_disponible', { p_cedula: cedula });
-    if (error) { console.warn('⚠️ RPC falló:', error.message); return { disponible: true, error: error.message }; }
+    if (error) return { disponible: true, error: error.message };
     return data;
-  } catch (err) { console.warn('⚠️ Excepción:', err); return { disponible: true, error: err.message }; }
+  } catch (err) { return { disponible: true, error: err.message }; }
 }
 
 async function savePersonal() {
@@ -1143,8 +1126,8 @@ async function savePersonal() {
   if (!cedula) { toast('La cédula es obligatoria', 'error'); return; }
   if (!editingId) {
     const r = await validarCedulaDisponible(cedula);
-    if (r && r.en_retirado) { toast('Cédula pertenece a un retirado. No se puede agregar.', 'error'); return; }
-    if (r && r.en_personal) { toast('Esta cédula ya existe en Personal de Enfermería.', 'error'); return; }
+    if (r && r.en_retirado) { toast('Cédula pertenece a un retirado.', 'error'); return; }
+    if (r && r.en_personal) { toast('Esta cédula ya existe en Personal.', 'error'); return; }
   }
   const data = {
     apellidos_nombres: mayus(document.getElementById('p-nombre').value),
@@ -1164,9 +1147,7 @@ async function savePersonal() {
     formacion_estudiando: mayus(document.getElementById('p-formacion').value) || null,
     observaciones: mayus(document.getElementById('p-obs').value) || null,
   };
-  if (!data.apellidos_nombres || !data.cedula || !data.municipio || !data.parroquia) {
-    toast('Complete los campos obligatorios (*)', 'error'); return;
-  }
+  if (!data.apellidos_nombres || !data.cedula || !data.municipio || !data.parroquia) { toast('Complete los campos obligatorios (*)', 'error'); return; }
   showLoading(true);
   try {
     let result;
@@ -1178,9 +1159,8 @@ async function savePersonal() {
       if (idx >= 0) dataCache.personal[idx] = result.data;
     } else dataCache.personal.unshift(result.data);
     toast('✅ Personal guardado', 'success');
-    showLoading(false); closeModal('personal'); renderTable('personal'); refreshDashboard();
-    actualizarListaPersonal();
-  } catch (err) { console.error(err); toast('Error: ' + err.message, 'error'); showLoading(false); }
+    showLoading(false); closeModal('personal'); renderTable('personal'); refreshDashboard(); actualizarListaPersonal();
+  } catch (err) { toast('Error: ' + err.message, 'error'); showLoading(false); }
 }
 
 async function deletePersonal(id) {
@@ -1197,9 +1177,7 @@ async function retirarPersonal(id, cedula) {
   const motivo = prompt('Motivo del retiro (RENUNCIA / JUBILACIÓN):');
   if (!motivo) return;
   const motivoUp = mayus(motivo);
-  if (motivoUp !== 'RENUNCIA' && motivoUp !== 'JUBILACIÓN' && motivoUp !== 'JUBILACION') {
-    toast('Motivo no válido. Debe ser RENUNCIA o JUBILACIÓN', 'error'); return;
-  }
+  if (motivoUp !== 'RENUNCIA' && motivoUp !== 'JUBILACIÓN' && motivoUp !== 'JUBILACION') { toast('Motivo no válido.', 'error'); return; }
   if (!confirm(`¿Retirar a la persona con cédula ${cedula}?`)) return;
   showLoading(true);
   try {
@@ -1232,7 +1210,7 @@ async function savePostulado() {
   if (!cedula) { toast('La cédula es obligatoria', 'error'); return; }
   if (!editingId) {
     const r = await validarCedulaDisponible(cedula);
-    if (r && r.en_personal) { toast('Esta cédula ya está registrada como Personal de Enfermería.', 'error'); return; }
+    if (r && r.en_personal) { toast('Esta cédula ya está registrada como Personal.', 'error'); return; }
     if (r && r.en_retirado) { toast('Esta cédula pertenece a un retirado.', 'error'); return; }
   }
   const data = {
@@ -1467,12 +1445,24 @@ async function loadAllData() {
       if (data) dataCache[x.k] = data;
     } catch (e) { console.warn('Excepción cargando', x.t, e); }
   }
+  // Cargar auditoría si es admin o superadmin
+  if (esAdminOSuper()) {
+    try {
+      const { data, error } = await supabase
+        .from('auditoria')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(500);
+      if (!error && data) dataCache.auditoria = data;
+    } catch (e) { console.warn('Excepción cargando auditoria:', e); }
+  }
   showLoading(false);
 }
 
 function renderAllTables() {
   renderTable('personal'); renderTable('postulados'); renderTable('cambios');
   renderTable('retirados'); renderTable('usuarios');
+  if (esAdminOSuper()) renderTable('auditoria');
 }
 
 function resaltar(texto, busqueda) {
@@ -1491,9 +1481,24 @@ function esc(str) {
 function renderTable(table) {
   const tbody = document.getElementById('tbody-' + table);
   if (!tbody) return;
+
+  if (table === 'auditoria' && !esAdminOSuper()) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:#999;">Sin permisos</td></tr>';
+    return;
+  }
+
   let data = [...(dataCache[table] || [])];
   const search = (document.getElementById('search-' + table)?.value || '').toLowerCase();
   if (search) data = data.filter(r => JSON.stringify(r).toLowerCase().includes(search));
+
+  // Filtros específicos de auditoría
+  if (table === 'auditoria') {
+    const tablaFiltro = document.getElementById('filter-tabla-auditoria')?.value || '';
+    const accionFiltro = document.getElementById('filter-accion-auditoria')?.value || '';
+    if (tablaFiltro) data = data.filter(r => r.tabla === tablaFiltro);
+    if (accionFiltro) data = data.filter(r => r.accion === accionFiltro);
+  }
+
   const adminOSuper = esAdminOSuper();
   const superAdmin = esSuperAdmin();
   let html = '';
@@ -1579,12 +1584,138 @@ function renderTable(table) {
         </td>
       </tr>`;
     });
+  } else if (table === 'auditoria') {
+    // ═══════════════════════════════════════════════════════════════
+    // AUDITORÍA MEJORADA
+    // ═══════════════════════════════════════════════════════════════
+    data.forEach(r => {
+      const fecha = r.created_at ? new Date(r.created_at).toLocaleString('es-VE') : '-';
+      
+      let accionClass = 'badge-info', accionText = r.accion;
+      if (r.accion === 'INSERT') { accionClass = 'badge-success'; accionText = 'CREAR'; }
+      else if (r.accion === 'UPDATE') { accionClass = 'badge-warning'; accionText = 'EDITAR'; }
+      else if (r.accion === 'DELETE') { accionClass = 'badge-danger'; accionText = 'ELIMINAR'; }
+      
+      const datosAnt = r.datos_anteriores 
+        ? `<button class="btn btn-secondary" style="padding:2px 8px;font-size:.7rem" onclick="verDatosAuditoria('${r.id}','anterior')">👁️ Ver</button>` 
+        : '-';
+      const datosNue = r.datos_nuevos 
+        ? `<button class="btn btn-secondary" style="padding:2px 8px;font-size:.7rem" onclick="verDatosAuditoria('${r.id}','nuevo')">👁️ Ver</button>` 
+        : '-';
+      
+      let nombreUsuario = 'Sistema';
+      if (r.usuario_email) nombreUsuario = r.usuario_email;
+      else if (r.usuario_id) {
+        const usuario = dataCache.usuarios?.find(u => u.id === r.usuario_id);
+        nombreUsuario = usuario ? usuario.nombre_completo : r.usuario_id.substring(0, 8);
+      }
+      
+      const tablaFormato = {
+        'personal_enfermeria': 'Personal',
+        'postulados': 'Postulados',
+        'cambios_estatus': 'Cambios',
+        'personal_retirado': 'Retirados',
+        'perfiles': 'Usuarios'
+      }[r.tabla] || r.tabla;
+      
+      html += `<tr>
+        <td style="font-size:.8rem;white-space:nowrap;">${esc(fecha)}</td>
+        <td>${esc(nombreUsuario)}</td>
+        <td><span class="badge badge-info">${esc(tablaFormato)}</span></td>
+        <td><span class="badge ${accionClass}">${accionText}</span></td>
+        <td>${datosAnt}</td>
+        <td>${datosNue}</td>
+      </tr>`;
+    });
   }
 
   tbody.innerHTML = html || '<tr><td colspan="10" style="text-align:center;padding:40px;color:#999;">No hay registros</td></tr>';
 }
 
 function filterTable(table) { renderTable(table); }
+
+// ═══════════════════════════════════════════════════════════════
+// FUNCIONES DE AUDITORÍA
+// ═══════════════════════════════════════════════════════════════
+async function recargarAuditoria() {
+  showLoading(true);
+  try {
+    const { data, error } = await supabase
+      .from('auditoria')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(500);
+    
+    if (error) throw error;
+    
+    dataCache.auditoria = data || [];
+    renderTable('auditoria');
+    renderAuditoriaStats();
+    toast('✅ Auditoría actualizada (' + dataCache.auditoria.length + ' registros)', 'success');
+  } catch (err) {
+    console.error('Error recargando auditoría:', err);
+    toast('Error: ' + err.message, 'error');
+  }
+  showLoading(false);
+}
+
+function verDatosAuditoria(id, tipo) {
+  const registro = dataCache.auditoria.find(r => r.id === id);
+  if (!registro) return;
+  
+  const datos = tipo === 'anterior' ? registro.datos_anteriores : registro.datos_nuevos;
+  if (!datos) return;
+  
+  const datosFormateados = JSON.stringify(datos, null, 2);
+  const titulo = tipo === 'anterior' ? '📋 Datos Anteriores' : '📋 Datos Nuevos';
+  const accion = registro.accion || '';
+  const tabla = registro.tabla || '';
+  
+  const modalHtml = `
+    <div class="modal-overlay active" id="modal-auditoria-datos" 
+         onclick="if(event.target===this)document.getElementById('modal-auditoria-datos').remove()">
+      <div class="modal" style="max-width:700px;">
+        <div class="modal-header">
+          <h2>${titulo}</h2>
+          <button class="modal-close" 
+                  onclick="document.getElementById('modal-auditoria-datos').remove()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div style="margin-bottom:12px;color:#666;font-size:.85rem;">
+            <strong>Tabla:</strong> ${esc(tabla)} | 
+            <strong>Acción:</strong> ${esc(accion)} | 
+            <strong>Fecha:</strong> ${registro.created_at ? new Date(registro.created_at).toLocaleString('es-VE') : '-'}
+          </div>
+          <pre style="background:#263238;color:#aed581;padding:16px;border-radius:8px;overflow-x:auto;font-size:.8rem;max-height:400px;overflow-y:auto;white-space:pre-wrap;word-break:break-word;">${esc(datosFormateados)}</pre>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" 
+                  onclick="document.getElementById('modal-auditoria-datos').remove()">Cerrar</button>
+        </div>
+      </div>
+    </div>`;
+  
+  const existente = document.getElementById('modal-auditoria-datos');
+  if (existente) existente.remove();
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
+}
+
+function renderAuditoriaStats() {
+  const aud = dataCache.auditoria || [];
+  const grid = document.getElementById('auditoria-stats');
+  if (!grid) return;
+  
+  const inserts = aud.filter(r => r.accion === 'INSERT').length;
+  const updates = aud.filter(r => r.accion === 'UPDATE').length;
+  const deletes = aud.filter(r => r.accion === 'DELETE').length;
+  
+  grid.innerHTML = `
+    <div class="stat-card"><div class="label">Total Registros</div><div class="value">${aud.length}</div></div>
+    <div class="stat-card" style="border-left-color:#2e7d32"><div class="label">Creaciones</div><div class="value" style="color:#2e7d32">${inserts}</div></div>
+    <div class="stat-card" style="border-left-color:#f9a825"><div class="label">Modificaciones</div><div class="value" style="color:#f57f17">${updates}</div></div>
+    <div class="stat-card" style="border-left-color:#c62828"><div class="label">Eliminaciones</div><div class="value" style="color:#c62828">${deletes}</div></div>
+  `;
+}
 
 async function refreshDashboard() {
   const p = dataCache.personal;
@@ -1671,12 +1802,14 @@ function exportExcel(table) {
   else if (table === 'postulados') { data = dataCache.postulados; headers = ['Apellidos y Nombres', 'Cédula', 'Fecha Nacimiento', 'Edad', 'Título', 'Cargo', 'ASIC', 'Ubicación', 'Celular', 'Correo', 'Documentos', 'Observaciones', 'Estatus']; filename = 'Postulados.xlsx'; }
   else if (table === 'cambios') { data = dataCache.cambios; headers = ['Apellidos y Nombres', 'Cédula', 'Título', 'Cargo', 'Tipo', 'Fecha', 'Detalle', 'Celular', 'Correo']; filename = 'Cambios.xlsx'; }
   else if (table === 'retirados') { data = dataCache.retirados; headers = ['Apellidos y Nombres', 'Cédula', 'Género', 'Fecha Nacimiento', 'Edad', 'Teléfono', 'Correo', 'Cargo', 'Municipio', 'Parroquia', 'Motivo Retiro', 'Fecha Retiro']; filename = 'Retirados.xlsx'; }
+  else if (table === 'auditoria') { data = dataCache.auditoria || []; headers = ['Fecha', 'Usuario', 'Tabla', 'Acción', 'Registro ID', 'Datos Anteriores', 'Datos Nuevos']; filename = 'Auditoria.xlsx'; }
   const wsData = [headers];
   data.forEach(r => {
     if (table === 'personal') wsData.push([r.apellidos_nombres, r.genero, r.fecha_nacimiento, r.edad, r.cedula, r.telefono, r.correo, r.cargo_nominal, r.municipio, r.parroquia, r.ubicacion_administrativa, r.ubicacion_fisica, r.estatus, r.causa_inactividad, r.formacion_estudiando, r.observaciones]);
     else if (table === 'postulados') wsData.push([r.apellidos_nombres, r.cedula, r.fecha_nacimiento, r.edad, r.titulo, r.cargo, r.asic, r.ubicacion, r.celular, r.correo, r.documentos_completos, r.observaciones, r.estatus_postulacion]);
     else if (table === 'cambios') wsData.push([r.apellidos_nombres, r.cedula, r.titulo, r.cargo, r.tipo_cambio, r.fecha_cambio, r.detalle, r.celular, r.correo]);
     else if (table === 'retirados') wsData.push([r.apellidos_nombres, r.cedula, r.genero, r.fecha_nacimiento, r.edad, r.telefono, r.correo, r.cargo_nominal, r.municipio, r.parroquia, r.motivo_retiro, r.fecha_retiro]);
+    else if (table === 'auditoria') wsData.push([r.created_at, r.usuario_email || r.usuario_id, r.tabla, r.accion, r.registro_id, JSON.stringify(r.datos_anteriores || ''), JSON.stringify(r.datos_nuevos || '')]);
   });
   const wb = XLSX.utils.book_new(), ws = XLSX.utils.aoa_to_sheet(wsData);
   XLSX.utils.book_append_sheet(wb, ws, table);
