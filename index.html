@@ -42,7 +42,7 @@ img{max-width:100%;height:auto}
 .user-profile-header{display:flex;align-items:center;gap:8px;color:white;cursor:pointer;padding:6px 10px;border-radius:20px;transition:background .2s}
 .user-avatar-header{width:32px;height:32px;background:rgba(255,255,255,0.25);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:.8rem;overflow:hidden;background-size:cover;background-position:center;flex-shrink:0}
 .user-name-header{font-size:.85rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px}
-.profile-dropdown{position:fixed;top:60px;right:12px;width:min(280px,calc(100vw - 24px));background:white;border-radius:var(--radius-lg);box-shadow:0 10px 40px rgba(0,0,0,0.2);z-index:1001;display:none;overflow:hidden}
+.profile-dropdown{position:fixed;top:60px;right:12px;width:min(300px,calc(100vw - 24px));background:white;border-radius:var(--radius-lg);box-shadow:0 10px 40px rgba(0,0,0,0.2);z-index:1001;display:none;overflow:hidden}
 .profile-dropdown.active{display:block}
 .profile-dropdown-header{background:linear-gradient(135deg,var(--primary),var(--primary-light));padding:20px;text-align:center;color:white}
 .profile-dropdown-avatar{width:64px;height:64px;background:rgba(255,255,255,0.25);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:1.5rem;font-weight:700;overflow:hidden;background-size:cover;background-position:center}
@@ -180,7 +180,7 @@ canvas{max-width:100%!important;height:auto!important}
   .search-box{min-width:100%}
   .search-btn{width:100%}
   .table-wrapper{border-radius:0}
-  .table-wrapper table{min-width:560px}
+  .table-wrapper table{min-width:720px}
   th,td{padding:8px 10px;font-size:.8rem}
   .modal-overlay{padding:8px;align-items:flex-start;padding-top:12px}
   .modal{max-width:100%;max-height:calc(100vh - 24px);border-radius:12px}
@@ -266,6 +266,11 @@ canvas{max-width:100%!important;height:auto!important}
       </button>
       <input type="file" id="avatar-upload-input" accept="image/*" style="display:none;" onchange="subirAvatarUsuario(event)">
       <div class="sidebar-divider"></div>
+      <div style="padding:10px 20px;font-size:.72rem;color:#7f8c8d;border-bottom:1px solid #e0e6ed;line-height:1.5;">
+        <div><strong>IP:</strong> <span id="ip-actual-display">Detectando...</span></div>
+        <div id="ubicacion-actual-display" style="margin-top:2px;"></div>
+        <div id="isp-actual-display" style="margin-top:2px;"></div>
+      </div>
       <button class="profile-dropdown-item danger" onclick="confirmarCerrarSesion();toggleProfileDropdown();">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Cerrar Sesión
       </button>
@@ -286,7 +291,6 @@ canvas{max-width:100%!important;height:auto!important}
       <div class="nav-item" onclick="showSection('cambios')" data-section="cambios"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>Cambio de Estatus</div>
       <div class="nav-item admin-only hidden" onclick="showSection('retirados')" data-section="retirados"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Personal Retirado</div>
       <div class="nav-item admin-only hidden" onclick="showSection('usuarios')" data-section="usuarios"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Usuarios</div>
-      <!-- AUDITORÍA: solo visible para Super Administrador -->
       <div class="nav-item superadmin-only hidden" onclick="showSection('auditoria')" data-section="auditoria"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Auditoría</div>
       <div class="sidebar-divider"></div>
       <div class="nav-item" onclick="showSection('backup')" data-section="backup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Backup / Sincronización</div>
@@ -411,6 +415,9 @@ canvas{max-width:100%!important;height:auto!important}
                 <tr>
                   <th>Fecha/Hora</th>
                   <th>Usuario</th>
+                  <th>IP</th>
+                  <th>Ubicación</th>
+                  <th>ISP</th>
                   <th>Tabla</th>
                   <th>Acción</th>
                   <th>Datos Anteriores</th>
@@ -603,6 +610,7 @@ let supabase = null, currentUser = null, currentRol = null, editingId = null, ed
 let dataCache = { personal: [], postulados: [], cambios: [], usuarios: [], retirados: [], auditoria: [] };
 
 window.__logoutInProgress = false;
+window.__clientInfo = null;
 
 function mayus(str) {
   if (str === null || str === undefined) return '';
@@ -618,6 +626,106 @@ function mostrarDiagnostico(msg) {
   const m = document.getElementById('diag-msg');
   if (b && m) { m.textContent = msg; b.classList.add('active'); }
   console.error('❌ DIAGNÓSTICO:', msg);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CAPTURA DE IP + UBICACIÓN + ISP DEL CLIENTE
+// ═══════════════════════════════════════════════════════════════
+async function detectarIP() {
+  if (window.__clientInfo) return window.__clientInfo;
+
+  const info = { ip: null, pais: null, ciudad: null, region: null, isp: null };
+
+  // INTENTO 1: ipapi.co
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 6000);
+    const r = await fetch('https://ipapi.co/json/', { signal: controller.signal });
+    clearTimeout(timeoutId);
+    if (r.ok) {
+      const d = await r.json();
+      if (d.ip) {
+        info.ip = d.ip;
+        info.pais = d.country_name || d.country || null;
+        info.ciudad = d.city || null;
+        info.region = d.region || null;
+        if (d.org) info.isp = String(d.org).replace(/^AS\d+\s*/i, '').trim();
+        console.log('🌐 Info detectada (ipapi.co):', info);
+      }
+    }
+  } catch (e) { console.warn('⚠️ ipapi.co falló:', e.message); }
+
+  // INTENTO 2: ipwho.is
+  if (!info.ip) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 6000);
+      const r = await fetch('https://ipwho.is/', { signal: controller.signal });
+      clearTimeout(timeoutId);
+      if (r.ok) {
+        const d = await r.json();
+        if (d.success !== false && d.ip) {
+          info.ip = d.ip;
+          info.pais = d.country || null;
+          info.ciudad = d.city || null;
+          info.region = d.region || null;
+          info.isp = d.connection?.isp || d.connection?.org || null;
+          console.log('🌐 Info detectada (ipwho.is):', info);
+        }
+      }
+    } catch (e) { console.warn('⚠️ ipwho.is falló:', e.message); }
+  }
+
+  // INTENTO 3: ipify (solo IP)
+  if (!info.ip) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+      const r = await fetch('https://api.ipify.org?format=json', { signal: controller.signal });
+      clearTimeout(timeoutId);
+      const d = await r.json();
+      if (d.ip) {
+        info.ip = d.ip;
+        console.log('🌐 Solo IP detectada (ipify):', info);
+      }
+    } catch (e) { console.warn('⚠️ ipify falló:', e.message); }
+  }
+
+  window.__clientInfo = info;
+
+  // Actualizar el display
+  const disp = document.getElementById('ip-actual-display');
+  if (disp) disp.textContent = info.ip || 'No detectada';
+  
+  const ubiDisp = document.getElementById('ubicacion-actual-display');
+  if (ubiDisp) {
+    const ubi = [info.ciudad, info.region, info.pais].filter(Boolean).join(', ');
+    ubiDisp.textContent = ubi ? '📍 ' + ubi : '';
+  }
+  const ispDisp = document.getElementById('isp-actual-display');
+  if (ispDisp) ispDisp.textContent = info.isp ? '🏢 ' + info.isp : '';
+
+  return info;
+}
+
+async function enviarIPAlServidor() {
+  const info = window.__clientInfo;
+  if (!info || !info.ip) return;
+  try {
+    await supabase.rpc('set_client_info', {
+      p_ip: info.ip,
+      p_pais: info.pais,
+      p_ciudad: info.ciudad,
+      p_region: info.region,
+      p_isp: info.isp
+    });
+    console.log('📡 Info enviada al servidor:', info);
+  } catch (e) { console.warn('⚠️ No se pudo enviar info:', e); }
+}
+
+async function prepararOperacion() {
+  if (!window.__clientInfo || !window.__clientInfo.ip) await detectarIP();
+  if (window.__clientInfo && window.__clientInfo.ip) await enviarIPAlServidor();
 }
 
 function forzarMayusculasEnInputs() {
@@ -686,6 +794,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const cf = document.getElementById('c-fecha');
     if (cf) cf.value = new Date().toISOString().split('T')[0];
 
+    detectarIP();
     await verificarConexion();
     setupAutocompletadoCambios();
 
@@ -699,11 +808,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 function setupAutocompletadoCambios() {
   const cedulaInput = document.getElementById('c-cedula');
   if (!cedulaInput) return;
-
   const autocompletar = function() {
     const valor = mayus(this.value || '');
     if (!valor) return;
-
     let personal = dataCache.personal.find(p => mayus(p.cedula) === valor);
     if (!personal) {
       personal = dataCache.personal.find(p => 
@@ -711,7 +818,6 @@ function setupAutocompletadoCambios() {
         mayus(p.cedula || '').includes(valor)
       );
     }
-
     if (personal) {
       document.getElementById('c-nombre').value = personal.apellidos_nombres || '';
       document.getElementById('c-titulo').value = personal.formacion_estudiando || '';
@@ -725,7 +831,6 @@ function setupAutocompletadoCambios() {
       document.getElementById('info-autocompletado-cambios')?.classList.remove('active');
     }
   };
-
   cedulaInput.addEventListener('change', autocompletar);
   cedulaInput.addEventListener('blur', autocompletar);
 }
@@ -761,6 +866,7 @@ async function handleLogin() {
   btn.disabled = true; btn.textContent = 'Ingresando...';
   errDiv.textContent = '';
   window.__logoutInProgress = false;
+  await detectarIP();
   try {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) { errDiv.textContent = error.message; btn.disabled = false; btn.textContent = 'Iniciar Sesión'; return; }
@@ -802,9 +908,11 @@ async function initUser(user) {
       return;
     }
 
-    // ✅ Normalizar el rol
     currentRol = String(perfil.rol || '').trim().toLowerCase();
     console.log('🎭 Rol detectado:', currentRol, '| rol original:', perfil.rol);
+
+    await detectarIP();
+    await enviarIPAlServidor();
 
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('login-screen').classList.add('hidden');
@@ -827,27 +935,19 @@ async function initUser(user) {
       dropAvatar.textContent = iniciales; dropAvatar.style.backgroundImage = '';
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    // MOSTRAR/OCULTAR ELEMENTOS SEGÚN ROL (CON LOGS)
-    // ═══════════════════════════════════════════════════════════════
     console.log('🎭 Aplicando permisos. currentRol =', JSON.stringify(currentRol));
-
     document.querySelectorAll('.admin-only, .superadmin-only').forEach(el => el.classList.add('hidden'));
 
     if (currentRol === 'superadmin') {
       document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
       document.querySelectorAll('.superadmin-only').forEach(el => el.classList.remove('hidden'));
-      console.log('✅ Modo SUPERADMIN: todos los menús visibles');
+      console.log('✅ Modo SUPERADMIN');
     } else if (currentRol === 'admin') {
       document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
-      console.log('✅ Modo ADMIN: solo menús de admin (sin auditoría)');
+      console.log('✅ Modo ADMIN');
     } else {
-      console.log('👤 Modo USUARIO: solo menús básicos');
+      console.log('👤 Modo USUARIO');
     }
-
-    // Verificar que el menú de auditoría esté visible
-    const navAuditoria = document.querySelector('[data-section="auditoria"]');
-    console.log('📋 Menú Auditoría:', navAuditoria ? (navAuditoria.classList.contains('hidden') ? '❌ OCULTO' : '✅ VISIBLE') : '❌ NO EXISTE');
 
     await loadAllData();
     refreshDashboard();
@@ -880,12 +980,10 @@ async function handleLogout() {
   dataCache = { personal: [], postulados: [], cambios: [], usuarios: [], retirados: [], auditoria: [] };
 
   try { await supabase.auth.signOut({ scope: 'global' }); } catch (e) { console.warn(e); }
-
   try {
     Object.keys(localStorage).forEach(k => { if (k.startsWith('sb-') || k.includes('supabase')) localStorage.removeItem(k); });
     Object.keys(sessionStorage).forEach(k => { if (k.startsWith('sb-') || k.includes('supabase')) sessionStorage.removeItem(k); });
   } catch (e) { console.warn(e); }
-
   setTimeout(() => { window.__logoutInProgress = false; }, 3000);
   toast('Sesión cerrada correctamente', 'success');
 }
@@ -937,12 +1035,10 @@ document.addEventListener('click', function(e) {
 });
 
 function showSection(name) {
-  // Verificar permiso para auditoría
   if (name === 'auditoria' && !esSuperAdmin()) {
     toast('⛔ No tiene permiso para ver la auditoría', 'error');
     return;
   }
-
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   const sec = document.getElementById('sec-' + name);
@@ -1124,7 +1220,8 @@ function closeModal(table) {
   editingId = null; editingTable = null;
 }
 
-function saveRecord(table) {
+async function saveRecord(table) {
+  await prepararOperacion();
   if (table === 'personal') savePersonal();
   else if (table === 'postulados') savePostulado();
   else if (table === 'cambios') saveCambio();
@@ -1185,6 +1282,7 @@ async function savePersonal() {
 
 async function deletePersonal(id) {
   if (!confirm('¿Eliminar este registro?')) return;
+  await prepararOperacion();
   showLoading(true);
   const { error } = await supabase.from('personal_enfermeria').delete().eq('id', id);
   showLoading(false);
@@ -1199,6 +1297,7 @@ async function retirarPersonal(id, cedula) {
   const motivoUp = mayus(motivo);
   if (motivoUp !== 'RENUNCIA' && motivoUp !== 'JUBILACIÓN' && motivoUp !== 'JUBILACION') { toast('Motivo no válido.', 'error'); return; }
   if (!confirm(`¿Retirar a la persona con cédula ${cedula}?`)) return;
+  await prepararOperacion();
   showLoading(true);
   try {
     const { data: personal, error: fe } = await supabase.from('personal_enfermeria').select('*').eq('id', id).single();
@@ -1266,6 +1365,7 @@ async function savePostulado() {
 
 async function deletePostulado(id) {
   if (!confirm('¿Eliminar este postulado?')) return;
+  await prepararOperacion();
   showLoading(true);
   const { error } = await supabase.from('postulados').delete().eq('id', id);
   showLoading(false);
@@ -1279,6 +1379,7 @@ async function aprobarPostulado(id) {
   if (!p) return;
   if (p.estatus_postulacion !== 'ESPERANDO APROBACIÓN') { toast('Solo se aprueban postulados en espera', 'error'); return; }
   if (!confirm(`¿Aprobar a ${p.apellidos_nombres}?`)) return;
+  await prepararOperacion();
   showLoading(true);
   try {
     const { error: ue } = await supabase.from('postulados').update({ estatus_postulacion: 'APROBADO' }).eq('id', id);
@@ -1325,6 +1426,7 @@ async function saveCambio() {
 
 async function deleteCambio(id) {
   if (!confirm('¿Eliminar este registro?')) return;
+  await prepararOperacion();
   showLoading(true);
   const { error } = await supabase.from('cambios_estatus').delete().eq('id', id);
   showLoading(false);
@@ -1376,6 +1478,7 @@ async function deleteRetirado(id) {
   const item = dataCache.retirados.find(x => x.id === id);
   const nombre = item ? item.apellidos_nombres : '';
   if (!confirm(`¿Eliminar permanentemente el registro de "${nombre}"?\n\nEsta acción no se puede deshacer.`)) return;
+  await prepararOperacion();
   showLoading(true);
   try {
     const { error } = await supabase.from('personal_retirado').delete().eq('id', id);
@@ -1423,6 +1526,7 @@ async function saveUsuario() {
 
 async function deleteUsuario(userId) {
   if (!confirm('¿Eliminar este usuario permanentemente?')) return;
+  await prepararOperacion();
   showLoading(true);
   try {
     const { data: { session } } = await supabase.auth.getSession();
@@ -1440,6 +1544,7 @@ async function deleteUsuario(userId) {
 }
 
 async function toggleUsuarioActivo(userId, activo) {
+  await prepararOperacion();
   showLoading(true);
   const { error } = await supabase.from('perfiles').update({ activo: !activo }).eq('id', userId);
   showLoading(false);
@@ -1502,7 +1607,7 @@ function renderTable(table) {
   if (!tbody) return;
 
   if (table === 'auditoria' && !esAdminOSuper()) {
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:#999;">Sin permisos</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:40px;color:#999;">Sin permisos</td></tr>';
     return;
   }
 
@@ -1610,11 +1715,11 @@ function renderTable(table) {
       else if (r.accion === 'UPDATE') { accionClass = 'badge-warning'; accionText = 'EDITAR'; }
       else if (r.accion === 'DELETE') { accionClass = 'badge-danger'; accionText = 'ELIMINAR'; }
       
-      const datosAnt = r.datos_anteriores 
-        ? `<button class="btn btn-secondary" style="padding:2px 8px;font-size:.7rem" onclick="verDatosAuditoria('${r.id}','anterior')">👁️ Ver</button>` 
+      const datosAnt = r.datos_anteriores
+        ? `<button class="btn btn-secondary" style="padding:2px 8px;font-size:.7rem" onclick="verDatosAuditoria('${r.id}','anterior')">👁️ Ver</button>`
         : '-';
-      const datosNue = r.datos_nuevos 
-        ? `<button class="btn btn-secondary" style="padding:2px 8px;font-size:.7rem" onclick="verDatosAuditoria('${r.id}','nuevo')">👁️ Ver</button>` 
+      const datosNue = r.datos_nuevos
+        ? `<button class="btn btn-secondary" style="padding:2px 8px;font-size:.7rem" onclick="verDatosAuditoria('${r.id}','nuevo')">👁️ Ver</button>`
         : '-';
       
       let nombreUsuario = 'Sistema';
@@ -1632,9 +1737,20 @@ function renderTable(table) {
         'perfiles': 'Usuarios'
       }[r.tabla] || r.tabla;
       
+      const partes = [];
+      if (r.ip_ciudad) partes.push(esc(r.ip_ciudad));
+      if (r.ip_region) partes.push(esc(r.ip_region));
+      if (r.ip_pais) partes.push(esc(r.ip_pais));
+      const ubicacion = partes.length ? partes.join(', ') : '-';
+      const ipMostrar = r.ip_address || 'N/A';
+      const ispMostrar = r.ip_isp || '-';
+      
       html += `<tr>
         <td style="font-size:.8rem;white-space:nowrap;">${esc(fecha)}</td>
         <td>${esc(nombreUsuario)}</td>
+        <td><code style="background:#f0f0f0;padding:2px 6px;border-radius:3px;font-size:.7rem;">${esc(ipMostrar)}</code></td>
+        <td style="font-size:.75rem;">${ubicacion}</td>
+        <td style="font-size:.75rem;">${esc(ispMostrar)}</td>
         <td><span class="badge badge-info">${esc(tablaFormato)}</span></td>
         <td><span class="badge ${accionClass}">${accionText}</span></td>
         <td>${datosAnt}</td>
@@ -1656,9 +1772,7 @@ async function recargarAuditoria() {
       .select('*')
       .order('created_at', { ascending: false })
       .limit(500);
-    
     if (error) throw error;
-    
     dataCache.auditoria = data || [];
     renderTable('auditoria');
     renderAuditoriaStats();
@@ -1673,39 +1787,41 @@ async function recargarAuditoria() {
 function verDatosAuditoria(id, tipo) {
   const registro = dataCache.auditoria.find(r => r.id === id);
   if (!registro) return;
-  
   const datos = tipo === 'anterior' ? registro.datos_anteriores : registro.datos_nuevos;
   if (!datos) return;
-  
   const datosFormateados = JSON.stringify(datos, null, 2);
   const titulo = tipo === 'anterior' ? '📋 Datos Anteriores' : '📋 Datos Nuevos';
   const accion = registro.accion || '';
   const tabla = registro.tabla || '';
-  
+  const partesUbi = [];
+  if (registro.ip_ciudad) partesUbi.push(registro.ip_ciudad);
+  if (registro.ip_region) partesUbi.push(registro.ip_region);
+  if (registro.ip_pais) partesUbi.push(registro.ip_pais);
   const modalHtml = `
-    <div class="modal-overlay active" id="modal-auditoria-datos" 
+    <div class="modal-overlay active" id="modal-auditoria-datos"
          onclick="if(event.target===this)document.getElementById('modal-auditoria-datos').remove()">
-      <div class="modal" style="max-width:700px;">
+      <div class="modal" style="max-width:750px;">
         <div class="modal-header">
           <h2>${titulo}</h2>
-          <button class="modal-close" 
+          <button class="modal-close"
                   onclick="document.getElementById('modal-auditoria-datos').remove()">&times;</button>
         </div>
         <div class="modal-body">
-          <div style="margin-bottom:12px;color:#666;font-size:.85rem;">
-            <strong>Tabla:</strong> ${esc(tabla)} | 
-            <strong>Acción:</strong> ${esc(accion)} | 
-            <strong>Fecha:</strong> ${registro.created_at ? new Date(registro.created_at).toLocaleString('es-VE') : '-'}
+          <div style="margin-bottom:14px;background:#f5f6fa;padding:12px;border-radius:8px;font-size:.85rem;line-height:1.7;">
+            <div><strong>Tabla:</strong> ${esc(tabla)} | <strong>Acción:</strong> ${esc(accion)}</div>
+            <div><strong>Fecha:</strong> ${registro.created_at ? new Date(registro.created_at).toLocaleString('es-VE') : '-'}</div>
+            <div><strong>IP:</strong> <code style="background:#fff;padding:2px 6px;border-radius:3px;">${esc(registro.ip_address || 'N/A')}</code></div>
+            <div><strong>Ubicación:</strong> ${esc(partesUbi.join(', ') || 'N/A')}</div>
+            <div><strong>ISP:</strong> ${esc(registro.ip_isp || 'N/A')}</div>
           </div>
           <pre style="background:#263238;color:#aed581;padding:16px;border-radius:8px;overflow-x:auto;font-size:.8rem;max-height:400px;overflow-y:auto;white-space:pre-wrap;word-break:break-word;">${esc(datosFormateados)}</pre>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-secondary" 
+          <button class="btn btn-secondary"
                   onclick="document.getElementById('modal-auditoria-datos').remove()">Cerrar</button>
         </div>
       </div>
     </div>`;
-  
   const existente = document.getElementById('modal-auditoria-datos');
   if (existente) existente.remove();
   document.body.insertAdjacentHTML('beforeend', modalHtml);
@@ -1715,16 +1831,16 @@ function renderAuditoriaStats() {
   const aud = dataCache.auditoria || [];
   const grid = document.getElementById('auditoria-stats');
   if (!grid) return;
-  
   const inserts = aud.filter(r => r.accion === 'INSERT').length;
   const updates = aud.filter(r => r.accion === 'UPDATE').length;
   const deletes = aud.filter(r => r.accion === 'DELETE').length;
-  
+  const conIP = aud.filter(r => r.ip_address).length;
   grid.innerHTML = `
     <div class="stat-card"><div class="label">Total Registros</div><div class="value">${aud.length}</div></div>
     <div class="stat-card" style="border-left-color:#2e7d32"><div class="label">Creaciones</div><div class="value" style="color:#2e7d32">${inserts}</div></div>
     <div class="stat-card" style="border-left-color:#f9a825"><div class="label">Modificaciones</div><div class="value" style="color:#f57f17">${updates}</div></div>
     <div class="stat-card" style="border-left-color:#c62828"><div class="label">Eliminaciones</div><div class="value" style="color:#c62828">${deletes}</div></div>
+    <div class="stat-card" style="border-left-color:#1565c0"><div class="label">Con IP registrada</div><div class="value" style="color:#1565c0">${conIP}</div></div>
   `;
 }
 
@@ -1813,14 +1929,14 @@ function exportExcel(table) {
   else if (table === 'postulados') { data = dataCache.postulados; headers = ['Apellidos y Nombres', 'Cédula', 'Fecha Nacimiento', 'Edad', 'Título', 'Cargo', 'ASIC', 'Ubicación', 'Celular', 'Correo', 'Documentos', 'Observaciones', 'Estatus']; filename = 'Postulados.xlsx'; }
   else if (table === 'cambios') { data = dataCache.cambios; headers = ['Apellidos y Nombres', 'Cédula', 'Título', 'Cargo', 'Tipo', 'Fecha', 'Detalle', 'Celular', 'Correo']; filename = 'Cambios.xlsx'; }
   else if (table === 'retirados') { data = dataCache.retirados; headers = ['Apellidos y Nombres', 'Cédula', 'Género', 'Fecha Nacimiento', 'Edad', 'Teléfono', 'Correo', 'Cargo', 'Municipio', 'Parroquia', 'Motivo Retiro', 'Fecha Retiro']; filename = 'Retirados.xlsx'; }
-  else if (table === 'auditoria') { data = dataCache.auditoria || []; headers = ['Fecha', 'Usuario', 'Tabla', 'Acción', 'Registro ID', 'Datos Anteriores', 'Datos Nuevos']; filename = 'Auditoria.xlsx'; }
+  else if (table === 'auditoria') { data = dataCache.auditoria || []; headers = ['Fecha', 'Usuario', 'IP', 'País', 'Ciudad', 'Región', 'ISP', 'Tabla', 'Acción', 'Registro ID', 'Datos Anteriores', 'Datos Nuevos']; filename = 'Auditoria.xlsx'; }
   const wsData = [headers];
   data.forEach(r => {
     if (table === 'personal') wsData.push([r.apellidos_nombres, r.genero, r.fecha_nacimiento, r.edad, r.cedula, r.telefono, r.correo, r.cargo_nominal, r.municipio, r.parroquia, r.ubicacion_administrativa, r.ubicacion_fisica, r.estatus, r.causa_inactividad, r.formacion_estudiando, r.observaciones]);
     else if (table === 'postulados') wsData.push([r.apellidos_nombres, r.cedula, r.fecha_nacimiento, r.edad, r.titulo, r.cargo, r.asic, r.ubicacion, r.celular, r.correo, r.documentos_completos, r.observaciones, r.estatus_postulacion]);
     else if (table === 'cambios') wsData.push([r.apellidos_nombres, r.cedula, r.titulo, r.cargo, r.tipo_cambio, r.fecha_cambio, r.detalle, r.celular, r.correo]);
     else if (table === 'retirados') wsData.push([r.apellidos_nombres, r.cedula, r.genero, r.fecha_nacimiento, r.edad, r.telefono, r.correo, r.cargo_nominal, r.municipio, r.parroquia, r.motivo_retiro, r.fecha_retiro]);
-    else if (table === 'auditoria') wsData.push([r.created_at, r.usuario_email || r.usuario_id, r.tabla, r.accion, r.registro_id, JSON.stringify(r.datos_anteriores || ''), JSON.stringify(r.datos_nuevos || '')]);
+    else if (table === 'auditoria') wsData.push([r.created_at, r.usuario_email || r.usuario_id, r.ip_address, r.ip_pais, r.ip_ciudad, r.ip_region, r.ip_isp, r.tabla, r.accion, r.registro_id, JSON.stringify(r.datos_anteriores || ''), JSON.stringify(r.datos_nuevos || '')]);
   });
   const wb = XLSX.utils.book_new(), ws = XLSX.utils.aoa_to_sheet(wsData);
   XLSX.utils.book_append_sheet(wb, ws, table);
