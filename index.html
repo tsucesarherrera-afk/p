@@ -691,18 +691,18 @@ async function detectarIP() {
   window.__clientInfo = info;
 
   // Actualizar el display
-  const disp = document.getElementById('ip-actual-display');
-  if (disp) disp.textContent = info.ip || 'No detectada';
+  //const disp = document.getElementById('ip-actual-display');
+  //if (disp) disp.textContent = info.ip || 'No detectada';
   
-  const ubiDisp = document.getElementById('ubicacion-actual-display');
-  if (ubiDisp) {
-    const ubi = [info.ciudad, info.region, info.pais].filter(Boolean).join(', ');
-    ubiDisp.textContent = ubi ? '📍 ' + ubi : '';
+  // const ubiDisp = document.getElementById('ubicacion-actual-display');
+  //if (ubiDisp) {
+   // const ubi = [info.ciudad, info.region, info.pais].filter(Boolean).join(', ');
+   // ubiDisp.textContent = ubi ? '📍 ' + ubi : '';
   }
-  const ispDisp = document.getElementById('isp-actual-display');
-  if (ispDisp) ispDisp.textContent = info.isp ? '🏢 ' + info.isp : '';
+  //const ispDisp = document.getElementById('isp-actual-display');
+  //if (ispDisp) ispDisp.textContent = info.isp ? '🏢 ' + info.isp : '';
 
-  return info;
+ // return info;
 }
 
 async function enviarIPAlServidor() {
