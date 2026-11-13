@@ -22,7 +22,7 @@
 .login-input:focus{outline:none;border-color:#1565c0;background:white;box-shadow:0 0 0 4px rgba(21,101,192,0.1)}
 .login-btn{width:100%;padding:14px;background:linear-gradient(135deg,#0d47a1,#1565c0);color:white;border:none;border-radius:10px;font-size:1rem;font-weight:600;cursor:pointer;transition:all .2s}
 .login-btn:disabled{opacity:.6;cursor:not-allowed}
-.login-error{color:#c62828;font-size:.85rem;margin-top:12px;min-height:20px}
+.login-error{color:#c62828;font-size:.85rem;margin-top:12px;min-height:20px;white-space:pre-line}
 :root{--primary:#0047AB;--primary-dark:#003380;--primary-light:#1565c0;--bg:#f5f6fa;--text:#2c3e50;--text-light:#7f8c8d;--border:#e0e6ed;--shadow:0 2px 12px rgba(0,0,0,0.08);--radius:8px;--radius-lg:12px}
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{overflow-x:hidden;max-width:100vw;-webkit-text-size-adjust:100%}
@@ -656,6 +656,53 @@ window.__logoutInProgress = false;
 let pendingPostuladoId = null;
 let alertCallback = null;
 
+// ✅ Helper robusto para llamar Edge Functions (maneja respuestas HTML/404/etc.)
+async function llamarEdgeFunction(nombre, body) {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) throw new Error('Sesión expirada. Vuelva a iniciar sesión.');
+
+  const url = SUPABASE_URL.replace(/\/$/, '') + '/functions/v1/' + nombre;
+
+  let response;
+  try {
+    response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + session.access_token,
+        'apikey': SUPABASE_ANON_KEY
+      },
+      body: JSON.stringify(body)
+    });
+  } catch (netErr) {
+    throw new Error('No se pudo conectar con el servidor. Verifique su conexión.');
+  }
+
+  const raw = await response.text();
+  let result;
+  try {
+    result = JSON.parse(raw);
+  } catch (e) {
+    console.error('❌ Edge Function "' + nombre + '" devolvió respuesta no-JSON:', {
+      status: response.status,
+      statusText: response.statusText,
+      body: raw.substring(0, 500)
+    });
+    if (response.status === 404) {
+      throw new Error('La función "' + nombre + '" no existe en Supabase. Debe desplegarla en Edge Functions.');
+    }
+    if (response.status === 401 || response.status === 403) {
+      throw new Error('Sin permisos para ejecutar "' + nombre + '". Verifique la autenticación.');
+    }
+    throw new Error('Error del servidor (' + response.status + '). Detalle: ' + raw.substring(0, 150).replace(/<[^>]+>/g, '').trim());
+  }
+
+  if (!response.ok || result.success === false) {
+    throw new Error(result.error || ('Error ' + response.status + ' al ejecutar ' + nombre));
+  }
+  return result;
+}
+
 function mayus(str) {
 if (str === null || str === undefined) return '';
 return String(str).trim().toUpperCase();
@@ -854,28 +901,49 @@ if (session) await initUser(session.user);
 } catch (err) { console.error('Error verificando sesión:', err); }
 }
 
+// ✅ LOGIN: siempre libera el botón, siempre muestra el error real
 async function handleLogin() {
 const email = document.getElementById('login-email').value.trim();
 const password = document.getElementById('login-password').value;
 const btn = document.getElementById('login-btn');
 const errDiv = document.getElementById('login-error');
-if (!email || !password) { errDiv.textContent = 'Ingrese correo y contraseña'; return; }
-btn.disabled = true; btn.textContent = 'Ingresando...';
+
+if (!supabase) {
+errDiv.textContent = 'Sistema no inicializado. Recargue la página (Ctrl+F5).';
+return;
+}
+if (!email || !password) {
+errDiv.textContent = 'Ingrese correo y contraseña';
+return;
+}
+
+btn.disabled = true;
+btn.textContent = 'Ingresando...';
 errDiv.textContent = '';
 window.__logoutInProgress = false;
+
 try {
 const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-if (error) { errDiv.textContent = error.message; btn.disabled = false; btn.textContent = 'Iniciar Sesión'; return; }
+if (error) {
+errDiv.textContent = error.message;
+return;
+}
 await initUser(data.user);
 } catch (err) {
-errDiv.textContent = 'Error: ' + err.message;
-btn.disabled = false; btn.textContent = 'Iniciar Sesión';
+console.error('❌ Error de login:', err);
+errDiv.textContent = 'Error: ' + (err.message || 'Desconocido');
+} finally {
+btn.disabled = false;
+btn.textContent = 'Iniciar Sesión';
 }
 }
 
+// ✅ initUser: propaga el error real al usuario
 async function initUser(user) {
 try {
 currentUser = user;
+console.log('🔄 initUser para:', user.email);
+
 let perfil = null;
 try {
 const { data, error } = await supabase
@@ -883,33 +951,41 @@ const { data, error } = await supabase
 .select('rol,nombre_completo,activo,avatar_url')
 .eq('id', user.id)
 .maybeSingle();
-if (error) console.warn('Error leyendo perfil:', error.message);
-else perfil = data;
-} catch (e) { console.warn('Excepción leyendo perfil:', e); }
+if (error) {
+console.error('❌ Error leyendo perfil:', error);
+throw new Error('Error leyendo perfil: ' + error.message + ' (' + (error.code || '') + ')');
+}
+perfil = data;
+} catch (e) {
+console.error('❌ Excepción leyendo perfil:', e);
+throw e;
+}
 
 if (!perfil) {
+console.warn('⚠️ No existe perfil, intentando crear...');
 const nuevo = {
-id: user.id, email: user.email,
+id: user.id,
+email: user.email,
 nombre_completo: mayus(user.user_metadata?.nombre_completo || user.email.split('@')[0]),
-rol: 'usuario', activo: true, avatar_url: null
+rol: 'usuario',
+activo: true,
+avatar_url: null
 };
 const { data: np, error: ie } = await supabase.from('perfiles').insert([nuevo]).select().single();
 if (ie) {
-console.error('Error creando perfil:', ie);
-toast('Error: ' + ie.message, 'error');
-await supabase.auth.signOut();
-return;
+console.error('❌ Error creando perfil:', ie);
+throw new Error('No se pudo crear el perfil: ' + ie.message + '. Contacte al administrador.');
 }
 perfil = np;
+console.log('✅ Perfil creado con rol:', perfil.rol);
 }
 
 if (perfil.activo === false) {
-toast('Cuenta desactivada. Contacte al administrador.', 'error');
-await supabase.auth.signOut();
-return;
+throw new Error('Cuenta desactivada. Contacte al administrador.');
 }
 
 currentRol = String(perfil.rol || '').trim().toLowerCase();
+console.log('✅ Rol detectado:', currentRol);
 
 document.getElementById('login-screen').style.display = 'none';
 document.getElementById('login-screen').classList.add('hidden');
@@ -946,9 +1022,9 @@ renderAllTables();
 actualizarListaPersonal();
 toast('Bienvenido, ' + (perfil.nombre_completo || 'Usuario'), 'success');
 } catch (err) {
-console.error('Error en initUser:', err);
-toast('Error al inicializar: ' + err.message, 'error');
+console.error('❌ Error en initUser:', err);
 await supabase.auth.signOut();
+throw err;
 }
 }
 
@@ -1025,7 +1101,6 @@ if (d && p && !p.contains(e.target) && !d.contains(e.target)) d.classList.remove
 });
 
 function showSection(name) {
-// Auditoría solo para admin/superadmin
 if (name === 'auditoria' && !esAdminOSuper()) { toast('⛔ No tiene permisos', 'error'); return; }
 document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
 document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -1131,7 +1206,7 @@ if (rolAviso) rolAviso.style.display = 'none';
 rolSelect.innerHTML = '<option value="admin">ADMINISTRADOR</option><option value="usuario">USUARIO</option>';
 if (rolAviso) rolAviso.style.display = 'block';
 }
-rolSelect.disabled = (id && id === currentUser?.id); // no cambiar tu propio rol
+rolSelect.disabled = (id && id === currentUser?.id);
 }
 }
 
@@ -1664,7 +1739,6 @@ if (editingId && password && password.length < 6) {
 toast('La nueva contraseña debe tener al menos 6 caracteres', 'error'); return;
 }
 
-// Si está editando, validar permisos sobre el target
 if (editingId) {
 const target = dataCache.usuarios.find(u => u.id === editingId);
 if (!target) { toast('Usuario no encontrado', 'error'); return; }
@@ -1676,7 +1750,6 @@ toast('⛔ No puede cambiar su propio rol', 'error'); return;
 }
 }
 
-// No permitir crear superadmin si no es superadmin
 if (!editingId && rol === 'superadmin' && !esSuperAdmin()) {
 toast('⛔ Solo un Super Admin puede crear otro Super Admin', 'error'); return;
 }
@@ -1685,35 +1758,19 @@ showLoading(true);
 try {
 if (editingId) {
 const upd = { nombre_completo: nombre, email, activo };
-// No cambiar rol si es uno mismo
 if (editingId !== currentUser?.id) upd.rol = rol;
 const { error } = await supabase.from('perfiles').update(upd).eq('id', editingId);
 if (error) throw error;
 
-// Si se indicó nueva contraseña, usar Edge Function
 if (password) {
-const { data: { session } } = await supabase.auth.getSession();
-const response = await fetch(SUPABASE_URL + '/functions/v1/cambiar-password', {
-method: 'POST',
-headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (session?.access_token || SUPABASE_ANON_KEY) },
-body: JSON.stringify({ user_id: editingId, new_password: password })
-});
-const result = await response.json();
-if (!response.ok || !result.success) throw new Error(result.error || 'Error al cambiar contraseña');
+await llamarEdgeFunction('cambiar-password', { user_id: editingId, new_password: password });
 }
 
 const idx = dataCache.usuarios.findIndex(u => u.id === editingId);
 if (idx >= 0) dataCache.usuarios[idx] = { ...dataCache.usuarios[idx], ...upd };
 toast('✅ Usuario actualizado', 'success');
 } else {
-const { data: { session } } = await supabase.auth.getSession();
-const response = await fetch(SUPABASE_URL + '/functions/v1/crear-usuario', {
-method: 'POST',
-headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (session?.access_token || SUPABASE_ANON_KEY) },
-body: JSON.stringify({ email, password, nombre_completo: nombre, rol })
-});
-const result = await response.json();
-if (!response.ok || !result.success) throw new Error(result.error || 'Error creando usuario');
+await llamarEdgeFunction('crear-usuario', { email, password, nombre_completo: nombre, rol });
 toast('✅ Usuario creado', 'success');
 }
 await loadAllData();
@@ -1732,14 +1789,7 @@ toast('⛔ Solo un Super Admin puede eliminar a otro Super Admin', 'error'); ret
 if (!confirm('¿Eliminar este usuario permanentemente?')) return;
 showLoading(true);
 try {
-const { data: { session } } = await supabase.auth.getSession();
-const response = await fetch(SUPABASE_URL + '/functions/v1/eliminar-usuario', {
-method: 'POST',
-headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (session?.access_token || SUPABASE_ANON_KEY) },
-body: JSON.stringify({ user_id: userId })
-});
-const result = await response.json();
-if (!response.ok || !result.success) throw new Error(result.error || 'Error eliminando');
+await llamarEdgeFunction('eliminar-usuario', { user_id: userId });
 dataCache.usuarios = dataCache.usuarios.filter(u => u.id !== userId);
 renderTable('usuarios'); toast('Usuario eliminado', 'success');
 } catch (err) { toast('Error: ' + err.message, 'error'); }
@@ -1781,14 +1831,12 @@ if (data) dataCache[x.k] = data;
 showLoading(false);
 }
 
-// ✅ Carga la tabla de auditoría (solo admin/superadmin)
 async function loadAuditoria() {
 if (!esAdminOSuper()) { toast('⛔ No tiene permisos', 'error'); return; }
 showLoading(true);
 try {
 const { data, error } = await supabase.from('auditoria').select('*').limit(500);
 if (error) throw error;
-// Ordenar en cliente por fecha desc si hay campo fecha / created_at
 dataCache.auditoria = (data || []).slice().sort((a, b) => {
 const fa = a.created_at || a.fecha || '';
 const fb = b.created_at || b.fecha || '';
@@ -1947,7 +1995,6 @@ html += `<tr>
 data.forEach(r => {
 const esSuperRow = r.rol === 'superadmin';
 const esYo = r.id === currentUser?.id;
-// Puede gestionar este target (no superadmin, o yo soy superadmin)
 const canManageTarget = !esSuperRow || esSuperAdmin();
 const canDeleteBlock = !esYo && canManageTarget;
 const avatarImg = r.avatar_url ? `<img src="${r.avatar_url}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;margin-right:8px;vertical-align:middle;">` : `<span style="display:inline-flex;width:32px;height:32px;border-radius:50%;background:var(--primary);color:white;align-items:center;justify-content:center;margin-right:8px;font-size:.75rem;font-weight:600;">${(r.nombre_completo || 'U').split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase()}</span>`;
@@ -1965,17 +2012,17 @@ ${!canManageTarget ? `<span style="font-size:.7rem;color:#c62828;">Sin permiso</
 </tr>`;
 });
 } else if (table === 'auditoria') {
-const thead = document.getElementById('thead-auditoria');
+const theadEl = document.getElementById('thead-auditoria');
 if (!data || data.length === 0) {
-if (thead) thead.innerHTML = '';
+if (theadEl) theadEl.innerHTML = '';
 const msg = (dataCache.auditoria && dataCache.auditoria.length > 0)
 ? 'No se encontraron resultados para la búsqueda'
 : 'No hay registros de auditoría';
 html = `<tr><td style="text-align:center;padding:50px 20px;color:#999;"><div style="font-size:2.5rem;">📜</div><div style="margin-top:8px;">${msg}</div></td></tr>`;
 } else {
 const keys = Object.keys(data[0]).filter(k => k !== 'id');
-if (thead) {
-thead.innerHTML = '<tr><th>#</th>' + keys.map(k => `<th>${esc(k.replace(/_/g, ' ').toUpperCase())}</th>`).join('') + '</tr>';
+if (theadEl) {
+theadEl.innerHTML = '<tr><th>#</th>' + keys.map(k => `<th>${esc(k.replace(/_/g, ' ').toUpperCase())}</th>`).join('') + '</tr>';
 }
 data.forEach((r, i) => {
 let cells = '';
@@ -2000,7 +2047,8 @@ tbody.innerHTML = html;
 } else if (table === 'personal') {
 tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:60px 20px;"><div style="font-size:3rem;">🔍</div><h3 style="color:#c62828;margin:12px 0;">Personal no encontrado</h3><p style="color:#7f8c8d;font-size:.9rem;">No se encontró ningún empleado con ese número de cédula o nombre.</p></td></tr>`;
 } else if (table === 'auditoria') {
-if (thead2) thead2.innerHTML = '';
+const theadEl = document.getElementById('thead-auditoria');
+if (theadEl) theadEl.innerHTML = '';
 tbody.innerHTML = '<tr><td style="text-align:center;padding:40px;color:#999;">No hay registros</td></tr>';
 } else {
 tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:40px;color:#999;">No hay registros</td></tr>';
