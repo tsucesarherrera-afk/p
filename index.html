@@ -656,10 +656,40 @@ window.__logoutInProgress = false;
 let pendingPostuladoId = null;
 let alertCallback = null;
 
+// ✅ Traduce errores técnicos de Supabase a mensajes amigables en español
+function traducirErrorAuth(msg) {
+  const m = String(msg || '').toLowerCase();
+  if (m.includes('invalid login credentials') || m.includes('invalid credentials')) {
+    return '📧 Correo o contraseña incorrectos. Verifique sus datos.';
+  }
+  if (m.includes('email not confirmed')) {
+    return '📧 Su correo no ha sido confirmado. Contacte al administrador.';
+  }
+  if (m.includes('too many requests') || m.includes('rate limit')) {
+    return '⏳ Demasiados intentos. Espere un momento e intente de nuevo.';
+  }
+  if (m.includes('network') || m.includes('fetch')) {
+    return '🌐 Sin conexión. Verifique su internet.';
+  }
+  if (m.includes('user not found')) {
+    return '👤 Usuario no encontrado.';
+  }
+  if (m.includes('password should be') || m.includes('weak password')) {
+    return '🔒 Contraseña muy débil.';
+  }
+  if (m.includes('email rate') || m.includes('email address')) {
+    return '📧 Correo inválido o con problemas.';
+  }
+  if (m.includes('signup') || m.includes('signups not allowed')) {
+    return '🚫 Registro no permitido. Contacte al administrador.';
+  }
+  return '⚠️ No se pudo iniciar sesión. Intente nuevamente o contacte al administrador.';
+}
+
 // ✅ Helper robusto para llamar Edge Functions (maneja respuestas HTML/404/etc.)
 async function llamarEdgeFunction(nombre, body) {
   const { data: { session } } = await supabase.auth.getSession();
-  if (!session) throw new Error('Sesión expirada. Vuelva a iniciar sesión.');
+  if (!session) throw new Error('🔒 Sesión expirada. Vuelva a iniciar sesión.');
 
   const url = SUPABASE_URL.replace(/\/$/, '') + '/functions/v1/' + nombre;
 
@@ -675,7 +705,7 @@ async function llamarEdgeFunction(nombre, body) {
       body: JSON.stringify(body)
     });
   } catch (netErr) {
-    throw new Error('No se pudo conectar con el servidor. Verifique su conexión.');
+    throw new Error('🌐 No se pudo conectar con el servidor. Verifique su conexión.');
   }
 
   const raw = await response.text();
@@ -689,16 +719,16 @@ async function llamarEdgeFunction(nombre, body) {
       body: raw.substring(0, 500)
     });
     if (response.status === 404) {
-      throw new Error('La función "' + nombre + '" no existe en Supabase. Debe desplegarla en Edge Functions.');
+      throw new Error('⚠️ La función "' + nombre + '" no está disponible. Contacte al administrador.');
     }
     if (response.status === 401 || response.status === 403) {
-      throw new Error('Sin permisos para ejecutar "' + nombre + '". Verifique la autenticación.');
+      throw new Error('🔒 Sin permisos para ejecutar esta acción.');
     }
-    throw new Error('Error del servidor (' + response.status + '). Detalle: ' + raw.substring(0, 150).replace(/<[^>]+>/g, '').trim());
+    throw new Error('⚠️ Error del servidor (' + response.status + '). Contacte al administrador.');
   }
 
   if (!response.ok || result.success === false) {
-    throw new Error(result.error || ('Error ' + response.status + ' al ejecutar ' + nombre));
+    throw new Error(result.error || ('⚠️ Error ' + response.status + ' al ejecutar la operación.'));
   }
   return result;
 }
@@ -767,13 +797,6 @@ function rolNorm() { return String(currentRol || '').trim().toLowerCase(); }
 function esSuperAdmin() { return rolNorm() === 'superadmin'; }
 function esAdminOSuper() { const r = rolNorm(); return r === 'admin' || r === 'superadmin'; }
 
-function mostrarDiagnostico(msg) {
-const b = document.getElementById('diag-banner');
-const m = document.getElementById('diag-msg');
-if (b && m) { m.textContent = msg; b.classList.add('active'); }
-console.error('❌ DIAGNÓSTICO:', msg);
-}
-
 function forzarMayusculasEnInputs() {
 document.querySelectorAll('input.uppercase, textarea.uppercase').forEach(el => {
 if (el.dataset.uppercaseBound === '1') return;
@@ -791,17 +814,14 @@ this.value = (this.value + texto).toUpperCase();
 });
 }
 
+// ✅ Verificación silenciosa: solo logs en consola, sin banner visible
 async function verificarConexion() {
-if (!SUPABASE_URL || SUPABASE_URL === 'TU-PROJECT' || SUPABASE_URL.trim() === '') {
-mostrarDiagnostico('⚠️ FALTA CONFIGURAR: SUPABASE_URL no está definida.');
+if (!SUPABASE_URL || SUPABASE_URL.trim() === '') {
+console.error('⚠️ SUPABASE_URL no configurada');
 return false;
 }
-if (!SUPABASE_ANON_KEY || SUPABASE_ANON_KEY === 'TU-ANON-KEY' || SUPABASE_ANON_KEY.trim() === '') {
-mostrarDiagnostico('⚠️ FALTA CONFIGURAR: SUPABASE_ANON_KEY no está definida.');
-return false;
-}
-if (!SUPABASE_URL.startsWith('https://')) {
-mostrarDiagnostico('⚠️ SUPABASE_URL debe empezar con https://');
+if (!SUPABASE_ANON_KEY || SUPABASE_ANON_KEY.trim() === '') {
+console.error('⚠️ SUPABASE_ANON_KEY no configurada');
 return false;
 }
 try {
@@ -809,24 +829,21 @@ const tablas = ['personal_enfermeria', 'postulados', 'cambios_estatus', 'perfile
 for (const t of tablas) {
 const { error } = await supabase.from(t).select('*').limit(1);
 if (error) {
-if (error.code === '42P01') { mostrarDiagnostico('⚠️ La tabla "' + t + '" no existe.'); return false; }
-if (error.code === '42501') { mostrarDiagnostico('⚠️ Sin permisos en "' + t + '". Revisa RLS.'); return false; }
+console.error('⚠️ Problema con tabla "' + t + '":', error.code, error.message);
 }
 }
-console.log('✅ Conexión a Supabase OK');
 return true;
 } catch (err) {
-mostrarDiagnostico('❌ Error de conexión: ' + err.message);
+console.error('❌ Error de conexión:', err.message);
 return false;
 }
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
 try {
-if (!window.supabase) { mostrarDiagnostico('❌ No se pudo cargar la librería de Supabase.'); return; }
+if (!window.supabase) { console.error('❌ No se pudo cargar la librería de Supabase.'); return; }
 supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 supabase.auth.onAuthStateChange((event, session) => {
-console.log('🔐 Auth event:', event);
 if (event === 'SIGNED_OUT') {
 window.__logoutInProgress = true;
 document.getElementById('app')?.classList.add('hidden');
@@ -842,8 +859,7 @@ await verificarConexion();
 setupAutocompletadoCambios();
 if (!window.__logoutInProgress) { checkSession(); }
 } catch (err) {
-console.error(err);
-mostrarDiagnostico('❌ Error al iniciar: ' + err.message);
+console.error('❌ Error al iniciar:', err.message);
 }
 });
 
@@ -901,7 +917,7 @@ if (session) await initUser(session.user);
 } catch (err) { console.error('Error verificando sesión:', err); }
 }
 
-// ✅ LOGIN: siempre libera el botón, siempre muestra el error real
+// ✅ LOGIN con mensajes amigables y botón siempre liberado
 async function handleLogin() {
 const email = document.getElementById('login-email').value.trim();
 const password = document.getElementById('login-password').value;
@@ -913,7 +929,7 @@ errDiv.textContent = 'Sistema no inicializado. Recargue la página (Ctrl+F5).';
 return;
 }
 if (!email || !password) {
-errDiv.textContent = 'Ingrese correo y contraseña';
+errDiv.textContent = 'Por favor ingrese su correo y contraseña';
 return;
 }
 
@@ -925,24 +941,23 @@ window.__logoutInProgress = false;
 try {
 const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 if (error) {
-errDiv.textContent = error.message;
+errDiv.textContent = traducirErrorAuth(error.message);
 return;
 }
 await initUser(data.user);
 } catch (err) {
 console.error('❌ Error de login:', err);
-errDiv.textContent = 'Error: ' + (err.message || 'Desconocido');
+errDiv.textContent = err.message || '⚠️ No se pudo iniciar sesión. Intente nuevamente.';
 } finally {
 btn.disabled = false;
 btn.textContent = 'Iniciar Sesión';
 }
 }
 
-// ✅ initUser: propaga el error real al usuario
+// ✅ initUser con bienvenida amigable
 async function initUser(user) {
 try {
 currentUser = user;
-console.log('🔄 initUser para:', user.email);
 
 let perfil = null;
 try {
@@ -952,17 +967,16 @@ const { data, error } = await supabase
 .eq('id', user.id)
 .maybeSingle();
 if (error) {
-console.error('❌ Error leyendo perfil:', error);
-throw new Error('Error leyendo perfil: ' + error.message + ' (' + (error.code || '') + ')');
+console.error('Error leyendo perfil:', error);
+throw new Error('⚠️ No se pudo cargar su perfil. Contacte al administrador.');
 }
 perfil = data;
 } catch (e) {
-console.error('❌ Excepción leyendo perfil:', e);
+console.error('Excepción leyendo perfil:', e);
 throw e;
 }
 
 if (!perfil) {
-console.warn('⚠️ No existe perfil, intentando crear...');
 const nuevo = {
 id: user.id,
 email: user.email,
@@ -973,19 +987,17 @@ avatar_url: null
 };
 const { data: np, error: ie } = await supabase.from('perfiles').insert([nuevo]).select().single();
 if (ie) {
-console.error('❌ Error creando perfil:', ie);
-throw new Error('No se pudo crear el perfil: ' + ie.message + '. Contacte al administrador.');
+console.error('Error creando perfil:', ie);
+throw new Error('⚠️ No se pudo crear su perfil. Contacte al administrador.');
 }
 perfil = np;
-console.log('✅ Perfil creado con rol:', perfil.rol);
 }
 
 if (perfil.activo === false) {
-throw new Error('Cuenta desactivada. Contacte al administrador.');
+throw new Error('🔒 Su cuenta está desactivada. Contacte al administrador.');
 }
 
 currentRol = String(perfil.rol || '').trim().toLowerCase();
-console.log('✅ Rol detectado:', currentRol);
 
 document.getElementById('login-screen').style.display = 'none';
 document.getElementById('login-screen').classList.add('hidden');
@@ -1020,9 +1032,13 @@ await loadAllData();
 refreshDashboard();
 renderAllTables();
 actualizarListaPersonal();
-toast('Bienvenido, ' + (perfil.nombre_completo || 'Usuario'), 'success');
+
+// ✅ Bienvenida amigable según la hora
+const hora = new Date().getHours();
+const saludo = hora < 12 ? 'Buenos días' : hora < 19 ? 'Buenas tardes' : 'Buenas noches';
+toast('👋 ' + saludo + ', ' + (perfil.nombre_completo || 'Usuario') + '. ¡Bienvenido al Sistema de Enfermería!', 'success');
 } catch (err) {
-console.error('❌ Error en initUser:', err);
+console.error('Error en initUser:', err);
 await supabase.auth.signOut();
 throw err;
 }
@@ -1032,6 +1048,7 @@ function confirmarCerrarSesion() { document.getElementById('confirm-logout-overl
 function cancelarCerrarSesion() { document.getElementById('confirm-logout-overlay').classList.remove('active'); }
 function ejecutarCerrarSesion() { cancelarCerrarSesion(); handleLogout(); }
 
+// ✅ Logout con mensaje de despedida amigable
 async function handleLogout() {
 window.__logoutInProgress = true;
 document.getElementById('app').classList.add('hidden');
@@ -1050,7 +1067,7 @@ Object.keys(localStorage).forEach(k => { if (k.startsWith('sb-') || k.includes('
 Object.keys(sessionStorage).forEach(k => { if (k.startsWith('sb-') || k.includes('supabase')) sessionStorage.removeItem(k); });
 } catch (e) {}
 setTimeout(() => { window.__logoutInProgress = false; }, 3000);
-toast('Sesión cerrada correctamente', 'success');
+toast('👋 Sesión cerrada. ¡Hasta pronto!', 'success');
 }
 
 async function subirAvatarUsuario(event) {
