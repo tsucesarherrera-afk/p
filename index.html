@@ -20,6 +20,12 @@
 .login-box p{color:#666;font-size:clamp(.8rem,3vw,.9rem);margin-bottom:20px;line-height:1.5}
 .login-input{width:100%;padding:14px 16px;border:2px solid #e3f2fd;border-radius:12px;font-size:16px;margin-bottom:14px;transition:all .3s;background:#fafafa;box-sizing:border-box}
 .login-input:focus{outline:none;border-color:#1565c0;background:white;box-shadow:0 0 0 4px rgba(21,101,192,0.1)}
+.login-password-wrap{position:relative;margin-bottom:14px}
+.login-password-wrap .login-input{padding-right:52px;margin-bottom:0}
+.password-toggle{position:absolute;top:50%;right:12px;transform:translateY(-50%);display:flex;align-items:center;justify-content:center;width:36px;height:36px;padding:0;border:0;border-radius:8px;background:transparent;color:#526477;cursor:pointer}
+.password-toggle:hover{background:#e3f2fd;color:#0d47a1}
+.password-toggle:focus-visible{outline:2px solid #1565c0;outline-offset:2px}
+.password-toggle svg{width:21px;height:21px}
 .login-btn{width:100%;padding:14px;background:linear-gradient(135deg,#0d47a1,#1565c0);color:white;border:none;border-radius:10px;font-size:1rem;font-weight:600;cursor:pointer;transition:all .2s}
 .login-btn:disabled{opacity:.6;cursor:not-allowed}
 .login-error{color:#c62828;font-size:.85rem;margin-top:12px;min-height:20px;white-space:pre-line}
@@ -178,9 +184,9 @@ canvas{max-width:100%!important;height:auto!important}
 .stat-card .value{font-size:1.4rem}
 .card-header{padding:12px 16px;font-size:.95rem}
 .card-body{padding:12px}
-.table-toolbar{flex-direction:column;align-items:stretch;padding:12px}
-.search-box{min-width:100%}
-.search-btn{width:100%}
+.table-toolbar{flex-direction:row;align-items:center;justify-content:flex-start;padding:12px}
+.search-box{width:220px;max-width:100%;min-width:0;flex:0 1 220px}
+.search-btn{width:auto}
 .table-wrapper{border-radius:0}
 .table-wrapper table{min-width:560px}
 th,td{padding:8px 10px;font-size:.8rem}
@@ -233,8 +239,13 @@ th,td{padding:6px 8px;font-size:.75rem}
 <img src="https://raw.githubusercontent.com/tsucesarherrera-afk/p/main/enfermer%C3%ADa/logo-login.png" alt="Logo" onerror="this.style.display='none'">
 <h1>Sistema de Control de Personal de Enfermería</h1>
 <p>Dirección Regional de Enfermería<br>Estado Apure, Venezuela</p>
-<input type="email" id="login-email" placeholder="Correo electrónico" class="login-input">
-<input type="password" id="login-password" placeholder="Contraseña" class="login-input">
+<input type="email" id="login-email" placeholder="Usuario" class="login-input">
+<div class="login-password-wrap">
+<input type="password" id="login-password" placeholder="Contraseña" class="login-input" autocomplete="current-password">
+<button type="button" class="password-toggle" id="toggle-login-password" onclick="toggleLoginPassword()" aria-label="Mostrar contraseña" aria-pressed="false" title="Mostrar contraseña">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+</button>
+</div>
 <button id="login-btn" onclick="handleLogin()" class="login-btn">Iniciar Sesión</button>
 <div class="login-error" id="login-error"></div>
 </div>
@@ -288,9 +299,9 @@ th,td{padding:6px 8px;font-size:.75rem}
 <div class="nav-item" onclick="showSection('cambios')" data-section="cambios"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>Cambio de Estatus</div>
 <div class="nav-item admin-only hidden" onclick="showSection('retirados')" data-section="retirados"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Personal Retirado</div>
 <div class="nav-item admin-only hidden" onclick="showSection('usuarios')" data-section="usuarios"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Usuarios</div>
-<div class="nav-item admin-only hidden" onclick="showSection('auditoria')" data-section="auditoria"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="15" x2="15" y2="15"/><line x1="9" y1="11" x2="15" y2="11"/></svg>Auditoría</div>
+<div class="nav-item superadmin-only hidden" onclick="showSection('auditoria')" data-section="auditoria"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="15" x2="15" y2="15"/><line x1="9" y1="11" x2="15" y2="11"/></svg>Auditoría</div>
 <div class="sidebar-divider"></div>
-<div class="nav-item" onclick="showSection('backup')" data-section="backup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Backup / Sincronización</div>
+<div class="nav-item admin-only hidden" onclick="showSection('backup')" data-section="backup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Backup / Sincronización</div>
 </nav>
 <div class="sidebar-footer-info"><div>Dirección Regional de Enfermería</div><div>Estado Apure, Venezuela</div><div style="margin-top:4px;opacity:0.7;">© 2026</div></div>
 </aside>
@@ -308,13 +319,13 @@ th,td{padding:6px 8px;font-size:.75rem}
 </section>
 
 <section id="sec-personal" class="section">
-<div class="top-bar"><h1>Personal de Enfermería</h1><div class="actions"><button class="btn btn-primary admin-only hidden" onclick="openModal('personal')">➕ Nuevo</button><button class="btn btn-secondary" onclick="exportExcel('personal')">📥 Exportar</button></div></div>
+<div class="top-bar"><h1>Personal de Enfermería</h1><div class="actions"><button class="btn btn-primary superadmin-only hidden" onclick="openModal('personal')">➕ Nuevo</button><button class="btn btn-secondary admin-only hidden" onclick="exportExcel('personal')">📥 Exportar</button></div></div>
 <div class="content-card">
 <div class="card-header">👥 Listado de Personal</div>
 <div class="card-body" style="padding:0">
 <div class="table-toolbar">
-<input type="text" class="search-box" id="search-personal" placeholder="🔍 Buscar personal..." oninput="filterTable('personal')">
-<button class="search-btn" onclick="filterTable('personal')">🔍 Buscar</button>
+<input type="text" class="search-box" id="search-personal" placeholder="🔍 Ingrese datos a buscar" oninput="filterTable('personal')">
+<button class="search-btn" onclick="filterTable('personal', true)">🔍 Buscar</button>
 </div>
 <div class="table-wrapper"><table><thead><tr><th>Apellidos y Nombres</th><th>Cédula</th><th>Cargo</th><th>Evaluación</th><th>Estatus</th><th>Municipio</th><th>Acciones</th></tr></thead><tbody id="tbody-personal"></tbody></table></div>
 </div>
@@ -322,13 +333,13 @@ th,td{padding:6px 8px;font-size:.75rem}
 </section>
 
 <section id="sec-postulados" class="section">
-<div class="top-bar"><h1>Punto de Cuenta (Postulados)</h1><div class="actions"><button class="btn btn-primary admin-only hidden" onclick="openModal('postulados')">➕ Nuevo</button><button class="btn btn-secondary" onclick="exportExcel('postulados')">📥 Exportar</button></div></div>
+<div class="top-bar"><h1>Punto de Cuenta (Postulados)</h1><div class="actions"><button class="btn btn-primary admin-only hidden" onclick="openModal('postulados')">➕ Nuevo</button><button class="btn btn-secondary admin-only hidden" onclick="exportExcel('postulados')">📥 Exportar</button></div></div>
 <div class="content-card">
 <div class="card-header">📄 Postulados</div>
 <div class="card-body" style="padding:0">
 <div class="table-toolbar">
-<input type="text" class="search-box" id="search-postulados" placeholder="🔍 Buscar postulado..." oninput="filterTable('postulados')">
-<button class="search-btn" onclick="filterTable('postulados')">🔍 Buscar</button>
+<input type="text" class="search-box" id="search-postulados" placeholder="🔍 Ingrese datos a buscar" oninput="filterTable('postulados')">
+<button class="search-btn" onclick="filterTable('postulados', true)">🔍 Buscar</button>
 </div>
 <div class="table-wrapper"><table><thead><tr><th>Nombre</th><th>Cédula</th><th>Género</th><th>Cargo</th><th>Documentos</th><th>Estatus</th><th>Acciones</th></tr></thead><tbody id="tbody-postulados"></tbody></table></div>
 </div>
@@ -336,13 +347,13 @@ th,td{padding:6px 8px;font-size:.75rem}
 </section>
 
 <section id="sec-cambios" class="section">
-<div class="top-bar"><h1>Cambio de Estatus</h1><div class="actions"><button class="btn btn-primary admin-only hidden" onclick="openModal('cambios')">➕ Nuevo</button><button class="btn btn-secondary" onclick="exportExcel('cambios')">📥 Exportar</button></div></div>
+<div class="top-bar"><h1>Cambio de Estatus</h1><div class="actions"><button class="btn btn-primary admin-only hidden" onclick="openModal('cambios')">➕ Nuevo</button><button class="btn btn-secondary admin-only hidden" onclick="exportExcel('cambios')">📥 Exportar</button></div></div>
 <div class="content-card">
 <div class="card-header">🔄 Cambios de Estatus</div>
 <div class="card-body" style="padding:0">
 <div class="table-toolbar">
-<input type="text" class="search-box" id="search-cambios" placeholder="🔍 Buscar..." oninput="filterTable('cambios')">
-<button class="search-btn" onclick="filterTable('cambios')">🔍 Buscar</button>
+<input type="text" class="search-box" id="search-cambios" placeholder="🔍 Ingrese datos a buscar" oninput="filterTable('cambios')">
+<button class="search-btn" onclick="filterTable('cambios', true)">🔍 Buscar</button>
 </div>
 <div class="table-wrapper"><table><thead><tr><th>Nombre</th><th>Cédula</th><th>Tipo</th><th>Fecha</th><th>Detalle</th><th>Acciones</th></tr></thead><tbody id="tbody-cambios"></tbody></table></div>
 </div>
@@ -350,13 +361,13 @@ th,td{padding:6px 8px;font-size:.75rem}
 </section>
 
 <section id="sec-retirados" class="section">
-<div class="top-bar"><h1>👤 Personal Retirado</h1><div class="actions"><button class="btn btn-secondary" onclick="exportExcel('retirados')">📥 Exportar</button></div></div>
+<div class="top-bar"><h1>👤 Personal Retirado</h1><div class="actions"><button class="btn btn-secondary admin-only hidden" onclick="exportExcel('retirados')">📥 Exportar</button></div></div>
 <div class="content-card">
 <div class="card-header">📋 Listado de Personal Retirado (Renuncias / Jubilaciones)</div>
 <div class="card-body" style="padding:0">
 <div class="table-toolbar">
-<input type="text" class="search-box" id="search-retirados" placeholder="🔍 Buscar retirado..." oninput="filterTable('retirados')">
-<button class="search-btn" onclick="filterTable('retirados')">🔍 Buscar</button>
+<input type="text" class="search-box" id="search-retirados" placeholder="🔍 Ingrese datos a buscar" oninput="filterTable('retirados')">
+<button class="search-btn" onclick="filterTable('retirados', true)">🔍 Buscar</button>
 </div>
 <div class="table-wrapper"><table><thead><tr><th>Nombre</th><th>Cédula</th><th>Cargo</th><th>Motivo</th><th>Fecha Retiro</th><th>Municipio</th><th id="th-acciones-retirados">Acciones</th></tr></thead><tbody id="tbody-retirados"></tbody></table></div>
 </div>
@@ -369,7 +380,7 @@ th,td{padding:6px 8px;font-size:.75rem}
 <div class="card-header">⚙️ Usuarios del Sistema</div>
 <div class="card-body" style="padding:0">
 <div class="table-toolbar">
-<input type="text" class="search-box" id="search-usuarios" placeholder="🔍 Buscar usuario..." oninput="filterTable('usuarios')">
+<input type="text" class="search-box" id="search-usuarios" placeholder="🔍 Ingrese datos a buscar" oninput="filterTable('usuarios')">
 <button class="search-btn" onclick="filterTable('usuarios')">🔍 Buscar</button>
 </div>
 <div class="table-wrapper"><table><thead><tr><th>Nombre</th><th>Email</th><th>Rol</th><th>Estado</th><th>Acciones</th></tr></thead><tbody id="tbody-usuarios"></tbody></table></div>
@@ -383,7 +394,7 @@ th,td{padding:6px 8px;font-size:.75rem}
 <div class="card-header">📜 Registro de Auditoría</div>
 <div class="card-body" style="padding:0">
 <div class="table-toolbar">
-<input type="text" class="search-box" id="search-auditoria" placeholder="🔍 Buscar en auditoría..." oninput="filterTable('auditoria')">
+<input type="text" class="search-box" id="search-auditoria" placeholder="🔍 Ingrese datos a buscar" oninput="filterTable('auditoria')">
 <button class="search-btn" onclick="filterTable('auditoria')">🔍 Buscar</button>
 </div>
 <div class="table-wrapper"><table><thead id="thead-auditoria"></thead><tbody id="tbody-auditoria"></tbody></table></div>
@@ -391,7 +402,7 @@ th,td{padding:6px 8px;font-size:.75rem}
 </div>
 </section>
 
-<section id="sec-backup" class="section">
+<section id="sec-backup" class="section admin-only hidden">
 <div class="top-bar"><h1>Backup y Sincronización</h1></div>
 <div class="content-card">
 <div class="card-header">💾 Gestión de Respaldos</div>
@@ -586,7 +597,6 @@ th,td{padding:6px 8px;font-size:.75rem}
 <div class="form-group"><label>Correo Electrónico *</label><input type="email" id="u-email"></div>
 <div class="form-group" id="u-password-group"><label id="u-password-label">Contraseña *</label><input type="password" id="u-password" placeholder="Mínimo 6 caracteres"></div>
 <div class="form-group"><label>Rol *</label><select id="u-rol"><option value="admin">ADMINISTRADOR</option><option value="usuario">USUARIO</option></select></div>
-<div class="form-group" id="u-rol-aviso" style="display:none;color:#c62828;font-size:.8rem;">Solo Super Admin puede asignar Super Administrador.</div>
 <div class="form-group"><label>Estado</label><select id="u-activo"><option value="true">ACTIVO</option><option value="false">INACTIVO</option></select></div>
 </div>
 </div>
@@ -917,6 +927,28 @@ if (session) await initUser(session.user);
 } catch (err) { console.error('Error verificando sesión:', err); }
 }
 
+function setLoginPasswordVisibility(visible) {
+const input = document.getElementById('login-password');
+const button = document.getElementById('toggle-login-password');
+if (!input || !button) return;
+input.type = visible ? 'text' : 'password';
+button.setAttribute('aria-label', visible ? 'Ocultar contraseña' : 'Mostrar contraseña');
+button.setAttribute('aria-pressed', String(visible));
+button.title = visible ? 'Ocultar contraseña' : 'Mostrar contraseña';
+const icon = button.querySelector('svg');
+if (icon) {
+icon.innerHTML = visible
+? '<path d="M3 3l18 18"/><path d="M10.58 10.58a2 2 0 0 0 2.84 2.84"/><path d="M9.88 5.09A10.9 10.9 0 0 1 12 4.9c5.4 0 9 7.1 9 7.1a13.6 13.6 0 0 1-3.17 3.9"/><path d="M6.61 6.61C3.9 8.3 2 12 2 12s3.6 7.1 10 7.1a10.9 10.9 0 0 0 5.39-1.42"/>'
+: '<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>';
+}
+}
+
+function toggleLoginPassword() {
+const input = document.getElementById('login-password');
+if (!input) return;
+setLoginPasswordVisibility(input.type === 'password');
+}
+
 // ✅ LOGIN con mensajes amigables y botón siempre liberado
 async function handleLogin() {
 const email = document.getElementById('login-email').value.trim();
@@ -1055,7 +1087,9 @@ document.getElementById('app').classList.add('hidden');
 document.getElementById('login-screen').classList.remove('hidden');
 document.getElementById('login-screen').style.display = '';
 document.getElementById('login-email').value = '';
-document.getElementById('login-password').value = '';
+const passwordInput = document.getElementById('login-password');
+passwordInput.value = '';
+setLoginPasswordVisibility(false);
 document.getElementById('login-error').textContent = '';
 document.getElementById('login-btn').disabled = false;
 document.getElementById('login-btn').textContent = 'Iniciar Sesión';
@@ -1118,7 +1152,12 @@ if (d && p && !p.contains(e.target) && !d.contains(e.target)) d.classList.remove
 });
 
 function showSection(name) {
-if (name === 'auditoria' && !esAdminOSuper()) { toast('⛔ No tiene permisos', 'error'); return; }
+if (name === 'auditoria' && !esSuperAdmin()) { toast('⛔ No tiene permisos', 'error'); return; }
+if (name === 'backup' && !esAdminOSuper()) { toast('⛔ No tiene permisos', 'error'); return; }
+if (['personal', 'postulados', 'cambios', 'retirados'].includes(name)) {
+const searchInput = document.getElementById('search-' + name);
+if (searchInput) searchInput.value = '';
+}
 document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
 document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
 const sec = document.getElementById('sec-' + name);
@@ -1126,8 +1165,12 @@ const nav = document.querySelector(`[data-section="${name}"]`);
 if (sec) sec.classList.add('active');
 if (nav) nav.classList.add('active');
 if (window.innerWidth <= 992) {
-document.getElementById('sidebar').classList.remove('open');
-document.getElementById('sidebar-overlay').classList.remove('active');
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('sidebar-overlay');
+const menuToggle = document.getElementById('menu-toggle');
+if (sidebar) sidebar.classList.remove('open');
+if (overlay) overlay.classList.remove('active');
+if (menuToggle) menuToggle.classList.remove('active');
 }
 if (name === 'dashboard') refreshDashboard();
 else if (name === 'personal') renderTable('personal');
@@ -1190,13 +1233,30 @@ if (inp) inp.value = edad;
 }
 
 function openModal(table, id = null) {
-editingId = id; editingTable = table;
+if (table === 'cambios' && !esAdminOSuper()) {
+toast('⛔ No tiene permisos', 'error');
+return;
+}
+
+if (table === 'personal' && !id && !esSuperAdmin()) {
+toast('⛔ No tiene permisos', 'error');
+return;
+}
+
+if (table === 'usuarios' && id) {
+const usuario = dataCache.usuarios.find(x => x.id === id);
+if (!usuario || (!esSuperAdmin() && String(usuario.rol || '').toLowerCase() === 'superadmin')) {
+toast('Usuario no encontrado', 'error');
+return;
+}
+}
 
 if (table === 'retirados' && !esSuperAdmin()) {
 toast('⛔ No tiene permiso para editar retirados', 'error');
 return;
 }
 
+editingId = id; editingTable = table;
 document.getElementById('modal-' + table).classList.add('active');
 const titleEl = document.getElementById('title-' + table);
 if (titleEl) titleEl.textContent = id ? 'Editar' : 'Nuevo';
@@ -1213,15 +1273,12 @@ passInput.placeholder = id ? 'Dejar vacío para mantener la actual' : 'Mínimo 6
 }
 
 const rolSelect = document.getElementById('u-rol');
-const rolAviso = document.getElementById('u-rol-aviso');
 if (rolSelect) {
 rolSelect.innerHTML = '';
 if (esSuperAdmin()) {
 rolSelect.innerHTML = '<option value="admin">ADMINISTRADOR</option><option value="usuario">USUARIO</option><option value="superadmin">⭐ SUPER ADMIN</option>';
-if (rolAviso) rolAviso.style.display = 'none';
 } else {
 rolSelect.innerHTML = '<option value="admin">ADMINISTRADOR</option><option value="usuario">USUARIO</option>';
-if (rolAviso) rolAviso.style.display = 'block';
 }
 rolSelect.disabled = (id && id === currentUser?.id);
 }
@@ -1382,6 +1439,7 @@ return msg.includes('duplicate key') || msg.includes('unique constraint') || msg
 }
 
 function pasarAPersonal(id) {
+if (!esSuperAdmin()) { toast('⛔ No tiene permisos', 'error'); return; }
 const p = dataCache.postulados.find(x => x.id === id);
 if (!p) { toast('Postulado no encontrado', 'error'); return; }
 if (dataCache.personal.some(x => mayus(x.cedula) === mayus(p.cedula))) {
@@ -1421,6 +1479,10 @@ toast('Complete los campos faltantes (Municipio, Parroquia) y guarde', 'success'
 }
 
 async function savePersonal() {
+if (!editingId && !esSuperAdmin()) {
+toast('⛔ No tiene permisos', 'error');
+return;
+}
 const cedula = mayus(document.getElementById('p-cedula').value);
 if (!cedula) { toast('La cédula es obligatoria', 'error'); return; }
 if (!editingId) {
@@ -1644,6 +1706,7 @@ showLoading(false);
 }
 
 async function saveCambio() {
+if (!esAdminOSuper()) { toast('⛔ No tiene permisos', 'error'); return; }
 const cedula = mayus(document.getElementById('c-cedula').value);
 const personal = dataCache.personal.find(p => p.cedula === cedula);
 const data = {
@@ -1675,6 +1738,7 @@ showLoading(false); closeModal('cambios'); renderTable('cambios');
 }
 
 async function deleteCambio(id) {
+if (!esAdminOSuper()) { toast('⛔ No tiene permisos', 'error'); return; }
 if (!confirm('¿Eliminar este registro?')) return;
 showLoading(true);
 const { error } = await supabase.from('cambios_estatus').delete().eq('id', id);
@@ -1685,7 +1749,7 @@ renderTable('cambios'); toast('Eliminado', 'success');
 }
 
 async function saveRetirado() {
-if (!esSuperAdmin()) { toast('⛔ Solo el Super Administrador puede modificar retirados', 'error'); return; }
+if (!esSuperAdmin()) { toast('⛔ No tiene permisos', 'error'); return; }
 const cedula = mayus(document.getElementById('r-cedula').value);
 if (!cedula) { toast('La cédula es obligatoria', 'error'); return; }
 const data = {
@@ -1723,7 +1787,7 @@ showLoading(false); closeModal('retirados'); renderTable('retirados');
 }
 
 async function deleteRetirado(id) {
-if (!esSuperAdmin()) { toast('⛔ Solo el Super Administrador puede eliminar retirados', 'error'); return; }
+if (!esSuperAdmin()) { toast('⛔ No tiene permisos', 'error'); return; }
 const item = dataCache.retirados.find(x => x.id === id);
 const nombre = item ? item.apellidos_nombres : '';
 if (!confirm(`¿Eliminar permanentemente el registro de "${nombre}"?\n\nEsta acción no se puede deshacer.`)) return;
@@ -1736,6 +1800,63 @@ renderTable('retirados'); refreshDashboard();
 toast('Retirado eliminado', 'success');
 } catch (err) { toast('Error: ' + err.message, 'error'); }
 showLoading(false);
+}
+
+async function restaurarRetirado(id) {
+if (!esSuperAdmin()) { toast('⛔ No tiene permisos', 'error'); return; }
+const retirado = dataCache.retirados.find(x => x.id === id);
+if (!retirado) { toast('No se encontró el registro retirado', 'error'); return; }
+const cedula = mayus(retirado.cedula);
+if (dataCache.personal.some(x => mayus(x.cedula) === cedula)) {
+toast('Esta cédula ya existe en Personal de Enfermería', 'error');
+return;
+}
+if (!confirm(`¿Restaurar a "${retirado.apellidos_nombres}" como personal activo?`)) return;
+
+const personal = {
+apellidos_nombres: retirado.apellidos_nombres,
+genero: retirado.genero || null,
+fecha_nacimiento: retirado.fecha_nacimiento || null,
+edad: retirado.edad || null,
+cedula: cedula,
+telefono: retirado.telefono || null,
+correo: retirado.correo || null,
+cargo_nominal: retirado.cargo_nominal || null,
+asic: null,
+municipio: retirado.municipio || null,
+parroquia: retirado.parroquia || null,
+ubicacion_administrativa: retirado.ubicacion_administrativa || null,
+ubicacion_fisica: retirado.ubicacion_fisica || null,
+estatus: 'ACTIVO',
+causa_inactividad: null,
+formacion_estudiando: retirado.formacion_estudiando || null,
+evaluado: 'NO',
+periodo_semestre: null,
+periodo_anio: null,
+observaciones: retirado.observaciones || null
+};
+
+showLoading(true);
+try {
+const { data, error: insertError } = await supabase.from('personal_enfermeria').insert([personal]).select().single();
+if (insertError) throw insertError;
+dataCache.personal.unshift(data);
+
+const { error: deleteError } = await supabase.from('personal_retirado').delete().eq('id', id);
+if (deleteError) {
+renderTable('personal'); renderTable('retirados'); refreshDashboard(); actualizarListaPersonal();
+toast('Se restauró a Personal activo, pero no se pudo quitar de Personal Retirado: ' + deleteError.message, 'error');
+return;
+}
+
+dataCache.retirados = dataCache.retirados.filter(x => x.id !== id);
+renderTable('personal'); renderTable('retirados'); refreshDashboard(); actualizarListaPersonal();
+toast('✅ Personal restaurado como activo', 'success');
+} catch (err) {
+toast('Error al restaurar personal: ' + err.message, 'error');
+} finally {
+showLoading(false);
+}
 }
 
 async function saveUsuario() {
@@ -1760,7 +1881,7 @@ if (editingId) {
 const target = dataCache.usuarios.find(u => u.id === editingId);
 if (!target) { toast('Usuario no encontrado', 'error'); return; }
 if (target.rol === 'superadmin' && !esSuperAdmin()) {
-toast('⛔ Solo un Super Admin puede modificar a otro Super Admin', 'error'); return;
+toast('⛔ No tiene permisos', 'error'); return;
 }
 if (editingId === currentUser?.id && rol !== target.rol) {
 toast('⛔ No puede cambiar su propio rol', 'error'); return;
@@ -1768,7 +1889,7 @@ toast('⛔ No puede cambiar su propio rol', 'error'); return;
 }
 
 if (!editingId && rol === 'superadmin' && !esSuperAdmin()) {
-toast('⛔ Solo un Super Admin puede crear otro Super Admin', 'error'); return;
+toast('⛔ No tiene permisos', 'error'); return;
 }
 
 showLoading(true);
@@ -1800,8 +1921,9 @@ async function deleteUsuario(userId) {
 if (!esAdminOSuper()) { toast('⛔ No tiene permisos', 'error'); return; }
 if (userId === currentUser?.id) { toast('⛔ No puede eliminarse a sí mismo', 'error'); return; }
 const target = dataCache.usuarios.find(u => u.id === userId);
-if (target?.rol === 'superadmin' && !esSuperAdmin()) {
-toast('⛔ Solo un Super Admin puede eliminar a otro Super Admin', 'error'); return;
+if (!target) { toast('Usuario no encontrado', 'error'); return; }
+if (target.rol === 'superadmin' && !esSuperAdmin()) {
+toast('⛔ No tiene permisos', 'error'); return;
 }
 if (!confirm('¿Eliminar este usuario permanentemente?')) return;
 showLoading(true);
@@ -1817,8 +1939,9 @@ async function toggleUsuarioActivo(userId, activo) {
 if (!esAdminOSuper()) { toast('⛔ No tiene permisos', 'error'); return; }
 if (userId === currentUser?.id) { toast('⛔ No puede bloquearse a sí mismo', 'error'); return; }
 const target = dataCache.usuarios.find(u => u.id === userId);
-if (target?.rol === 'superadmin' && !esSuperAdmin()) {
-toast('⛔ Solo un Super Admin puede bloquear a otro Super Admin', 'error'); return;
+if (!target) { toast('Usuario no encontrado', 'error'); return; }
+if (target.rol === 'superadmin' && !esSuperAdmin()) {
+toast('⛔ No tiene permisos', 'error'); return;
 }
 showLoading(true);
 const { error } = await supabase.from('perfiles').update({ activo: !activo }).eq('id', userId);
@@ -1840,16 +1963,22 @@ const tablas = [
 ];
 for (const x of tablas) {
 try {
-const { data, error } = await supabase.from(x.t).select('*').order(x.o, { ascending: true });
+let query = supabase.from(x.t).select('*');
+if (x.k === 'usuarios' && !esSuperAdmin()) query = query.neq('rol', 'superadmin');
+const { data, error } = await query.order(x.o, { ascending: true });
 if (error) { console.warn('Error cargando', x.t, error.message); continue; }
-if (data) dataCache[x.k] = data;
+if (data) {
+dataCache[x.k] = x.k === 'usuarios' && !esSuperAdmin()
+? data.filter(u => String(u.rol || '').toLowerCase() !== 'superadmin')
+: data;
+}
 } catch (e) { console.warn('Excepción cargando', x.t, e); }
 }
 showLoading(false);
 }
 
 async function loadAuditoria() {
-if (!esAdminOSuper()) { toast('⛔ No tiene permisos', 'error'); return; }
+if (!esSuperAdmin()) { toast('⛔ No tiene permisos', 'error'); return; }
 showLoading(true);
 try {
 const { data, error } = await supabase.from('auditoria').select('*').limit(500);
@@ -1922,16 +2051,32 @@ ${fila('Observaciones', p.observaciones)}
 document.getElementById('modal-detalle-personal').classList.add('active');
 }
 
-function renderTable(table) {
+function renderTable(table, allowShowAll = false) {
 const tbody = document.getElementById('tbody-' + table);
 if (!tbody) return;
 let data = [...(dataCache[table] || [])];
-const search = (document.getElementById('search-' + table)?.value || '').toLowerCase();
+if (table === 'usuarios' && !esSuperAdmin()) {
+data = data.filter(r => String(r.rol || '').toLowerCase() !== 'superadmin');
+}
+const rawSearch = document.getElementById('search-' + table)?.value || '';
+const search = rawSearch.trim().toLowerCase();
+const showAll = allowShowAll && rawSearch.length > 0 && !search;
 if (search) data = data.filter(r => JSON.stringify(r).toLowerCase().includes(search));
 
 const adminOSuper = esAdminOSuper();
 const superAdmin = esSuperAdmin();
 let html = '';
+
+if (table === 'retirados') {
+const thAcciones = document.getElementById('th-acciones-retirados');
+if (thAcciones) thAcciones.style.display = superAdmin ? '' : 'none';
+}
+
+if (['personal', 'postulados', 'cambios', 'retirados'].includes(table) && !search && !showAll) {
+const columnCount = table === 'cambios' ? 6 : table === 'retirados' && !superAdmin ? 6 : 7;
+tbody.innerHTML = `<tr><td colspan="${columnCount}" style="text-align:center;padding:40px 20px;color:#7f8c8d;">Ingrese al menos un dato en el campo de búsqueda para mostrar registros.</td></tr>`;
+return;
+}
 
 if (table === 'personal') {
 data.forEach(r => {
@@ -1948,11 +2093,11 @@ html += `<tr>
 <td><span class="badge ${r.estatus === 'ACTIVO' ? 'badge-success' : 'badge-danger'}">${resaltar(r.estatus, search)}</span></td>
 <td>${resaltar(r.municipio, search)}</td>
 <td>${adminOSuper ? `
-<button class="btn btn-secondary" style="padding:4px 8px;font-size:.75rem" onclick="verDetallePersonal('${r.id}')" title="Ver ficha">👁️</button>
-<button class="btn btn-secondary" style="padding:4px 8px;font-size:.75rem" onclick="openModal('personal','${r.id}')">✏️</button>
-<button class="btn btn-danger" style="padding:4px 8px;font-size:.75rem" onclick="deletePersonal('${r.id}')">🗑️</button>
-<button class="btn btn-danger" style="padding:4px 8px;font-size:.75rem" onclick="retirarPersonal('${r.id}','${r.cedula}')">🚫</button>
-` : `<button class="btn btn-secondary" style="padding:4px 8px;font-size:.75rem" onclick="verDetallePersonal('${r.id}')" title="Ver ficha">👁️</button>`}</td>
+<button class="btn btn-secondary" style="padding:4px 8px;font-size:.75rem" onclick="verDetallePersonal('${r.id}')" title="Ver ficha" aria-label="Ver ficha">👁️</button>
+<button class="btn btn-secondary" style="padding:4px 8px;font-size:.75rem" onclick="openModal('personal','${r.id}')" title="Editar" aria-label="Editar">✏️</button>
+<button class="btn btn-danger" style="padding:4px 8px;font-size:.75rem" onclick="deletePersonal('${r.id}')" title="Eliminar" aria-label="Eliminar">🗑️</button>
+<button class="btn btn-danger" style="padding:4px 8px;font-size:.75rem" onclick="retirarPersonal('${r.id}','${r.cedula}')" title="Retirar personal" aria-label="Retirar personal">🚫</button>
+` : `<button class="btn btn-secondary" style="padding:4px 8px;font-size:.75rem" onclick="verDetallePersonal('${r.id}')" title="Ver ficha" aria-label="Ver ficha">👁️</button>`}</td>
 </tr>`;
 });
 } else if (table === 'postulados') {
@@ -1972,7 +2117,7 @@ html += `<tr>
 <td>${adminOSuper ? `
 <button class="btn btn-secondary" style="padding:4px 8px;font-size:.75rem" onclick="openModal('postulados','${r.id}')" title="Editar">✏️</button>
 ${r.estatus_postulacion === 'ESPERANDO APROBACIÓN' ? `<button class="btn btn-success" style="padding:4px 8px;font-size:.75rem" onclick="aprobarPostulado('${r.id}')" title="Aprobar">✅</button>` : ''}
-${puedePasar ? `<button class="btn btn-primary" style="padding:4px 8px;font-size:.75rem" onclick="pasarAPersonal('${r.id}')" title="Guardar en Personal de Enfermería">👤→💼</button>` : ''}
+${puedePasar && superAdmin ? `<button class="btn btn-primary" style="padding:4px 8px;font-size:.75rem" onclick="pasarAPersonal('${r.id}')" title="Guardar en Personal de Enfermería" aria-label="Guardar en Personal de Enfermería">👤→💼</button>` : ''}
 ${r.estatus_postulacion !== 'APROBADO' && r.estatus_postulacion !== 'CONTRATADO' ? `<button class="btn btn-danger" style="padding:4px 8px;font-size:.75rem" onclick="deletePostulado('${r.id}')" title="Eliminar">🗑️</button>` : ''}
 ` : ''}</td>
 </tr>`;
@@ -1992,8 +2137,6 @@ html += `<tr>
 </tr>`;
 });
 } else if (table === 'retirados') {
-const thAcciones = document.getElementById('th-acciones-retirados');
-if (thAcciones) thAcciones.style.display = superAdmin ? '' : 'none';
 data.forEach(r => {
 html += `<tr>
 <td>${resaltar(r.apellidos_nombres, search)}</td>
@@ -2003,8 +2146,9 @@ html += `<tr>
 <td>${r.fecha_retiro || '-'}</td>
 <td>${resaltar(r.municipio, search)}</td>
 <td style="display:${superAdmin ? '' : 'none'};">${superAdmin ? `
-<button class="btn btn-secondary" style="padding:4px 8px;font-size:.75rem" onclick="openModal('retirados','${r.id}')">✏️</button>
-<button class="btn btn-danger" style="padding:4px 8px;font-size:.75rem" onclick="deleteRetirado('${r.id}')">🗑️</button>
+<button class="btn btn-success" style="padding:4px 8px;font-size:.75rem" onclick="restaurarRetirado('${r.id}')" title="Restaurar a personal activo" aria-label="Restaurar a personal activo">↩️</button>
+<button class="btn btn-secondary" style="padding:4px 8px;font-size:.75rem" onclick="openModal('retirados','${r.id}')" title="Editar" aria-label="Editar">✏️</button>
+<button class="btn btn-danger" style="padding:4px 8px;font-size:.75rem" onclick="deleteRetirado('${r.id}')" title="Eliminar" aria-label="Eliminar">🗑️</button>
 ` : ''}</td>
 </tr>`;
 });
@@ -2072,7 +2216,7 @@ tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:40px;co
 }
 }
 
-function filterTable(table) { renderTable(table); }
+function filterTable(table, allowShowAll = false) { renderTable(table, allowShowAll); }
 
 async function refreshDashboard() {
 const p = dataCache.personal;
@@ -2154,6 +2298,7 @@ options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { po
 }
 
 function exportExcel(table) {
+if (!esAdminOSuper()) { toast('⛔ No tiene permisos', 'error'); return; }
 let data, headers, filename;
 if (table === 'personal') {
 data = dataCache.personal;
@@ -2177,6 +2322,7 @@ toast('Excel exportado', 'success');
 }
 
 function createBackup() {
+if (!esAdminOSuper()) { toast('⛔ No tiene permisos', 'error'); return; }
 const password = prompt('Contraseña para encriptar el backup:');
 if (!password) return;
 const data = JSON.stringify(dataCache);
@@ -2190,6 +2336,7 @@ toast('Backup descargado', 'success');
 }
 
 function restoreBackup() {
+if (!esAdminOSuper()) { toast('⛔ No tiene permisos', 'error'); return; }
 const fileInput = document.getElementById('restore-file');
 const file = fileInput.files[0];
 if (!file) { toast('Seleccione un archivo', 'error'); return; }
